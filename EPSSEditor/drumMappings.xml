@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<EPSSData id="GMDrum" description="General Midi PERCUSSION Key Map" link="http://computermusicresource.com/GM.Percussion.KeyMap.html">
+
+    <Mapping note="35" key="B0" description="Acoustic Bass Drum" />
+    <Mapping note="36" key="C1" description="Bass Drum 1" />
+    <Mapping note="37" key="C#1" description="Side Stick" />
+    <Mapping note="38" key="D1" description="Acoustic Snare" />
+    <Mapping note="39" key="Eb1" description="Hand Clap" />
+    <Mapping note="40" key="E1" description="Electric Snare" />
+    <Mapping note="41" key="F1" description="Low Floor Tom" />
+    <Mapping note="42" key="F#1" description="Closed Hi Hat" />
+    <Mapping note="43" key="G1" description="High Floor Tom" />
+    <Mapping note="44" key="Ab1" description="Pedal Hi - Hat" />
+    <Mapping note="45" key="A1" description="Low Tom" />
+    <Mapping note="46" key="Bb1" description="Open Hi - Hat" />
+    <Mapping note="47" key="B1" description="Low - Mid Tom" />
+    <Mapping note="48" key="C2" description="Hi Mid Tom" />
+    <Mapping note="49" key="C#2" description="Crash Cymbal 1" />
+    <Mapping note="50" key="D2" description="High Tom" />
+    <Mapping note="51" key="Eb2" description="Ride Cymbal 1" />
+    <Mapping note="52" key="E2" description="Chinese Cymbal" />
+    <Mapping note="53" key="F2" description="Ride Bell" />
+    <Mapping note="54" key="F#2" description="Tambourine" />
+    <Mapping note="55" key="G2" description="Splash Cymbal" />
+    <Mapping note="56" key="Ab2" description="Cowbell" />
+    <Mapping note="57" key="A2" description="Crash Cymbal 2" />
+    <Mapping note="58" key="Bb2" description="Vibraslap" />
+    <Mapping note="59" key="B2" description="Ride Cymbal 2" />
+    <Mapping note="60" key="C3" description="Hi Bongo" />
+    <Mapping note="61" key="C#3" description="Low Bongo" />
+    <Mapping note="62" key="D3" description="Mute Hi Conga" />
+    <Mapping note="63" key="Eb3" description="Open Hi Conga" />
+    <Mapping note="64" key="E3" description="Low Conga" />
+    <Mapping note="65" key="F3" description="High Timbale" />
+    <Mapping note="66" key="F#3" description="Low Timbale" />
+    <Mapping note="67" key="G3" description="High Agogo" />
+    <Mapping note="68" key="Ab3" description="Low Agogo" />
+    <Mapping note="69" key="A3" description="Cabasa" />
+    <Mapping note="70" key="Bb3" description="Maracas" />
+    <Mapping note="71" key="B3" description="Short Whistle" />
+    <Mapping note="72" key="C4" description="Long Whistle" />
+    <Mapping note="73" key="C#4" description="Short Guiro" />
+    <Mapping note="74" key="D4" description="Long Guiro" />
+    <Mapping note="75" key="Eb4" description="Claves" />
+    <Mapping note="76" key="E4" description="Hi Wood Block" />
+    <Mapping note="77" key="F4" description="Low Wood Block" />
+    <Mapping note="78" key="F#4" description="Mute Cuica" />
+    <Mapping note="79" key="G4" description="Open Cuica" />
+    <Mapping note="80" key="Ab4" description="Mute Triangle" />
+    <Mapping note="81" key="A4" description="Open Triangle" />
+
+</EPSSData>
