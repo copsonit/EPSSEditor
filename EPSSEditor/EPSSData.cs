@@ -30,6 +30,7 @@ namespace EPSSEditor
     public class Mapping
     {
         public string note;
+        public byte midiNote;
         public string key;
         public string description;
     }
@@ -71,6 +72,7 @@ namespace EPSSEditor
                         {
                             m = new Mapping();
                             m.note = a.Value;
+                            m.midiNote = Convert.ToByte(m.note);
                         }
                         else if (a.Name == "key")
                         {
