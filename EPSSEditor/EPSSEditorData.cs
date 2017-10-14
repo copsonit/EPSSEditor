@@ -51,16 +51,6 @@ namespace EPSSEditor
         }
 
 
-
-        public void clearAllSounds()
-        {
-            sounds = new List<Sound>();
-        }
-
-
-
-
-
         public Sound getSoundFromSoundId(Guid id)
         {
              foreach (Sound snd in sounds)
@@ -84,6 +74,24 @@ namespace EPSSEditor
             }
             return -1;
         }
+
+
+        public List<SpiSound> getSpiSoundsFromSound(ref Sound sound)
+        {
+            List<SpiSound> sounds = new List<SpiSound>();
+            if (sound != null)
+            {
+                foreach (SpiSound spiSnd in spiSounds)
+                {
+                    if (sound.id() == spiSnd.soundId)
+                    {
+                        sounds.Add(spiSnd);
+                    }
+                }
+            }
+            return sounds;
+        }
+        
 
         private bool[] getOccupiedMidiChannels()
         {
@@ -140,8 +148,6 @@ namespace EPSSEditor
 
         public List<SpiSound> getSortedSpiSounds()
         {
-//            List<SpiSound> soundsOut = new List<SpiSound>();
-
             int i = 0;
             foreach(SpiSound snd in spiSounds)
             {
@@ -149,9 +155,5 @@ namespace EPSSEditor
             }
             return spiSounds;
         }
-
- 
-
-
     }
 }
