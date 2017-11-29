@@ -12,5 +12,9 @@ namespace EPSSEditor
         public const int SampleFreq12k = 12517;
         public const int SampleFreq25k = 25033;
         public const int SampleFreq50k = 50066;
+
+        public const int SampleBits = 8;
+
+        public const int SampleChannels = 1;
     }
 }

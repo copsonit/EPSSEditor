@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using System.IO;
 
 namespace EPSSEditor
 {
@@ -24,18 +25,41 @@ namespace EPSSEditor
         public string soundFileName;
         public string spiFileName;
 
+        public string spiName;
+        public string spiDescription;
+
+        public int previewSelected;
+
+        public bool omni;
+
+        private string _fileNameForListenConvertedSound = null;
       
         public EPSSEditorData() {  }
 
 
-        public void initialize()
+        public void initialize(string drumSettingsFileName)
         {
             sounds = new List<Sound>();
             spiSounds = new List<SpiSound>();
             drumMappings = new DrumSettingsHelper();
 
-            drumMappings.initialize();
+            drumMappings.initialize(drumSettingsFileName);
 
+            soundFileName = null;
+            spiFileName = null;
+
+            spiName = "EPSSEDIT";
+            spiDescription = "Created with EPSSEditor";
+
+            previewSelected = 0;
+            
+        }
+
+
+        public string convertSoundFileName() {
+            if(_fileNameForListenConvertedSound == null)
+                _fileNameForListenConvertedSound = Path.GetTempFileName();
+            return _fileNameForListenConvertedSound;
         }
 
 

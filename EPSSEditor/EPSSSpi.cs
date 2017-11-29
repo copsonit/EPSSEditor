@@ -796,12 +796,12 @@ namespace EPSSEditor
             spi.ext.i_patchinfo = info;
         }
 
-        private List<SpiSound> getSoundForMidiChannel(ref List<SpiSound> sounds, int midiChannel)
+        private List<SpiSound> getSoundForMidiChannel(ref List<SpiSound> sounds, int midiChannel, bool omni)
         {
             List<SpiSound> channelSounds = new List<SpiSound>();
             foreach(SpiSound snd in sounds)
             {
-                if (snd.midiChannel == midiChannel)
+                if (snd.midiChannel == midiChannel || omni)
                 {
                     channelSounds.Add(snd);
                 }
@@ -810,7 +810,7 @@ namespace EPSSEditor
         }
 
 
-        public void fillInSplit(ref EPSSSpi spi, ref List<SpiSound> sounds)
+        public void fillInSplit(ref EPSSSpi spi, ref List<SpiSound> sounds, bool omni)
         {
             List<EPSSSpi_midiChannelSplit> channels = new List<EPSSSpi_midiChannelSplit>();
 
@@ -819,7 +819,7 @@ namespace EPSSEditor
                 EPSSSpi_midiChannelSplit channel = new EPSSSpi_midiChannelSplit();
                 channel.data = new EPSSSpi_soundAndPitch[128];
 
-                List<SpiSound> sound = getSoundForMidiChannel(ref sounds, ch + 1);
+                List<SpiSound> sound = getSoundForMidiChannel(ref sounds, ch + 1, omni);
                 if (sound.Count == 0) // empty channel
                 {
 
@@ -864,6 +864,36 @@ namespace EPSSEditor
                     channels.Add(channel);
 
                 }
+                else if (sound.Count > 1 && ch != 9)
+                {
+                    SpiSound snd = sound.First();
+                    //byte note = snd.midiNote;
+                    for (int i = 0; i < 128; i++)
+                    {
+                        EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch();
+                        bool found = false;
+                        foreach (SpiSound sndToFind in sound)
+                        {
+                            if (sndToFind.midiNote == i+1)
+                            {
+                                sp.sound = (byte)sndToFind.soundNumber;
+                                sp.pitch = 84;
+                                sp.noSound = 0;
+                                found = true;
+                            }
+                            if (found) break;
+                        }
+                        if (!found)
+                        {
+                            sp.sound = 0;
+                            sp.pitch = 0;
+                            sp.noSound = 1;
+
+                        }
+                        channel.data[i] = sp;
+                    }
+                    channels.Add(channel);
+                }
                 else if (ch == 9) // drums
                 {
 
@@ -887,7 +917,8 @@ namespace EPSSEditor
                             sp.sound = spiSound;
                             sp.pitch = note;
                             sp.noSound = 0;
-                        } else
+                        }
+                        else
                         {
                             sp.sound = 0;
                             sp.pitch = 0;
@@ -911,10 +942,29 @@ namespace EPSSEditor
         }
 
 
-        public EPSSSpi_sample getSampleFromSpiSound(ref EPSSEditorData data, SpiSound snd)
+        public EPSSSpi_sample getSampleFromSpiSound(ref EPSSEditorData data, SpiSound snd, int freq)
         {
             EPSSSpi_sample smp = new EPSSSpi_sample();
 
+            string outFile = Path.GetTempFileName();
+            if (snd.convertSound(ref data, outFile, freq, AtariConstants.SampleBits, AtariConstants.SampleChannels))
+            {
+                using (var wav = File.OpenRead(outFile))
+                {
+                    wav.Seek(0, SeekOrigin.Begin);
+
+                    WaveFileReader fr = new WaveFileReader(wav);
+
+                    List<byte> spl = new List<byte>();
+                    smp.data = new byte[fr.Length];
+                    int read = fr.Read(smp.data, 0, smp.data.Length);
+                }
+
+                File.Delete(outFile);
+            }
+
+
+            /*
             Sound sound = data.getSoundFromSoundId(snd.soundId);
             if (sound != null)
             {
@@ -942,11 +992,9 @@ namespace EPSSEditor
                             }
                         } while (read > 0);
                     }
-
-
                 }
 
-                    string outFile = Path.GetTempFileName();
+                string outFile = Path.GetTempFileName();
 
                 int outRate = 25033; // TODO: read the setting
                 using (var reader = new AudioFileReader(path))
@@ -981,7 +1029,7 @@ namespace EPSSEditor
                         float[] samples = fr.ReadNextSampleFrame();
                         if (samples == null) break;
 
-                        byte b = (byte)((samples[0] + 1.0f) * 128.0f);
+                        byte b = (byte)((samples[0] + 1.0f) * 128.0f); // unsigned
                         //                  if (b < 128) b = (byte)(b + 128);
                         //                  else b = (byte)(b - 128);
                         spl.Add(b);
@@ -998,7 +1046,7 @@ namespace EPSSEditor
                 smp.loadSpl(new Uri(@"D:\OneDrive\Atari\Emulators etc\HDimage\Syquest\LJUDMODF\F\TECHNOSD.SPL")); // TODO just for first test
             }
 
-
+            */
 
             return smp;
         }
@@ -1036,7 +1084,7 @@ namespace EPSSEditor
         }
 
 
-        public void fillInSamples(ref EPSSEditorData data, ref EPSSSpi spi, ref List<SpiSound> sounds)
+        public void fillInSamples(ref EPSSEditorData data, ref EPSSSpi spi, ref List<SpiSound> sounds, int sampFreq)
         {
             List<EPSSSpi_soundInfo> soundInfos = new List<EPSSSpi_soundInfo>();
             List<EPSSSpi_extSoundInfo> extSoundInfos = new List<EPSSSpi_extSoundInfo>();
@@ -1044,7 +1092,7 @@ namespace EPSSEditor
 
             foreach (SpiSound snd in sounds)
             {
-                EPSSSpi_sample sample = getSampleFromSpiSound(ref data, snd);
+                EPSSSpi_sample sample = getSampleFromSpiSound(ref data, snd, sampFreq);
 
                 EPSSSpi_soundInfo sInfo = getSoundInfoFromSpiSound(sample, snd);
 
@@ -1085,7 +1133,7 @@ namespace EPSSEditor
         }
 
 
-        public EPSSSpi create(ref EPSSEditorData data, List<SpiSound> sounds, string name, string info)
+        public EPSSSpi create(ref EPSSEditorData data, List<SpiSound> sounds, string name, string info, int sampFreq)
         {
             EPSSSpi spi = new EPSSSpi();
 
@@ -1096,9 +1144,9 @@ namespace EPSSEditor
 
             fillInExt(ref spi, name, info);
 
-            fillInSplit(ref spi, ref sounds);
+            fillInSplit(ref spi, ref sounds, data.omni);
 
-            fillInSamples(ref data, ref spi, ref sounds);
+            fillInSamples(ref data, ref spi, ref sounds, sampFreq);
 
             fillInOffsets(ref spi);
 

@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using System.Xml.XPath; // for XPathSelectElements
 using System.Xml.Serialization;
 using System.Windows.Forms;
+using System.IO;
 
 //        http://computermusicresource.com/GM.Percussion.KeyMap.html
 
@@ -39,19 +40,23 @@ namespace EPSSEditor
     {
         public Mapping[] mappings;
 
-        public void initialize()
+        public void initialize(string drumSettingsFileName)
         {
+
+
+
             List<Mapping> drumMappings = new List<Mapping>();
             //            List<string> output = new List<string>();
             XDocument doc = null;
             try
             {
-                doc = XDocument.Load("drumMappings.xml");
+                doc = XDocument.Load(drumSettingsFileName);
+
+
             }
             catch (Exception e)
             {
-                
-                MessageBox.Show(e.ToString());
+                MessageBox.Show("drumMapping.xml cannot be loaded. Error:\n" + e.ToString());
             }
             if (doc != null)
             {
