@@ -196,7 +196,7 @@ namespace EPSSEditor
         {
             foreach (Mapping m in data.drumMappings.mappings)
             {
-                drumsComboBox1.Items.Add(m.description);
+                drumsComboBox1.Items.Add(m.dropDownDescription());
             }
             drumsComboBox1.SelectedIndex = 0;
         }

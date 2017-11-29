@@ -34,6 +34,18 @@ namespace EPSSEditor
         public byte midiNote;
         public string key;
         public string description;
+
+        public string dropDownDescription()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(description);
+            sb.Append(" (");
+            sb.Append(key);
+            sb.Append("=");
+            sb.Append(note);
+            sb.Append(")");
+            return sb.ToString();
+        }
     }
 
     public class DrumSettingsHelper
