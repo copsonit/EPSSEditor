@@ -144,7 +144,7 @@
             // 
             // saveSpiButton
             // 
-            this.saveSpiButton.Location = new System.Drawing.Point(8, 125);
+            this.saveSpiButton.Location = new System.Drawing.Point(7, 136);
             this.saveSpiButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.saveSpiButton.Name = "saveSpiButton";
             this.saveSpiButton.Size = new System.Drawing.Size(282, 31);
@@ -295,7 +295,7 @@
             // 
             // midiToneTextBox
             // 
-            this.midiToneTextBox.Location = new System.Drawing.Point(166, 265);
+            this.midiToneTextBox.Location = new System.Drawing.Point(176, 264);
             this.midiToneTextBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.midiToneTextBox.Name = "midiToneTextBox";
             this.midiToneTextBox.Size = new System.Drawing.Size(66, 26);
@@ -902,7 +902,7 @@
             this.groupBox8.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.groupBox8.Size = new System.Drawing.Size(585, 204);
+            this.groupBox8.Size = new System.Drawing.Size(585, 211);
             this.groupBox8.TabIndex = 11;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "EPSS SPI - Sound Patch Information";
@@ -927,7 +927,7 @@
             // omniPatchCheckBox
             // 
             this.omniPatchCheckBox.AutoSize = true;
-            this.omniPatchCheckBox.Location = new System.Drawing.Point(12, 85);
+            this.omniPatchCheckBox.Location = new System.Drawing.Point(14, 90);
             this.omniPatchCheckBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.omniPatchCheckBox.Name = "omniPatchCheckBox";
             this.omniPatchCheckBox.Size = new System.Drawing.Size(116, 24);
