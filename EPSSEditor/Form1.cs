@@ -14,7 +14,8 @@ using System.IO;
 using NAudio.Wave;
 
 using System.Configuration;  // Add a reference to System.Configuration.dll
-
+using System.Reflection;
+using System.Deployment;
 
 namespace EPSSEditor
 {
@@ -69,10 +70,23 @@ namespace EPSSEditor
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.Text = "EPSS Editor v" + GetRunningVersion().ToString();
 
 
 
+        }
 
+
+        private Version GetRunningVersion()
+        {
+            try
+            {
+                return System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion;
+            }
+            catch
+            {
+                return Assembly.GetExecutingAssembly().GetName().Version;
+            }
         }
 
 
