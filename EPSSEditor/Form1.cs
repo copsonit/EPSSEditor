@@ -46,11 +46,6 @@ namespace EPSSEditor
      * OK.  Did not save the directories for project, samples and spi correctly. Fixed in 1.04.
      *      If no sounds found, shoulnt crash
      *      
-     *      
-     *      
-     *      
-     *      
-     * 
      * 
      * Wishlist:
      * WIP      Multiple selection of sounds to automatically add? Mutisample + Drums
@@ -1025,21 +1020,31 @@ namespace EPSSEditor
 
             if (sounds.Count > 1)
             {
+                bool mappingOk = false;
+                byte startNote = 1;
                 if (MultiSampleRadioButton.Checked)
                 {
-
-                    byte startNote = 1;
                     string st = midiToneTextBox.Text;
                     // TODO parse string midi
-                    try {
+                    try
+                    {
                         startNote = Convert.ToByte(st);
+                        mappingOk = true;
                     }
                     catch (Exception ex)
                     {
 
                     }
-    
+                    
+                } else if (GmPercMidiMappingRadioButton.Checked)
+                {
+                    mappingOk = true;
+                    startNote = percussionNote();
+                }
 
+
+    
+                if (mappingOk) { 
                     foreach(Sound sound in sounds)
                     {
                         Sound s = sound;
@@ -1073,7 +1078,7 @@ namespace EPSSEditor
 
                 } else
                 {
-                    System.Windows.Forms.MessageBox.Show("Need to have multi sample selected!");
+                    System.Windows.Forms.MessageBox.Show("Need to have multi sample mapping or GM Percussion mapping selected!");
                 }
 
             }
