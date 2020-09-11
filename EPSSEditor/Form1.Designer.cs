@@ -178,6 +178,7 @@
             this.selectAllButton.Size = new System.Drawing.Size(61, 23);
             this.selectAllButton.TabIndex = 19;
             this.selectAllButton.Text = "Select All";
+            this.infoToolTip.SetToolTip(this.selectAllButton, "Select all SPI Sounds");
             this.selectAllButton.UseVisualStyleBackColor = true;
             this.selectAllButton.Click += new System.EventHandler(this.selectAllButton_Click);
             // 
@@ -189,6 +190,7 @@
             this.button1.Size = new System.Drawing.Size(53, 23);
             this.button1.TabIndex = 18;
             this.button1.Text = "Save...";
+            this.infoToolTip.SetToolTip(this.button1, "Saving selected SPI Sound to file");
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.saveSampleButton_Click);
             // 
@@ -224,6 +226,7 @@
             this.spiSoundListenButton.Size = new System.Drawing.Size(46, 23);
             this.spiSoundListenButton.TabIndex = 8;
             this.spiSoundListenButton.Text = "Listen";
+            this.infoToolTip.SetToolTip(this.spiSoundListenButton, "Listen to SPI Sound sample. Only first selected is played.");
             this.spiSoundListenButton.UseVisualStyleBackColor = true;
             this.spiSoundListenButton.Click += new System.EventHandler(this.spiSoundListenButton_Click);
             // 
@@ -253,8 +256,8 @@
             this.deleteSpiSoundButton.Size = new System.Drawing.Size(50, 23);
             this.deleteSpiSoundButton.TabIndex = 8;
             this.deleteSpiSoundButton.Text = "Delete";
-            this.infoToolTip.SetToolTip(this.deleteSpiSoundButton, "You can also use the Delete button on your keyboard to delete souds from the list" +
-        "");
+            this.infoToolTip.SetToolTip(this.deleteSpiSoundButton, "You can also use the Delete button on your keyboard to delete an SPI Sound from t" +
+        "he list");
             this.deleteSpiSoundButton.UseVisualStyleBackColor = true;
             this.deleteSpiSoundButton.Click += new System.EventHandler(this.deleteSpiSoundButton_Click);
             // 
