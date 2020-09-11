@@ -35,12 +35,20 @@ namespace EPSSEditor
      * OK. Omni switch
      *     Multisample for drums, automatic spread
      * 
+     * OK. Delete should work for selected samples in left window!
+     * TODO Support 32-bit sounds! Some newly found Wav reports as 32-bit Wav. 
+     * TODO Until we support, warn when loading the sound!
+     * 
      * Bugs:
      * OK.  Cannot find the drumMappings.xml in installed version.
      * OK.  Did not update the sample size field for Sound correctly.
      * EPSS DOS-date interpreted wrong in EPSS. 2000 issue, needs to be fixed in EPSS!
      * OK.  Did not save the directories for project, samples and spi correctly. Fixed in 1.04.
      *      If no sounds found, shoulnt crash
+     *      
+     *      
+     *      
+     *      
      *      
      * 
      * 
@@ -101,7 +109,7 @@ namespace EPSSEditor
 
         private void Form1_Activated(object sender, EventArgs e)
         {
- 
+
             if (initialize < 1)
             {
                 initialize++;
@@ -130,8 +138,8 @@ namespace EPSSEditor
             bool initNewProjectFile = false;
             if (forceNewProject || projectFile == null | projectFile == "")
             {
-                    initNewProjectFile = true;
-                
+                initNewProjectFile = true;
+
 
             } else
             {
@@ -147,7 +155,7 @@ namespace EPSSEditor
 
                 while (true)
                 {
-  
+
 
 
 
@@ -338,7 +346,7 @@ namespace EPSSEditor
                 item.SubItems.Add(s.midiChannel.ToString());
                 item.SubItems.Add(s.midiNote.ToString());
 
-                int nr= data.getSoundNumberFromGuid(s.soundId);
+                int nr = data.getSoundNumberFromGuid(s.soundId);
                 item.SubItems.Add(nr.ToString());
 
                 item.SubItems.Add(s.name());
@@ -369,7 +377,7 @@ namespace EPSSEditor
 
             int v = (int)(sz / 1024);
             totalSizeProgressBar.Value = v;
-           
+
         }
 
 
@@ -385,7 +393,54 @@ namespace EPSSEditor
 
         private void deleteSelectedSound()
         {
-                      
+            var indices = soundListBox.SelectedIndices;
+            bool anySoundsReferSPI = false;
+            foreach (int index in indices)
+            {
+                if (soundRefersToSPISound(index))
+                {
+                    anySoundsReferSPI = true;
+                    break;
+                }
+            }
+
+
+            if (anySoundsReferSPI)
+            {
+                MessageBox.Show("The sound still refers to SPI sounds.\nPlease remove them first.");
+            }
+            else
+            {
+                int removed = 0;
+                int idx = 0;
+                foreach (int index in indices)
+                {
+                    idx = index - removed;
+                    data.sounds.RemoveAt(idx);
+                    removed++;
+                }
+
+
+                updateSoundListBox();
+                int itemsLeft = soundListBox.Items.Count;
+                if (itemsLeft > 0)
+                {
+                    if (idx >= itemsLeft)
+                    {
+                        idx = itemsLeft - 1;
+                    }
+                    soundListBox.SelectedIndex = idx;
+                    useInSpiButton.Enabled = true;
+                }
+                else
+                {
+                    useInSpiButton.Enabled = false;
+                }
+                dataNeedsSaving = true;
+                saveProjectSettings();
+            }
+
+            /*
             int idx = soundListBox.SelectedIndex;
             if (idx >= 0)
             {
@@ -418,7 +473,19 @@ namespace EPSSEditor
                     saveProjectSettings();
                 }
             }
+            */
         }
+
+
+        private bool soundRefersToSPISound(int idx)
+        {
+
+            Sound snd = data.sounds[idx];
+            List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
+            return spiSounds.Count > 0;
+        }
+
+
 
 
         private void deleteSelectedSpiSound()
@@ -475,20 +542,26 @@ namespace EPSSEditor
 
         private void playSelectedSound()
         {
-            Sound snd = getSoundAtSelectedIndex();
-            if (snd != null)
+            try
             {
-                FileStream wav = File.OpenRead(snd.path);
-                wav.Seek(0, SeekOrigin.Begin);
+                Sound snd = getSoundAtSelectedIndex();
+                if (snd != null)
+                {
+                    FileStream wav = File.OpenRead(snd.path);
+                    wav.Seek(0, SeekOrigin.Begin);
 
-                WaveStream ws = new WaveFileReader(wav);
-                ws = WaveFormatConversionStream.CreatePcmStream(ws);
+                    WaveStream ws = new WaveFileReader(wav);
+                    ws = WaveFormatConversionStream.CreatePcmStream(ws);
 
-                WaveOutEvent output = new WaveOutEvent();
-                output.Init(ws);
-                output.Play();
+                    WaveOutEvent output = new WaveOutEvent();
+                    output.Init(ws);
+                    output.Play();
 
 
+                }
+            } catch (Exception ex)
+            {
+                MessageBox.Show("Cannot play sound:"+ex.Message);
             }
         }
 
