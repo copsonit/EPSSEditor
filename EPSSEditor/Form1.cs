@@ -55,16 +55,38 @@ namespace EPSSEditor
         public EPSSEditorData data;
         public bool deletePressed;
         public bool callbacks = true;
+        public int initialize;
+
 
         public Form1()
         {
             InitializeComponent();
+            initialize = 0; 
 
-            initEpssEditorData();
 
-            defaultMidiMapRadioButton.Checked = true;
         }
 
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+
+
+
+        }
+
+
+        private void Form1_Activated(object sender, EventArgs e)
+        {
+ 
+            if (initialize < 1)
+            {
+                initialize++;
+
+                initEpssEditorData();
+            }
+
+        }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -98,20 +120,58 @@ namespace EPSSEditor
 
             if (initNewProjectFile)
             {
-
-                if (System.Windows.Forms.MessageBox.Show("No SPI Project file found!\nDo you want to load an existing file?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                bool projectFileDefined = false;
+                while (true)
                 {
-                    loadProjectSettingsFileDialog();
-                }
-                else
-                {
-                    if (saveProjectFileDialog.ShowDialog() == DialogResult.OK)
+  
+                    if (MessageBox.Show("No SPI Project file found!\nPress Yes load an existing\nproject or No to initialize a new project.", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
-                        string file = saveProjectFileDialog.FileName;
-                        Properties.Settings.Default.ProjectFile = file;
-                        Properties.Settings.Default.Save();
+
+                        if (loadProjectSettingsFileDialog())
+                        {
+                            projectFileDefined = true;
+                            break;
+                        }
+                        else
+                        {
+                            if (MessageBox.Show("EPSS needs a project file to continue.\nDo you want to exit the program?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            {
+                                Close();
+                                break;
+                                //throw new ApplicationException("Exit by user");
+                            }
+                        }
                     }
+
+                    else
+                    {
+
+                            if (saveProjectFileDialog.ShowDialog() == DialogResult.OK)
+                            {
+                                string file = saveProjectFileDialog.FileName;
+                                Properties.Settings.Default.ProjectFile = file;
+                                Properties.Settings.Default.Save();
+                                projectFileDefined = true;
+                                break;
+                            }
+                            else
+                            {
+                                if (MessageBox.Show("EPSS needs a project file to continue.\nDo you want to exit the program?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                {
+                                    //throw new ApplicationException("Exit by user");
+                                Close();
+                                break;
+                                }
+                            }
+                    }
+
+                }
+
+                if (projectFileDefined)
+                {
+
                     data = new EPSSEditorData();
+
 
 
                     //string dir = Path.GetDirectoryName(System.Reflection.Assembly.G‌​etEntryAssembly().Lo‌​cation);
@@ -120,7 +180,7 @@ namespace EPSSEditor
                     FileInfo fi = new FileInfo(combined);
                     if (!fi.Exists)
                     {
-                        MessageBox.Show("drumMapping.xml cannot be found.\n" + combined+ "\nSelect location", "EPSS Editor");
+                        MessageBox.Show("drumMapping.xml cannot be found.\n" + combined + "\nSelect location", "EPSS Editor");
                         if (openDrumMappingsFileDialog.ShowDialog() == DialogResult.OK)
                         {
                             combined = openDrumMappingsFileDialog.FileName;
@@ -129,12 +189,13 @@ namespace EPSSEditor
                     data.initialize(combined);
 
                     updateDialog();
+                    defaultMidiMapRadioButton.Checked = true;
 
                     saveProjectSettings();
                 }
             }
         }
-        
+
 
         private void updateDialog()
         {
@@ -590,11 +651,20 @@ namespace EPSSEditor
         }        
 
 
-        private void loadProjectSettingsFileDialog()
+        private bool loadProjectSettingsFileDialog()
         {
-            string projFile = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
+            bool result = false;
+            string s = Properties.Settings.Default.ProjectFile;
+            if (s == null || s == "")
+            {
+                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                s = Path.Combine(s, "EPSS Projects", "default.epf");
+            }
+
+
+            string projFile = Path.GetDirectoryName(s);
             loadProjectFileDialog.InitialDirectory = projFile;
-            string fileName = Path.GetFileName(Properties.Settings.Default.ProjectFile);
+            string fileName = Path.GetFileName(s);
             loadProjectFileDialog.FileName = fileName;
             if (loadProjectFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -602,15 +672,25 @@ namespace EPSSEditor
                 Properties.Settings.Default.ProjectFile = file;
                 Properties.Settings.Default.Save();
                 loadProjectSettings(file);
+                result = true;
             }
+
+            return result;
+
         }
 
 
         private void saveProjectSettingsFileDialog()
         {
-            string projFile = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
+            string s = Properties.Settings.Default.ProjectFile;
+            if (s == null || s == "")
+            {
+                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                s = Path.Combine(s, "EPSS Projects", "default.epf");
+            }
+            string projFile = Path.GetDirectoryName(s);
             saveProjectFileDialog.InitialDirectory = projFile;
-            string fileName = Path.GetFileName(Properties.Settings.Default.ProjectFile);
+            string fileName = Path.GetFileName(s);
             saveProjectFileDialog.FileName = fileName;
             if (saveProjectFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -808,7 +888,7 @@ namespace EPSSEditor
 
 
         private void defaultMidiMapRadioButton_CheckedChanged(object sender, EventArgs e)
-        {
+        { 
             int ch = data.getNextFreeMidiChannel();
             if (ch > 0) setMidiChannel(ch);
         }
@@ -1099,6 +1179,12 @@ namespace EPSSEditor
         private void omniPatchCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             data.omni = omniPatchCheckBox.Checked;
+        }
+
+        private void playButton_Click(object sender, EventArgs e)
+        {
+
+            playSelectedSound();
         }
     }
 }
