@@ -17,6 +17,11 @@ using System.Configuration;  // Add a reference to System.Configuration.dll
 using System.Reflection;
 using System.Deployment;
 
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System.Management;
+
 namespace EPSSEditor
 {
 
@@ -41,9 +46,11 @@ namespace EPSSEditor
      * 
      * Wishlist:
      * WIP      Multiple selection of sounds to automatically add? Mutisample + Drums
-     * WIP      Play converted sound on PC?
-     *          Project should save all samples as well in the project file. Stream it to xml? Binary format_
-     *          
+     * WIP      Play converted sound on PC? What is not working?
+     *          Project should save all samples as well in the project file. Stream it to xml? Binary format.
+     *          Idea: project file as sqlite instead of db3?
+     *          Check what sample formats that we support through the libs and make more possible to read? 
+     *          SoundFonts?
      * 
      * 
      * */
@@ -57,12 +64,14 @@ namespace EPSSEditor
         public bool deletePressed;
         public bool callbacks = true;
         public int initialize;
+        public bool dataNeedsSaving;
 
 
         public Form1()
         {
             InitializeComponent();
-            initialize = 0; 
+            initialize = 0;
+            dataNeedsSaving = false;
 
 
         }
@@ -115,11 +124,11 @@ namespace EPSSEditor
         }
 
 
-        private void initEpssEditorData()
+        private void initEpssEditorData(bool forceNewProject = false)
         {
             string projectFile = Properties.Settings.Default.ProjectFile;
             bool initNewProjectFile = false;
-            if (projectFile == null | projectFile == "")
+            if (forceNewProject || projectFile == null | projectFile == "")
             {
                     initNewProjectFile = true;
                 
@@ -135,10 +144,14 @@ namespace EPSSEditor
             if (initNewProjectFile)
             {
                 bool projectFileDefined = false;
+
                 while (true)
                 {
   
-                    if (MessageBox.Show("No SPI Project file found!\nPress Yes load an existing\nproject or No to initialize a new project.", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+
+
+
+                    if (!forceNewProject && MessageBox.Show("No SPI Project file found!\nPress Yes load an existing\nproject or No to initialize a new project.", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
 
                         if (loadProjectSettingsFileDialog())
@@ -160,23 +173,32 @@ namespace EPSSEditor
                     else
                     {
 
-                            if (saveProjectFileDialog.ShowDialog() == DialogResult.OK)
-                            {
-                                string file = saveProjectFileDialog.FileName;
-                                Properties.Settings.Default.ProjectFile = file;
-                                Properties.Settings.Default.Save();
-                                projectFileDefined = true;
-                                break;
-                            }
-                            else
+
+                        saveProjectFileDialog.Title = "Choose filename for new EPSS project ...";
+                        if (saveProjectFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            string file = saveProjectFileDialog.FileName;
+                            Properties.Settings.Default.ProjectFile = file;
+                            Properties.Settings.Default.Save();
+                            projectFileDefined = true;
+                            break;
+                        }
+                        else
+                        {
+                            if (!forceNewProject)
                             {
                                 if (MessageBox.Show("EPSS needs a project file to continue.\nDo you want to exit the program?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 {
                                     //throw new ApplicationException("Exit by user");
-                                Close();
-                                break;
+                                    Close();
+                                    break;
                                 }
                             }
+                            else
+                            {
+                                break;
+                            }
+                        }
                     }
 
                 }
@@ -222,7 +244,10 @@ namespace EPSSEditor
 
         private void updatePreview()
         {
-            previewComboBox.SelectedIndex = data.previewSelected;
+            if (initialize > 0)
+            {
+                previewComboBox.SelectedIndex = data.previewSelected;
+            }
         }
 
 
@@ -238,30 +263,37 @@ namespace EPSSEditor
 
                     data.fixOldVersions();
 
-                    updateDialog();
+
 
                 }
-                
+                updateDialog();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                MessageBox.Show("Loading project settings error:\n" + ex.Message);
                 result = false;
             }
             return result;
         }
 
 
+
+
         private void saveProjectSettings()
         {
-            string file = Properties.Settings.Default.ProjectFile;
-            if (file != "")
+            if (dataNeedsSaving)
             {
-
-                XmlSerializer ser = new XmlSerializer(typeof(EPSSEditorData));
-                using (FileStream fs = new FileStream(file, FileMode.Create))
+                string file = Properties.Settings.Default.ProjectFile;
+                if (file != "")
                 {
-                    ser.Serialize(fs, data);
+
+                    XmlSerializer ser = new XmlSerializer(typeof(EPSSEditorData));
+                    using (FileStream fs = new FileStream(file, FileMode.Create))
+                    {
+                        ser.Serialize(fs, data);
+                    }
+                    dataNeedsSaving = false;
                 }
             }
         }
@@ -382,6 +414,7 @@ namespace EPSSEditor
                     {
                         useInSpiButton.Enabled = false;
                     }
+                    dataNeedsSaving = true;
                     saveProjectSettings();
                 }
             }
@@ -404,6 +437,7 @@ namespace EPSSEditor
                     data.spiSounds.RemoveAt(index - removed);
                     removed++;
                 }
+                dataNeedsSaving = true;
                 updateSpiSoundListBox();
                 saveProjectSettings();
                 updateTotalSize();
@@ -660,6 +694,7 @@ namespace EPSSEditor
                 updateSoundListBox();
 
                 data.soundFileName = anyFile;
+                dataNeedsSaving = true;
                 saveProjectSettings();
             }
         }        
@@ -706,6 +741,7 @@ namespace EPSSEditor
             saveProjectFileDialog.InitialDirectory = projFile;
             string fileName = Path.GetFileName(s);
             saveProjectFileDialog.FileName = fileName;
+            saveProjectFileDialog.Title = "Choose filename where EPSS project should be saved...";
             if (saveProjectFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string file = saveProjectFileDialog.FileName;
@@ -781,6 +817,7 @@ namespace EPSSEditor
                 anyFile = filePath;
             }
             data.soundFileName = anyFile;
+            dataNeedsSaving = true;
             saveProjectSettings();
         }
 
@@ -957,6 +994,7 @@ namespace EPSSEditor
 
                     }
                     updateSpiSoundListBox();
+                    dataNeedsSaving = true;
                     saveProjectSettings();
                     updateTotalSize();
 
@@ -1020,6 +1058,7 @@ namespace EPSSEditor
                             }
                         }
 
+                        dataNeedsSaving = true;
                         saveProjectSettings();
                         updateTotalSize();
 
@@ -1034,7 +1073,28 @@ namespace EPSSEditor
             deleteSelectedSpiSound();
         }
 
-  
+
+
+        // Menu
+
+        private void newProjectToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            bool doNew = true;
+            if (dataNeedsSaving)
+            {
+                if (MessageBox.Show("You have unsaved data in current project!\nDo you really want to create new project?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    doNew= false;
+                }
+            }
+            if (doNew) {
+                initEpssEditorData(forceNewProject: true);
+                dataNeedsSaving = true;
+                saveProjectSettings();
+            }
+        }
+
+
         private void saveProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             saveProjectSettingsFileDialog();
@@ -1043,8 +1103,22 @@ namespace EPSSEditor
 
         private void loadProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            loadProjectSettingsFileDialog();
+            bool doLoad = true;
+            if (dataNeedsSaving)
+            {
+                if (MessageBox.Show("You have unsaved data in current project!\nDo you really want to load new project?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    doLoad = false;
+                }
+            }
+
+            if (doLoad)
+            {
+                loadProjectSettingsFileDialog();
+            }
         }
+
+
 
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1088,6 +1162,9 @@ namespace EPSSEditor
         }
 
 
+
+
+
         private void saveSpiButton_Click(object sender, EventArgs e)
         {
 
@@ -1109,6 +1186,7 @@ namespace EPSSEditor
                     spi.save(url);
 
                     data.spiFileName = spiFile;
+                    dataNeedsSaving = true;
                     saveProjectSettings();
                 }
 
@@ -1163,6 +1241,8 @@ namespace EPSSEditor
         private void previewComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             data.previewSelected = previewComboBox.SelectedIndex;
+            dataNeedsSaving = true;
+            saveProjectSettings();
         }
 
         private void saveSampleButton_Click(object sender, EventArgs e)
@@ -1183,16 +1263,22 @@ namespace EPSSEditor
         private void spiNameTextBox_TextChanged(object sender, EventArgs e)
         {
             data.spiName = spiNameTextBox.Text;
+            dataNeedsSaving = true;
+            saveProjectSettings();
         }
 
         private void spiInfoTextBox_TextChanged(object sender, EventArgs e)
         {
             data.spiDescription = spiInfoTextBox.Text;
+            dataNeedsSaving = true;
+            saveProjectSettings();
         }
 
         private void omniPatchCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             data.omni = omniPatchCheckBox.Checked;
+            dataNeedsSaving = true;
+            saveProjectSettings();
         }
 
         private void playButton_Click(object sender, EventArgs e)
@@ -1200,5 +1286,6 @@ namespace EPSSEditor
 
             playSelectedSound();
         }
+
     }
 }

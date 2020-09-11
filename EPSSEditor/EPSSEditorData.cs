@@ -33,6 +33,7 @@ namespace EPSSEditor
         public bool omni;
 
         private string _fileNameForListenConvertedSound = null;
+
       
         public EPSSEditorData() {  }
 
