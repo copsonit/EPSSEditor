@@ -32,7 +32,6 @@
             this.soundListBox = new System.Windows.Forms.ListBox();
             this.saveSpiButton = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.selectAllButton = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.previewComboBox = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -90,6 +89,7 @@
             this.useInSpiButton = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -108,7 +108,6 @@
             this.loadProjectFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openDrumMappingsFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSampleFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).BeginInit();
@@ -144,10 +143,10 @@
             // 
             // saveSpiButton
             // 
-            this.saveSpiButton.Location = new System.Drawing.Point(5, 88);
+            this.saveSpiButton.Location = new System.Drawing.Point(5, 79);
             this.saveSpiButton.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.saveSpiButton.Name = "saveSpiButton";
-            this.saveSpiButton.Size = new System.Drawing.Size(188, 20);
+            this.saveSpiButton.Size = new System.Drawing.Size(233, 20);
             this.saveSpiButton.TabIndex = 3;
             this.saveSpiButton.Text = "Save SPI...";
             this.saveSpiButton.UseVisualStyleBackColor = true;
@@ -155,7 +154,6 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.selectAllButton);
             this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Controls.Add(this.previewComboBox);
             this.groupBox2.Controls.Add(this.label9);
@@ -171,26 +169,16 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
             // 
-            // selectAllButton
-            // 
-            this.selectAllButton.Location = new System.Drawing.Point(306, 329);
-            this.selectAllButton.Name = "selectAllButton";
-            this.selectAllButton.Size = new System.Drawing.Size(61, 23);
-            this.selectAllButton.TabIndex = 19;
-            this.selectAllButton.Text = "Select All";
-            this.infoToolTip.SetToolTip(this.selectAllButton, "Select all SPI Sounds");
-            this.selectAllButton.UseVisualStyleBackColor = true;
-            this.selectAllButton.Click += new System.EventHandler(this.selectAllButton_Click);
-            // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(196, 328);
+            this.button1.Enabled = false;
+            this.button1.Location = new System.Drawing.Point(215, 328);
             this.button1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(53, 23);
+            this.button1.Size = new System.Drawing.Size(71, 23);
             this.button1.TabIndex = 18;
             this.button1.Text = "Save...";
-            this.infoToolTip.SetToolTip(this.button1, "Saving selected SPI Sound to file");
+            this.infoToolTip.SetToolTip(this.button1, "Saving all selected SPI Sounds to file one by one.");
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.saveSampleButton_Click);
             // 
@@ -205,7 +193,7 @@
             this.previewComboBox.Location = new System.Drawing.Point(55, 331);
             this.previewComboBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.previewComboBox.Name = "previewComboBox";
-            this.previewComboBox.Size = new System.Drawing.Size(139, 21);
+            this.previewComboBox.Size = new System.Drawing.Size(156, 21);
             this.previewComboBox.TabIndex = 17;
             this.previewComboBox.SelectedIndexChanged += new System.EventHandler(this.previewComboBox_SelectedIndexChanged);
             // 
@@ -221,9 +209,9 @@
             // 
             // spiSoundListenButton
             // 
-            this.spiSoundListenButton.Location = new System.Drawing.Point(254, 328);
+            this.spiSoundListenButton.Location = new System.Drawing.Point(291, 328);
             this.spiSoundListenButton.Name = "spiSoundListenButton";
-            this.spiSoundListenButton.Size = new System.Drawing.Size(46, 23);
+            this.spiSoundListenButton.Size = new System.Drawing.Size(66, 23);
             this.spiSoundListenButton.TabIndex = 8;
             this.spiSoundListenButton.Text = "Listen";
             this.infoToolTip.SetToolTip(this.spiSoundListenButton, "Listen to SPI Sound sample. Only first selected is played.");
@@ -234,26 +222,25 @@
             // 
             this.spiSoundListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.spiSoundListView.CheckBoxes = true;
             this.spiSoundListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.spiSoundListView.HideSelection = false;
             this.spiSoundListView.Location = new System.Drawing.Point(5, 19);
-            this.spiSoundListView.MultiSelect = false;
             this.spiSoundListView.Name = "spiSoundListView";
             this.spiSoundListView.Size = new System.Drawing.Size(419, 304);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
             this.spiSoundListView.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.spiSoundListView_ItemCheck);
             this.spiSoundListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.spiSoundListView_ItemChecked);
+            this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.spiSoundListView_ItemSelectionChanged);
             this.spiSoundListView.SelectedIndexChanged += new System.EventHandler(this.spiSoundListView_SelectedIndexChanged);
             // 
             // deleteSpiSoundButton
             // 
             this.deleteSpiSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.deleteSpiSoundButton.Enabled = false;
-            this.deleteSpiSoundButton.Location = new System.Drawing.Point(373, 329);
+            this.deleteSpiSoundButton.Location = new System.Drawing.Point(363, 328);
             this.deleteSpiSoundButton.Name = "deleteSpiSoundButton";
-            this.deleteSpiSoundButton.Size = new System.Drawing.Size(50, 23);
+            this.deleteSpiSoundButton.Size = new System.Drawing.Size(61, 23);
             this.deleteSpiSoundButton.TabIndex = 8;
             this.deleteSpiSoundButton.Text = "Delete";
             this.infoToolTip.SetToolTip(this.deleteSpiSoundButton, "You can also use the Delete button on your keyboard to delete an SPI Sound from t" +
@@ -428,7 +415,7 @@
             this.spiNameTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.spiNameTextBox.MaxLength = 8;
             this.spiNameTextBox.Name = "spiNameTextBox";
-            this.spiNameTextBox.Size = new System.Drawing.Size(128, 20);
+            this.spiNameTextBox.Size = new System.Drawing.Size(174, 20);
             this.spiNameTextBox.TabIndex = 5;
             this.spiNameTextBox.Text = "EPSSEDIT";
             this.spiNameTextBox.TextChanged += new System.EventHandler(this.spiNameTextBox_TextChanged);
@@ -803,7 +790,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(1031, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(939, 24);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -819,31 +806,38 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 22);
             this.fileToolStripMenuItem.Text = "File";
             // 
+            // newProjectToolStripMenuItem
+            // 
+            this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.newProjectToolStripMenuItem.Text = "New Project...";
+            this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.newProjectToolStripMenuItem_Click_1);
+            // 
             // loadProjectToolStripMenuItem
             // 
             this.loadProjectToolStripMenuItem.Name = "loadProjectToolStripMenuItem";
-            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.loadProjectToolStripMenuItem.Text = "Load Project...";
             this.loadProjectToolStripMenuItem.Click += new System.EventHandler(this.loadProjectToolStripMenuItem_Click);
             // 
             // saveProjectToolStripMenuItem
             // 
             this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
-            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.saveProjectToolStripMenuItem.Text = "Save Project...";
             this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.saveProjectToolStripMenuItem_Click);
             // 
             // clearSettingsToolStripMenuItem
             // 
             this.clearSettingsToolStripMenuItem.Name = "clearSettingsToolStripMenuItem";
-            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.clearSettingsToolStripMenuItem.Text = "Clear settings...";
             this.clearSettingsToolStripMenuItem.Click += new System.EventHandler(this.clearSettingsToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -887,7 +881,7 @@
             this.groupBox8.Controls.Add(this.groupBox4);
             this.groupBox8.Location = new System.Drawing.Point(502, 398);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(390, 137);
+            this.groupBox8.Size = new System.Drawing.Size(428, 137);
             this.groupBox8.TabIndex = 11;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "EPSS SPI - Sound Patch Information";
@@ -902,7 +896,7 @@
             this.groupBox10.Controls.Add(this.spiNameTextBox);
             this.groupBox10.Location = new System.Drawing.Point(179, 14);
             this.groupBox10.Name = "groupBox10";
-            this.groupBox10.Size = new System.Drawing.Size(205, 107);
+            this.groupBox10.Size = new System.Drawing.Size(243, 107);
             this.groupBox10.TabIndex = 19;
             this.groupBox10.TabStop = false;
             this.groupBox10.Text = "Save...";
@@ -931,7 +925,7 @@
             this.spiInfoTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.spiInfoTextBox.MaxLength = 16;
             this.spiInfoTextBox.Name = "spiInfoTextBox";
-            this.spiInfoTextBox.Size = new System.Drawing.Size(128, 20);
+            this.spiInfoTextBox.Size = new System.Drawing.Size(174, 20);
             this.spiInfoTextBox.TabIndex = 18;
             this.spiInfoTextBox.Text = "Created with EPSSEditor";
             this.spiInfoTextBox.TextChanged += new System.EventHandler(this.spiInfoTextBox_TextChanged);
@@ -956,18 +950,11 @@
             // 
             this.openDrumMappingsFileDialog.Filter = "XML Drum mappings (*.xml)|*.xml|All files (*.*)|*.*\"";
             // 
-            // newProjectToolStripMenuItem
-            // 
-            this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.newProjectToolStripMenuItem.Text = "New Project...";
-            this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.newProjectToolStripMenuItem_Click_1);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1031, 556);
+            this.ClientSize = new System.Drawing.Size(939, 545);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.useInSpiButton);
             this.Controls.Add(this.compressionTypeTextBox);
@@ -1090,7 +1077,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox midiToneTextBox;
         private System.Windows.Forms.RadioButton MultiSampleRadioButton;
-        private System.Windows.Forms.Button selectAllButton;
         private System.Windows.Forms.CheckBox omniPatchCheckBox;
         private System.Windows.Forms.ToolStripMenuItem newProjectToolStripMenuItem;
     }

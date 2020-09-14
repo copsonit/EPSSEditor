@@ -325,26 +325,31 @@ namespace EPSSEditor
         private void updateSpiSoundListBox()
         {
             spiSoundListView.Clear();
-            spiSoundListView.Columns.Add("", 40, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("MIDI", 35, HorizontalAlignment.Right);
             spiSoundListView.Columns.Add("Note", 35, HorizontalAlignment.Right);
-            spiSoundListView.Columns.Add("#", 20, HorizontalAlignment.Right);
+
             spiSoundListView.Columns.Add("Sound", 165, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("#", 20, HorizontalAlignment.Right);
             spiSoundListView.Columns.Add("Size", 55, HorizontalAlignment.Left);
             spiSoundListView.View = View.Details;
 
+            spiSoundListView.FullRowSelect = true;
             int i = 0;
             foreach (SpiSound s in data.spiSounds)
             {
+                //ListViewItem item = new ListViewItem(i++.ToString());
                 ListViewItem item = new ListViewItem(i++.ToString());
+                //item.Tag = i;
 
                 item.SubItems.Add(s.midiChannel.ToString());
                 item.SubItems.Add(s.midiNote.ToString());
 
+
+                item.SubItems.Add(s.name());
                 int nr = data.getSoundNumberFromGuid(s.soundId);
                 item.SubItems.Add(nr.ToString());
 
-                item.SubItems.Add(s.name());
                 item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 2));
                 spiSoundListView.Items.Add(item);
             }
@@ -356,6 +361,7 @@ namespace EPSSEditor
             {
                 List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
                 deleteSoundButton.Enabled = spiSounds.Count == 0;
+
             }
 
             spiNameTextBox.Text = data.spiName;
@@ -434,41 +440,6 @@ namespace EPSSEditor
                 dataNeedsSaving = true;
                 saveProjectSettings();
             }
-
-            /*
-            int idx = soundListBox.SelectedIndex;
-            if (idx >= 0)
-            {
-
-                Sound snd = data.sounds[idx];
-                List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
-                if (spiSounds.Count > 0)
-                {
-                    System.Windows.Forms.MessageBox.Show("The sound still refers to SPI sounds.\nPlease remove them first.");
-                }
-                else
-                {
-                    data.sounds.RemoveAt(idx);
-                    updateSoundListBox();
-                    int itemsLeft = soundListBox.Items.Count;
-                    if (itemsLeft > 0)
-                    {
-                        if (idx >= itemsLeft)
-                        {
-                            idx = itemsLeft - 1;
-                        }
-                        soundListBox.SelectedIndex = idx;
-                        useInSpiButton.Enabled = true;
-                    }
-                    else
-                    {
-                        useInSpiButton.Enabled = false;
-                    }
-                    dataNeedsSaving = true;
-                    saveProjectSettings();
-                }
-            }
-            */
         }
 
 
@@ -486,7 +457,7 @@ namespace EPSSEditor
         private void deleteSelectedSpiSound()
         {
             List<int> idxRemoved = new List<int>();
-            foreach(ListViewItem item in spiSoundListView.CheckedItems)
+            foreach (ListViewItem item in spiSoundListView.SelectedItems)
             {
                 idxRemoved.Add(item.Index);
             }
@@ -566,11 +537,10 @@ namespace EPSSEditor
 
          
             int selected = -1;
-            foreach (ListViewItem item in spiSoundListView.CheckedItems)
+            foreach (ListViewItem item in spiSoundListView.SelectedItems)
             {
                 selected = item.Index;
                 break;
-                
             }
 
             if (selected >= 0)
@@ -822,29 +792,44 @@ namespace EPSSEditor
 
         private void saveSampleWithFileDialog()
         {
-            saveSampleFileDialog.InitialDirectory = Path.GetDirectoryName(data.soundFileName);
-            if (saveSampleFileDialog.ShowDialog() == DialogResult.OK)
+            bool anySelected = false;
+            foreach (ListViewItem item in spiSoundListView.SelectedItems)
             {
-                string outFile = saveSampleFileDialog.FileName;
+                anySelected = true;
+               
+                break;
 
-                int selected = -1;
-                foreach (ListViewItem item in spiSoundListView.CheckedItems)
+            }
+
+
+            if (anySelected)
+            {
+
+                foreach (ListViewItem item in spiSoundListView.SelectedItems)
                 {
-                    selected = item.Index;
-                    break;
+                    int selected = item.Index;
 
-                }
-
-                if (selected >= 0)
-                {
-                    SpiSound snd = data.spiSounds[selected];
-
-                    
-
-                    if (snd.convertSound(ref data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
+                    if (selected >= 0)
                     {
-                    }
 
+                        saveSampleFileDialog.InitialDirectory = Path.GetDirectoryName(data.soundFileName);
+                        if (saveSampleFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            string outFile = saveSampleFileDialog.FileName;
+                            SpiSound snd = data.spiSounds[selected];
+                            if (snd.convertSound(ref data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
+                            {
+                            }
+
+                        } else
+                        {
+                            if (MessageBox.Show("Do you want to stop saving sounds?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                  
 
                 }
             }
@@ -933,7 +918,8 @@ namespace EPSSEditor
 
                 List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
                 deleteSoundButton.Enabled = spiSounds.Count == 0;
-                
+
+
 
             }
             else
@@ -1297,12 +1283,18 @@ namespace EPSSEditor
 
         private void spiSoundListView_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
+        }
+
+
+        private void spiSoundListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
             bool enabled = false;
-            foreach (ListViewItem item in spiSoundListView.CheckedItems)
+            foreach (ListViewItem item in spiSoundListView.SelectedItems)
             {
                 enabled = true;
             }
             deleteSpiSoundButton.Enabled = enabled;
+            button1.Enabled = enabled;
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -1328,7 +1320,8 @@ namespace EPSSEditor
             saveSampleWithFileDialog();
         }
 
-        private void selectAllButton_Click(object sender, EventArgs e)
+        
+        /*private void selectAllButton_Click(object sender, EventArgs e)
         {
             List<int> idxRemoved = new List<int>();
             foreach (ListViewItem item in spiSoundListView.Items)
@@ -1336,7 +1329,8 @@ namespace EPSSEditor
                 item.Checked = true;
             }
 
-        }
+        }*/
+
 
         private void spiNameTextBox_TextChanged(object sender, EventArgs e)
         {
@@ -1364,6 +1358,7 @@ namespace EPSSEditor
 
             playSelectedSound();
         }
+
 
     }
 }
