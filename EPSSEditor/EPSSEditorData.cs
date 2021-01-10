@@ -180,5 +180,25 @@ namespace EPSSEditor
             }
             return spiSounds;
         }
+
+
+        public bool removeSpiSound(byte midiChannel, byte midiNote)
+        {
+            bool result = false;
+
+            int j = spiSounds.Count();
+            for (int i = 0; i < j; i++)
+            {
+                SpiSound snd = spiSounds.ElementAt(i);
+                if (snd.midiNote == midiNote && snd.midiChannel == midiChannel)
+                {
+                    spiSounds.RemoveAt(i);
+                    result = true;
+                    j--;
+            
+                }
+            }
+            return result;
+        }
     }
 }

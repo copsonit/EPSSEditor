@@ -108,6 +108,10 @@
             this.loadProjectFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openDrumMappingsFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSampleFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.CustomSampleRadioButton = new System.Windows.Forms.RadioButton();
+            this.custMidiToneFromTextBox = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.custMidiToneToTextBox = new System.Windows.Forms.TextBox();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).BeginInit();
@@ -250,6 +254,10 @@
             // 
             // groupBox9
             // 
+            this.groupBox9.Controls.Add(this.custMidiToneToTextBox);
+            this.groupBox9.Controls.Add(this.label11);
+            this.groupBox9.Controls.Add(this.custMidiToneFromTextBox);
+            this.groupBox9.Controls.Add(this.CustomSampleRadioButton);
             this.groupBox9.Controls.Add(this.label10);
             this.groupBox9.Controls.Add(this.midiToneTextBox);
             this.groupBox9.Controls.Add(this.MultiSampleRadioButton);
@@ -261,7 +269,7 @@
             this.groupBox9.Controls.Add(this.drumsComboBox1);
             this.groupBox9.Location = new System.Drawing.Point(6, 303);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(210, 200);
+            this.groupBox9.Size = new System.Drawing.Size(211, 228);
             this.groupBox9.TabIndex = 11;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "MIDI Mapping";
@@ -274,8 +282,8 @@
             this.label10.Size = new System.Drawing.Size(82, 13);
             this.label10.TabIndex = 8;
             this.label10.Text = "Start MIDI-note:";
-            this.infoToolTip.SetToolTip(this.label10, "Enter the MIDI note as a number. 60 is C3 (when lowest is C-2 and highest G8, i.e" +
-        ". used in EPSS) or C5 (when lowest note is C0 and highest is G10)");
+            this.infoToolTip.SetToolTip(this.label10, "Enter the MIDI note as a number or string. Note convention is C-2=0, C3=60, G8=12" +
+        "7.");
             // 
             // midiToneTextBox
             // 
@@ -328,7 +336,7 @@
             this.midiChTrackBar.Maximum = 16;
             this.midiChTrackBar.Minimum = 1;
             this.midiChTrackBar.Name = "midiChTrackBar";
-            this.midiChTrackBar.Size = new System.Drawing.Size(195, 45);
+            this.midiChTrackBar.Size = new System.Drawing.Size(196, 45);
             this.midiChTrackBar.TabIndex = 5;
             this.midiChTrackBar.Value = 1;
             this.midiChTrackBar.Scroll += new System.EventHandler(this.midiChTrackBar_Scroll);
@@ -580,7 +588,7 @@
             this.compressionTypeTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.compressionTypeTextBox.Name = "compressionTypeTextBox";
             this.compressionTypeTextBox.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.compressionTypeTextBox.Size = new System.Drawing.Size(236, 508);
+            this.compressionTypeTextBox.Size = new System.Drawing.Size(239, 535);
             this.compressionTypeTextBox.TabIndex = 7;
             this.compressionTypeTextBox.TabStop = false;
             this.compressionTypeTextBox.Text = "Conversion parameters";
@@ -671,6 +679,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.showCompProgressBar.Location = new System.Drawing.Point(5, 18);
             this.showCompProgressBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.showCompProgressBar.Maximum = 200;
             this.showCompProgressBar.Name = "showCompProgressBar";
             this.showCompProgressBar.Size = new System.Drawing.Size(138, 17);
             this.showCompProgressBar.TabIndex = 4;
@@ -694,9 +703,9 @@
             this.label7.Location = new System.Drawing.Point(121, 38);
             this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(27, 13);
+            this.label7.Size = new System.Drawing.Size(33, 13);
             this.label7.TabIndex = 7;
-            this.label7.Text = "99%";
+            this.label7.Text = "200%";
             // 
             // soundSizeAfterTextBox
             // 
@@ -790,7 +799,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(939, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(948, 24);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -950,11 +959,46 @@
             // 
             this.openDrumMappingsFileDialog.Filter = "XML Drum mappings (*.xml)|*.xml|All files (*.*)|*.*\"";
             // 
+            // CustomSampleRadioButton
+            // 
+            this.CustomSampleRadioButton.AutoSize = true;
+            this.CustomSampleRadioButton.Location = new System.Drawing.Point(15, 205);
+            this.CustomSampleRadioButton.Name = "CustomSampleRadioButton";
+            this.CustomSampleRadioButton.Size = new System.Drawing.Size(60, 17);
+            this.CustomSampleRadioButton.TabIndex = 19;
+            this.CustomSampleRadioButton.TabStop = true;
+            this.CustomSampleRadioButton.Text = "Custom";
+            this.CustomSampleRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // custMidiToneFromTextBox
+            // 
+            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(78, 202);
+            this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
+            this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
+            this.custMidiToneFromTextBox.TabIndex = 20;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(113, 207);
+            this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(16, 13);
+            this.label11.TabIndex = 11;
+            this.label11.Text = "to";
+            // 
+            // custMidiToneToTextBox
+            // 
+            this.custMidiToneToTextBox.Location = new System.Drawing.Point(132, 202);
+            this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
+            this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
+            this.custMidiToneToTextBox.TabIndex = 21;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(939, 545);
+            this.ClientSize = new System.Drawing.Size(948, 572);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.useInSpiButton);
             this.Controls.Add(this.compressionTypeTextBox);
@@ -1079,6 +1123,10 @@
         private System.Windows.Forms.RadioButton MultiSampleRadioButton;
         private System.Windows.Forms.CheckBox omniPatchCheckBox;
         private System.Windows.Forms.ToolStripMenuItem newProjectToolStripMenuItem;
+        private System.Windows.Forms.TextBox custMidiToneToTextBox;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox custMidiToneFromTextBox;
+        private System.Windows.Forms.RadioButton CustomSampleRadioButton;
     }
 }
 

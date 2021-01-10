@@ -14,6 +14,9 @@ namespace EPSSEditor
         public byte midiChannel;
         public byte midiNote;
         public int soundNumber;
+        public byte startNote;
+        public byte endNote;
+        public byte midiNoteMapped;
 
         public Guid soundId;
         public string _name;
@@ -21,14 +24,18 @@ namespace EPSSEditor
 
         private MemoryStream ms = null;
 
-        public SpiSound() { }
+        public SpiSound() {
+            startNote = endNote = 128;
+            midiNoteMapped = 84;
+        }
 
         public SpiSound(ref Sound sound)
         {
+            startNote = endNote = 128;
+            midiNoteMapped = 84;
             soundId = sound.id();
             _name = sound.name();
-            _extName = sound.name() + " MSWav"; // TODO, find more info in sound??
-          
+            _extName = sound.name() + " MSWav"; // TODO, find more info in sound??         
         }
 
         public string name() { return _name; }

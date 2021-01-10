@@ -820,6 +820,17 @@ namespace EPSSEditor
                 channel.data = new EPSSSpi_soundAndPitch[128];
 
                 List<SpiSound> sound = getSoundForMidiChannel(ref sounds, ch + 1, omni);
+
+                bool useMidiSplit = false;
+                foreach (SpiSound sndToFind in sound)
+                {
+                    if (sndToFind.startNote < 128 && sndToFind.endNote < 128)
+                    {
+                        useMidiSplit = true;
+                        break;
+                    }
+                }
+
                 if (sound.Count == 0) // empty channel
                 {
 
@@ -833,6 +844,36 @@ namespace EPSSEditor
 
 
                     }
+                    channels.Add(channel);
+                }
+                else if (useMidiSplit)
+                {
+                    for (int i = 0; i < 128; i++)
+                    {
+                        EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch();
+                        sp.sound = 0;
+                        sp.pitch = 0;
+                        sp.noSound = 1;
+                        channel.data[i] = sp;
+                    }
+                    
+                    foreach (SpiSound sndToFind in sound)
+                    {
+                        byte j = 0;
+                        if (sndToFind.startNote < 128 && sndToFind.endNote < 128)
+                        {
+                            for (int i=sndToFind.startNote; i <= sndToFind.endNote; i ++)
+                            {
+                                EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch();
+                                sp.sound = (byte)sndToFind.soundNumber;
+                                sp.pitch = (byte)(sndToFind.midiNote + j);
+                                sp.noSound = 0;
+                                j++;
+                                channel.data[i] = sp;
+                            }
+                        }
+                    }
+
                     channels.Add(channel);
                 }
                 else if (sound.Count == 1 && ch != 9)
@@ -867,7 +908,6 @@ namespace EPSSEditor
                 else if (sound.Count > 1 && ch != 9)
                 {
                     SpiSound snd = sound.First();
-                    //byte note = snd.midiNote;
                     for (int i = 0; i < 128; i++)
                     {
                         EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch();
