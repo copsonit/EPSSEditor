@@ -23,6 +23,7 @@ namespace EPSSEditor
     public class Sound
     {
         public string path;
+        public string description;
         public long length;
 
         public Guid _id;
@@ -32,11 +33,16 @@ namespace EPSSEditor
         public int bitsPerSample;
         public int samplesPerSecond; // i.e. Hz
 
+        public byte loKey;
+        public byte hiKey;
+        public byte keyCenter;
+
 
         public Sound() { }
 
         public Sound(string p) {
             path = p;
+            description = null;
             length = new System.IO.FileInfo(path).Length;
             _id = Guid.NewGuid();
             
@@ -52,6 +58,8 @@ namespace EPSSEditor
             channels = fmt.Channels;
             bitsPerSample = fmt.BitsPerSample;
             samplesPerSecond = fmt.SampleRate;
+
+            loKey = hiKey = keyCenter = 128;
         }
 
 
@@ -77,7 +85,8 @@ namespace EPSSEditor
 
         public string name()
         {
-            return Path.GetFileNameWithoutExtension(path);
+            if (description == null) return Path.GetFileNameWithoutExtension(path);
+            return description;
         }
     }
 }

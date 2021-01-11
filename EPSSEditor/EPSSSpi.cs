@@ -756,6 +756,7 @@ namespace EPSSEditor
     {
         public int noOfMidiCh = 16; // always create 16 channel maps from now on
         public int noOfSounds;
+        public int maxNoOfSounds = 255;
         
         public void initialize(ref EPSSSpi spi)
         {
@@ -1175,22 +1176,33 @@ namespace EPSSEditor
 
         public EPSSSpi create(ref EPSSEditorData data, List<SpiSound> sounds, string name, string info, int sampFreq)
         {
-            EPSSSpi spi = new EPSSSpi();
-
-            initialize(ref spi);
-
             noOfSounds = sounds.Count;
-            fillInMain(ref spi);
+            if (noOfSounds < 256)
+            {
 
-            fillInExt(ref spi, name, info);
+                EPSSSpi spi = new EPSSSpi();
 
-            fillInSplit(ref spi, ref sounds, data.omni);
+                initialize(ref spi);
 
-            fillInSamples(ref data, ref spi, ref sounds, sampFreq);
 
-            fillInOffsets(ref spi);
+                fillInMain(ref spi);
 
-            return spi;
+                fillInExt(ref spi, name, info);
+
+                fillInSplit(ref spi, ref sounds, data.omni);
+
+                fillInSamples(ref data, ref spi, ref sounds, sampFreq);
+
+                fillInOffsets(ref spi);
+
+                return spi;
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("More than 256 sounds are not supported in an SPI file!");
+            }
+
+            return null;
         }
 
 

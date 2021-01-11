@@ -866,15 +866,47 @@ namespace EPSSEditor
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             string anyFile = "";
-            foreach (string filePath in files)
-            {
-                Sound s = new Sound(filePath);
 
-                data.sounds.Add(s);
-                updateSoundListBox();
-                
-                anyFile = filePath;
+            if (files.Length == 1)
+            {
+                string filePath = files[0];
+                string ext = Path.GetExtension(filePath).ToUpper();
+                string baseName = Path.GetFileNameWithoutExtension(filePath).Substring(0, 13);
+                if (ext == ".SFZ")
+                {
+                    ParseSfz p = new ParseSfz();
+                    List<SfzBase> bases = p.parse(filePath);
+                    string basePath = Path.GetDirectoryName(filePath);
+                    foreach (SfzBase bas in bases) {
+                        var tBase = bas as SfzRegionSection;
+                        if (tBase != null)
+                        {
+                            string fp = tBase.FilePath(basePath);
+                            Sound s = new Sound(fp);
+                            s.description = baseName + Path.GetFileNameWithoutExtension(fp);
+                            s.loKey = Convert.ToByte(tBase.variables["lokey"]);
+                            s.hiKey= Convert.ToByte(tBase.variables["hikey"]);
+                            s.keyCenter = Convert.ToByte(tBase.variables["pitch_keycenter"]);
+                            data.sounds.Add(s);
+                            anyFile = fp;
+                        }
+                    }
+                }
             }
+            else
+            {
+
+                foreach (string filePath in files)
+                {
+
+                    Sound s = new Sound(filePath);
+
+                    data.sounds.Add(s);
+                    anyFile = filePath;
+                }
+
+            }
+            updateSoundListBox();
             data.soundFileName = anyFile;
             dataNeedsSaving = true;
             saveProjectSettings();
@@ -1090,6 +1122,11 @@ namespace EPSSEditor
                     mappingOk = true;
                     startNote = percussionNote();
                 }
+                else if (defaultMidiMapRadioButton.Checked)
+                {
+                    mappingOk = true;
+                    startNote = 128;
+                }
 
                 if (mappingOk)
                 {
@@ -1098,7 +1135,17 @@ namespace EPSSEditor
                         Sound s = sound;
                         SpiSound spiSnd = new SpiSound(ref s);
 
-                        spiSnd.midiNote = startNote++;
+                        if (defaultMidiMapRadioButton.Checked)
+                        {
+                            spiSnd.startNote = s.loKey;
+                            spiSnd.endNote = s.hiKey;
+                            spiSnd.midiNote = (byte)(84 - (s.keyCenter - s.loKey));
+                        }
+                        else
+                        {
+                            spiSnd.midiNote = startNote++;
+                        }
+
 
                         int midiChannel = currentMidiChannel();
                         spiSnd.midiChannel = (byte)midiChannel;
@@ -1116,7 +1163,9 @@ namespace EPSSEditor
                         updateAfterSoundChange(ref s, toFreq);
                         compressionTrackBar.Value = compressionTrackBarValueFromFrequency(toFreq);
 
-                        data.removeSpiSound(spiSnd.midiChannel, spiSnd.midiNote);
+                        if (!defaultMidiMapRadioButton.Checked) { 
+                            data.removeSpiSound(spiSnd.midiChannel, spiSnd.midiNote);
+                        }
 
                         data.spiSounds.Add(spiSnd);
 
@@ -1342,11 +1391,14 @@ namespace EPSSEditor
                     data.omni = omniPatchCheckBox.Checked;
                     EPSSSpi spi = creator.create(ref data, soundsToSave, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
 
-                    spi.save(url);
+                    if (spi != null)
+                    {
+                        spi.save(url);
 
-                    data.spiFileName = spiFile;
-                    dataNeedsSaving = true;
-                    saveProjectSettings();
+                        data.spiFileName = spiFile;
+                        dataNeedsSaving = true;
+                        saveProjectSettings();
+                    }
                 }
 
             }

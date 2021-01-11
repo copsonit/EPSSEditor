@@ -39,6 +39,10 @@
             this.spiSoundListView = new System.Windows.Forms.ListView();
             this.deleteSpiSoundButton = new System.Windows.Forms.Button();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.custMidiToneToTextBox = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.custMidiToneFromTextBox = new System.Windows.Forms.TextBox();
+            this.CustomSampleRadioButton = new System.Windows.Forms.RadioButton();
             this.label10 = new System.Windows.Forms.Label();
             this.midiToneTextBox = new System.Windows.Forms.TextBox();
             this.MultiSampleRadioButton = new System.Windows.Forms.RadioButton();
@@ -108,10 +112,6 @@
             this.loadProjectFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openDrumMappingsFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSampleFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.CustomSampleRadioButton = new System.Windows.Forms.RadioButton();
-            this.custMidiToneFromTextBox = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.custMidiToneToTextBox = new System.Windows.Forms.TextBox();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).BeginInit();
@@ -274,6 +274,41 @@
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "MIDI Mapping";
             // 
+            // custMidiToneToTextBox
+            // 
+            this.custMidiToneToTextBox.Location = new System.Drawing.Point(132, 202);
+            this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
+            this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
+            this.custMidiToneToTextBox.TabIndex = 21;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(113, 207);
+            this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(16, 13);
+            this.label11.TabIndex = 11;
+            this.label11.Text = "to";
+            // 
+            // custMidiToneFromTextBox
+            // 
+            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(78, 202);
+            this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
+            this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
+            this.custMidiToneFromTextBox.TabIndex = 20;
+            // 
+            // CustomSampleRadioButton
+            // 
+            this.CustomSampleRadioButton.AutoSize = true;
+            this.CustomSampleRadioButton.Location = new System.Drawing.Point(15, 205);
+            this.CustomSampleRadioButton.Name = "CustomSampleRadioButton";
+            this.CustomSampleRadioButton.Size = new System.Drawing.Size(60, 17);
+            this.CustomSampleRadioButton.TabIndex = 19;
+            this.CustomSampleRadioButton.TabStop = true;
+            this.CustomSampleRadioButton.Text = "Custom";
+            this.CustomSampleRadioButton.UseVisualStyleBackColor = true;
+            // 
             // label10
             // 
             this.label10.AutoSize = true;
@@ -324,6 +359,8 @@
             this.defaultMidiMapRadioButton.TabIndex = 16;
             this.defaultMidiMapRadioButton.TabStop = true;
             this.defaultMidiMapRadioButton.Text = "Default MIDI mapping C2-C6";
+            this.infoToolTip.SetToolTip(this.defaultMidiMapRadioButton, "If one sound selected, this sound is used on all keys. If multiple sounds selecte" +
+        "d, it assumes the sounds have been imported from sfz.");
             this.defaultMidiMapRadioButton.UseVisualStyleBackColor = true;
             this.defaultMidiMapRadioButton.CheckedChanged += new System.EventHandler(this.defaultMidiMapRadioButton_CheckedChanged);
             // 
@@ -958,41 +995,6 @@
             // openDrumMappingsFileDialog
             // 
             this.openDrumMappingsFileDialog.Filter = "XML Drum mappings (*.xml)|*.xml|All files (*.*)|*.*\"";
-            // 
-            // CustomSampleRadioButton
-            // 
-            this.CustomSampleRadioButton.AutoSize = true;
-            this.CustomSampleRadioButton.Location = new System.Drawing.Point(15, 205);
-            this.CustomSampleRadioButton.Name = "CustomSampleRadioButton";
-            this.CustomSampleRadioButton.Size = new System.Drawing.Size(60, 17);
-            this.CustomSampleRadioButton.TabIndex = 19;
-            this.CustomSampleRadioButton.TabStop = true;
-            this.CustomSampleRadioButton.Text = "Custom";
-            this.CustomSampleRadioButton.UseVisualStyleBackColor = true;
-            // 
-            // custMidiToneFromTextBox
-            // 
-            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(78, 202);
-            this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
-            this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
-            this.custMidiToneFromTextBox.TabIndex = 20;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(113, 207);
-            this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(16, 13);
-            this.label11.TabIndex = 11;
-            this.label11.Text = "to";
-            // 
-            // custMidiToneToTextBox
-            // 
-            this.custMidiToneToTextBox.Location = new System.Drawing.Point(132, 202);
-            this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
-            this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
-            this.custMidiToneToTextBox.TabIndex = 21;
             // 
             // Form1
             // 
