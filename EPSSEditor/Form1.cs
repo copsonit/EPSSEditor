@@ -871,7 +871,9 @@ namespace EPSSEditor
             {
                 string filePath = files[0];
                 string ext = Path.GetExtension(filePath).ToUpper();
-                string baseName = Path.GetFileNameWithoutExtension(filePath).Substring(0, 13);
+
+                string baseName = Path.GetFileNameWithoutExtension(filePath);
+                baseName = baseName.Substring(0, Math.Min(baseName.Length-1, 13));
                 if (ext == ".SFZ")
                 {
                     ParseSfz p = new ParseSfz();

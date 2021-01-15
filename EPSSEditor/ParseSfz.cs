@@ -39,16 +39,36 @@ namespace EPSSEditor
             }
             else
             {
-                string[] words = line.Split('=');
-                if (words.Length == 2)
+                if (line.Contains("//"))
                 {
-                    variables.Add(words[0].TrimEnd().TrimStart().ToLower(), words[1].TrimEnd().TrimStart().ToLower());
+                    // Comment, do nothing
                 }
                 else
                 {
-                    throw (new ArgumentException("Incorrect parameters after <region>."));
-                 }
+                    string[] words0 = line.Split('=', ' ');
+                    List<string> words = new List<string>();
+                    foreach(string w in words0)
+                    {
+                        string v = w.TrimEnd().TrimStart().ToLower();
+                        if (v.Length > 0) words.Add(v);
+                    }
 
+                    if (words.Count >= 2)
+                    {
+                        int i = 0;
+                        while (true)
+                        {
+                            variables.Add(words[i].TrimEnd().TrimStart().ToLower(), words[i + 1].TrimEnd().TrimStart().ToLower());
+                            i += 2;
+                            if (i >= words.Count) break;
+                        }
+
+                    }
+                    else
+                    {
+                        // throw (new ArgumentException("Incorrect parameters after <region>."));
+                    }
+                }
             }
             return true;
         }
@@ -57,11 +77,12 @@ namespace EPSSEditor
 
     public class SfzRegionSection : SfzBase
     {
-        public string file;
+        //public string file;
 
 
         public string FilePath(string basePath)
         {
+            string file = variables["sample"];
             return System.IO.Path.Combine(basePath, file);
         }
 
@@ -74,14 +95,17 @@ namespace EPSSEditor
                     string[] words = line.Substring(i + 1).Split('=');
                     if (words.Length == 2)
                     {
-                        if (words[0].TrimEnd().TrimStart().ToLower() == "sample")
+                        string key = words[0].TrimEnd().TrimStart().ToLower();
+                        if ( key == "sample")
                         {
-                            file = words[1].TrimEnd().TrimStart().ToLower();
+                            string file = words[1].TrimEnd().TrimStart().ToLower();
+                            variables.Add(key, file);
+
                         }
                     }
                     else
                     {
-                        throw (new ArgumentException("Incorrect parameters after <region>."));
+                        //throw (new ArgumentException("Incorrect parameters after <region>."));
                     }
                     break;
                 }
