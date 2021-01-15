@@ -886,9 +886,54 @@ namespace EPSSEditor
                             string fp = tBase.FilePath(basePath);
                             Sound s = new Sound(fp);
                             s.description = baseName + Path.GetFileNameWithoutExtension(fp);
-                            s.loKey = Convert.ToByte(tBase.variables["lokey"]);
-                            s.hiKey= Convert.ToByte(tBase.variables["hikey"]);
-                            s.keyCenter = Convert.ToByte(tBase.variables["pitch_keycenter"]);
+                            byte loByte;
+                            string loKeyS = tBase.variables["lokey"];
+                            if (!TryToByte(loKeyS, out loByte))
+                            {
+                                int v = parseNoteToInt(loKeyS);
+                                if (v < 0 || v > 127)
+                                {
+                                    loByte = 128;
+                                } else
+                                {
+                                    loByte = (byte)v;
+                                }
+                            }
+                            s.loKey = loByte;
+
+                              
+
+                            byte hiByte;
+                            string hiKeyS = tBase.variables["hikey"];
+                            if (!TryToByte(hiKeyS, out hiByte))
+                            {
+                                int v = parseNoteToInt(hiKeyS);
+                                if (v < 0 || v > 127)
+                                {
+                                    hiByte = 128;
+                                } else
+                                {
+                                    hiByte = (byte)v;
+                                }
+                            }
+                            s.hiKey = hiByte;
+
+
+                            byte kcByte;
+                            string kcS = tBase.variables["pitch_keycenter"];
+                            if (!TryToByte(kcS, out kcByte))
+                            {
+                                int v = parseNoteToInt(kcS);
+                                if (v < 0 || v > 127)
+                                {
+                                    kcByte = 128;
+                                } else
+                                {
+                                    kcByte = (byte)v;
+                                }
+                            }
+                            s.keyCenter = kcByte;
+
                             data.sounds.Add(s);
                             anyFile = fp;
                         }

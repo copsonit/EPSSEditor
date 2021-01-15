@@ -132,6 +132,14 @@ namespace EPSSEditor
 
         }
 
+
+        bool isLineComment(string line)
+        {
+            if (line.StartsWith("//")) return true;
+            return false;
+                   
+        }
+
         public List<SfzBase> parse(string file)
         {
             Dictionary<string, System.Type> dict = new Dictionary<string, System.Type>();
@@ -145,7 +153,7 @@ namespace EPSSEditor
             {
                 bool result = false;
 
-                if (line.Length > 0)
+                if (line.Length > 0 && !isLineComment(line))
                 {
                     while (!result)
                     {
