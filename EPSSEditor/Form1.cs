@@ -38,6 +38,10 @@ namespace EPSSEditor
      * OK. Delete should work for selected samples in left window!
      * TODO Support 32-bit sounds! Some newly found Wav reports as 32-bit Wav. 
      * TODO Until we support, warn when loading the sound!
+     * OK  Support for loading sfz
+     * WIP  Support to build SPI v3 with program change.
+     * OK      UI and add sounds
+     * NYI     Save as SPI v3 if program change sounds are used.
      * 
      * Bugs:
      * OK.  Cannot find the drumMappings.xml in installed version.
@@ -48,7 +52,7 @@ namespace EPSSEditor
      *      
      * 
      * Wishlist:
-     * WIP      Multiple selection of sounds to automatically add? Mutisample + Drums
+     * OK      Multiple selection of sounds to automatically add? Mutisample + Drums
      * WIP      Play converted sound on PC? What is not working?
      *          Project should save all samples as well in the project file. Stream it to xml? Binary format.
      *          Idea: project file as sqlite instead of db3?
@@ -228,11 +232,48 @@ namespace EPSSEditor
                     data.initialize(combined);
 
                     updateDialog();
-                    defaultMidiMapRadioButton.Checked = true;
 
                     saveProjectSettings();
                 }
             }
+            defaultMidiMapRadioButton.Checked = true;
+            mappingModeMidiRadioButton.Checked = true;
+            setMidiChannel(1);
+
+
+        }
+
+
+        private void updateMappingMode()
+        {
+            bool midiMappingMode = mappingModeMidiRadioButton.Checked;
+            if (!midiMappingMode)
+            {
+                defaultMidiMapRadioButton.Checked = true;
+            }
+            GmPercMidiMappingRadioButton.Enabled = midiMappingMode;
+
+            if (midiMappingMode)
+            {
+                int ch = midiChTrackBar.Value;
+                drumsComboBox1.Enabled = ch == 10 ? true : false;
+
+                midiChTrackBar.Maximum = 16;
+            } else
+            {
+                drumsComboBox1.Enabled = midiMappingMode;
+                midiChTrackBar.Maximum = 128;
+            }
+
+
+            MultiSampleRadioButton.Enabled = midiMappingMode;
+            CustomSampleRadioButton.Enabled = midiMappingMode;
+            midiToneLabel.Enabled = midiMappingMode;
+            midiToneTextBox.Enabled = midiMappingMode;
+            custMidiToneFromTextBox.Enabled = midiMappingMode;
+            custMidiToneLabel.Enabled = midiMappingMode;
+            custMidiToneToTextBox.Enabled = midiMappingMode;
+
         }
 
 
@@ -242,6 +283,7 @@ namespace EPSSEditor
             updateSoundListBox();
             updateSpiSoundListBox();
             updatePreview();
+            updateMappingMode();
         }
 
 
@@ -328,6 +370,7 @@ namespace EPSSEditor
             spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("MIDI", 35, HorizontalAlignment.Right);
             spiSoundListView.Columns.Add("Note", 55, HorizontalAlignment.Right);
+            spiSoundListView.Columns.Add("Program", 55, HorizontalAlignment.Right);
 
             spiSoundListView.Columns.Add("Sound", 165, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("#", 25, HorizontalAlignment.Right);
@@ -342,7 +385,15 @@ namespace EPSSEditor
                 ListViewItem item = new ListViewItem(i++.ToString());
                 //item.Tag = i;
 
-                item.SubItems.Add(s.midiChannel.ToString());
+                if (s.midiChannel <= 16)
+                {
+                    item.SubItems.Add(s.midiChannel.ToString());
+                }
+                else
+                {
+                    item.SubItems.Add("-");
+                }
+                
                 if (s.startNote < 128 && s.endNote < 128)
                 {
                     item.SubItems.Add(s.startNote.ToString() + "-" + s.endNote.ToString());
@@ -352,6 +403,14 @@ namespace EPSSEditor
                     item.SubItems.Add(s.midiNote.ToString());
                 }
 
+                if (s.programNumber < 128)
+                {
+                    item.SubItems.Add(s.programNumber.ToString());
+                }
+                else
+                {
+                    item.SubItems.Add("-");
+                }
 
                 item.SubItems.Add(s.name());
                 int nr = data.getSoundNumberFromGuid(s.soundId);
@@ -393,7 +452,8 @@ namespace EPSSEditor
             midiChTextBox.Text = ch.ToString();
             midiChTrackBar.Value = ch;
 
-            drumsComboBox1.Enabled = ch == 10 ? true : false;
+            updateMappingMode();
+
         }
 
 
@@ -1060,16 +1120,21 @@ namespace EPSSEditor
         {
             int ch = midiChTrackBar.Value;
             setMidiChannel(ch);
-            
 
-            if (ch == 10)
+            if (mappingModeMidiRadioButton.Checked)
             {
-                GmPercMidiMappingRadioButton.Checked = true;
-            }
-            else
+                if (ch == 10)
+                {
+                    GmPercMidiMappingRadioButton.Checked = true;
+                }
+                else
+                {
+
+                    defaultMidiMapRadioButton.Checked = true;
+                }
+            } else
             {
 
-                defaultMidiMapRadioButton.Checked = true;
             }
             
         }
@@ -1156,175 +1221,225 @@ namespace EPSSEditor
         {
             List<Sound> sounds = getSelectedSounds();
 
-            if (sounds.Count > 1)
+            if (mappingModeMidiRadioButton.Checked)
             {
+                if (sounds.Count > 1)
+                {
+                    bool mappingOk = false;
+                    byte startNote = 128;
+                    if (MultiSampleRadioButton.Checked)
+                    {
+                        startNote = parseMidiTone(midiToneTextBox.Text);
+                        mappingOk = true;
+                    }
 
-                bool mappingOk = false;
-                byte startNote = 128;
-                if (MultiSampleRadioButton.Checked)
-                {
-                    startNote = parseMidiTone(midiToneTextBox.Text);
-                    mappingOk = true;
-                }
-                
-                else if (GmPercMidiMappingRadioButton.Checked)
-                {
-                    mappingOk = true;
-                    startNote = percussionNote();
-                }
-                else if (defaultMidiMapRadioButton.Checked)
-                {
-                    mappingOk = true;
-                    startNote = 128;
-                }
+                    else if (GmPercMidiMappingRadioButton.Checked)
+                    {
+                        mappingOk = true;
+                        startNote = percussionNote();
+                    }
+                    else if (defaultMidiMapRadioButton.Checked)
+                    {
+                        mappingOk = true;
+                        startNote = 128;
+                    }
 
-                if (mappingOk)
+                    if (mappingOk)
+                    {
+                        foreach (Sound sound in sounds)
+                        {
+                            Sound s = sound;
+                            SpiSound spiSnd = new SpiSound(ref s);
+
+                            if (defaultMidiMapRadioButton.Checked)
+                            {
+                                spiSnd.startNote = s.loKey;
+                                spiSnd.endNote = s.hiKey;
+                                spiSnd.midiNote = (byte)(84 - (s.keyCenter - s.loKey));
+                            }
+                            else
+                            {
+                                spiSnd.midiNote = startNote++;
+                            }
+
+
+                            int midiChannel = currentMidiChannel();
+                            spiSnd.midiChannel = (byte)midiChannel;
+
+                            int toFreq;
+                            if (s.parameters().hasParameters())
+                            {
+                                toFreq = s.parameters().freq.toFreq;
+                            }
+                            else
+                            {
+                                toFreq = Properties.Settings.Default.SampleConversionDestFreq;
+                            }
+
+                            updateAfterSoundChange(ref s, toFreq);
+                            compressionTrackBar.Value = compressionTrackBarValueFromFrequency(toFreq);
+
+                            if (!defaultMidiMapRadioButton.Checked)
+                            {
+                                data.removeSpiSound(spiSnd.midiChannel, spiSnd.midiNote);
+                            }
+
+                            data.spiSounds.Add(spiSnd);
+
+                        }
+                        updateSpiSoundListBox();
+                        dataNeedsSaving = true;
+                        saveProjectSettings();
+                        updateTotalSize();
+
+                    }
+                    else
+                    {
+                        System.Windows.Forms.MessageBox.Show("Need to have multi sample mapping or GM Percussion mapping selected!");
+                    }
+
+
+                }
+                else
+                {
+                    Sound s = getSoundAtSelectedIndex();
+                    if (s != null)
+                    {
+                        if (CustomSampleRadioButton.Checked)
+                        {
+                            byte startNote = parseMidiTone(custMidiToneFromTextBox.Text);
+                            byte endNote = parseMidiTone(custMidiToneToTextBox.Text);
+                            if (startNote < 128 && endNote < 128 && startNote < endNote)
+                            {
+                                int midiChannel = currentMidiChannel();
+                                SpiSound spiSnd = new SpiSound(ref s);
+                                spiSnd.midiChannel = (byte)midiChannel;
+                                spiSnd.midiNote = 84;
+                                spiSnd.startNote = startNote;
+                                spiSnd.endNote = endNote;
+                                data.spiSounds.Add(spiSnd);
+
+                                updateSpiSoundListBox();
+                                dataNeedsSaving = true;
+                                saveProjectSettings();
+                                updateTotalSize();
+                            }
+                            else
+                            {
+                                System.Windows.Forms.MessageBox.Show("Incorrect from and to note values!");
+                            }
+                        }
+                        else
+                        {
+                            bool addOk = true;
+                            SpiSound spiSnd = new SpiSound(ref s);
+
+                            int midiChannel = currentMidiChannel();
+                            spiSnd.midiChannel = (byte)midiChannel;
+
+                            if (midiChannel == 10)
+                            {
+                                spiSnd.midiNote = percussionNote(); // 1-128
+                            }
+
+                            if (midiChannel != 10)
+                            {
+                                if (data.isMidiChannelOccupied(midiChannel))
+                                {
+                                    addOk = false;
+                                    System.Windows.Forms.MessageBox.Show("MIDI channel " + midiChannel.ToString() + " already occupied!");
+                                }
+                            }
+                            else if (midiChannel == 10)
+                            {
+                                if (data.isDrumSoundOccupied(spiSnd.midiNote))
+                                {
+                                    addOk = false;
+                                    System.Windows.Forms.MessageBox.Show("Drum sound " + spiSnd.midiNote.ToString() + " already occupied!");
+                                }
+                            }
+
+
+                            if (addOk)
+                            {
+                                data.spiSounds.Add(spiSnd);
+                                updateSpiSoundListBox();
+
+
+                                if (defaultMidiMapRadioButton.Checked)
+                                {
+                                    int ch = data.getNextFreeMidiChannel();
+                                    if (ch > 0) setMidiChannel(ch);
+                                }
+                                else
+                                {
+                                    int idx = drumsComboBox1.SelectedIndex;
+                                    if (idx < drumsComboBox1.Items.Count - 1)
+                                    {
+                                        drumsComboBox1.SelectedIndex = idx + 1;
+                                    }
+                                }
+
+                                dataNeedsSaving = true;
+                                saveProjectSettings();
+                                updateTotalSize();
+
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (sounds.Count > 1)
                 {
                     foreach (Sound sound in sounds)
                     {
                         Sound s = sound;
                         SpiSound spiSnd = new SpiSound(ref s);
 
-                        if (defaultMidiMapRadioButton.Checked)
-                        {
-                            spiSnd.startNote = s.loKey;
-                            spiSnd.endNote = s.hiKey;
-                            spiSnd.midiNote = (byte)(84 - (s.keyCenter - s.loKey));
-                        }
-                        else
-                        {
-                            spiSnd.midiNote = startNote++;
-                        }
-
-
-                        int midiChannel = currentMidiChannel();
-                        spiSnd.midiChannel = (byte)midiChannel;
-
-                        int toFreq;
-                        if (s.parameters().hasParameters())
-                        {
-                            toFreq = s.parameters().freq.toFreq;
-                        }
-                        else
-                        {
-                            toFreq = Properties.Settings.Default.SampleConversionDestFreq;
-                        }
-
-                        updateAfterSoundChange(ref s, toFreq);
-                        compressionTrackBar.Value = compressionTrackBarValueFromFrequency(toFreq);
-
-                        if (!defaultMidiMapRadioButton.Checked) { 
-                            data.removeSpiSound(spiSnd.midiChannel, spiSnd.midiNote);
-                        }
+                        spiSnd.midiChannel = 128;
+                        spiSnd.startNote = s.loKey;
+                        spiSnd.endNote = s.hiKey;
+                        spiSnd.midiNote = (byte)(84 - (s.keyCenter - s.loKey));
+                        spiSnd.programNumber = (byte)currentMidiChannel();
 
                         data.spiSounds.Add(spiSnd);
-
                     }
+
                     updateSpiSoundListBox();
                     dataNeedsSaving = true;
                     saveProjectSettings();
                     updateTotalSize();
-
                 }
-                else
+                else if (sounds.Count == 1)
                 {
-                    System.Windows.Forms.MessageBox.Show("Need to have multi sample mapping or GM Percussion mapping selected!");
-                }
-
-
-            }
-            else
-            {
-
-
-                Sound s = getSoundAtSelectedIndex();
-                if (s != null)
-                {
-                    if (CustomSampleRadioButton.Checked)
+                    Sound s = getSoundAtSelectedIndex();
+                    if (s != null)
                     {
-                        byte startNote = parseMidiTone(custMidiToneFromTextBox.Text);
-                        byte endNote = parseMidiTone(custMidiToneToTextBox.Text);
-                        if (startNote < 128 && endNote < 128 && startNote < endNote)
-                        {
-                            int midiChannel = currentMidiChannel();
-                            SpiSound spiSnd = new SpiSound(ref s);
-                            spiSnd.midiChannel = (byte)midiChannel;
-                            spiSnd.midiNote = 84;
-                            spiSnd.startNote = startNote;
-                            spiSnd.endNote = endNote;
-                            data.spiSounds.Add(spiSnd);
 
-                            updateSpiSoundListBox();
-                            dataNeedsSaving = true;
-                            saveProjectSettings();
-                            updateTotalSize();
-                        }
-                        else
-                        {
-                            System.Windows.Forms.MessageBox.Show("Incorrect from and to note values!");
-                        }
-                    }
-                    else
-                    {
-                        bool addOk = true;
+                        // TODO Check if program have been used before, remove if it is the case
+
                         SpiSound spiSnd = new SpiSound(ref s);
-
-                        int midiChannel = currentMidiChannel();
-                        spiSnd.midiChannel = (byte)midiChannel;
-
-                        if (midiChannel == 10)
-                        {
-                            spiSnd.midiNote = percussionNote(); // 1-128
-                        }
-
-                        if (midiChannel != 10)
-                        {
-                            if (data.isMidiChannelOccupied(midiChannel))
-                            {
-                                addOk = false;
-                                System.Windows.Forms.MessageBox.Show("MIDI channel " + midiChannel.ToString() + " already occupied!");
-                            }
-                        }
-                        else if (midiChannel == 10)
-                        {
-                            if (data.isDrumSoundOccupied(spiSnd.midiNote))
-                            {
-                                addOk = false;
-                                System.Windows.Forms.MessageBox.Show("Drum sound " + spiSnd.midiNote.ToString() + " already occupied!");
-                            }
-                        }
+                        spiSnd.midiChannel = 128;
+                        spiSnd.startNote = s.loKey;
+                        spiSnd.endNote = s.hiKey;
+                        spiSnd.midiNote = (byte)(84 - (s.keyCenter - s.loKey));
+                        spiSnd.programNumber = (byte)currentMidiChannel();
 
 
-                        if (addOk)
-                        {
-                            data.spiSounds.Add(spiSnd);
-                            updateSpiSoundListBox();
+                        data.spiSounds.Add(spiSnd);
 
+                        updateSpiSoundListBox();
+                        dataNeedsSaving = true;
+                        saveProjectSettings();
+                        updateTotalSize();
 
-                            if (defaultMidiMapRadioButton.Checked)
-                            {
-                                int ch = data.getNextFreeMidiChannel();
-                                if (ch > 0) setMidiChannel(ch);
-                            }
-                            else
-                            {
-                                int idx = drumsComboBox1.SelectedIndex;
-                                if (idx < drumsComboBox1.Items.Count - 1)
-                                {
-                                    drumsComboBox1.SelectedIndex = idx + 1;
-                                }
-                            }
-
-                            dataNeedsSaving = true;
-                            saveProjectSettings();
-                            updateTotalSize();
-
-                        }
                     }
                 }
             }
         }
-        
+
 
         private void deleteSpiSoundButton_Click(object sender, EventArgs e)
         {
@@ -1556,6 +1671,85 @@ namespace EPSSEditor
             playSelectedSound();
         }
 
+        private void custMidiToneToTextBox_TextChanged(object sender, EventArgs e)
+        {
 
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void custMidiToneFromTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CustomSampleRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void midiToneTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MultiSampleRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void midiChTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label21_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void drumsComboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+
+
+        private void mappingModeMidiRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (mappingModeMidiRadioButton.Checked)
+            {
+                int v = midiChTrackBar.Value;
+                if (v > 16)
+                {
+                    setMidiChannel(1);
+
+                }
+            }
+            updateMappingMode();
+
+        }
+
+        private void mappingModeProgramRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (mappingModeMidiRadioButton.Checked)
+            {
+                int v = midiChTrackBar.Value;
+                if (v > 16)
+                {
+                    setMidiChannel(1);
+            
+                }
+            }
+            updateMappingMode();
+        }
     }
 }

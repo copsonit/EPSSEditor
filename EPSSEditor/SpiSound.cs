@@ -17,6 +17,7 @@ namespace EPSSEditor
         public byte startNote;
         public byte endNote;
         public byte midiNoteMapped;
+        public byte programNumber;
 
         public Guid soundId;
         public string _name;
@@ -25,13 +26,14 @@ namespace EPSSEditor
         private MemoryStream ms = null;
 
         public SpiSound() {
-            startNote = endNote = 128;
+            startNote = endNote = programNumber = 128;
             midiNoteMapped = 84;
+            
         }
 
         public SpiSound(ref Sound sound)
         {
-            startNote = endNote = 128;
+            startNote = endNote = programNumber = 128;
             midiNoteMapped = 84;
             soundId = sound.id();
             _name = sound.name();

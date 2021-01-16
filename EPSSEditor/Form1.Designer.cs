@@ -40,10 +40,10 @@
             this.deleteSpiSoundButton = new System.Windows.Forms.Button();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.custMidiToneToTextBox = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
+            this.custMidiToneLabel = new System.Windows.Forms.Label();
             this.custMidiToneFromTextBox = new System.Windows.Forms.TextBox();
             this.CustomSampleRadioButton = new System.Windows.Forms.RadioButton();
-            this.label10 = new System.Windows.Forms.Label();
+            this.midiToneLabel = new System.Windows.Forms.Label();
             this.midiToneTextBox = new System.Windows.Forms.TextBox();
             this.MultiSampleRadioButton = new System.Windows.Forms.RadioButton();
             this.GmPercMidiMappingRadioButton = new System.Windows.Forms.RadioButton();
@@ -112,6 +112,10 @@
             this.loadProjectFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openDrumMappingsFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSampleFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.groupBox12 = new System.Windows.Forms.GroupBox();
+            this.mappingModeMidiRadioButton = new System.Windows.Forms.RadioButton();
+            this.mappingModeProgramRadioButton = new System.Windows.Forms.RadioButton();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).BeginInit();
@@ -127,6 +131,8 @@
             this.groupBox4.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox10.SuspendLayout();
+            this.groupBox11.SuspendLayout();
+            this.groupBox12.SuspendLayout();
             this.SuspendLayout();
             // 
             // soundListBox
@@ -254,94 +260,90 @@
             // 
             // groupBox9
             // 
-            this.groupBox9.Controls.Add(this.custMidiToneToTextBox);
-            this.groupBox9.Controls.Add(this.label11);
-            this.groupBox9.Controls.Add(this.custMidiToneFromTextBox);
-            this.groupBox9.Controls.Add(this.CustomSampleRadioButton);
-            this.groupBox9.Controls.Add(this.label10);
-            this.groupBox9.Controls.Add(this.midiToneTextBox);
-            this.groupBox9.Controls.Add(this.MultiSampleRadioButton);
-            this.groupBox9.Controls.Add(this.GmPercMidiMappingRadioButton);
-            this.groupBox9.Controls.Add(this.defaultMidiMapRadioButton);
-            this.groupBox9.Controls.Add(this.midiChTrackBar);
-            this.groupBox9.Controls.Add(this.midiChTextBox);
-            this.groupBox9.Controls.Add(this.label21);
-            this.groupBox9.Controls.Add(this.drumsComboBox1);
-            this.groupBox9.Location = new System.Drawing.Point(6, 303);
+            this.groupBox9.Controls.Add(this.groupBox12);
+            this.groupBox9.Controls.Add(this.groupBox11);
+            this.groupBox9.Location = new System.Drawing.Point(6, 305);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(211, 228);
+            this.groupBox9.Size = new System.Drawing.Size(210, 318);
             this.groupBox9.TabIndex = 11;
             this.groupBox9.TabStop = false;
-            this.groupBox9.Text = "MIDI Mapping";
+            this.groupBox9.Text = "Sound Mapping";
             // 
             // custMidiToneToTextBox
             // 
-            this.custMidiToneToTextBox.Location = new System.Drawing.Point(132, 202);
+            this.custMidiToneToTextBox.Location = new System.Drawing.Point(129, 200);
             this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
             this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneToTextBox.TabIndex = 21;
+            this.custMidiToneToTextBox.TextChanged += new System.EventHandler(this.custMidiToneToTextBox_TextChanged);
             // 
-            // label11
+            // custMidiToneLabel
             // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(113, 207);
-            this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(16, 13);
-            this.label11.TabIndex = 11;
-            this.label11.Text = "to";
+            this.custMidiToneLabel.AutoSize = true;
+            this.custMidiToneLabel.Location = new System.Drawing.Point(110, 205);
+            this.custMidiToneLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.custMidiToneLabel.Name = "custMidiToneLabel";
+            this.custMidiToneLabel.Size = new System.Drawing.Size(16, 13);
+            this.custMidiToneLabel.TabIndex = 11;
+            this.custMidiToneLabel.Text = "to";
+            this.custMidiToneLabel.Click += new System.EventHandler(this.label11_Click);
             // 
             // custMidiToneFromTextBox
             // 
-            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(78, 202);
+            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(75, 200);
             this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
             this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneFromTextBox.TabIndex = 20;
+            this.custMidiToneFromTextBox.TextChanged += new System.EventHandler(this.custMidiToneFromTextBox_TextChanged);
             // 
             // CustomSampleRadioButton
             // 
             this.CustomSampleRadioButton.AutoSize = true;
-            this.CustomSampleRadioButton.Location = new System.Drawing.Point(15, 205);
+            this.CustomSampleRadioButton.Location = new System.Drawing.Point(12, 203);
             this.CustomSampleRadioButton.Name = "CustomSampleRadioButton";
             this.CustomSampleRadioButton.Size = new System.Drawing.Size(60, 17);
             this.CustomSampleRadioButton.TabIndex = 19;
             this.CustomSampleRadioButton.TabStop = true;
             this.CustomSampleRadioButton.Text = "Custom";
             this.CustomSampleRadioButton.UseVisualStyleBackColor = true;
+            this.CustomSampleRadioButton.CheckedChanged += new System.EventHandler(this.CustomSampleRadioButton_CheckedChanged);
             // 
-            // label10
+            // midiToneLabel
             // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(29, 175);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(82, 13);
-            this.label10.TabIndex = 8;
-            this.label10.Text = "Start MIDI-note:";
-            this.infoToolTip.SetToolTip(this.label10, "Enter the MIDI note as a number or string. Note convention is C-2=0, C3=60, G8=12" +
+            this.midiToneLabel.AutoSize = true;
+            this.midiToneLabel.Location = new System.Drawing.Point(26, 173);
+            this.midiToneLabel.Name = "midiToneLabel";
+            this.midiToneLabel.Size = new System.Drawing.Size(82, 13);
+            this.midiToneLabel.TabIndex = 8;
+            this.midiToneLabel.Text = "Start MIDI-note:";
+            this.infoToolTip.SetToolTip(this.midiToneLabel, "Enter the MIDI note as a number or string. Note convention is C-2=0, C3=60, G8=12" +
         "7.");
+            this.midiToneLabel.Click += new System.EventHandler(this.label10_Click);
             // 
             // midiToneTextBox
             // 
-            this.midiToneTextBox.Location = new System.Drawing.Point(117, 172);
+            this.midiToneTextBox.Location = new System.Drawing.Point(114, 170);
             this.midiToneTextBox.Name = "midiToneTextBox";
             this.midiToneTextBox.Size = new System.Drawing.Size(45, 20);
             this.midiToneTextBox.TabIndex = 8;
+            this.midiToneTextBox.TextChanged += new System.EventHandler(this.midiToneTextBox_TextChanged);
             // 
             // MultiSampleRadioButton
             // 
             this.MultiSampleRadioButton.AutoSize = true;
-            this.MultiSampleRadioButton.Location = new System.Drawing.Point(15, 155);
+            this.MultiSampleRadioButton.Location = new System.Drawing.Point(12, 153);
             this.MultiSampleRadioButton.Name = "MultiSampleRadioButton";
             this.MultiSampleRadioButton.Size = new System.Drawing.Size(80, 17);
             this.MultiSampleRadioButton.TabIndex = 18;
             this.MultiSampleRadioButton.TabStop = true;
             this.MultiSampleRadioButton.Text = "Multisample";
             this.MultiSampleRadioButton.UseVisualStyleBackColor = true;
+            this.MultiSampleRadioButton.CheckedChanged += new System.EventHandler(this.MultiSampleRadioButton_CheckedChanged);
             // 
             // GmPercMidiMappingRadioButton
             // 
             this.GmPercMidiMappingRadioButton.AutoSize = true;
-            this.GmPercMidiMappingRadioButton.Location = new System.Drawing.Point(15, 108);
+            this.GmPercMidiMappingRadioButton.Location = new System.Drawing.Point(12, 106);
             this.GmPercMidiMappingRadioButton.Name = "GmPercMidiMappingRadioButton";
             this.GmPercMidiMappingRadioButton.Size = new System.Drawing.Size(143, 17);
             this.GmPercMidiMappingRadioButton.TabIndex = 17;
@@ -353,7 +355,7 @@
             // defaultMidiMapRadioButton
             // 
             this.defaultMidiMapRadioButton.AutoSize = true;
-            this.defaultMidiMapRadioButton.Location = new System.Drawing.Point(15, 85);
+            this.defaultMidiMapRadioButton.Location = new System.Drawing.Point(12, 83);
             this.defaultMidiMapRadioButton.Name = "defaultMidiMapRadioButton";
             this.defaultMidiMapRadioButton.Size = new System.Drawing.Size(160, 17);
             this.defaultMidiMapRadioButton.TabIndex = 16;
@@ -368,42 +370,45 @@
             // 
             this.midiChTrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.midiChTrackBar.Location = new System.Drawing.Point(10, 45);
+            this.midiChTrackBar.Location = new System.Drawing.Point(4, 14);
             this.midiChTrackBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.midiChTrackBar.Maximum = 16;
             this.midiChTrackBar.Minimum = 1;
             this.midiChTrackBar.Name = "midiChTrackBar";
-            this.midiChTrackBar.Size = new System.Drawing.Size(196, 45);
+            this.midiChTrackBar.Size = new System.Drawing.Size(184, 45);
             this.midiChTrackBar.TabIndex = 5;
             this.midiChTrackBar.Value = 1;
             this.midiChTrackBar.Scroll += new System.EventHandler(this.midiChTrackBar_Scroll);
             // 
             // midiChTextBox
             // 
-            this.midiChTextBox.Location = new System.Drawing.Point(87, 18);
+            this.midiChTextBox.Location = new System.Drawing.Point(129, 60);
             this.midiChTextBox.Name = "midiChTextBox";
             this.midiChTextBox.ReadOnly = true;
             this.midiChTextBox.Size = new System.Drawing.Size(41, 20);
             this.midiChTextBox.TabIndex = 13;
+            this.midiChTextBox.TextChanged += new System.EventHandler(this.midiChTextBox_TextChanged);
             // 
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(6, 21);
+            this.label21.Location = new System.Drawing.Point(7, 64);
             this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(75, 13);
+            this.label21.Size = new System.Drawing.Size(119, 13);
             this.label21.TabIndex = 12;
-            this.label21.Text = "MIDI Channel:";
+            this.label21.Text = "MIDI Channel/Program:";
+            this.label21.Click += new System.EventHandler(this.label21_Click);
             // 
             // drumsComboBox1
             // 
             this.drumsComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.drumsComboBox1.FormattingEnabled = true;
-            this.drumsComboBox1.Location = new System.Drawing.Point(21, 130);
+            this.drumsComboBox1.Location = new System.Drawing.Point(18, 128);
             this.drumsComboBox1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.drumsComboBox1.Name = "drumsComboBox1";
             this.drumsComboBox1.Size = new System.Drawing.Size(164, 21);
             this.drumsComboBox1.TabIndex = 11;
+            this.drumsComboBox1.SelectedIndexChanged += new System.EventHandler(this.drumsComboBox1_SelectedIndexChanged);
             // 
             // label4
             // 
@@ -625,7 +630,7 @@
             this.compressionTypeTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.compressionTypeTextBox.Name = "compressionTypeTextBox";
             this.compressionTypeTextBox.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.compressionTypeTextBox.Size = new System.Drawing.Size(239, 535);
+            this.compressionTypeTextBox.Size = new System.Drawing.Size(228, 627);
             this.compressionTypeTextBox.TabIndex = 7;
             this.compressionTypeTextBox.TabStop = false;
             this.compressionTypeTextBox.Text = "Conversion parameters";
@@ -836,7 +841,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(948, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(990, 24);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -996,11 +1001,68 @@
             // 
             this.openDrumMappingsFileDialog.Filter = "XML Drum mappings (*.xml)|*.xml|All files (*.*)|*.*\"";
             // 
+            // groupBox11
+            // 
+            this.groupBox11.Controls.Add(this.custMidiToneToTextBox);
+            this.groupBox11.Controls.Add(this.custMidiToneLabel);
+            this.groupBox11.Controls.Add(this.midiChTrackBar);
+            this.groupBox11.Controls.Add(this.custMidiToneFromTextBox);
+            this.groupBox11.Controls.Add(this.CustomSampleRadioButton);
+            this.groupBox11.Controls.Add(this.midiToneLabel);
+            this.groupBox11.Controls.Add(this.midiToneTextBox);
+            this.groupBox11.Controls.Add(this.MultiSampleRadioButton);
+            this.groupBox11.Controls.Add(this.GmPercMidiMappingRadioButton);
+            this.groupBox11.Controls.Add(this.defaultMidiMapRadioButton);
+            this.groupBox11.Controls.Add(this.midiChTextBox);
+            this.groupBox11.Controls.Add(this.label21);
+            this.groupBox11.Controls.Add(this.drumsComboBox1);
+            this.groupBox11.Location = new System.Drawing.Point(8, 60);
+            this.groupBox11.Name = "groupBox11";
+            this.groupBox11.Size = new System.Drawing.Size(196, 235);
+            this.groupBox11.TabIndex = 22;
+            this.groupBox11.TabStop = false;
+            this.groupBox11.Text = "Mapping type";
+            // 
+            // groupBox12
+            // 
+            this.groupBox12.Controls.Add(this.mappingModeProgramRadioButton);
+            this.groupBox12.Controls.Add(this.mappingModeMidiRadioButton);
+            this.groupBox12.Location = new System.Drawing.Point(8, 20);
+            this.groupBox12.Name = "groupBox12";
+            this.groupBox12.Size = new System.Drawing.Size(201, 40);
+            this.groupBox12.TabIndex = 23;
+            this.groupBox12.TabStop = false;
+            this.groupBox12.Text = "Mapping mode";
+            // 
+            // mappingModeMidiRadioButton
+            // 
+            this.mappingModeMidiRadioButton.AutoSize = true;
+            this.mappingModeMidiRadioButton.Location = new System.Drawing.Point(8, 17);
+            this.mappingModeMidiRadioButton.Name = "mappingModeMidiRadioButton";
+            this.mappingModeMidiRadioButton.Size = new System.Drawing.Size(90, 17);
+            this.mappingModeMidiRadioButton.TabIndex = 0;
+            this.mappingModeMidiRadioButton.TabStop = true;
+            this.mappingModeMidiRadioButton.Text = "MIDI Channel";
+            this.mappingModeMidiRadioButton.UseVisualStyleBackColor = true;
+            this.mappingModeMidiRadioButton.CheckedChanged += new System.EventHandler(this.mappingModeMidiRadioButton_CheckedChanged);
+            // 
+            // mappingModeProgramRadioButton
+            // 
+            this.mappingModeProgramRadioButton.AutoSize = true;
+            this.mappingModeProgramRadioButton.Location = new System.Drawing.Point(99, 17);
+            this.mappingModeProgramRadioButton.Name = "mappingModeProgramRadioButton";
+            this.mappingModeProgramRadioButton.Size = new System.Drawing.Size(104, 17);
+            this.mappingModeProgramRadioButton.TabIndex = 1;
+            this.mappingModeProgramRadioButton.TabStop = true;
+            this.mappingModeProgramRadioButton.Text = "Program Change";
+            this.mappingModeProgramRadioButton.UseVisualStyleBackColor = true;
+            this.mappingModeProgramRadioButton.CheckedChanged += new System.EventHandler(this.mappingModeProgramRadioButton_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(948, 572);
+            this.ClientSize = new System.Drawing.Size(990, 650);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.useInSpiButton);
             this.Controls.Add(this.compressionTypeTextBox);
@@ -1010,14 +1072,13 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.Name = "Form1";
-            this.Text = "EPSS Editor v1.07 - 20201109";
+            this.Text = "EPSS Editor v1.08 - 20210116";
             this.Activated += new System.EventHandler(this.Form1_Activated);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox9.ResumeLayout(false);
-            this.groupBox9.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
@@ -1040,6 +1101,10 @@
             this.groupBox8.ResumeLayout(false);
             this.groupBox10.ResumeLayout(false);
             this.groupBox10.PerformLayout();
+            this.groupBox11.ResumeLayout(false);
+            this.groupBox11.PerformLayout();
+            this.groupBox12.ResumeLayout(false);
+            this.groupBox12.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1120,15 +1185,19 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.SaveFileDialog saveSampleFileDialog;
-        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label midiToneLabel;
         private System.Windows.Forms.TextBox midiToneTextBox;
         private System.Windows.Forms.RadioButton MultiSampleRadioButton;
         private System.Windows.Forms.CheckBox omniPatchCheckBox;
         private System.Windows.Forms.ToolStripMenuItem newProjectToolStripMenuItem;
         private System.Windows.Forms.TextBox custMidiToneToTextBox;
-        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label custMidiToneLabel;
         private System.Windows.Forms.TextBox custMidiToneFromTextBox;
         private System.Windows.Forms.RadioButton CustomSampleRadioButton;
+        private System.Windows.Forms.GroupBox groupBox12;
+        private System.Windows.Forms.RadioButton mappingModeProgramRadioButton;
+        private System.Windows.Forms.RadioButton mappingModeMidiRadioButton;
+        private System.Windows.Forms.GroupBox groupBox11;
     }
 }
 
