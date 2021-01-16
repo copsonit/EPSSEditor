@@ -200,5 +200,21 @@ namespace EPSSEditor
             }
             return result;
         }
+
+
+        public bool IdenticalSoundExists(Sound s)
+        {
+            bool result = false;
+            foreach(var snd in sounds)
+            {
+                if (snd.path == s.path && snd.loKey == s.loKey && snd.hiKey == s.hiKey && snd.keyCenter == s.keyCenter)
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
+        }
+
     }
 }

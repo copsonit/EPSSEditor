@@ -890,7 +890,7 @@ namespace EPSSEditor
                             string loKeyS = tBase.variables["lokey"];
                             if (!TryToByte(loKeyS, out loByte))
                             {
-                                int v = parseNoteToInt(loKeyS);
+                                int v = parseNoteToInt(loKeyS, 0);
                                 if (v < 0 || v > 127)
                                 {
                                     loByte = 128;
@@ -907,7 +907,7 @@ namespace EPSSEditor
                             string hiKeyS = tBase.variables["hikey"];
                             if (!TryToByte(hiKeyS, out hiByte))
                             {
-                                int v = parseNoteToInt(hiKeyS);
+                                int v = parseNoteToInt(hiKeyS, 0);
                                 if (v < 0 || v > 127)
                                 {
                                     hiByte = 128;
@@ -923,7 +923,7 @@ namespace EPSSEditor
                             string kcS = tBase.variables["pitch_keycenter"];
                             if (!TryToByte(kcS, out kcByte))
                             {
-                                int v = parseNoteToInt(kcS);
+                                int v = parseNoteToInt(kcS, 0);
                                 if (v < 0 || v > 127)
                                 {
                                     kcByte = 128;
@@ -934,7 +934,10 @@ namespace EPSSEditor
                             }
                             s.keyCenter = kcByte;
 
-                            data.sounds.Add(s);
+                            if (!data.IdenticalSoundExists(s))
+                            {
+                                data.sounds.Add(s);
+                            }
                             anyFile = fp;
                         }
                     }
@@ -1094,15 +1097,15 @@ namespace EPSSEditor
             return byte.TryParse(value.ToString(), out result);
         }
 
-        private int parseNoteToInt(string midiNote)
+        private int parseNoteToInt(string midiNote, int octaveOffset)
         {
             midiNote = midiNote.ToUpper();
             int v = 0;
             Dictionary<string, byte> notes = new Dictionary<string, byte>()
             {
                 { "C", 0 }, { "C#", 1}, { "D", 2 }, { "D#", 3 }, { "E", 4 },  { "F", 5 }, { "F#", 6 },
-                { "G", 7 }, { "G#", 8 }, { "A", 9 }, { "Bb", 10 }, { "B", 11 },
-                { "H", 11 }, { "Db", 1 }, { "Eb", 3 }, { "Gb", 6 }, { "Ab", 8 }
+                { "G", 7 }, { "G#", 8 }, { "A", 9 }, { "A#", 10 }, { "B", 11 },
+                { "H", 11 }, { "DB", 1 }, { "EB", 3 }, { "GB", 6 }, { "AB", 8 }, {"BB", 10}
             };
 
 
@@ -1114,7 +1117,7 @@ namespace EPSSEditor
                     if ((c >= '0' && c <= '9') || c == '-')
                     {
                         string n = midiNote.Substring(0, i);
-                        short oct = (short)((Convert.ToInt16(midiNote.Substring(i, midiNote.Length - i)) + 2) * 12);
+                        short oct = (short)((Convert.ToInt16(midiNote.Substring(i, midiNote.Length - i)) + octaveOffset) * 12);
                         v = Convert.ToInt32(oct);
                         v += notes[n];
                         break;
@@ -1135,7 +1138,7 @@ namespace EPSSEditor
             byte note = 128;
             if (!TryToByte(s, out note))
             {
-                int v = parseNoteToInt(s);
+                int v = parseNoteToInt(s, 2);
                 if (v < 0 || v > 127)
                 {
                     System.Windows.Forms.MessageBox.Show("Unsupported MIDI Note!");
