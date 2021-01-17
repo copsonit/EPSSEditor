@@ -39,8 +39,13 @@
             this.spiSoundListView = new System.Windows.Forms.ListView();
             this.deleteSpiSoundButton = new System.Windows.Forms.Button();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.groupBox12 = new System.Windows.Forms.GroupBox();
+            this.mappingModeProgramRadioButton = new System.Windows.Forms.RadioButton();
+            this.mappingModeMidiRadioButton = new System.Windows.Forms.RadioButton();
+            this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.custMidiToneToTextBox = new System.Windows.Forms.TextBox();
             this.custMidiToneLabel = new System.Windows.Forms.Label();
+            this.midiChTrackBar = new System.Windows.Forms.TrackBar();
             this.custMidiToneFromTextBox = new System.Windows.Forms.TextBox();
             this.CustomSampleRadioButton = new System.Windows.Forms.RadioButton();
             this.midiToneLabel = new System.Windows.Forms.Label();
@@ -48,7 +53,6 @@
             this.MultiSampleRadioButton = new System.Windows.Forms.RadioButton();
             this.GmPercMidiMappingRadioButton = new System.Windows.Forms.RadioButton();
             this.defaultMidiMapRadioButton = new System.Windows.Forms.RadioButton();
-            this.midiChTrackBar = new System.Windows.Forms.TrackBar();
             this.midiChTextBox = new System.Windows.Forms.TextBox();
             this.label21 = new System.Windows.Forms.Label();
             this.drumsComboBox1 = new System.Windows.Forms.ComboBox();
@@ -112,12 +116,11 @@
             this.loadProjectFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openDrumMappingsFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSampleFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.groupBox11 = new System.Windows.Forms.GroupBox();
-            this.groupBox12 = new System.Windows.Forms.GroupBox();
-            this.mappingModeMidiRadioButton = new System.Windows.Forms.RadioButton();
-            this.mappingModeProgramRadioButton = new System.Windows.Forms.RadioButton();
+            this.gen2CheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
+            this.groupBox12.SuspendLayout();
+            this.groupBox11.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -131,8 +134,6 @@
             this.groupBox4.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox10.SuspendLayout();
-            this.groupBox11.SuspendLayout();
-            this.groupBox12.SuspendLayout();
             this.SuspendLayout();
             // 
             // soundListBox
@@ -269,6 +270,63 @@
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Sound Mapping";
             // 
+            // groupBox12
+            // 
+            this.groupBox12.Controls.Add(this.mappingModeProgramRadioButton);
+            this.groupBox12.Controls.Add(this.mappingModeMidiRadioButton);
+            this.groupBox12.Location = new System.Drawing.Point(8, 20);
+            this.groupBox12.Name = "groupBox12";
+            this.groupBox12.Size = new System.Drawing.Size(201, 40);
+            this.groupBox12.TabIndex = 23;
+            this.groupBox12.TabStop = false;
+            this.groupBox12.Text = "Mapping mode";
+            // 
+            // mappingModeProgramRadioButton
+            // 
+            this.mappingModeProgramRadioButton.AutoSize = true;
+            this.mappingModeProgramRadioButton.Location = new System.Drawing.Point(99, 17);
+            this.mappingModeProgramRadioButton.Name = "mappingModeProgramRadioButton";
+            this.mappingModeProgramRadioButton.Size = new System.Drawing.Size(104, 17);
+            this.mappingModeProgramRadioButton.TabIndex = 1;
+            this.mappingModeProgramRadioButton.TabStop = true;
+            this.mappingModeProgramRadioButton.Text = "Program Change";
+            this.mappingModeProgramRadioButton.UseVisualStyleBackColor = true;
+            this.mappingModeProgramRadioButton.CheckedChanged += new System.EventHandler(this.mappingModeProgramRadioButton_CheckedChanged);
+            // 
+            // mappingModeMidiRadioButton
+            // 
+            this.mappingModeMidiRadioButton.AutoSize = true;
+            this.mappingModeMidiRadioButton.Location = new System.Drawing.Point(8, 17);
+            this.mappingModeMidiRadioButton.Name = "mappingModeMidiRadioButton";
+            this.mappingModeMidiRadioButton.Size = new System.Drawing.Size(90, 17);
+            this.mappingModeMidiRadioButton.TabIndex = 0;
+            this.mappingModeMidiRadioButton.TabStop = true;
+            this.mappingModeMidiRadioButton.Text = "MIDI Channel";
+            this.mappingModeMidiRadioButton.UseVisualStyleBackColor = true;
+            this.mappingModeMidiRadioButton.CheckedChanged += new System.EventHandler(this.mappingModeMidiRadioButton_CheckedChanged);
+            // 
+            // groupBox11
+            // 
+            this.groupBox11.Controls.Add(this.custMidiToneToTextBox);
+            this.groupBox11.Controls.Add(this.custMidiToneLabel);
+            this.groupBox11.Controls.Add(this.midiChTrackBar);
+            this.groupBox11.Controls.Add(this.custMidiToneFromTextBox);
+            this.groupBox11.Controls.Add(this.CustomSampleRadioButton);
+            this.groupBox11.Controls.Add(this.midiToneLabel);
+            this.groupBox11.Controls.Add(this.midiToneTextBox);
+            this.groupBox11.Controls.Add(this.MultiSampleRadioButton);
+            this.groupBox11.Controls.Add(this.GmPercMidiMappingRadioButton);
+            this.groupBox11.Controls.Add(this.defaultMidiMapRadioButton);
+            this.groupBox11.Controls.Add(this.midiChTextBox);
+            this.groupBox11.Controls.Add(this.label21);
+            this.groupBox11.Controls.Add(this.drumsComboBox1);
+            this.groupBox11.Location = new System.Drawing.Point(8, 60);
+            this.groupBox11.Name = "groupBox11";
+            this.groupBox11.Size = new System.Drawing.Size(196, 235);
+            this.groupBox11.TabIndex = 22;
+            this.groupBox11.TabStop = false;
+            this.groupBox11.Text = "Mapping type";
+            // 
             // custMidiToneToTextBox
             // 
             this.custMidiToneToTextBox.Location = new System.Drawing.Point(129, 200);
@@ -287,6 +345,20 @@
             this.custMidiToneLabel.TabIndex = 11;
             this.custMidiToneLabel.Text = "to";
             this.custMidiToneLabel.Click += new System.EventHandler(this.label11_Click);
+            // 
+            // midiChTrackBar
+            // 
+            this.midiChTrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.midiChTrackBar.Location = new System.Drawing.Point(4, 14);
+            this.midiChTrackBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.midiChTrackBar.Maximum = 16;
+            this.midiChTrackBar.Minimum = 1;
+            this.midiChTrackBar.Name = "midiChTrackBar";
+            this.midiChTrackBar.Size = new System.Drawing.Size(184, 45);
+            this.midiChTrackBar.TabIndex = 5;
+            this.midiChTrackBar.Value = 1;
+            this.midiChTrackBar.Scroll += new System.EventHandler(this.midiChTrackBar_Scroll);
             // 
             // custMidiToneFromTextBox
             // 
@@ -365,20 +437,6 @@
         "d, it assumes the sounds have been imported from sfz.");
             this.defaultMidiMapRadioButton.UseVisualStyleBackColor = true;
             this.defaultMidiMapRadioButton.CheckedChanged += new System.EventHandler(this.defaultMidiMapRadioButton_CheckedChanged);
-            // 
-            // midiChTrackBar
-            // 
-            this.midiChTrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.midiChTrackBar.Location = new System.Drawing.Point(4, 14);
-            this.midiChTrackBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.midiChTrackBar.Maximum = 16;
-            this.midiChTrackBar.Minimum = 1;
-            this.midiChTrackBar.Name = "midiChTrackBar";
-            this.midiChTrackBar.Size = new System.Drawing.Size(184, 45);
-            this.midiChTrackBar.TabIndex = 5;
-            this.midiChTrackBar.Value = 1;
-            this.midiChTrackBar.Scroll += new System.EventHandler(this.midiChTrackBar_Scroll);
             // 
             // midiChTextBox
             // 
@@ -939,6 +997,7 @@
             // 
             // groupBox10
             // 
+            this.groupBox10.Controls.Add(this.gen2CheckBox);
             this.groupBox10.Controls.Add(this.omniPatchCheckBox);
             this.groupBox10.Controls.Add(this.label22);
             this.groupBox10.Controls.Add(this.label23);
@@ -1001,62 +1060,18 @@
             // 
             this.openDrumMappingsFileDialog.Filter = "XML Drum mappings (*.xml)|*.xml|All files (*.*)|*.*\"";
             // 
-            // groupBox11
+            // gen2CheckBox
             // 
-            this.groupBox11.Controls.Add(this.custMidiToneToTextBox);
-            this.groupBox11.Controls.Add(this.custMidiToneLabel);
-            this.groupBox11.Controls.Add(this.midiChTrackBar);
-            this.groupBox11.Controls.Add(this.custMidiToneFromTextBox);
-            this.groupBox11.Controls.Add(this.CustomSampleRadioButton);
-            this.groupBox11.Controls.Add(this.midiToneLabel);
-            this.groupBox11.Controls.Add(this.midiToneTextBox);
-            this.groupBox11.Controls.Add(this.MultiSampleRadioButton);
-            this.groupBox11.Controls.Add(this.GmPercMidiMappingRadioButton);
-            this.groupBox11.Controls.Add(this.defaultMidiMapRadioButton);
-            this.groupBox11.Controls.Add(this.midiChTextBox);
-            this.groupBox11.Controls.Add(this.label21);
-            this.groupBox11.Controls.Add(this.drumsComboBox1);
-            this.groupBox11.Location = new System.Drawing.Point(8, 60);
-            this.groupBox11.Name = "groupBox11";
-            this.groupBox11.Size = new System.Drawing.Size(196, 235);
-            this.groupBox11.TabIndex = 22;
-            this.groupBox11.TabStop = false;
-            this.groupBox11.Text = "Mapping type";
-            // 
-            // groupBox12
-            // 
-            this.groupBox12.Controls.Add(this.mappingModeProgramRadioButton);
-            this.groupBox12.Controls.Add(this.mappingModeMidiRadioButton);
-            this.groupBox12.Location = new System.Drawing.Point(8, 20);
-            this.groupBox12.Name = "groupBox12";
-            this.groupBox12.Size = new System.Drawing.Size(201, 40);
-            this.groupBox12.TabIndex = 23;
-            this.groupBox12.TabStop = false;
-            this.groupBox12.Text = "Mapping mode";
-            // 
-            // mappingModeMidiRadioButton
-            // 
-            this.mappingModeMidiRadioButton.AutoSize = true;
-            this.mappingModeMidiRadioButton.Location = new System.Drawing.Point(8, 17);
-            this.mappingModeMidiRadioButton.Name = "mappingModeMidiRadioButton";
-            this.mappingModeMidiRadioButton.Size = new System.Drawing.Size(90, 17);
-            this.mappingModeMidiRadioButton.TabIndex = 0;
-            this.mappingModeMidiRadioButton.TabStop = true;
-            this.mappingModeMidiRadioButton.Text = "MIDI Channel";
-            this.mappingModeMidiRadioButton.UseVisualStyleBackColor = true;
-            this.mappingModeMidiRadioButton.CheckedChanged += new System.EventHandler(this.mappingModeMidiRadioButton_CheckedChanged);
-            // 
-            // mappingModeProgramRadioButton
-            // 
-            this.mappingModeProgramRadioButton.AutoSize = true;
-            this.mappingModeProgramRadioButton.Location = new System.Drawing.Point(99, 17);
-            this.mappingModeProgramRadioButton.Name = "mappingModeProgramRadioButton";
-            this.mappingModeProgramRadioButton.Size = new System.Drawing.Size(104, 17);
-            this.mappingModeProgramRadioButton.TabIndex = 1;
-            this.mappingModeProgramRadioButton.TabStop = true;
-            this.mappingModeProgramRadioButton.Text = "Program Change";
-            this.mappingModeProgramRadioButton.UseVisualStyleBackColor = true;
-            this.mappingModeProgramRadioButton.CheckedChanged += new System.EventHandler(this.mappingModeProgramRadioButton_CheckedChanged);
+            this.gen2CheckBox.AutoSize = true;
+            this.gen2CheckBox.Location = new System.Drawing.Point(162, 58);
+            this.gen2CheckBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.gen2CheckBox.Name = "gen2CheckBox";
+            this.gen2CheckBox.Size = new System.Drawing.Size(72, 17);
+            this.gen2CheckBox.TabIndex = 20;
+            this.gen2CheckBox.Text = "SPI Gen2";
+            this.infoToolTip.SetToolTip(this.gen2CheckBox, "Only supported in EPSS Driver 3.7 and newer! Create a patch that contains both MI" +
+        "DI Channel mapping and program change mappings.");
+            this.gen2CheckBox.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -1079,6 +1094,10 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox9.ResumeLayout(false);
+            this.groupBox12.ResumeLayout(false);
+            this.groupBox12.PerformLayout();
+            this.groupBox11.ResumeLayout(false);
+            this.groupBox11.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
@@ -1101,10 +1120,6 @@
             this.groupBox8.ResumeLayout(false);
             this.groupBox10.ResumeLayout(false);
             this.groupBox10.PerformLayout();
-            this.groupBox11.ResumeLayout(false);
-            this.groupBox11.PerformLayout();
-            this.groupBox12.ResumeLayout(false);
-            this.groupBox12.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1198,6 +1213,7 @@
         private System.Windows.Forms.RadioButton mappingModeProgramRadioButton;
         private System.Windows.Forms.RadioButton mappingModeMidiRadioButton;
         private System.Windows.Forms.GroupBox groupBox11;
+        private System.Windows.Forms.CheckBox gen2CheckBox;
     }
 }
 

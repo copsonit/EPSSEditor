@@ -239,7 +239,7 @@ namespace EPSSEditor
             defaultMidiMapRadioButton.Checked = true;
             mappingModeMidiRadioButton.Checked = true;
             setMidiChannel(1);
-
+            updateTotalSize();
 
         }
 
@@ -438,7 +438,7 @@ namespace EPSSEditor
 
         private void updateTotalSize()
         {
-            SpiCreator creator = new SpiCreator();
+            SpiCreator creator = new SpiCreator(spiVersion());
             long sz = creator.length(ref data);
             totalSizeTextBox.Text = Ext.ToPrettySize(sz, 2);
 
@@ -1002,6 +1002,13 @@ namespace EPSSEditor
                         }
                     }
                 }
+                else
+                {
+                    Sound s = new Sound(filePath);
+
+                    data.sounds.Add(s);
+                    anyFile = filePath;
+                }
             }
             else
             {
@@ -1535,6 +1542,10 @@ namespace EPSSEditor
         }
 
 
+        private int spiVersion()
+        {
+            return gen2CheckBox.Checked ? 2 : 1;
+        }
 
 
 
@@ -1551,18 +1562,23 @@ namespace EPSSEditor
                     string spiFile = saveSpiFileDialog.FileName;
                     Uri url = new Uri(spiFile);
 
-                    SpiCreator creator = new SpiCreator();
+                    SpiCreator creator = new SpiCreator(spiVersion());
                     int sampFreq = AtariConstants.SampleFreq25k;
                     data.omni = omniPatchCheckBox.Checked;
                     EPSSSpi spi = creator.create(ref data, soundsToSave, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
 
                     if (spi != null)
                     {
-                        spi.save(url);
-
-                        data.spiFileName = spiFile;
-                        dataNeedsSaving = true;
-                        saveProjectSettings();
+                        int result = spi.save(url);
+                        if (result == 0)
+                        {
+                            data.spiFileName = spiFile;
+                            dataNeedsSaving = true;
+                            saveProjectSettings();
+                        } else
+                        {
+                            System.Windows.Forms.MessageBox.Show("Error occured during save! Patch file might not be valid.");
+                        }
                     }
                 }
 
