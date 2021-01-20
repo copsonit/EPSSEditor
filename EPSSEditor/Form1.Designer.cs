@@ -105,6 +105,7 @@
             this.loadSoundFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.infoToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.omniPatchCheckBox = new System.Windows.Forms.CheckBox();
+            this.gen2CheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
@@ -116,7 +117,6 @@
             this.loadProjectFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.openDrumMappingsFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSampleFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.gen2CheckBox = new System.Windows.Forms.CheckBox();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.groupBox12.SuspendLayout();
@@ -139,12 +139,15 @@
             // soundListBox
             // 
             this.soundListBox.AllowDrop = true;
+            this.soundListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.soundListBox.FormattingEnabled = true;
             this.soundListBox.Location = new System.Drawing.Point(11, 27);
             this.soundListBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.soundListBox.Name = "soundListBox";
             this.soundListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.soundListBox.Size = new System.Drawing.Size(206, 264);
+            this.soundListBox.Size = new System.Drawing.Size(210, 381);
             this.soundListBox.TabIndex = 2;
             this.soundListBox.SelectedIndexChanged += new System.EventHandler(this.soundListBox_SelectedIndexChanged);
             this.soundListBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.soundListBox_DragDrop);
@@ -165,6 +168,9 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Controls.Add(this.previewComboBox);
             this.groupBox2.Controls.Add(this.label9);
@@ -175,15 +181,16 @@
             this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.groupBox2.Size = new System.Drawing.Size(428, 361);
+            this.groupBox2.Size = new System.Drawing.Size(423, 466);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
             // 
             // button1
             // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(215, 328);
+            this.button1.Location = new System.Drawing.Point(215, 433);
             this.button1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(71, 23);
@@ -195,13 +202,14 @@
             // 
             // previewComboBox
             // 
+            this.previewComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.previewComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.previewComboBox.FormattingEnabled = true;
             this.previewComboBox.Items.AddRange(new object[] {
             "Premixed for 4 Channel EPSS",
             "Premixed for 8 Channel EPSS",
             "Unmixed 8 Bit "});
-            this.previewComboBox.Location = new System.Drawing.Point(55, 331);
+            this.previewComboBox.Location = new System.Drawing.Point(55, 436);
             this.previewComboBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.previewComboBox.Name = "previewComboBox";
             this.previewComboBox.Size = new System.Drawing.Size(156, 21);
@@ -210,8 +218,9 @@
             // 
             // label9
             // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(4, 333);
+            this.label9.Location = new System.Drawing.Point(4, 438);
             this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(48, 13);
@@ -220,7 +229,8 @@
             // 
             // spiSoundListenButton
             // 
-            this.spiSoundListenButton.Location = new System.Drawing.Point(291, 328);
+            this.spiSoundListenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.spiSoundListenButton.Location = new System.Drawing.Point(291, 433);
             this.spiSoundListenButton.Name = "spiSoundListenButton";
             this.spiSoundListenButton.Size = new System.Drawing.Size(66, 23);
             this.spiSoundListenButton.TabIndex = 8;
@@ -231,13 +241,14 @@
             // 
             // spiSoundListView
             // 
-            this.spiSoundListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.spiSoundListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.spiSoundListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.spiSoundListView.HideSelection = false;
             this.spiSoundListView.Location = new System.Drawing.Point(5, 19);
             this.spiSoundListView.Name = "spiSoundListView";
-            this.spiSoundListView.Size = new System.Drawing.Size(419, 304);
+            this.spiSoundListView.Size = new System.Drawing.Size(414, 409);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
             this.spiSoundListView.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.spiSoundListView_ItemCheck);
@@ -247,9 +258,9 @@
             // 
             // deleteSpiSoundButton
             // 
-            this.deleteSpiSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.deleteSpiSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.deleteSpiSoundButton.Enabled = false;
-            this.deleteSpiSoundButton.Location = new System.Drawing.Point(363, 328);
+            this.deleteSpiSoundButton.Location = new System.Drawing.Point(358, 433);
             this.deleteSpiSoundButton.Name = "deleteSpiSoundButton";
             this.deleteSpiSoundButton.Size = new System.Drawing.Size(61, 23);
             this.deleteSpiSoundButton.TabIndex = 8;
@@ -265,7 +276,7 @@
             this.groupBox9.Controls.Add(this.groupBox11);
             this.groupBox9.Location = new System.Drawing.Point(6, 305);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(210, 318);
+            this.groupBox9.Size = new System.Drawing.Size(211, 295);
             this.groupBox9.TabIndex = 11;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Sound Mapping";
@@ -530,6 +541,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox3.Controls.Add(this.playButton);
             this.groupBox3.Controls.Add(this.loadSoundButton);
             this.groupBox3.Controls.Add(this.label13);
@@ -540,14 +553,15 @@
             this.groupBox3.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.groupBox3.Size = new System.Drawing.Size(225, 475);
+            this.groupBox3.Size = new System.Drawing.Size(229, 599);
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Input";
             // 
             // playButton
             // 
-            this.playButton.Location = new System.Drawing.Point(122, 306);
+            this.playButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.playButton.Location = new System.Drawing.Point(122, 430);
             this.playButton.Name = "playButton";
             this.playButton.Size = new System.Drawing.Size(46, 23);
             this.playButton.TabIndex = 0;
@@ -559,7 +573,8 @@
             // 
             // loadSoundButton
             // 
-            this.loadSoundButton.Location = new System.Drawing.Point(70, 306);
+            this.loadSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.loadSoundButton.Location = new System.Drawing.Point(70, 430);
             this.loadSoundButton.Name = "loadSoundButton";
             this.loadSoundButton.Size = new System.Drawing.Size(46, 23);
             this.loadSoundButton.TabIndex = 7;
@@ -579,7 +594,8 @@
             // 
             // deleteSoundButton
             // 
-            this.deleteSoundButton.Location = new System.Drawing.Point(170, 306);
+            this.deleteSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.deleteSoundButton.Location = new System.Drawing.Point(174, 430);
             this.deleteSoundButton.Name = "deleteSoundButton";
             this.deleteSoundButton.Size = new System.Drawing.Size(50, 23);
             this.deleteSoundButton.TabIndex = 5;
@@ -591,6 +607,8 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox5.Controls.Add(this.label16);
             this.groupBox5.Controls.Add(this.label15);
             this.groupBox5.Controls.Add(this.label8);
@@ -599,11 +617,11 @@
             this.groupBox5.Controls.Add(this.bitsTextBox);
             this.groupBox5.Controls.Add(this.sizeTextBox);
             this.groupBox5.Controls.Add(this.freqTextBox);
-            this.groupBox5.Location = new System.Drawing.Point(4, 334);
+            this.groupBox5.Location = new System.Drawing.Point(4, 458);
             this.groupBox5.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.groupBox5.Size = new System.Drawing.Size(221, 126);
+            this.groupBox5.Size = new System.Drawing.Size(225, 126);
             this.groupBox5.TabIndex = 3;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Sample Info";
@@ -688,7 +706,7 @@
             this.compressionTypeTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.compressionTypeTextBox.Name = "compressionTypeTextBox";
             this.compressionTypeTextBox.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.compressionTypeTextBox.Size = new System.Drawing.Size(228, 627);
+            this.compressionTypeTextBox.Size = new System.Drawing.Size(228, 600);
             this.compressionTypeTextBox.TabIndex = 7;
             this.compressionTypeTextBox.TabStop = false;
             this.compressionTypeTextBox.Text = "Conversion parameters";
@@ -884,7 +902,7 @@
             this.useInSpiButton.Enabled = false;
             this.useInSpiButton.Location = new System.Drawing.Point(473, 53);
             this.useInSpiButton.Name = "useInSpiButton";
-            this.useInSpiButton.Size = new System.Drawing.Size(24, 272);
+            this.useInSpiButton.Size = new System.Drawing.Size(24, 407);
             this.useInSpiButton.TabIndex = 11;
             this.useInSpiButton.Text = "A\r\nD\r\nD\r\n\r\n->\r\n->\r\n->\r\n\r\nS\r\nO\r\nU\r\nN\r\nD";
             this.useInSpiButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -899,7 +917,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(990, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(936, 24);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -970,6 +988,19 @@
             this.omniPatchCheckBox.UseVisualStyleBackColor = true;
             this.omniPatchCheckBox.CheckedChanged += new System.EventHandler(this.omniPatchCheckBox_CheckedChanged);
             // 
+            // gen2CheckBox
+            // 
+            this.gen2CheckBox.AutoSize = true;
+            this.gen2CheckBox.Location = new System.Drawing.Point(162, 58);
+            this.gen2CheckBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.gen2CheckBox.Name = "gen2CheckBox";
+            this.gen2CheckBox.Size = new System.Drawing.Size(72, 17);
+            this.gen2CheckBox.TabIndex = 20;
+            this.gen2CheckBox.Text = "SPI Gen2";
+            this.infoToolTip.SetToolTip(this.gen2CheckBox, "Only supported in EPSS Driver 3.7 and newer! Create a patch that contains both MI" +
+        "DI Channel mapping and program change mappings.");
+            this.gen2CheckBox.UseVisualStyleBackColor = true;
+            // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.label4);
@@ -979,18 +1010,19 @@
             this.groupBox4.Controls.Add(this.totalSizeTextBox);
             this.groupBox4.Location = new System.Drawing.Point(6, 14);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(161, 83);
+            this.groupBox4.Size = new System.Drawing.Size(167, 107);
             this.groupBox4.TabIndex = 15;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Size";
             // 
             // groupBox8
             // 
+            this.groupBox8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox8.Controls.Add(this.groupBox10);
             this.groupBox8.Controls.Add(this.groupBox4);
-            this.groupBox8.Location = new System.Drawing.Point(502, 398);
+            this.groupBox8.Location = new System.Drawing.Point(493, 502);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(428, 137);
+            this.groupBox8.Size = new System.Drawing.Size(428, 125);
             this.groupBox8.TabIndex = 11;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "EPSS SPI - Sound Patch Information";
@@ -1060,24 +1092,11 @@
             // 
             this.openDrumMappingsFileDialog.Filter = "XML Drum mappings (*.xml)|*.xml|All files (*.*)|*.*\"";
             // 
-            // gen2CheckBox
-            // 
-            this.gen2CheckBox.AutoSize = true;
-            this.gen2CheckBox.Location = new System.Drawing.Point(162, 58);
-            this.gen2CheckBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.gen2CheckBox.Name = "gen2CheckBox";
-            this.gen2CheckBox.Size = new System.Drawing.Size(72, 17);
-            this.gen2CheckBox.TabIndex = 20;
-            this.gen2CheckBox.Text = "SPI Gen2";
-            this.infoToolTip.SetToolTip(this.gen2CheckBox, "Only supported in EPSS Driver 3.7 and newer! Create a patch that contains both MI" +
-        "DI Channel mapping and program change mappings.");
-            this.gen2CheckBox.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(990, 650);
+            this.ClientSize = new System.Drawing.Size(936, 631);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.useInSpiButton);
             this.Controls.Add(this.compressionTypeTextBox);
@@ -1086,6 +1105,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.MinimumSize = new System.Drawing.Size(952, 670);
             this.Name = "Form1";
             this.Text = "EPSS Editor v1.08 - 20210116";
             this.Activated += new System.EventHandler(this.Form1_Activated);
