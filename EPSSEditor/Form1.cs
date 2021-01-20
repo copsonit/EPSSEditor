@@ -344,6 +344,14 @@ namespace EPSSEditor
         }
 
 
+        private bool loadSpiFile(string file)
+        {
+            bool result = false;
+            return result;
+        }
+
+
+
         private void updateDrumSettings()
         {
             foreach (Mapping m in data.drumMappings.mappings)
@@ -827,6 +835,39 @@ namespace EPSSEditor
                 loadProjectSettings(file);
                 result = true;
             }
+
+            return result;
+
+        }
+
+
+        private bool doLoadSpiFileDialog()
+        {
+            bool result = false;
+            string s = Properties.Settings.Default.ProjectFile;
+            if (s == null || s == "")
+            {
+                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                s = Path.Combine(s, "EPSS Projects", "default.spi");
+            }
+
+
+            
+            string spiFile = Path.GetDirectoryName(s);
+            loadSpiFileDialog.InitialDirectory = spiFile;
+            string fileName = Path.GetFileName(s);
+            loadSpiFileDialog.FileName = fileName;
+            if (loadSpiFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string file = loadSpiFileDialog.FileName;
+                //Properties.Settings.Default.ProjectFile = file;
+                //Properties.Settings.Default.Save();
+                // TODO load SPI
+                //loadProjectSettings(file);
+                result = loadSpiFile(file);
+            }
+            
+
 
             return result;
 
@@ -1499,6 +1540,22 @@ namespace EPSSEditor
         }
 
 
+        private void loadSPIToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool doLoad = true;
+            if (dataNeedsSaving)
+            {
+                if (MessageBox.Show("You have unsaved data in current project!\nDo you really want to load spi and clear\nall existing data?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    doLoad = false;
+                }
+            }
+
+            if (doLoad)
+            {
+                doLoadSpiFileDialog();
+            }
+        }
 
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1767,5 +1824,7 @@ namespace EPSSEditor
             }
             updateMappingMode();
         }
+
+
     }
 }
