@@ -14,10 +14,12 @@ namespace EPSSEditor
         public byte midiChannel;
         public byte midiNote;
         public int soundNumber;
+
         public byte startNote;
         public byte endNote;
         public byte midiNoteMapped;
         public byte programNumber;
+
 
         public Guid soundId;
         public string _name;
@@ -122,7 +124,12 @@ namespace EPSSEditor
                         //                    reader.Volume = 1.0f / max;
                        reader.Volume = volume / max;
 
+    
+
                         var outFormat = new WaveFormat(newFreq, reader.WaveFormat.Channels);
+                        // TODO use the pitch info to pitch it.
+                        // https://gitee.com/weivyuan/NAudio/tree/master/Docs  SmbPitchShiftingSampleProvider
+                        // Need to use the varispeed converter!
                         using (var resampler = new MediaFoundationResampler(reader, outFormat))
                         {
                             resampler.ResamplerQuality = 60;
@@ -133,6 +140,7 @@ namespace EPSSEditor
 
                     using (var reader = new WaveFileReader(volTempPath))
                     {
+
                         var newFormat = new WaveFormat(newFreq, bits, channels);
                         using (var conversionStream = new WaveFormatConversionStream(newFormat, reader))
                         {
@@ -157,7 +165,8 @@ namespace EPSSEditor
 
                             foreach (byte b in buffer)
                             {
-                                byte newB = b;                                spl.Add(newB);
+                                byte newB = b;
+                                spl.Add(newB);
                             }
                         }
 

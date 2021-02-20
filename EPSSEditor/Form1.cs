@@ -33,7 +33,8 @@ namespace EPSSEditor
      * OK. Auto increase for adding drums
      * OK. Multisample patch
      * OK. Omni switch
-     *     Multisample for drums, automatic spread
+     * OK. Multisample for drums, automatic spread
+     * OK. Remove the checkbox look of the right window.
      * 
      * OK. Delete should work for selected samples in left window!
      * TODO Support 32-bit sounds! Some newly found Wav reports as 32-bit Wav. 
@@ -46,9 +47,16 @@ namespace EPSSEditor
      * Bugs:
      * OK.  Cannot find the drumMappings.xml in installed version.
      * OK.  Did not update the sample size field for Sound correctly.
-     * EPSS DOS-date interpreted wrong in EPSS. 2000 issue, needs to be fixed in EPSS!
+     *      DOS-date interpreted wrong in EPSS. 2000 issue, needs to be fixed in EPSS!
      * OK.  Did not save the directories for project, samples and spi correctly. Fixed in 1.04.
-     *      If no sounds found, shoulnt crash
+     * TODO If no sounds found, shoulnt crash:
+     *         Need to show load dialog for each sound to let the user find missing sounds:
+     *         Use file name to try to find them. After loading of a sound, try to find all in same folder.
+     * TODO When Loading a patch, not everything is updated: windows, Total Size in Bytes etc.
+     * TODO Let sample window info should be disabled if nothing is selected, i.e. first time loaded, alt auto click first sound.
+     * TODO Sound size after compression also need to be initialized correctly.
+     * TODO MIDI Mapping button has to be correctly set according to what is saved in patch when loaded.
+     * TODO Change default text to "Created with EPSS Editor" + version number. Or somewhere store which version it is created in, in SPI Info. Reserve a few bytes for this?
      *      
      * 
      * Wishlist:
@@ -72,7 +80,7 @@ namespace EPSSEditor
         public bool callbacks = true;
         public int initialize;
         public bool dataNeedsSaving;
-
+        private ControlScrollListener _processListViewScrollListener;
 
         public Form1()
         {
@@ -80,7 +88,8 @@ namespace EPSSEditor
             initialize = 0;
             dataNeedsSaving = false;
 
-
+            _processListViewScrollListener = new ControlScrollListener(spiSoundListView);
+            _processListViewScrollListener.ControlScrolled += SpiSoundListViewScrollListener_ControlScrolled;
         }
 
 
@@ -372,6 +381,46 @@ namespace EPSSEditor
         }
 
 
+        void SpiSoundListViewScrollListener_ControlScrolled(object sender, EventArgs e, int delta, Point pos)
+        {
+            Point lwPos = spiSoundListView.PointToClient(pos);
+
+            ListViewHitTestInfo info = spiSoundListView.HitTest(lwPos.X, lwPos.Y);
+            ListViewItem item = info.Item;
+
+            if (item != null)
+            {
+                // TODO Select the item!
+
+
+                Console.WriteLine(item.ToString() + " " + info.SubItem.ToString());
+                var si = info.SubItem.Text;
+                int v = 0;
+                // TODO: only proof of concept, rewrite to correct handling!
+                if (si == "+-0") v = 0;
+                else if (si == "+1") v = 1;
+                else if (si == "+2") v = 2;
+                else if (si == "+3") v = 3;
+                else if (si == "+4") v = 4;
+                else if (si == "-1") v = -1;
+                else if (si == "-2") v = -2;
+                else if (si == "-3") v = -3;
+                else if (si == "-4") v = -4;
+
+                if (delta > 0) v++;
+                else v--;
+
+
+                if (v > 0) si = "+" + v.ToString();
+                else si = "-" + v.ToString();
+
+                info.SubItem.Text = si;
+
+            }
+            
+
+        }
+
         private void updateSpiSoundListBox()
         {
             spiSoundListView.Clear();
@@ -383,6 +432,7 @@ namespace EPSSEditor
             spiSoundListView.Columns.Add("Sound", 165, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("#", 25, HorizontalAlignment.Right);
             spiSoundListView.Columns.Add("Size", 55, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("Transpose", 55, HorizontalAlignment.Left);
             spiSoundListView.View = View.Details;
 
             spiSoundListView.FullRowSelect = true;
@@ -424,7 +474,12 @@ namespace EPSSEditor
                 int nr = data.getSoundNumberFromGuid(s.soundId);
                 item.SubItems.Add(nr.ToString());
 
-                item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 1));
+//<<<<<<< Updated upstream
+//                item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 1));
+//=======
+                item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 2));
+                item.SubItems.Add("+-0");
+//>>>>>>> Stashed changes
                 spiSoundListView.Items.Add(item);
             }
 
@@ -963,11 +1018,117 @@ namespace EPSSEditor
 
         }
 
+
+        private string addOneSoundDirect(string file, string baseName)
+        {
+            Sound s = new Sound(file);
+
+            data.sounds.Add(s);
+            return file;
+        }
+
+
+        private string addSfzSound(string filePath, string baseName)
+        {
+            string anyFile = "";
+            ParseSfz p = new ParseSfz();
+            List<SfzBase> bases = p.parse(filePath);
+            string basePath = Path.GetDirectoryName(filePath);
+            foreach (SfzBase bas in bases)
+            {
+                var tBase = bas as SfzRegionSection;
+                if (tBase != null)
+                {
+                    string fp = tBase.FilePath(basePath);
+                    Sound s = new Sound(fp);
+                    s.description = baseName + Path.GetFileNameWithoutExtension(fp);
+                    byte loByte;
+                    string loKeyS = tBase.variables["lokey"];
+                    if (!TryToByte(loKeyS, out loByte))
+                    {
+                        int v = parseNoteToInt(loKeyS, 0);
+                        if (v < 0 || v > 127)
+                        {
+                            loByte = 128;
+                        }
+                        else
+                        {
+                            loByte = (byte)v;
+                        }
+                    }
+                    s.loKey = loByte;
+
+
+
+                    byte hiByte;
+                    string hiKeyS = tBase.variables["hikey"];
+                    if (!TryToByte(hiKeyS, out hiByte))
+                    {
+                        int v = parseNoteToInt(hiKeyS, 0);
+                        if (v < 0 || v > 127)
+                        {
+                            hiByte = 128;
+                        }
+                        else
+                        {
+                            hiByte = (byte)v;
+                        }
+                    }
+                    s.hiKey = hiByte;
+
+
+                    byte kcByte;
+                    string kcS = tBase.variables["pitch_keycenter"];
+                    if (!TryToByte(kcS, out kcByte))
+                    {
+                        int v = parseNoteToInt(kcS, 0);
+                        if (v < 0 || v > 127)
+                        {
+                            kcByte = 128;
+                        }
+                        else
+                        {
+                            kcByte = (byte)v;
+                        }
+                    }
+                    s.keyCenter = kcByte;
+
+                    //if (!data.IdenticalSoundExists(s))
+                    //{
+                    data.sounds.Add(s);
+                    //}
+                    anyFile = fp;
+                }
+            }
+            return anyFile;
+        }
+
+
         private void soundListBox_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             string anyFile = "";
 
+
+            foreach (var file in files)
+            {
+                string filePath = file;
+                string ext = Path.GetExtension(filePath).ToUpper();
+                string baseName = Path.GetFileNameWithoutExtension(filePath);
+                baseName = baseName.Substring(0, Math.Min(baseName.Length - 1, 13));
+
+                if (ext == ".SFZ")
+                {
+                    anyFile = addSfzSound(filePath, baseName);
+                }
+                else
+                {
+                    anyFile = addOneSoundDirect(filePath, baseName);
+                }
+            }
+
+
+            /*
             if (files.Length == 1)
             {
                 string filePath = files[0];
@@ -977,71 +1138,7 @@ namespace EPSSEditor
                 baseName = baseName.Substring(0, Math.Min(baseName.Length-1, 13));
                 if (ext == ".SFZ")
                 {
-                    ParseSfz p = new ParseSfz();
-                    List<SfzBase> bases = p.parse(filePath);
-                    string basePath = Path.GetDirectoryName(filePath);
-                    foreach (SfzBase bas in bases) {
-                        var tBase = bas as SfzRegionSection;
-                        if (tBase != null)
-                        {
-                            string fp = tBase.FilePath(basePath);
-                            Sound s = new Sound(fp);
-                            s.description = baseName + Path.GetFileNameWithoutExtension(fp);
-                            byte loByte;
-                            string loKeyS = tBase.variables["lokey"];
-                            if (!TryToByte(loKeyS, out loByte))
-                            {
-                                int v = parseNoteToInt(loKeyS, 0);
-                                if (v < 0 || v > 127)
-                                {
-                                    loByte = 128;
-                                } else
-                                {
-                                    loByte = (byte)v;
-                                }
-                            }
-                            s.loKey = loByte;
-
-                              
-
-                            byte hiByte;
-                            string hiKeyS = tBase.variables["hikey"];
-                            if (!TryToByte(hiKeyS, out hiByte))
-                            {
-                                int v = parseNoteToInt(hiKeyS, 0);
-                                if (v < 0 || v > 127)
-                                {
-                                    hiByte = 128;
-                                } else
-                                {
-                                    hiByte = (byte)v;
-                                }
-                            }
-                            s.hiKey = hiByte;
-
-
-                            byte kcByte;
-                            string kcS = tBase.variables["pitch_keycenter"];
-                            if (!TryToByte(kcS, out kcByte))
-                            {
-                                int v = parseNoteToInt(kcS, 0);
-                                if (v < 0 || v > 127)
-                                {
-                                    kcByte = 128;
-                                } else
-                                {
-                                    kcByte = (byte)v;
-                                }
-                            }
-                            s.keyCenter = kcByte;
-
-                            if (!data.IdenticalSoundExists(s))
-                            {
-                                data.sounds.Add(s);
-                            }
-                            anyFile = fp;
-                        }
-                    }
+                    
                 }
                 else
                 {
@@ -1064,6 +1161,7 @@ namespace EPSSEditor
                 }
 
             }
+            */
             updateSoundListBox();
             data.soundFileName = anyFile;
             dataNeedsSaving = true;
@@ -1271,7 +1369,7 @@ namespace EPSSEditor
 
             if (mappingModeMidiRadioButton.Checked)
             {
-                if (sounds.Count > 1)
+                if (sounds.Count >= 1)
                 {
                     bool mappingOk = false;
                     byte startNote = 128;
@@ -1744,6 +1842,7 @@ namespace EPSSEditor
             playSelectedSound();
         }
 
+
         private void custMidiToneToTextBox_TextChanged(object sender, EventArgs e)
         {
 
@@ -1825,6 +1924,94 @@ namespace EPSSEditor
             updateMappingMode();
         }
 
+        private void spiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Console.WriteLine(e.X + " " + e.Y);
+        }
+    }
 
+
+
+
+    internal class ControlScrollListener : NativeWindow, IDisposable
+    {
+        public event ControlScrolledEventHandler ControlScrolled;
+        public delegate void ControlScrolledEventHandler(object sender, EventArgs e, int delta, Point pos);
+
+        private const uint WM_HSCROLL = 0x114;
+        private const uint WM_VSCROLL = 0x115;
+        private const uint WM_MOUSEWHEEL = 0x020A;
+        private readonly Control _control;
+
+        public ControlScrollListener(Control control)
+        {
+            _control = control;
+            AssignHandle(control.Handle);
+        }
+
+        protected bool Disposed { get; set; }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (Disposed) return;
+
+            if (disposing)
+            {
+                // Free other managed objects that implement IDisposable only
+            }
+
+            // release any unmanaged objects
+            // set the object references to null
+            ReleaseHandle();
+
+            Disposed = true;
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            HandleControlScrollMessages(m);
+            base.WndProc(ref m);
+        }
+
+        private void HandleControlScrollMessages(Message m)
+        {
+            //if (m.Msg == WM_HSCROLL | m.Msg == WM_VSCROLL)
+            if (m.Msg == WM_MOUSEWHEEL)
+            {
+                if (ControlScrolled != null)
+                {
+                    int delta = GET_WHEEL_DELTA_WPARAM(m.WParam);
+                    Point pos = new Point(m.LParam.ToInt32());
+                    //Console.WriteLine(delta);
+                    //Console.WriteLine(pos);
+                    ControlScrolled(_control, new EventArgs(), delta, pos);
+                }
+            }
+        }
+
+        internal static ushort HIWORD(IntPtr dwValue)
+        {
+            return (ushort)((((long)dwValue) >> 0x10) & 0xffff);
+        }
+        internal static ushort HIWORD(uint dwValue)
+        {
+            return (ushort)(dwValue >> 0x10);
+        }
+
+        internal static int GET_WHEEL_DELTA_WPARAM(uint wParam)
+        {
+            return (short)HIWORD(wParam);
+        }
+
+        internal static int GET_WHEEL_DELTA_WPARAM(IntPtr wParam)
+        {
+            return (short)HIWORD(wParam);
+        }
     }
 }

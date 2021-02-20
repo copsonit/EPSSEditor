@@ -45,7 +45,15 @@ namespace EPSSEditor
                 }
                 else
                 {
-                    string[] words0 = line.Split('=', ' ');
+                    string[] words0;
+                    if (line.Contains("sample="))
+                    {
+                        words0 = line.Split('=');
+                    } else
+                    {
+                        words0 = line.Split('=', ' ');
+                    }
+
                     List<string> words = new List<string>();
                     foreach(string w in words0)
                     {
@@ -190,6 +198,7 @@ namespace EPSSEditor
                     }
                 }
             }
+            bases.Add(fn);
             return bases;
         }
     }

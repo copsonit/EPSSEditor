@@ -1093,7 +1093,7 @@ namespace EPSSEditor
                     {
                         EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch();
 
-                        if (i >= 36 && i <= 84)
+                        if (i >= 36 && i <= 84) // C2 - C6
                         {
                             sp.sound = (byte)snd.soundNumber;
                             sp.pitch = note++;
@@ -1112,8 +1112,10 @@ namespace EPSSEditor
                     channels.Add(channel);
 
                 }
-                else if (sound.Count > 1 && ch != 9)
+                // What does this really do? Seems to be mapping samples like drum samples for other channels than MIDI 10?
+                else if (sound.Count > 1 && ch != 9) 
                 {
+
                     SpiSound snd = sound.First();
                     for (int i = 0; i < 128; i++)
                     {
@@ -1124,7 +1126,7 @@ namespace EPSSEditor
                             if (sndToFind.midiNote == i + 1)
                             {
                                 sp.sound = (byte)sndToFind.soundNumber;
-                                sp.pitch = 84;
+                                sp.pitch = 84; // original pitch
                                 sp.noSound = 0;
                                 found = true;
                             }
@@ -1157,6 +1159,7 @@ namespace EPSSEditor
                             {
                                 note = 84; // normal pitch, TODO: add transpose here!
                                 spiSound = (byte)snd.soundNumber;
+                                break; // Only use first found. UI only allows one sound per not so it should be safe.
                             }
                         }
 
@@ -1180,7 +1183,7 @@ namespace EPSSEditor
                 }
                 else if (sound.Count > 1)
                 {
-                    System.Windows.Forms.MessageBox.Show("More than one sound per midi channel not supported!");
+                    System.Windows.Forms.MessageBox.Show("More than one sound per MIDI channel only supported for MIDI channel 10!");
                 }
 
             }

@@ -257,6 +257,7 @@
             this.spiSoundListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.spiSoundListView_ItemChecked);
             this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.spiSoundListView_ItemSelectionChanged);
             this.spiSoundListView.SelectedIndexChanged += new System.EventHandler(this.spiSoundListView_SelectedIndexChanged);
+            this.spiSoundListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.spiSoundListView_MouseDoubleClick);
             // 
             // deleteSpiSoundButton
             // 
