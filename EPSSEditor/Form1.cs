@@ -381,44 +381,61 @@ namespace EPSSEditor
         }
 
 
-        void SpiSoundListViewScrollListener_ControlScrolled(object sender, EventArgs e, int delta, Point pos)
+        ListViewItem SelectedListViewItem(Point lwPos)
         {
-            Point lwPos = spiSoundListView.PointToClient(pos);
-
             ListViewHitTestInfo info = spiSoundListView.HitTest(lwPos.X, lwPos.Y);
             ListViewItem item = info.Item;
 
-            if (item != null)
+            return item;
+        }
+
+
+        // Only with shift key pressed!
+        void SpiSoundListViewScrollListener_ControlScrolled(object sender, EventArgs e, int delta, Point pos)
+        {
+            if ((Control.ModifierKeys & Keys.Shift) != Keys.None)
             {
-                // TODO Select the item!
+                Point lwPos = spiSoundListView.PointToClient(pos);
+                ListViewItem item = SelectedListViewItem(lwPos);
+                if (item != null)
+                {
+                    SpiSound snd = data.spiSounds[item.Index];
+                    if (delta > 0 && snd.transpose < 127) snd.transpose++;
+                    else if (delta < 0 && snd.transpose > -128) snd.transpose--;
+
+                    updateListViewItemValue(snd, item, 7);
+                }
+            }
+        }
 
 
-                Console.WriteLine(item.ToString() + " " + info.SubItem.ToString());
-                var si = info.SubItem.Text;
-                int v = 0;
-                // TODO: only proof of concept, rewrite to correct handling!
-                if (si == "+-0") v = 0;
-                else if (si == "+1") v = 1;
-                else if (si == "+2") v = 2;
-                else if (si == "+3") v = 3;
-                else if (si == "+4") v = 4;
-                else if (si == "-1") v = -1;
-                else if (si == "-2") v = -2;
-                else if (si == "-3") v = -3;
-                else if (si == "-4") v = -4;
+        private void spiSoundListView_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Middle && (Control.ModifierKeys & Keys.Shift) != Keys.None)
+            {
 
-                if (delta > 0) v++;
-                else v--;
+                Point pos = e.Location;
+                ListViewItem item = SelectedListViewItem(pos);
+                if (item != null)
+                {
+                    SpiSound snd = data.spiSounds[item.Index];
+                    snd.transpose = 0;
+                    updateListViewItemValue(snd, item, 7);
 
-
-                if (v > 0) si = "+" + v.ToString();
-                else si = "-" + v.ToString();
-
-                info.SubItem.Text = si;
+                    Console.WriteLine($"Item: {item}");
+                }
 
             }
-            
 
+        }
+
+        private void updateListViewItemValue(SpiSound snd, ListViewItem item, int columnIndex)
+        {
+            if (columnIndex == 7)
+            {
+                ListViewItem.ListViewSubItem subItem = item.SubItems[7];
+                subItem.Text = snd.transposeString();
+            }
         }
 
         private void updateSpiSoundListBox()
@@ -474,12 +491,9 @@ namespace EPSSEditor
                 int nr = data.getSoundNumberFromGuid(s.soundId);
                 item.SubItems.Add(nr.ToString());
 
-//<<<<<<< Updated upstream
-//                item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 1));
-//=======
                 item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 2));
-                item.SubItems.Add("+-0");
-//>>>>>>> Stashed changes
+                item.SubItems.Add(s.transposeString());
+
                 spiSoundListView.Items.Add(item);
             }
 
@@ -1928,6 +1942,8 @@ namespace EPSSEditor
         {
             Console.WriteLine(e.X + " " + e.Y);
         }
+
+
     }
 
 

@@ -1096,7 +1096,8 @@ namespace EPSSEditor
                         if (i >= 36 && i <= 84) // C2 - C6
                         {
                             sp.sound = (byte)snd.soundNumber;
-                            sp.pitch = note++;
+                            sp.pitch = snd.transposedNote(note);
+                            note++;
                             sp.noSound = 0;
                         }
                         else
@@ -1126,7 +1127,7 @@ namespace EPSSEditor
                             if (sndToFind.midiNote == i + 1)
                             {
                                 sp.sound = (byte)sndToFind.soundNumber;
-                                sp.pitch = 84; // original pitch
+                                sp.pitch = snd.transposedNote(84);
                                 sp.noSound = 0;
                                 found = true;
                             }
@@ -1157,7 +1158,7 @@ namespace EPSSEditor
 
                             if (snd.midiNote == i)
                             {
-                                note = 84; // normal pitch, TODO: add transpose here!
+                                note = snd.transposedNote(84);
                                 spiSound = (byte)snd.soundNumber;
                                 break; // Only use first found. UI only allows one sound per not so it should be safe.
                             }

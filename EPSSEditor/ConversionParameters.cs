@@ -151,9 +151,16 @@ namespace EPSSEditor
         {
             double factor = 1.0;
 
-            factor = factor * bits.compressionFactor();
-            factor = factor * freq.compressionFactor();
-            factor = factor * channel.compressionFactor();
+            if (bits != null && freq != null && channel != null)
+            {
+                factor = factor * bits.compressionFactor();
+                factor = factor * freq.compressionFactor();
+                factor = factor * channel.compressionFactor();
+            } else
+            {
+                var stdErr = Console.Error; 
+                stdErr.WriteLine($"No conversion data for sound '{snd}' found, using 1. Size might be calculated incorrect!.");
+            }
 
             return (long)((double)snd.length * factor);
         }

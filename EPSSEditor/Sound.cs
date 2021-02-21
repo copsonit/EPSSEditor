@@ -88,5 +88,10 @@ namespace EPSSEditor
             if (description == null) return Path.GetFileNameWithoutExtension(path);
             return description;
         }
+
+        public override string ToString()
+        {
+            return base.ToString() + $" ({path}, {description}, {length}, {_id}, {channels}, {bitsPerSample}, {samplesPerSecond}, {loKey}, {hiKey}, {keyCenter})";
+        }
     }
 }

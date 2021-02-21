@@ -19,7 +19,7 @@ namespace EPSSEditor
         public byte endNote;
         public byte midiNoteMapped;
         public byte programNumber;
-
+        public sbyte transpose;
 
         public Guid soundId;
         public string _name;
@@ -30,6 +30,7 @@ namespace EPSSEditor
         public SpiSound() {
             startNote = endNote = programNumber = 128;
             midiNoteMapped = 84;
+            transpose = 0;
             
         }
 
@@ -40,6 +41,7 @@ namespace EPSSEditor
             soundId = sound.id();
             _name = sound.name();
             _extName = sound.name() + " MSWav"; // TODO, find more info in sound??         
+            transpose = 0;
         }
 
         public string name() { return _name; }
@@ -214,5 +216,20 @@ namespace EPSSEditor
         }
 
 
+        public string transposeString()
+        {
+            if (transpose == 0) return "0";
+            else if (transpose > 0) return "+" + transpose.ToString();
+            else return transpose.ToString();
+        }
+
+
+        public byte transposedNote(byte original)
+        {
+            int newNote = (int)original + transpose; // normal pitch + transpose
+            if (newNote > 128) newNote = 128;
+            else if (newNote < 0) newNote = 0;
+            return (byte)newNote;
+        }
     }
 }
