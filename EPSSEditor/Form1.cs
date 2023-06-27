@@ -43,6 +43,7 @@ namespace EPSSEditor
      * WIP  Support to build SPI v3 with program change.
      * OK      UI and add sounds
      * NYI     Save as SPI v3 if program change sounds are used.
+     * WIP  Load SPI.
      * 
      * Bugs:
      * OK.  Cannot find the drumMappings.xml in installed version.
@@ -163,10 +164,6 @@ namespace EPSSEditor
 
                 while (true)
                 {
-
-
-
-
                     if (!forceNewProject && MessageBox.Show("No SPI Project file found!\nPress Yes load an existing\nproject or No to initialize a new project.", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
 
@@ -356,6 +353,10 @@ namespace EPSSEditor
         private bool loadSpiFile(string file)
         {
             bool result = false;
+            EPSSSpiLoader loader = new EPSSSpiLoader();
+            Uri url = new Uri(file);
+            EPSSSpi spi = loader.Load(url);
+            result = spi != null;
             return result;
         }
 
@@ -515,12 +516,15 @@ namespace EPSSEditor
 
         private void updateTotalSize()
         {
-            SpiCreator creator = new SpiCreator(spiVersion());
-            long sz = creator.length(ref data);
-            totalSizeTextBox.Text = Ext.ToPrettySize(sz, 2);
+            if (data != null)
+            {
+                EPSSSpiCreator creator = new EPSSSpiCreator(spiVersion());
+                long sz = creator.length(ref data);
+                totalSizeTextBox.Text = Ext.ToPrettySize(sz, 2);
 
-            int v = (int)(sz / 1024);
-            totalSizeProgressBar.Value = Math.Min(14000,v); // Only show up to max 14MB but we support unlimited size..
+                int v = (int)(sz / 1024);
+                totalSizeProgressBar.Value = Math.Min(14000, v); // Only show up to max 14MB but we support unlimited size..
+            }
         }
 
 
@@ -913,11 +917,14 @@ namespace EPSSEditor
         private bool doLoadSpiFileDialog()
         {
             bool result = false;
-            string s = Properties.Settings.Default.ProjectFile;
+            string s = Properties.Settings.Default.SpiFile;
             if (s == null || s == "")
             {
                 s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 s = Path.Combine(s, "EPSS Projects", "default.spi");
+            } else if (Path.GetExtension(s).ToLower() != "spi")
+            {
+                s = Path.ChangeExtension(s, "spi");
             }
 
 
@@ -929,14 +936,10 @@ namespace EPSSEditor
             if (loadSpiFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string file = loadSpiFileDialog.FileName;
-                //Properties.Settings.Default.ProjectFile = file;
-                //Properties.Settings.Default.Save();
-                // TODO load SPI
-                //loadProjectSettings(file);
+                Properties.Settings.Default.SpiFile = file;
+                Properties.Settings.Default.Save();
                 result = loadSpiFile(file);
             }
-            
-
 
             return result;
 
@@ -1665,7 +1668,11 @@ namespace EPSSEditor
 
             if (doLoad)
             {
-                doLoadSpiFileDialog();
+                bool result = doLoadSpiFileDialog();
+                if (!result)
+                {
+                    MessageBox.Show("SPI file cannot be loaded.\n"); // TODO: More descriptive errors
+                }
             }
         }
 
@@ -1731,7 +1738,7 @@ namespace EPSSEditor
                     string spiFile = saveSpiFileDialog.FileName;
                     Uri url = new Uri(spiFile);
 
-                    SpiCreator creator = new SpiCreator(spiVersion());
+                    EPSSSpiCreator creator = new EPSSSpiCreator(spiVersion());
                     int sampFreq = AtariConstants.SampleFreq25k;
                     data.omni = omniPatchCheckBox.Checked;
                     EPSSSpi spi = creator.create(ref data, soundsToSave, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
@@ -1942,8 +1949,6 @@ namespace EPSSEditor
         {
             Console.WriteLine(e.X + " " + e.Y);
         }
-
-
     }
 
 

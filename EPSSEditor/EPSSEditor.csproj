@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EPSSEditor</RootNamespace>
     <AssemblyName>EPSSEditor</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>c:\deploy\EPSSEdit\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -39,6 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -48,6 +50,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>8847FBBC1592451116F0EE17C4B2D2874D141E10</ManifestCertificateThumbprint>
@@ -90,6 +93,7 @@
     <Compile Include="EPSSData.cs" />
     <Compile Include="EPSSEditorData.cs" />
     <Compile Include="EPSSSpi.cs" />
+    <Compile Include="EPSSSpiCreator.cs" />
     <Compile Include="ext.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -113,6 +117,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
     <None Include="EPSSEditor_1_TemporaryKey.pfx" />
@@ -127,6 +132,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="EPSSSpiLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="drumMappings.xml">

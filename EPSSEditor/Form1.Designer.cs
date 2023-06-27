@@ -956,7 +956,6 @@
             // 
             // loadSPIToolStripMenuItem
             // 
-            this.loadSPIToolStripMenuItem.Enabled = false;
             this.loadSPIToolStripMenuItem.Name = "loadSPIToolStripMenuItem";
             this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.loadSPIToolStripMenuItem.Text = "Load SPI...";
