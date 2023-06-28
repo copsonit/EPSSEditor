@@ -104,6 +104,7 @@
     <Compile Include="ParseSfz.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SfzConverter.cs" />
     <Compile Include="Sound.cs" />
     <Compile Include="SpiSound.cs" />
     <EmbeddedResource Include="Form1.resx">

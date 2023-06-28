@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml.Serialization;
 using NAudio.Wave;
 using System.IO;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace EPSSEditor
 {
@@ -43,9 +44,16 @@ namespace EPSSEditor
             _extName = sound.name() + " MSWav"; // TODO, find more info in sound??         
             transpose = 0;
         }
+        
+        
+        public SpiSound(EPSSSpi_soundInfo soundInfo, EPSSSpi_extSoundInfo extSoundInfo, EPSSSpi_sample soundData)
+        {
+            _name = extSoundInfo.s_sampname;
+            _extName = extSoundInfo.s_extname;
+            // TODO
+        }
 
         public string name() { return _name; }
-
         public string extName() { return _extName; }
 
         public string description(ref EPSSEditorData data)

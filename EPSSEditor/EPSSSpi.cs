@@ -571,14 +571,16 @@ namespace EPSSEditor
                     for (int tone = 0; tone < 128; tone++)
                     {
                         EPSSSpi_soundAndPitch snp = new EPSSSpi_soundAndPitch(0);
-                        byte pitch = reader.ReadByte();
-                        byte sound = reader.ReadByte();
-                        if (sound > maxSoundNo)
+                        UInt16 data = reader.ReadBigEndianUInt16();
+                        snp.data = data;
+                        //byte pitch = reader.ReadByte();
+                        //byte sound = reader.ReadByte();
+                        if (snp.sound > maxSoundNo)
                         {
                             throw (new Exception("Corrupt split table. Sound number exceeeds max sounds in spi."));
                         }
-                        snp.sound = sound;
-                        snp.pitch = pitch;
+                        //snp.sound = sound;
+                        //snp.pitch = pitch;
                         channel.data[tone] = snp;
                     }
                     channelList.Add(channel);

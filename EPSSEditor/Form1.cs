@@ -356,7 +356,37 @@ namespace EPSSEditor
             EPSSSpiLoader loader = new EPSSSpiLoader();
             Uri url = new Uri(file);
             EPSSSpi spi = loader.Load(url);
-            result = spi != null;
+            if (spi != null)
+            {
+                // warn user, if we have spi sounds, these will be cleared
+
+                
+                string path = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile); // Sample create dir
+                path += "\\" + spi.ext.i_pname;
+
+                bool doConversion = true;
+                if (Directory.Exists(path))
+                {
+                    if (MessageBox.Show("Directory for conversion of SPI already exists.\nDo you want to delete it?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        Directory.Delete(path, true);
+                    } else
+                    {
+                        doConversion = false;
+                    }
+                }
+
+                if (doConversion)
+                {
+                    Directory.CreateDirectory(path);
+                   data.initialize(ref spi, path);
+                    updateDialog();
+
+                    saveProjectSettings();
+                }
+
+                result = true;
+            }
             return result;
         }
 
@@ -538,7 +568,6 @@ namespace EPSSEditor
         }
 
 
-
         private void deleteSelectedSound()
         {
             var indices = soundListBox.SelectedIndices;
@@ -597,8 +626,6 @@ namespace EPSSEditor
             List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
             return spiSounds.Count > 0;
         }
-
-
 
 
         private void deleteSelectedSpiSound()

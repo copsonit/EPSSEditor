@@ -63,6 +63,17 @@ namespace EPSSEditor
         }
 
 
+        public Sound(byte[] soundData, string outPath)
+        {
+            int sampleRate = 25033;
+            int bits = 8;
+            int channels = 1;
+            var ms = new MemoryStream(soundData);
+            var s = new RawSourceWaveStream(ms, new WaveFormat(sampleRate, bits, channels));
+            WaveFileWriter.CreateWaveFile(outPath, s);
+        }
+
+
         public Guid id() { return _id; }
 
         public ConversionParameters parameters() { return _parameters; }
