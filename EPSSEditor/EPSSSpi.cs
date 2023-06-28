@@ -575,7 +575,7 @@ namespace EPSSEditor
                         byte sound = reader.ReadByte();
                         if (sound > maxSoundNo)
                         {
-                            throw (new Exception("Corrupt splittable. Sound number exceeeds max sounds in spi."));
+                            throw (new Exception("Corrupt split table. Sound number exceeeds max sounds in spi."));
                         }
                         snp.sound = sound;
                         snp.pitch = pitch;
@@ -703,7 +703,7 @@ namespace EPSSEditor
             set { data = (UInt32)((data & ~0xffff) | (value & (UInt32)0xffff)); }
         }
 
-        // public UInt16 pitch : 16
+        // public UInt16 pitch : 7
         public UInt16 pitch
         {
             get { return (UInt16)((data >> 16) & 0x7f); }
@@ -825,6 +825,17 @@ namespace EPSSEditor
 
             try
             {
+                reader.BaseStream.Seek(spi.main.i_sinfo_offset, SeekOrigin.Begin);
+                byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+
+                List<EPSSSpi_soundInfo> soundList = new List<EPSSSpi_soundInfo>();
+                for (int i =0; i < maxSoundNo; i++)
+                {
+                    EPSSSpi_soundInfo s = new EPSSSpi_soundInfo();
+                    s.Read(ref reader);
+                    soundList.Add(s);
+                }
+                sounds = soundList.ToArray();
             }
 
             catch (Exception ex)
@@ -878,6 +889,31 @@ namespace EPSSEditor
 
             return result;
         }
+
+
+        public int Read(ref BinaryReader reader)
+        {
+            int result = 0;
+
+            try
+            {
+                s_sampstart = reader.ReadBigEndianUInt32();
+                s_sampend = reader.ReadBigEndianUInt32();
+                s_loopstart = reader.ReadBigEndianUInt32();
+                UInt16 data = reader.ReadBigEndianUInt16();
+                s_loopmode.data = data;
+                data = reader.ReadBigEndianUInt16();
+                s_gr_freq.data = data;
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during EPSSSpi_sountInfo.Read: ", ex.ToString());
+                result = 1;
+            }
+
+            return result;
+        }
     }
 
 
@@ -915,6 +951,17 @@ namespace EPSSEditor
 
             try
             {
+                reader.BaseStream.Seek(spi.ext.i_sx_offset, SeekOrigin.Begin);
+                byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+
+                List<EPSSSpi_extSoundInfo> soundList = new List<EPSSSpi_extSoundInfo>();
+                for (int i = 0; i < maxSoundNo; i++)
+                {
+                    EPSSSpi_extSoundInfo s = new EPSSSpi_extSoundInfo();
+                    s.Read(ref reader);
+                    soundList.Add(s);
+                }
+                sounds = soundList.ToArray();
             }
 
             catch (Exception ex)
@@ -976,6 +1023,17 @@ namespace EPSSEditor
 
             try
             {
+                byte[] bs = reader.ReadBytes(8);
+                s_sampname = bs.FromFixedByteStream();
+
+                bs = reader.ReadBytes(16);
+                s_extname = bs.FromFixedByteStream();
+
+                s_extvolume = reader.ReadBigEndianUInt16();
+                s_subtone = reader.ReadBigEndianUInt16();
+
+                int numBytesLeft = length() - 8 - 16 - 2 - 2;
+                bs = reader.ReadBytes(numBytesLeft);
             }
 
             catch (Exception ex)
@@ -1122,12 +1180,25 @@ namespace EPSSEditor
             int result = 0;
 
             try
-            {
+            {                
+                reader.BaseStream.Seek(spi.main.i_sdata_offset, SeekOrigin.Begin);
+                byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+                List<EPSSSpi_sample> sampleList = new List<EPSSSpi_sample>();
+                for (int i=0; i < maxSoundNo; i++)
+                {
+                    EPSSSpi_soundInfo sndInfo = spi.sounds.sounds[i];
+                    EPSSSpi_sample sample = new EPSSSpi_sample();
+                    sample.Read(ref reader, sndInfo.s_sampstart, sndInfo.s_sampend - sndInfo.s_sampstart);
+                    sampleList.Add(sample);
+    
+                }
+                samples = sampleList.ToArray();
+
             }
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_samples.Read: ", ex.ToString());
                 result = 1;
             }
 
@@ -1186,6 +1257,26 @@ namespace EPSSEditor
                 Console.WriteLine("Exception during EPSSSpi_sample.loadSpl: ", ex.ToString());
 
             }
+        }
+
+
+        public int Read(ref BinaryReader reader, UInt32 start, UInt32 length)
+        {
+            int result = 0;
+
+            try
+            {
+                reader.BaseStream.Seek(start, SeekOrigin.Begin);
+                data = reader.ReadBytes((int)length);
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during EPSSSpi_sample.Read: ", ex.ToString());
+                result = 1;
+            }
+
+            return result;
         }
     }
    
