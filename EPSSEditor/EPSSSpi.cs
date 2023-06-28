@@ -91,7 +91,7 @@ namespace EPSSEditor
         public abstract int length();
 
         public abstract int write(ref BinaryWriter writer);
-        public abstract int Read(ref BinaryReader reader);
+        public abstract int Read(ref BinaryReader reader, EPSSSpi spi);
         public virtual bool isValidBlock() { return true; }
     }
 
@@ -160,17 +160,17 @@ namespace EPSSEditor
                 FileStream fs = new FileStream(src.LocalPath, FileMode.Open, FileAccess.Read);
                 BinaryReader reader = new BinaryReader(fs);
 
-                result = main.Read(ref reader);
+                result = main.Read(ref reader, this);
 
-                if (result == 0) result = ext.Read(ref reader);
+                if (result == 0) result = ext.Read(ref reader, this);
 
-                if (result == 0) result = split.Read(ref reader);
+                if (result == 0) result = split.Read(ref reader, this);
 
-                if (result == 0) result = sounds.Read(ref reader);
+                if (result == 0) result = sounds.Read(ref reader, this);
 
-                if (result == 0) result = extSounds.Read(ref reader);
+                if (result == 0) result = extSounds.Read(ref reader, this);
 
-                if (result == 0) result = samples.Read(ref reader);
+                if (result == 0) result = samples.Read(ref reader, this);
 
 
 
@@ -292,9 +292,27 @@ namespace EPSSEditor
         }
 
 
-        public override int Read(ref BinaryReader reader)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi)
         {
-            return 0;
+            int result = 0;
+            try
+            {
+                i_no_of_MIDIch.data = reader.ReadBigEndianUInt16();
+                i_no_of_sounds.data = reader.ReadBigEndianUInt16();
+
+                i_filelen = reader.ReadBigEndianUInt32();
+                i_patch_offset = reader.ReadBigEndianUInt16();
+                i_sinfo_offset = reader.ReadBigEndianUInt16();
+                i_sdata_offset = reader.ReadBigEndianUInt16();
+                i_fileID.data = reader.ReadBigEndianUInt16();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during EPSSSpi_main.Read: ", ex.ToString());
+                result = 1;
+            }
+
+            return result;
         }
 
         public override int length()
@@ -428,9 +446,49 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi)
         {
-            return 0;
+            int result = 0;
+
+            try
+            {
+                if (spi.main.i_fileID.versionLow == 0)
+                {
+                    throw (new Exception("Generation 0 patchfile NYI."));
+                } else if (spi.main.i_fileID.versionLow > 1)
+                {
+                    throw (new Exception("Generation 2+ patchfile NYI."));
+                }
+
+                i_sx_offset = reader.ReadBigEndianUInt16();
+                i_crtime = reader.ReadBigEndianUInt16();
+                i_crdate = reader.ReadBigEndianUInt16();
+                i_chtime = reader.ReadBigEndianUInt16();
+                i_chdate = reader.ReadBigEndianUInt16();
+
+                byte[] bs = reader.ReadBytes(8);
+                i_pname = bs.FromFixedByteStream();
+
+                i_mainlen = reader.ReadBigEndianUInt16();
+                i_splitlen = reader.ReadBigEndianUInt16();
+                i_xsinflen = reader.ReadBigEndianUInt16();
+                i_sinflen = reader.ReadBigEndianUInt16();
+
+                byte[] expansions = reader.ReadBytes(6);
+
+                bs = reader.ReadBytes(32);
+                i_patchinfo = bs.FromFixedByteStream();
+
+                // No additional bytes
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during EPSSSpi_extended.Rrite: ", ex.ToString());
+                result = 1;
+            }
+
+            return result;
         }
 
         public override int length()
@@ -496,9 +554,45 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi)
         {
-            return 0;
+            int result = 0;
+
+            try
+            {
+                reader.BaseStream.Seek(spi.main.i_patch_offset, SeekOrigin.Begin);
+                byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+                List<EPSSSpi_midiChannelSplit> channelList = new List<EPSSSpi_midiChannelSplit>();
+                for (int i = 1; i <= spi.main.i_no_of_MIDIch.no_of_MIDICh; i++)
+                {
+                    EPSSSpi_midiChannelSplit channel = new EPSSSpi_midiChannelSplit();
+                    channel.data = new EPSSSpi_soundAndPitch[128];
+
+                    for (int tone = 0; tone < 128; tone++)
+                    {
+                        EPSSSpi_soundAndPitch snp = new EPSSSpi_soundAndPitch(0);
+                        byte pitch = reader.ReadByte();
+                        byte sound = reader.ReadByte();
+                        if (sound > maxSoundNo)
+                        {
+                            throw (new Exception("Corrupt splittable. Sound number exceeeds max sounds in spi."));
+                        }
+                        snp.sound = sound;
+                        snp.pitch = pitch;
+                        channel.data[tone] = snp;
+                    }
+                    channelList.Add(channel);
+                }
+                channels = channelList.ToArray();
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                result = 1;
+            }
+
+            return result;
         }
 
         public override int length()
@@ -669,14 +763,16 @@ namespace EPSSEditor
     {
         internal UInt16 data;
 
-        // public Byte sound : 8
+        public EPSSSpi_soundAndPitch(UInt16 value) { data = value;  }
+
+        // public Byte sound : 8 bit
         public Byte sound
         {
             get { return (byte)(data & 0xff); }
             set { data = (UInt16)((data & ~0xff) | (value & 0xff)); }
         }
 
-        // public Byte pitch : 7
+        // public Byte pitch : 7 bit
         public Byte pitch
         {
             get { return (byte)((data >> 8) & 0x7f); }
@@ -723,9 +819,21 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi)
         {
-            return 0;
+            int result = 0;
+
+            try
+            {
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                result = 1;
+            }
+
+            return result;
         }
 
         public override int length()
@@ -801,9 +909,21 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi)
         {
-            return 0;
+            int result = 0;
+
+            try
+            {
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                result = 1;
+            }
+
+            return result;
         }
 
         public override int length()
@@ -852,7 +972,19 @@ namespace EPSSEditor
 
         public int Read(ref BinaryReader reader)
         {
-            return 0;
+            int result = 0;
+
+            try
+            {
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                result = 1;
+            }
+
+            return result;
         }
     }
 
@@ -985,9 +1117,21 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi)
         {
-            return 0;
+            int result = 0;
+
+            try
+            {
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                result = 1;
+            }
+
+            return result;
         }
 
         public override int length()

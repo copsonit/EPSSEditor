@@ -57,6 +57,20 @@ namespace EPSSEditor
         }
     }
 
+
+    public static class ByteStreamExtensions
+    {
+        public static string FromFixedByteStream(this byte[] s)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (byte b in s)
+            {
+                stringBuilder.Append((Char)b);
+            }
+            return stringBuilder.ToString();
+        }
+    }
+
     public static class StringExtensions
     {
         public static byte[] ToFixedByteStream(this string s, int l)
@@ -82,6 +96,8 @@ namespace EPSSEditor
             }
 
         }
+
+
     }
 
 
@@ -105,4 +121,21 @@ namespace EPSSEditor
         }
     }
 
+
+    public static class BinaryReaderExtensions
+    {
+        public static UInt16 ReadBigEndianUInt16(this BinaryReader br)
+        {
+            var data = br.ReadBytes(2);
+            Array.Reverse(data);
+            return BitConverter.ToUInt16(data, 0);
+        }
+
+        public static UInt32 ReadBigEndianUInt32(this BinaryReader br)
+        {
+            var data = br.ReadBytes(4);
+            Array.Reverse(data);
+            return BitConverter.ToUInt32(data, 0);
+        }
+    }
 }
