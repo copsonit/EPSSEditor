@@ -170,12 +170,12 @@ namespace EPSSEditor
                                     int noteStart = info.NoteStart;
                                     int noteEnd = info.NoteEnd;
                                     if (noteEnd < 0) noteEnd = noteStart;
-                                    writer.WriteLine("<region> sample={0} lokey={1} hikey={2} pitch_keycenter={3} // Sound:{4}",
+                                    writer.WriteLine("<region> sample={0} lokey={1} hikey={2} pitch_keycenter={3}",
                                         Path.GetFileName(sounds[sound].path),
                                         noteStart,
                                         noteEnd,
-                                        noteStart + 84 - info.Low,
-                                        sound);
+                                        noteStart + 84 - info.Low);
+                                        
 
 
 

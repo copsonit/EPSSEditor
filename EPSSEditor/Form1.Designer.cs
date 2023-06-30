@@ -119,6 +119,7 @@
             this.openDrumMappingsFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSampleFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.loadSpiFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.saveSFZToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.groupBox12.SuspendLayout();
@@ -933,6 +934,7 @@
             this.newProjectToolStripMenuItem,
             this.loadProjectToolStripMenuItem,
             this.loadSPIToolStripMenuItem,
+            this.saveSFZToolStripMenuItem,
             this.saveProjectToolStripMenuItem,
             this.clearSettingsToolStripMenuItem,
             this.exitToolStripMenuItem});
@@ -943,42 +945,42 @@
             // newProjectToolStripMenuItem
             // 
             this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newProjectToolStripMenuItem.Text = "New Project...";
             this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.newProjectToolStripMenuItem_Click_1);
             // 
             // loadProjectToolStripMenuItem
             // 
             this.loadProjectToolStripMenuItem.Name = "loadProjectToolStripMenuItem";
-            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadProjectToolStripMenuItem.Text = "Load Project...";
             this.loadProjectToolStripMenuItem.Click += new System.EventHandler(this.loadProjectToolStripMenuItem_Click);
             // 
             // loadSPIToolStripMenuItem
             // 
             this.loadSPIToolStripMenuItem.Name = "loadSPIToolStripMenuItem";
-            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadSPIToolStripMenuItem.Text = "Load SPI...";
             this.loadSPIToolStripMenuItem.Click += new System.EventHandler(this.loadSPIToolStripMenuItem_Click);
             // 
             // saveProjectToolStripMenuItem
             // 
             this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
-            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveProjectToolStripMenuItem.Text = "Save Project...";
             this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.saveProjectToolStripMenuItem_Click);
             // 
             // clearSettingsToolStripMenuItem
             // 
             this.clearSettingsToolStripMenuItem.Name = "clearSettingsToolStripMenuItem";
-            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.clearSettingsToolStripMenuItem.Text = "Clear settings...";
             this.clearSettingsToolStripMenuItem.Click += new System.EventHandler(this.clearSettingsToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -1111,6 +1113,12 @@
             this.loadSpiFileDialog.FileName = "loadSpiFileDialog";
             this.loadSpiFileDialog.Filter = "SPI files (*.spi|*.spi|All files (*.*)|*.*\"";
             this.loadSpiFileDialog.Title = "Load EPSS Project...";
+            // 
+            // saveSFZToolStripMenuItem
+            // 
+            this.saveSFZToolStripMenuItem.Name = "saveSFZToolStripMenuItem";
+            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSFZToolStripMenuItem.Text = "Save SFZ...";
             // 
             // Form1
             // 
@@ -1256,6 +1264,7 @@
         private System.Windows.Forms.CheckBox gen2CheckBox;
         private System.Windows.Forms.ToolStripMenuItem loadSPIToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog loadSpiFileDialog;
+        private System.Windows.Forms.ToolStripMenuItem saveSFZToolStripMenuItem;
     }
 }
 

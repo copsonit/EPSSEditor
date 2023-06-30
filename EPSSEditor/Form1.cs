@@ -1074,18 +1074,61 @@ namespace EPSSEditor
 
         private string addSfzSound(string filePath, string baseName)
         {
+            //List<string> soundsAdded = new List<string>();
+            Dictionary<string, Sound> sounds = new Dictionary<string, Sound>();
+            foreach (Sound s in data.sounds)
+            {
+                sounds.Add(s.path, s);
+            }
+
             string anyFile = "";
             ParseSfz p = new ParseSfz();
             List<SfzBase> bases = p.parse(filePath);
             string basePath = Path.GetDirectoryName(filePath);
+            int midiChannel = currentMidiChannel();
+            bool skipFirstGroup = true;
             foreach (SfzBase bas in bases)
             {
+                var gSection = bas as SfzGenericSection;
+                if (gSection != null)
+                {
+                    if (gSection.header.Contains("group"))
+                    {
+                        if (!skipFirstGroup)
+                        {
+                            midiChannel++;
+                            if (midiChannel > 16)
+                            {
+                                System.Windows.Forms.MessageBox.Show("Midi channel over 16. Will skip rest of sfz file.");
+                                break;
+                            }
+                        }
+                        skipFirstGroup = false;
+                    }
+                }
+
+
                 var tBase = bas as SfzRegionSection;
                 if (tBase != null)
                 {
                     string fp = tBase.FilePath(basePath);
-                    Sound s = new Sound(fp);
-                    s.description = baseName + Path.GetFileNameWithoutExtension(fp);
+
+                    Sound s;
+                    if (sounds.ContainsKey(fp))
+                    {
+                        s = sounds[fp];
+                    } else
+                    {
+                        s = new Sound(fp);
+                        s.description = Path.GetFileNameWithoutExtension(fp);
+                        data.sounds.Add(s);
+                        sounds.Add(fp, s);
+                    }
+                    
+
+
+                    //Sound s = new Sound(fp);
+                    //s.description = baseName + Path.GetFileNameWithoutExtension(fp);
                     byte loByte;
                     string loKeyS = tBase.variables["lokey"];
                     if (!TryToByte(loKeyS, out loByte))
@@ -1100,7 +1143,7 @@ namespace EPSSEditor
                             loByte = (byte)v;
                         }
                     }
-                    s.loKey = loByte;
+                    //s.loKey = loByte;
 
 
 
@@ -1118,7 +1161,7 @@ namespace EPSSEditor
                             hiByte = (byte)v;
                         }
                     }
-                    s.hiKey = hiByte;
+                    //s.hiKey = hiByte;
 
 
                     byte kcByte;
@@ -1135,15 +1178,20 @@ namespace EPSSEditor
                             kcByte = (byte)v;
                         }
                     }
-                    s.keyCenter = kcByte;
+                    //s.keyCenter = kcByte;
+
 
                     //if (!data.IdenticalSoundExists(s))
                     //{
-                    data.sounds.Add(s);
+                    //data.sounds.Add(s);
                     //}
                     anyFile = fp;
+                    data.AddSfzSound(ref s, midiChannel, loByte, hiByte, kcByte);
+
                 }
             }
+            updateSpiSoundListBox();
+            updateTotalSize();
             return anyFile;
         }
 

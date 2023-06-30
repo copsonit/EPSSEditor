@@ -11,7 +11,7 @@ namespace EPSSEditor
 
     public class EPSSEditorData
     {
-        
+
         public DrumSettingsHelper drumMappings;
 
 
@@ -34,8 +34,8 @@ namespace EPSSEditor
 
         private string _fileNameForListenConvertedSound = null;
 
-      
-        public EPSSEditorData() {  }
+
+        public EPSSEditorData() { }
 
 
         public void initialize(string drumSettingsFileName)
@@ -53,7 +53,7 @@ namespace EPSSEditor
             spiDescription = "Created with EPSSEditor";
 
             previewSelected = 0;
-            
+
         }
 
 
@@ -62,7 +62,7 @@ namespace EPSSEditor
 
 
             List<Sound> spiSoundsList = new List<Sound>();
-            for (int i =0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
+            for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
             {
                 string outPath = soundDir + '\\' + spi.extSounds.sounds[i].s_sampname.Trim() + ".wav";
                 Sound snd = new Sound(spi.samples.samples[i].data, outPath);
@@ -80,8 +80,9 @@ namespace EPSSEditor
 
 
 
-        public string convertSoundFileName() {
-            if(_fileNameForListenConvertedSound == null)
+        public string convertSoundFileName()
+        {
+            if (_fileNameForListenConvertedSound == null)
                 _fileNameForListenConvertedSound = Path.GetTempFileName();
             return _fileNameForListenConvertedSound;
         }
@@ -89,7 +90,7 @@ namespace EPSSEditor
 
         public void fixOldVersions()
         {
-            foreach(Sound snd in sounds)
+            foreach (Sound snd in sounds)
             {
                 if (snd.parameters().normalize == null)
                 {
@@ -101,7 +102,7 @@ namespace EPSSEditor
 
         public Sound getSoundFromSoundId(Guid id)
         {
-             foreach (Sound snd in sounds)
+            foreach (Sound snd in sounds)
             {
                 if (snd.id() == id) return snd;
             }
@@ -112,7 +113,7 @@ namespace EPSSEditor
         public int getSoundNumberFromGuid(Guid guid)
         {
             int i = 0;
-            foreach(Sound snd in sounds)
+            foreach (Sound snd in sounds)
             {
                 if (snd.id() == guid)
                 {
@@ -139,7 +140,7 @@ namespace EPSSEditor
             }
             return sounds;
         }
-        
+
 
         private bool[] getOccupiedMidiChannels()
         {
@@ -162,7 +163,7 @@ namespace EPSSEditor
             {
                 if (snd.midiChannel == 10)
                 {
-                    occupied[snd.midiNote-1] = true;
+                    occupied[snd.midiNote - 1] = true;
                 }
             }
             return occupied;
@@ -179,25 +180,25 @@ namespace EPSSEditor
         public bool isDrumSoundOccupied(int drumNote)
         {
             bool[] occupied = getOccupiedChannel10();
-            return occupied[drumNote-1];
+            return occupied[drumNote - 1];
         }
 
         public int getNextFreeMidiChannel()
         {
             bool[] occupied = getOccupiedMidiChannels();
-           
+
             for (int i = 0; i < 16; i++)
             {
                 if (!occupied[i]) return i + 1;
             }
             return 0;
         }
-        
+
 
         public List<SpiSound> getSortedSpiSounds()
         {
             int i = 0;
-            foreach(SpiSound snd in spiSounds)
+            foreach (SpiSound snd in spiSounds)
             {
                 snd.soundNumber = i++;
             }
@@ -218,7 +219,7 @@ namespace EPSSEditor
                     spiSounds.RemoveAt(i);
                     result = true;
                     j--;
-            
+
                 }
             }
             return result;
@@ -228,7 +229,7 @@ namespace EPSSEditor
         public bool IdenticalSoundExists(Sound s)
         {
             bool result = false;
-            foreach(var snd in sounds)
+            foreach (var snd in sounds)
             {
                 if (snd.path == s.path && snd.loKey == s.loKey && snd.hiKey == s.hiKey && snd.keyCenter == s.keyCenter)
                 {
@@ -239,5 +240,15 @@ namespace EPSSEditor
             return result;
         }
 
+
+        public void AddSfzSound(ref Sound sound, int midiChannel, byte lo, byte hi, byte center)
+        {
+            SpiSound spiSnd = new SpiSound(ref sound);
+            spiSnd.startNote = lo;
+            spiSnd.endNote = hi;
+            spiSnd.midiNote = (byte)(84 - (center - lo));
+            spiSnd.midiChannel = (byte)midiChannel;
+            spiSounds.Add(spiSnd);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 
 namespace EPSSEditor
@@ -23,6 +24,15 @@ namespace EPSSEditor
     {
         public Dictionary<string, string> variables = new Dictionary<string, string>();
 
+        public int OccurenceOf(string line, char c)
+        {
+            int n = 0;
+            foreach (var ch in line)
+            {
+                if (ch == c) n++;   
+            }
+            return n;
+        }
 
 
         public virtual void init(string line)
@@ -80,6 +90,9 @@ namespace EPSSEditor
             }
             return true;
         }
+
+
+        
     }
 
 
@@ -100,20 +113,40 @@ namespace EPSSEditor
             {
                 if (line[i] == '>')
                 {
-                    string[] words = line.Substring(i + 1).Split('=');
-                    if (words.Length == 2)
-                    {
-                        string key = words[0].TrimEnd().TrimStart().ToLower();
-                        if ( key == "sample")
-                        {
-                            string file = words[1].TrimEnd().TrimStart().ToLower();
-                            variables.Add(key, file);
+                    List<string> stringPairsToParse =   new List<string>();
 
-                        }
-                    }
-                    else
+                    string afterRegion = line.Substring(i + 1).Trim();
+                    if (OccurenceOf(afterRegion, ' ') == 0)
                     {
-                        //throw (new ArgumentException("Incorrect parameters after <region>."));
+                        stringPairsToParse.Add(afterRegion);
+
+                        
+                    } else
+                    {
+                        string[] words = afterRegion.Split(' ');
+                        stringPairsToParse = words.ToList();
+                    }
+
+
+                    foreach (var stringPair in stringPairsToParse)
+                    {
+
+                        string[] words = stringPair.Split('=');
+                        if (words.Length == 2)
+                        {
+                            string key = words[0].TrimEnd().TrimStart().ToLower();
+                            //if (key == "sample")
+                            //{
+                                string value = words[1].TrimEnd().TrimStart().ToLower();
+                                variables.Add(key, value);
+
+                            //}
+                        }
+                        else
+                        {
+
+                            //throw (new ArgumentException("Incorrect parameters after <region>."));
+                        }
                     }
                     break;
                 }
