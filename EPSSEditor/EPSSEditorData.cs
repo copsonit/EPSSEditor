@@ -65,7 +65,20 @@ namespace EPSSEditor
             bool result = true;
             for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
             {
-                string outPath = soundDir + '\\' + spi.extSounds.sounds[i].s_sampname.Trim() + ".wav";
+                string safe = spi.extSounds.sounds[i].s_sampname.Trim();
+
+                foreach (char lDisallowed in System.IO.Path.GetInvalidFileNameChars())
+                {
+                    safe = safe.Replace(lDisallowed.ToString(), "");
+                }
+                foreach (char lDisallowed in System.IO.Path.GetInvalidPathChars())
+                {
+                    safe = safe.Replace(lDisallowed.ToString(), "");
+                }
+
+                if (String.IsNullOrEmpty(safe)) safe = "NULL";
+
+                string outPath = soundDir + '\\' + safe + ".wav";
                 Sound snd = new Sound(spi.samples.samples[i].data, outPath);
                 sounds.Add(snd);
             }

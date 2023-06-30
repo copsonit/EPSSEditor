@@ -383,11 +383,16 @@ namespace EPSSEditor
             bool result = false;
             EPSSSpiLoader loader = new EPSSSpiLoader();
             Uri url = new Uri(file);
-            EPSSSpi spi = loader.Load(url);
+            EPSSSpi spi = loader.Load(url, ref errorMessage);
             if (spi != null)
             {
                 // warn user, if we have spi sounds, these will be cleared
-                                
+                string patchName = spi.ext.i_pname;
+                if (String.IsNullOrEmpty(patchName))
+                {
+                    patchName = Path.GetFileName(file);
+                }                                
+
                 string path = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile); // Sample create dir
                 path += "\\" + spi.ext.i_pname;
                 

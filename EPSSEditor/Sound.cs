@@ -52,6 +52,7 @@ namespace EPSSEditor
             int channels = 1;
             var ms = new MemoryStream(soundData);
             var s = new RawSourceWaveStream(ms, new WaveFormat(sampleRate, bits, channels));
+
             WaveFileWriter.CreateWaveFile(outPath, s);
 
             InitSound(outPath);

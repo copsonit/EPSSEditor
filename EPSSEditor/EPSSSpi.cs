@@ -91,7 +91,7 @@ namespace EPSSEditor
         public abstract int length();
 
         public abstract int write(ref BinaryWriter writer);
-        public abstract int Read(ref BinaryReader reader, EPSSSpi spi);
+        public abstract int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage);
         public virtual bool isValidBlock() { return true; }
     }
 
@@ -151,7 +151,7 @@ namespace EPSSEditor
         }
 
         
-        public virtual int Load(Uri src)
+        public virtual int Load(Uri src, ref string errorMessage)
         {
             int result = 0;
 
@@ -160,17 +160,13 @@ namespace EPSSEditor
                 FileStream fs = new FileStream(src.LocalPath, FileMode.Open, FileAccess.Read);
                 BinaryReader reader = new BinaryReader(fs);
 
-                result = main.Read(ref reader, this);
-
-                if (result == 0) result = ext.Read(ref reader, this);
-
-                if (result == 0) result = split.Read(ref reader, this);
-
-                if (result == 0) result = sounds.Read(ref reader, this);
-
-                if (result == 0) result = extSounds.Read(ref reader, this);
-
-                if (result == 0) result = samples.Read(ref reader, this);
+                result = main.Read(ref reader, this, ref errorMessage);
+                if (result == 0) result = ext.Read(ref reader, this, ref errorMessage);
+                if (result == 0) result = split.Read(ref reader, this, ref errorMessage);
+                if (result == 0) result = sounds.Read(ref reader, this, ref errorMessage);
+                if (result == 0) result = extSounds.Read(ref reader, this, ref errorMessage);
+                if (result == 0) result = samples.Read(ref reader, this, ref errorMessage);
+              
 
 
 
@@ -292,7 +288,7 @@ namespace EPSSEditor
         }
 
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
         {
             int result = 0;
             try
@@ -309,6 +305,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_main.Read: ", ex.ToString());
+                errorMessage = ex.ToString();
                 result = 1;
             }
 
@@ -446,7 +443,7 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
         {
             int result = 0;
 
@@ -485,6 +482,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_extended.Rrite: ", ex.ToString());
+                errorMessage = ex.ToString();
                 result = 1;
             }
 
@@ -554,7 +552,7 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
         {
             int result = 0;
 
@@ -591,6 +589,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                errorMessage = ex.ToString();
                 result = 1;
             }
 
@@ -821,7 +820,7 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
         {
             int result = 0;
 
@@ -834,7 +833,7 @@ namespace EPSSEditor
                 for (int i =0; i < maxSoundNo; i++)
                 {
                     EPSSSpi_soundInfo s = new EPSSSpi_soundInfo();
-                    s.Read(ref reader);
+                    s.Read(ref reader, ref errorMessage);
                     soundList.Add(s);
                 }
                 sounds = soundList.ToArray();
@@ -843,6 +842,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                errorMessage = ex.ToString();
                 result = 1;
             }
 
@@ -893,7 +893,7 @@ namespace EPSSEditor
         }
 
 
-        public int Read(ref BinaryReader reader)
+        public int Read(ref BinaryReader reader, ref string errorMessage)
         {
             int result = 0;
 
@@ -911,6 +911,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_sountInfo.Read: ", ex.ToString());
+                errorMessage = ex.ToString();
                 result = 1;
             }
 
@@ -947,7 +948,7 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
         {
             int result = 0;
 
@@ -960,7 +961,7 @@ namespace EPSSEditor
                 for (int i = 0; i < maxSoundNo; i++)
                 {
                     EPSSSpi_extSoundInfo s = new EPSSSpi_extSoundInfo();
-                    s.Read(ref reader);
+                    s.Read(ref reader, ref errorMessage);
                     soundList.Add(s);
                 }
                 sounds = soundList.ToArray();
@@ -969,6 +970,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                errorMessage =  ex.ToString();
                 result = 1;
             }
 
@@ -1019,7 +1021,7 @@ namespace EPSSEditor
             return result;
         }
 
-        public int Read(ref BinaryReader reader)
+        public int Read(ref BinaryReader reader, ref string errorMessage)
         {
             int result = 0;
 
@@ -1041,6 +1043,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                errorMessage = ex.ToString();
                 result = 1;
             }
 
@@ -1177,7 +1180,7 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi)
+        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
         {
             int result = 0;
 
@@ -1190,7 +1193,7 @@ namespace EPSSEditor
                 {
                     EPSSSpi_soundInfo sndInfo = spi.sounds.sounds[i];
                     EPSSSpi_sample sample = new EPSSSpi_sample();
-                    sample.Read(ref reader, sndInfo.s_sampstart, sndInfo.s_sampend - sndInfo.s_sampstart);
+                    sample.Read(ref reader, sndInfo.s_sampstart, sndInfo.s_sampend - sndInfo.s_sampstart, ref errorMessage);
                     sampleList.Add(sample);
     
                 }
@@ -1201,6 +1204,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_samples.Read: ", ex.ToString());
+                errorMessage = ex.ToString();
                 result = 1;
             }
 
@@ -1262,7 +1266,7 @@ namespace EPSSEditor
         }
 
 
-        public int Read(ref BinaryReader reader, UInt32 start, UInt32 length)
+        public int Read(ref BinaryReader reader, UInt32 start, UInt32 length, ref string errorMessage)
         {
             int result = 0;
 
@@ -1275,6 +1279,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_sample.Read: ", ex.ToString());
+                errorMessage = ex.ToString();
                 result = 1;
             }
 
