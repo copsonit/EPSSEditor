@@ -50,6 +50,7 @@ namespace EPSSEditor
         {
             _name = extSoundInfo.s_sampname;
             _extName = extSoundInfo.s_extname;
+            transpose = soundInfo.s_loopmode.toneoffset;
             // TODO
         }
 

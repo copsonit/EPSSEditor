@@ -1253,7 +1253,7 @@ namespace EPSSEditor
                     //data.sounds.Add(s);
                     //}
                     anyFile = fp;
-                    data.AddSfzSound(ref s, midiChannel, loByte, hiByte, kcByte);
+                    data.AddSfzSound(ref s, midiChannel, loByte, hiByte, kcByte, 0);
 
                 }
             }

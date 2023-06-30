@@ -22,9 +22,10 @@ namespace EPSSEditor
         public int LastPitch;
         public int LastMidich;
         public int SoundNo;
+        public int Transpose;
 
         public SfzSplitInfo() {
-            Midich = -1; Low = -1; High = -1; NoteStart = -1; NoteEnd = -1; LastPitch = -1; LastMidich = -1; SoundNo = -1;
+            Midich = -1; Low = -1; High = -1; NoteStart = -1; NoteEnd = -1; LastPitch = -1; LastMidich = -1; SoundNo = -1; Transpose = -1;
         }
 
 
@@ -40,6 +41,7 @@ namespace EPSSEditor
 
             LastPitch = LastMidich = -1;
             SoundNo = soundNo;
+            Transpose = sound.transpose;
         }
 
         public int CompareTo(SfzSplitInfo other)
@@ -81,11 +83,13 @@ namespace EPSSEditor
                     if (sp.noSound == 0) // We have a sound defined
                     {
                         //int sound = sp.sound;
+                        sbyte toneOffset = spi.sounds.sounds[sp.sound].s_loopmode.toneoffset;
 
                         List<SfzSplitInfo> infos = dict[sp.sound];
                         SfzSplitInfo current = infos.Last();
                         if (current.Midich == -1) current.Midich = midich;
                         if (current.SoundNo == -1) current.SoundNo = sp.sound;
+                        current.Transpose = toneOffset;
 
                         if (current.Low >= 0)
                         {
@@ -103,6 +107,7 @@ namespace EPSSEditor
                                 current = infos.Last();
                                 current.Midich = midich;
                                 current.SoundNo = sp.sound;
+                                current.Transpose = toneOffset;
 
                                 current.High = -1;
                                 current.Low = sp.pitch;
@@ -187,7 +192,8 @@ namespace EPSSEditor
                                         Path.GetFileName(sounds[sound].path),
                                         noteStart,
                                         noteEnd,
-                                        noteStart + 84 - info.Low);
+                                        noteStart + 84 - info.Low - info.Transpose);
+                                    Console.WriteLine(info.Transpose);
 
 
 

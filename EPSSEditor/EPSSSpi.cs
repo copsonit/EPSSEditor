@@ -1071,9 +1071,19 @@ namespace EPSSEditor
         }
 
         // public Byte toneoffset : 1
-        public byte toneoffset
+        public sbyte toneoffset
         {
-            get { return (byte)((data >> 8) & 0xff); }
+            get { 
+                byte b = (byte)((data >> 8) & 0xff);
+                if (b < 128)
+                {
+                    return (sbyte)b;
+                }
+                else
+                {
+                    return (sbyte)((byte)128 - b); // CHECK THIS!!
+                }
+            }
             set { data = (UInt16)((data & ~(0xff << 8)) | ((value & 0xff) << 8)); }
         }
 

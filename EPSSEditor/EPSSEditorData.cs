@@ -129,6 +129,8 @@ namespace EPSSEditor
                             int noteEnd = info.NoteEnd;
                             if (noteEnd < 0) noteEnd = noteStart;
                             int center = noteStart + 84 - info.Low;
+                            int transpose = info.Transpose;
+
 
                             /*
                             writer.WriteLine("<region> sample={0} lokey={1} hikey={2} pitch_keycenter={3}",
@@ -138,7 +140,7 @@ namespace EPSSEditor
                                 noteStart + 84 - info.Low);
                             */
                             Sound s = sounds[sound];
-                            AddSfzSound(ref s, midich, (byte)noteStart, (byte)noteEnd, (byte)center);
+                            AddSfzSound(ref s, midich, (byte)noteStart, (byte)noteEnd, (byte)center, (sbyte)transpose);
                         }
                     }
                 }
@@ -341,13 +343,14 @@ namespace EPSSEditor
         }
 
 
-        public void AddSfzSound(ref Sound sound, int midiChannel, byte lo, byte hi, byte center)
+        public void AddSfzSound(ref Sound sound, int midiChannel, byte lo, byte hi, byte center, sbyte transpose)
         {
             SpiSound spiSnd = new SpiSound(ref sound);
             spiSnd.startNote = lo;
             spiSnd.endNote = hi;
             spiSnd.midiNote = (byte)(84 - (center - lo));
             spiSnd.midiChannel = (byte)midiChannel;
+            spiSnd.transpose = transpose;
             spiSounds.Add(spiSnd);
         }
     }
