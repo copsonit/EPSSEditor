@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Management;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace EPSSEditor
 {
@@ -350,7 +351,34 @@ namespace EPSSEditor
         }
 
 
-        private bool loadSpiFile(string file)
+        private bool WarnAndConfirmDir(string dir, string message)
+        {
+            bool result = true;
+
+            
+            if (Directory.Exists(dir))
+            {
+                if (MessageBox.Show(message, "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    Directory.Delete(dir, true);
+                }
+                else
+                {
+                    result = false;
+                }
+            }
+
+            if (result)
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+
+            return result;
+        }
+
+
+        private bool loadSpiFile(string file, ref string errorMessage)
         {
             bool result = false;
             EPSSSpiLoader loader = new EPSSSpiLoader();
@@ -359,33 +387,19 @@ namespace EPSSEditor
             if (spi != null)
             {
                 // warn user, if we have spi sounds, these will be cleared
-
-                
+                                
                 string path = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile); // Sample create dir
                 path += "\\" + spi.ext.i_pname;
-
-                bool doConversion = true;
-                if (Directory.Exists(path))
+                
+                //if (doConversion)
+                if (WarnAndConfirmDir(path, "Directory for conversion of SPI already exists.\nDo you want to delete it?"))
                 {
-                    if (MessageBox.Show("Directory for conversion of SPI already exists.\nDo you want to delete it?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        Directory.Delete(path, true);
-                    } else
-                    {
-                        doConversion = false;
-                    }
-                }
 
-                if (doConversion)
-                {
-                    Directory.CreateDirectory(path);
-                    data.LoadSpiFile(ref spi, path);
+                    result = data.LoadSpiFile(ref spi, path, ref errorMessage);
                     updateDialog();
 
                     saveProjectSettings();
                 }
-
-                result = true;
             }
             return result;
         }
@@ -941,7 +955,7 @@ namespace EPSSEditor
         }
 
 
-        private bool doLoadSpiFileDialog()
+        private bool doLoadSpiFileDialog(ref string errorMessage)
         {
             bool result = false;
             string s = Properties.Settings.Default.SpiFile;
@@ -953,9 +967,7 @@ namespace EPSSEditor
             {
                 s = Path.ChangeExtension(s, "spi");
             }
-
-
-            
+                        
             string spiFile = Path.GetDirectoryName(s);
             loadSpiFileDialog.InitialDirectory = spiFile;
             string fileName = Path.GetFileName(s);
@@ -965,7 +977,12 @@ namespace EPSSEditor
                 string file = loadSpiFileDialog.FileName;
                 Properties.Settings.Default.SpiFile = file;
                 Properties.Settings.Default.Save();
-                result = loadSpiFile(file);
+                result = loadSpiFile(file, ref errorMessage);
+                if (result)
+                {
+                    dataNeedsSaving = true;
+                    saveProjectSettings();
+                }
             }
 
             return result;
@@ -1072,7 +1089,7 @@ namespace EPSSEditor
         }
 
 
-        private string addSfzSound(string filePath, string baseName)
+        private string addSfzSound(string filePath)
         {
             //List<string> soundsAdded = new List<string>();
             Dictionary<string, Sound> sounds = new Dictionary<string, Sound>();
@@ -1206,15 +1223,16 @@ namespace EPSSEditor
             {
                 string filePath = file;
                 string ext = Path.GetExtension(filePath).ToUpper();
-                string baseName = Path.GetFileNameWithoutExtension(filePath);
-                baseName = baseName.Substring(0, Math.Min(baseName.Length - 1, 13));
+
 
                 if (ext == ".SFZ")
                 {
-                    anyFile = addSfzSound(filePath, baseName);
+                    anyFile = addSfzSound(filePath);
                 }
                 else
                 {
+                    string baseName = Path.GetFileNameWithoutExtension(filePath);
+                    baseName = baseName.Substring(0, Math.Min(baseName.Length - 1, 13));
                     anyFile = addOneSoundDirect(filePath, baseName);
                 }
             }
@@ -1743,10 +1761,11 @@ namespace EPSSEditor
 
             if (doLoad)
             {
-                bool result = doLoadSpiFileDialog();
-                if (!result)
+                string errorMessage = "";
+                bool result = doLoadSpiFileDialog(ref errorMessage);
+                if (!result && !String.IsNullOrEmpty(errorMessage))
                 {
-                    MessageBox.Show("SPI file cannot be loaded.\n"); // TODO: More descriptive errors
+                    MessageBox.Show("SPI file cannot be loaded:\n" + errorMessage);
                 }
             }
         }
@@ -1840,7 +1859,82 @@ namespace EPSSEditor
             }
         }
 
-        private void clearSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+
+        private void saveSFZToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string startDir;
+            if (data.spiFileName != null)
+            {
+                startDir = Path.GetDirectoryName(data.spiFileName);
+            } else
+            {
+                startDir = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
+            }
+            saveSfzFileDialog.InitialDirectory = startDir;
+           
+            if (saveSfzFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string sfzFile = saveSfzFileDialog.FileName;
+                string name = Path.GetFileNameWithoutExtension(sfzFile);
+                string sfzDir = Path.GetDirectoryName(sfzFile);
+                string sfzFileName = Path.GetFileName(sfzFile);
+
+                bool doSave = true;
+                string[] filesInDir = Directory.GetFiles(sfzDir);
+                if (filesInDir.Length > 0)
+                {
+                    if (System.Windows.Forms.MessageBox.Show("Chosen directory for sfz is not empty.\nAll used samples will be copied here.\nDo you want to continue?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                    {
+                        doSave = false;
+                    }
+                }
+
+                if (doSave) {
+                    Dictionary<int, List<SfzSplitInfo>> dict = data.ConvertToSfzSplitInfo();
+                    SfzConverter c = new SfzConverter();
+                    string errorMessage = "";
+                    bool result = c.SaveSFZ(ref dict, ref data.sounds, sfzDir, name, sfzFileName, ref errorMessage);
+                    if (result)
+                    {
+                        foreach (var sound in data.sounds)
+                        {
+                            string path = sfzDir + "\\" + Path.GetFileName(sound.path);
+                            if (File.Exists(path))
+                            {
+                                long oldSize =new System.IO.FileInfo(sound.path).Length;
+                                long newSize = new System.IO.FileInfo(path).Length;
+                                if (oldSize != newSize)
+                                {
+                                    string backupPath = path + ".bak";
+                                    string dirName = Path.GetDirectoryName(path);
+                                    int i = 1;
+                                    while (File.Exists(backupPath))
+                                    {
+                                        backupPath = dirName + "\\" + Path.GetFileNameWithoutExtension(path) + " (Backup " + i.ToString() + ")" + ".bak";
+                                        i++;
+                                    }
+
+                                    string tmp = Path.GetTempFileName();
+                                    File.Copy(sound.path, tmp, true);
+                                    File.Replace(tmp, path, backupPath);
+                                }
+                            }
+                            else
+                            {
+                                File.Copy(sound.path, path);
+                            }
+                        }
+
+                    } else
+                    {
+                        MessageBox.Show("Save sfz failed:\n" + errorMessage);
+                    }
+                }
+            }
+        }
+
+
+            private void clearSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string settingsFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
             if (System.Windows.Forms.MessageBox.Show("Settings files is stored:\n" + settingsFile + "\nDo you want to clear them?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -2023,11 +2117,6 @@ namespace EPSSEditor
         private void spiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             Console.WriteLine(e.X + " " + e.Y);
-        }
-
-        private void saveSFZToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
     }
 

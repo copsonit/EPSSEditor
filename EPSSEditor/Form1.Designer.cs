@@ -100,6 +100,7 @@
             this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadSPIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveSFZToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -119,7 +120,7 @@
             this.openDrumMappingsFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSampleFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.loadSpiFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.saveSFZToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveSfzFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.groupBox12.SuspendLayout();
@@ -963,6 +964,13 @@
             this.loadSPIToolStripMenuItem.Text = "Load SPI...";
             this.loadSPIToolStripMenuItem.Click += new System.EventHandler(this.loadSPIToolStripMenuItem_Click);
             // 
+            // saveSFZToolStripMenuItem
+            // 
+            this.saveSFZToolStripMenuItem.Name = "saveSFZToolStripMenuItem";
+            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSFZToolStripMenuItem.Text = "Save SFZ...";
+            this.saveSFZToolStripMenuItem.Click += new System.EventHandler(this.saveSFZToolStripMenuItem_Click);
+            // 
             // saveProjectToolStripMenuItem
             // 
             this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
@@ -1114,12 +1122,10 @@
             this.loadSpiFileDialog.Filter = "SPI files (*.spi|*.spi|All files (*.*)|*.*\"";
             this.loadSpiFileDialog.Title = "Load EPSS Project...";
             // 
-            // saveSFZToolStripMenuItem
+            // saveSfzFileDialog
             // 
-            this.saveSFZToolStripMenuItem.Name = "saveSFZToolStripMenuItem";
-            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.saveSFZToolStripMenuItem.Text = "Save SFZ...";
-            this.saveSFZToolStripMenuItem.Click += new System.EventHandler(this.saveSFZToolStripMenuItem_Click);
+            this.saveSfzFileDialog.Filter = "Sfz files (*.sfz)|*.sfz|All files (*.*)|*.*\"";
+            this.saveSfzFileDialog.Title = "Save EPSS Spi...";
             // 
             // Form1
             // 
@@ -1266,6 +1272,7 @@
         private System.Windows.Forms.ToolStripMenuItem loadSPIToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog loadSpiFileDialog;
         private System.Windows.Forms.ToolStripMenuItem saveSFZToolStripMenuItem;
+        private System.Windows.Forms.SaveFileDialog saveSfzFileDialog;
     }
 }
 

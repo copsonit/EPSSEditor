@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace EPSSEditor
 {
@@ -22,8 +23,23 @@ namespace EPSSEditor
         public int LastMidich;
         public int SoundNo;
 
-        public SfzSplitInfo() { 
-            Midich = -1; Low = -1; High = -1; NoteStart = -1;  NoteEnd = -1; LastPitch = -1; LastMidich = -1; SoundNo = -1;
+        public SfzSplitInfo() {
+            Midich = -1; Low = -1; High = -1; NoteStart = -1; NoteEnd = -1; LastPitch = -1; LastMidich = -1; SoundNo = -1;
+        }
+
+
+        public SfzSplitInfo(int soundNo, SpiSound sound)
+        {
+            Midich = sound.midiChannel;
+
+            NoteStart = sound.startNote;
+            NoteEnd = sound.endNote;
+
+            Low = sound.midiNote;
+            High = sound.midiNote + (NoteEnd - NoteStart);
+
+            LastPitch = LastMidich = -1;
+            SoundNo = soundNo;
         }
 
         public int CompareTo(SfzSplitInfo other)
@@ -33,6 +49,7 @@ namespace EPSSEditor
             else if (NoteStart == other.NoteStart) return 0;
             return 1;
         }
+
     }
 
 
@@ -41,7 +58,7 @@ namespace EPSSEditor
 
         public SfzConverter() { }
 
-        public Dictionary<int, List<SfzSplitInfo>> Convert(ref EPSSSpi spi, ref Sound[] sounds, string outPath)
+        public Dictionary<int, List<SfzSplitInfo>> Convert(ref EPSSSpi spi/*, ref Sound[] sounds, string outPath*/)
         {
 
             Dictionary<int, List<SfzSplitInfo>> dict = new Dictionary<int, List<SfzSplitInfo>>();
@@ -114,13 +131,14 @@ namespace EPSSEditor
                     currentMidiNote++;
                 }
             }
-
-
             return dict;
+        }
 
-            /*
 
-            string fileName = outPath + "\\" + spi.ext.i_pname + ".sfz";
+        public bool SaveSFZ(ref Dictionary<int, List<SfzSplitInfo>> dict, ref List<Sound> sounds, string outPath, string patchName, string filenameWithExt, ref string errorMessage)
+        {
+            bool result = true;
+            string fileName = outPath + "\\" + filenameWithExt;
 
             try
             {
@@ -128,9 +146,9 @@ namespace EPSSEditor
                 {
 
                     writer.WriteLine("// EPSS SPI to SFZ Conversion.");
-                    writer.WriteLine("// Original SPI: {0}", spi.ext.i_pname);
+                    writer.WriteLine("// Original SPI: {0}", patchName);
 
-                    for (int midich = 0; midich < (spi.main.i_no_of_MIDIch.no_of_MIDICh - 1); midich++)
+                    for (int midich = 0; midich < 15; midich++)
                     {
                         List<SfzSplitInfo> splitsForChannel = new List<SfzSplitInfo>();
                         foreach (var kvp in dict)
@@ -157,16 +175,9 @@ namespace EPSSEditor
                             foreach (var info in splitsForChannel)
                             {
 
-                                //foreach (var kvp in dict)
-                                //{
-                                int sound = info.SoundNo;
-                                //List<SfzSplitInfo> sfzSplitInfos = kvp.Value;
 
-                                //if (sfzSplitInfos.Count > 0)
-                                //
-                                //zSplitInfos.Sort();
-                                //reach (var info in sfzSplitInfos)
-                                //
+                                int sound = info.SoundNo;
+
                                 if (info.Midich == midich)
                                 {
                                     int noteStart = info.NoteStart;
@@ -177,14 +188,12 @@ namespace EPSSEditor
                                         noteStart,
                                         noteEnd,
                                         noteStart + 84 - info.Low);
-                                        
+
 
 
 
 
                                 }
-                                //
-                                //
 
                             }
                             writer.WriteLine("");
@@ -195,12 +204,11 @@ namespace EPSSEditor
             catch (Exception exp)
             {
                 Console.Write(exp.Message);
+                errorMessage = exp.Message;
+                result = false;
             }
+            return result;
 
         }
-            */
-
-        }
-
     }
 }

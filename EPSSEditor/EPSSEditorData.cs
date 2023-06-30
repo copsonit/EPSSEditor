@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using System.IO;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.ComponentModel.Design;
+using System.Runtime.InteropServices;
 
 namespace EPSSEditor
 {
@@ -57,23 +60,18 @@ namespace EPSSEditor
         }
 
 
-        public void LoadSpiFile(ref EPSSSpi spi, string soundDir)
+        public bool LoadSpiFile(ref EPSSSpi spi, string soundDir, ref string errorMessage)
         {
-
-
-            //List<Sound> spiSoundsList = new List<Sound>();
+            bool result = true;
             for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
             {
                 string outPath = soundDir + '\\' + spi.extSounds.sounds[i].s_sampname.Trim() + ".wav";
                 Sound snd = new Sound(spi.samples.samples[i].data, outPath);
                 sounds.Add(snd);
-                //SpiSound sound = new SpiSound(spi.sounds.sounds[i], spi.extSounds.sounds[i], spi.samples.samples[i]);
-                //spiSounds.Add(sound);
             }
-            Sound[] spiSounds = sounds.ToArray();
 
             SfzConverter c = new SfzConverter();
-            Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(ref spi, ref spiSounds, soundDir);
+            Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(ref spi);
 
             for (int midich = 0; midich < (spi.main.i_no_of_MIDIch.no_of_MIDICh - 1); midich++)
             {
@@ -132,10 +130,41 @@ namespace EPSSEditor
                     }
                 }
             }
+            return result;
+        }
+
+
+        public Dictionary<int, List<SfzSplitInfo>> ConvertToSfzSplitInfo()
+        {
+            Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = new Dictionary<int, List<SfzSplitInfo>>();
+
+            foreach (var s in spiSounds)
+            {
+                int sound = getSoundNumberFromGuid(s.soundId);
+                List<SfzSplitInfo> splits;
+
+                if (soundNoToSplit.ContainsKey(sound))
+                {
+                    splits = soundNoToSplit[sound];
+
+                } else
+                {
+                    splits = new List<SfzSplitInfo>();
+                    soundNoToSplit.Add(sound, splits);
+                }
+
+                SfzSplitInfo split = new SfzSplitInfo(sound, s);
+                splits.Add(split);
+
+                soundNoToSplit[sound] = splits;
+            }
+
+            return soundNoToSplit;
 
         }
 
 
+        
 
 
         public string convertSoundFileName()
