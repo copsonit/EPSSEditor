@@ -396,9 +396,12 @@ namespace EPSSEditor
                 {
 
                     result = data.LoadSpiFile(ref spi, path, ref errorMessage);
-                    updateDialog();
-
-                    saveProjectSettings();
+                    if (result)
+                    {
+                        updateDialog();
+                        dataNeedsSaving = true;
+                        saveProjectSettings();
+                    }
                 }
             }
             return result;
@@ -542,7 +545,13 @@ namespace EPSSEditor
                 spiSoundListView.Items.Add(item);
             }
 
-            saveSpiButton.Enabled = data.spiSounds.Count > 0;
+            bool spiSaveEnabled = data.spiSounds.Count > 0;
+            var mi = menuStrip1.Items.Find("saveSPIToolStripMenuItem", true);
+            foreach (var item in mi)
+            {
+                item.Enabled= spiSaveEnabled;
+            }
+
 
             Sound snd = getSoundAtSelectedIndex();
             if (snd != null)
@@ -980,13 +989,48 @@ namespace EPSSEditor
                 result = loadSpiFile(file, ref errorMessage);
                 if (result)
                 {
-                    dataNeedsSaving = true;
-                    saveProjectSettings();
+
                 }
             }
 
             return result;
 
+        }
+
+
+        private bool doLoadSfzFileDialog(ref string errorMessage)
+        {
+            bool result = false;
+            string s = Properties.Settings.Default.SfzFile;
+            if (s == null || s == "")
+            {
+                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                s = Path.Combine(s, "EPSS Projects", "default.sfz");
+            }
+            else if (Path.GetExtension(s).ToLower() != "sfz")
+            {
+                s = Path.ChangeExtension(s, "sfz");
+            }
+
+            string sfzFile = Path.GetDirectoryName(s);
+            loadSfzFileDialog.InitialDirectory = sfzFile;
+            string fileName = Path.GetFileName(s);
+            loadSfzFileDialog.FileName = fileName;
+            if (loadSfzFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string file = loadSfzFileDialog.FileName;
+                Properties.Settings.Default.SfzFile = file;
+                Properties.Settings.Default.Save();
+
+                string anyFile = LoadSfzSound(file);
+ 
+
+                data.soundFileName = anyFile;
+                result = true;
+            
+            }
+
+            return result;
         }
 
 
@@ -1088,8 +1132,9 @@ namespace EPSSEditor
             return file;
         }
 
+     
 
-        private string addSfzSound(string filePath)
+        private string LoadSfzSound(string filePath)
         {
             //List<string> soundsAdded = new List<string>();
             Dictionary<string, Sound> sounds = new Dictionary<string, Sound>();
@@ -1207,8 +1252,11 @@ namespace EPSSEditor
 
                 }
             }
-            updateSpiSoundListBox();
-            updateTotalSize();
+
+            updateDialog();
+            dataNeedsSaving = true;
+            saveProjectSettings();
+
             return anyFile;
         }
 
@@ -1227,7 +1275,7 @@ namespace EPSSEditor
 
                 if (ext == ".SFZ")
                 {
-                    anyFile = addSfzSound(filePath);
+                    anyFile = LoadSfzSound(filePath);
                 }
                 else
                 {
@@ -1770,6 +1818,15 @@ namespace EPSSEditor
             }
         }
 
+        private void importSFZToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string errorMessage = "";
+            bool result = doLoadSfzFileDialog(ref errorMessage);
+            if (!result && !String.IsNullOrEmpty(errorMessage))
+            {
+                MessageBox.Show("SFZ file cannot be loaded:\n" + errorMessage);
+            }
+        }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1818,10 +1875,8 @@ namespace EPSSEditor
         }
 
 
-
-        private void saveSpiButton_Click(object sender, EventArgs e)
+        private void doSaveSpi()
         {
-
             List<SpiSound> soundsToSave = data.getSortedSpiSounds();
             if (soundsToSave.Count > 0)
             {
@@ -1845,7 +1900,8 @@ namespace EPSSEditor
                             data.spiFileName = spiFile;
                             dataNeedsSaving = true;
                             saveProjectSettings();
-                        } else
+                        }
+                        else
                         {
                             System.Windows.Forms.MessageBox.Show("Error occured during save! Patch file might not be valid.");
                         }
@@ -1857,6 +1913,13 @@ namespace EPSSEditor
             {
                 System.Windows.Forms.MessageBox.Show("No sounds to save!");
             }
+        }
+
+
+        private void saveSpiButton_Click(object sender, EventArgs e)
+        {
+
+
         }
 
 
@@ -2117,6 +2180,11 @@ namespace EPSSEditor
         private void spiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             Console.WriteLine(e.X + " " + e.Y);
+        }
+
+        private void saveSPIToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            doSaveSpi();
         }
     }
 

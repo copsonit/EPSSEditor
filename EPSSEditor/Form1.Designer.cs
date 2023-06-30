@@ -30,7 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             this.soundListBox = new System.Windows.Forms.ListBox();
-            this.saveSpiButton = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.button1 = new System.Windows.Forms.Button();
             this.previewComboBox = new System.Windows.Forms.ComboBox();
@@ -99,9 +98,13 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadSPIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveSFZToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.loadSPIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importSFZToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveSPIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveSFZToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.clearSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadSoundFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -121,6 +124,7 @@
             this.saveSampleFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.loadSpiFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveSfzFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.loadSfzFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.groupBox12.SuspendLayout();
@@ -158,17 +162,6 @@
             this.soundListBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.soundListBox_DragEnter);
             this.soundListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.soundListBox_KeyDown);
             this.soundListBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.soundListBox_KeyPress);
-            // 
-            // saveSpiButton
-            // 
-            this.saveSpiButton.Location = new System.Drawing.Point(5, 79);
-            this.saveSpiButton.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.saveSpiButton.Name = "saveSpiButton";
-            this.saveSpiButton.Size = new System.Drawing.Size(233, 20);
-            this.saveSpiButton.TabIndex = 3;
-            this.saveSpiButton.Text = "Save SPI...";
-            this.saveSpiButton.UseVisualStyleBackColor = true;
-            this.saveSpiButton.Click += new System.EventHandler(this.saveSpiButton_Click);
             // 
             // groupBox2
             // 
@@ -934,9 +927,13 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newProjectToolStripMenuItem,
             this.loadProjectToolStripMenuItem,
-            this.loadSPIToolStripMenuItem,
-            this.saveSFZToolStripMenuItem,
             this.saveProjectToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.loadSPIToolStripMenuItem,
+            this.importSFZToolStripMenuItem,
+            this.saveSPIToolStripMenuItem,
+            this.saveSFZToolStripMenuItem,
+            this.toolStripSeparator2,
             this.clearSettingsToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -957,26 +954,50 @@
             this.loadProjectToolStripMenuItem.Text = "Load Project...";
             this.loadProjectToolStripMenuItem.Click += new System.EventHandler(this.loadProjectToolStripMenuItem_Click);
             // 
-            // loadSPIToolStripMenuItem
-            // 
-            this.loadSPIToolStripMenuItem.Name = "loadSPIToolStripMenuItem";
-            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.loadSPIToolStripMenuItem.Text = "Load SPI...";
-            this.loadSPIToolStripMenuItem.Click += new System.EventHandler(this.loadSPIToolStripMenuItem_Click);
-            // 
-            // saveSFZToolStripMenuItem
-            // 
-            this.saveSFZToolStripMenuItem.Name = "saveSFZToolStripMenuItem";
-            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.saveSFZToolStripMenuItem.Text = "Save SFZ...";
-            this.saveSFZToolStripMenuItem.Click += new System.EventHandler(this.saveSFZToolStripMenuItem_Click);
-            // 
             // saveProjectToolStripMenuItem
             // 
             this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
             this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveProjectToolStripMenuItem.Text = "Save Project...";
             this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.saveProjectToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            // 
+            // loadSPIToolStripMenuItem
+            // 
+            this.loadSPIToolStripMenuItem.Name = "loadSPIToolStripMenuItem";
+            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadSPIToolStripMenuItem.Text = "Import SPI...";
+            this.loadSPIToolStripMenuItem.Click += new System.EventHandler(this.loadSPIToolStripMenuItem_Click);
+            // 
+            // importSFZToolStripMenuItem
+            // 
+            this.importSFZToolStripMenuItem.Name = "importSFZToolStripMenuItem";
+            this.importSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.importSFZToolStripMenuItem.Text = "Import SFZ...";
+            this.importSFZToolStripMenuItem.Click += new System.EventHandler(this.importSFZToolStripMenuItem_Click);
+            // 
+            // saveSPIToolStripMenuItem
+            // 
+            this.saveSPIToolStripMenuItem.Name = "saveSPIToolStripMenuItem";
+            this.saveSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSPIToolStripMenuItem.Text = "Export SPI...";
+            this.saveSPIToolStripMenuItem.Click += new System.EventHandler(this.saveSPIToolStripMenuItem_Click);
+            // 
+            // saveSFZToolStripMenuItem
+            // 
+            this.saveSFZToolStripMenuItem.Name = "saveSFZToolStripMenuItem";
+            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSFZToolStripMenuItem.Text = "Export SFZ...";
+            this.saveSFZToolStripMenuItem.Click += new System.EventHandler(this.saveSFZToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
             // clearSettingsToolStripMenuItem
             // 
@@ -995,7 +1016,7 @@
             // loadSoundFileDialog
             // 
             this.loadSoundFileDialog.FileName = "openFileDialog1";
-            this.loadSoundFileDialog.Filter = "wav files (*.wav)|*.wav|All files (*.*)|*.*\"";
+            this.loadSoundFileDialog.Filter = "wav files (*.wav)|*.wav|All files (*.*)|*.*";
             this.loadSoundFileDialog.Multiselect = true;
             this.loadSoundFileDialog.Title = "Load Sound...";
             // 
@@ -1057,7 +1078,6 @@
             this.groupBox10.Controls.Add(this.omniPatchCheckBox);
             this.groupBox10.Controls.Add(this.label22);
             this.groupBox10.Controls.Add(this.label23);
-            this.groupBox10.Controls.Add(this.saveSpiButton);
             this.groupBox10.Controls.Add(this.spiInfoTextBox);
             this.groupBox10.Controls.Add(this.spiNameTextBox);
             this.groupBox10.Location = new System.Drawing.Point(179, 14);
@@ -1099,33 +1119,39 @@
             // saveSpiFileDialog
             // 
             this.saveSpiFileDialog.Filter = "Spi files (*.spi)|*.spi|All files (*.*)|*.*\"";
-            this.saveSpiFileDialog.Title = "Save EPSS Spi...";
+            this.saveSpiFileDialog.Title = "Export project to EPSS SPI format";
             // 
             // saveProjectFileDialog
             // 
-            this.saveProjectFileDialog.Filter = "EPSS Project files (*.epf)|*.epf|All files (*.*)|*.*\"";
-            this.saveProjectFileDialog.Title = "Save EPSS Project...";
+            this.saveProjectFileDialog.Filter = "EPSS Project files (*.epf)|*.epf|All files (*.*)|*.*";
+            this.saveProjectFileDialog.Title = "Save EPSS Project";
             // 
             // loadProjectFileDialog
             // 
             this.loadProjectFileDialog.FileName = "openFileDialog1";
-            this.loadProjectFileDialog.Filter = "EPSS Project files (*.epf)|*.epf|All files (*.*)|*.*\"";
-            this.loadProjectFileDialog.Title = "Load EPSS Project...";
+            this.loadProjectFileDialog.Filter = "EPSS Project files (*.epf)|*.epf|All files (*.*)|*.*";
+            this.loadProjectFileDialog.Title = "Load EPSS Project";
             // 
             // openDrumMappingsFileDialog
             // 
-            this.openDrumMappingsFileDialog.Filter = "XML Drum mappings (*.xml)|*.xml|All files (*.*)|*.*\"";
+            this.openDrumMappingsFileDialog.Filter = "XML Drum mappings (*.xml)|*.xml|All files (*.*)|*.*";
             // 
             // loadSpiFileDialog
             // 
             this.loadSpiFileDialog.FileName = "loadSpiFileDialog";
-            this.loadSpiFileDialog.Filter = "SPI files (*.spi|*.spi|All files (*.*)|*.*\"";
-            this.loadSpiFileDialog.Title = "Load EPSS Project...";
+            this.loadSpiFileDialog.Filter = "SPI files (*.spi)|*.spi|All files (*.*)|*.*";
+            this.loadSpiFileDialog.Title = "Import EPSS SPI file";
             // 
             // saveSfzFileDialog
             // 
-            this.saveSfzFileDialog.Filter = "Sfz files (*.sfz)|*.sfz|All files (*.*)|*.*\"";
-            this.saveSfzFileDialog.Title = "Save EPSS Spi...";
+            this.saveSfzFileDialog.Filter = "Sfz files (*.sfz)|*.sfz|All files (*.*)|*.*";
+            this.saveSfzFileDialog.Title = "Export project to SFZ format";
+            // 
+            // loadSfzFileDialog
+            // 
+            this.loadSfzFileDialog.FileName = "loadSfzFileDialog";
+            this.loadSfzFileDialog.Filter = "SFZ files (*.sfz)|*.sfz|All files (*.*)|*.*";
+            this.loadSfzFileDialog.Title = "Import SFZ file";
             // 
             // Form1
             // 
@@ -1182,7 +1208,6 @@
 
         #endregion
         private System.Windows.Forms.ListBox soundListBox;
-        private System.Windows.Forms.Button saveSpiButton;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TextBox totalSizeTextBox;
         private System.Windows.Forms.TextBox spiNameTextBox;
@@ -1273,6 +1298,11 @@
         private System.Windows.Forms.OpenFileDialog loadSpiFileDialog;
         private System.Windows.Forms.ToolStripMenuItem saveSFZToolStripMenuItem;
         private System.Windows.Forms.SaveFileDialog saveSfzFileDialog;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem saveSPIToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importSFZToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.OpenFileDialog loadSfzFileDialog;
     }
 }
 

@@ -58,5 +58,17 @@ namespace EPSSEditor.Properties {
                 this["SpiFile"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SfzFile {
+            get {
+                return ((string)(this["SfzFile"]));
+            }
+            set {
+                this["SfzFile"] = value;
+            }
+        }
     }
 }
