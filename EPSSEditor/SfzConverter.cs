@@ -39,11 +39,11 @@ namespace EPSSEditor
     public class SfzConverter
     {
 
-        public SfzConverter() { }  
+        public SfzConverter() { }
 
-        public void Convert(ref EPSSSpi spi, ref Sound[] sounds, string outPath)
+        public Dictionary<int, List<SfzSplitInfo>> Convert(ref EPSSSpi spi, ref Sound[] sounds, string outPath)
         {
-  
+
             Dictionary<int, List<SfzSplitInfo>> dict = new Dictionary<int, List<SfzSplitInfo>>();
             for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
             {
@@ -92,7 +92,7 @@ namespace EPSSEditor
                                 current.LastPitch = sp.pitch;
                                 current.LastMidich = midich;
                                 current.NoteStart = currentMidiNote;
-                                
+
                             }
                         }
                         else
@@ -115,8 +115,10 @@ namespace EPSSEditor
                 }
             }
 
-          
 
+            return dict;
+
+            /*
 
             string fileName = outPath + "\\" + spi.ext.i_pname + ".sfz";
 
@@ -196,9 +198,9 @@ namespace EPSSEditor
             }
 
         }
+            */
 
-        
-
+        }
 
     }
 }

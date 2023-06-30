@@ -57,23 +57,81 @@ namespace EPSSEditor
         }
 
 
-        public void initialize(ref EPSSSpi spi, string soundDir)
+        public void LoadSpiFile(ref EPSSSpi spi, string soundDir)
         {
 
 
-            List<Sound> spiSoundsList = new List<Sound>();
+            //List<Sound> spiSoundsList = new List<Sound>();
             for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
             {
                 string outPath = soundDir + '\\' + spi.extSounds.sounds[i].s_sampname.Trim() + ".wav";
                 Sound snd = new Sound(spi.samples.samples[i].data, outPath);
-                spiSoundsList.Add(snd);
+                sounds.Add(snd);
                 //SpiSound sound = new SpiSound(spi.sounds.sounds[i], spi.extSounds.sounds[i], spi.samples.samples[i]);
                 //spiSounds.Add(sound);
             }
-            Sound[] spiSounds = spiSoundsList.ToArray();
+            Sound[] spiSounds = sounds.ToArray();
 
             SfzConverter c = new SfzConverter();
-            c.Convert(ref spi, ref spiSounds, soundDir);
+            Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(ref spi, ref spiSounds, soundDir);
+
+            for (int midich = 0; midich < (spi.main.i_no_of_MIDIch.no_of_MIDICh - 1); midich++)
+            {
+                List<SfzSplitInfo> splitsForChannel = new List<SfzSplitInfo>();
+                foreach (var kvp in soundNoToSplit)
+                {
+                    List<SfzSplitInfo> sfzSplitInfos = kvp.Value;
+                    foreach (var split in sfzSplitInfos)
+                    {
+                        if (split.Midich == midich)
+                        {
+                            splitsForChannel.Add(split);
+                        }
+                    }
+                }
+
+                if (splitsForChannel.Count > 0)
+                {
+
+                    splitsForChannel.Sort();
+
+
+                    //writer.WriteLine("<master> loprog={0} hiprog={0} master_label=Midi channel {0}", midich);
+                    //writer.WriteLine("<group>");
+
+                    foreach (var info in splitsForChannel)
+                    {
+
+                        //foreach (var kvp in dict)
+                        //{
+                        int sound = info.SoundNo;
+                        //List<SfzSplitInfo> sfzSplitInfos = kvp.Value;
+
+                        //if (sfzSplitInfos.Count > 0)
+                        //
+                        //zSplitInfos.Sort();
+                        //reach (var info in sfzSplitInfos)
+                        //
+                        if (info.Midich == midich)
+                        {
+                            int noteStart = info.NoteStart;
+                            int noteEnd = info.NoteEnd;
+                            if (noteEnd < 0) noteEnd = noteStart;
+                            int center = noteStart + 84 - info.Low;
+
+                            /*
+                            writer.WriteLine("<region> sample={0} lokey={1} hikey={2} pitch_keycenter={3}",
+                                Path.GetFileName(sounds[sound].path),
+                                noteStart,
+                                noteEnd,
+                                noteStart + 84 - info.Low);
+                            */
+                            Sound s = sounds[sound];
+                            AddSfzSound(ref s, midich, (byte)noteStart, (byte)noteEnd, (byte)center);
+                        }
+                    }
+                }
+            }
 
         }
 

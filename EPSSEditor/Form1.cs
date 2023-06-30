@@ -379,7 +379,7 @@ namespace EPSSEditor
                 if (doConversion)
                 {
                     Directory.CreateDirectory(path);
-                   data.initialize(ref spi, path);
+                    data.LoadSpiFile(ref spi, path);
                     updateDialog();
 
                     saveProjectSettings();
@@ -2023,6 +2023,11 @@ namespace EPSSEditor
         private void spiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             Console.WriteLine(e.X + " " + e.Y);
+        }
+
+        private void saveSFZToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
