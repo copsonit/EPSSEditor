@@ -59,23 +59,21 @@ namespace EPSSEditor
 
         public void initialize(ref EPSSSpi spi, string soundDir)
         {
-            spiSounds = new List<SpiSound>();
-
-            SfzConverter c = new SfzConverter();
-            c.Convert(ref spi);
 
 
+            List<Sound> spiSoundsList = new List<Sound>();
             for (int i =0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
             {
                 string outPath = soundDir + '\\' + spi.extSounds.sounds[i].s_sampname.Trim() + ".wav";
                 Sound snd = new Sound(spi.samples.samples[i].data, outPath);
-
-
-
-
+                spiSoundsList.Add(snd);
                 //SpiSound sound = new SpiSound(spi.sounds.sounds[i], spi.extSounds.sounds[i], spi.samples.samples[i]);
                 //spiSounds.Add(sound);
             }
+            Sound[] spiSounds = spiSoundsList.ToArray();
+
+            SfzConverter c = new SfzConverter();
+            c.Convert(ref spi, ref spiSounds, soundDir);
 
         }
 

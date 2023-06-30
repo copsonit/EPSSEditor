@@ -41,11 +41,30 @@ namespace EPSSEditor
         public Sound() { }
 
         public Sound(string p) {
+            InitSound(p);
+        }
+
+
+        public Sound(byte[] soundData, string outPath)
+        {
+            int sampleRate = 25033;
+            int bits = 8;
+            int channels = 1;
+            var ms = new MemoryStream(soundData);
+            var s = new RawSourceWaveStream(ms, new WaveFormat(sampleRate, bits, channels));
+            WaveFileWriter.CreateWaveFile(outPath, s);
+
+            InitSound(outPath);
+        }
+
+
+        public void InitSound(string p)
+        {
             path = p;
             description = null;
             length = new System.IO.FileInfo(path).Length;
             _id = Guid.NewGuid();
-            
+
             _parameters = new ConversionParameters();
             _parameters.normalize = new ConversionNormalize();
 
@@ -61,18 +80,6 @@ namespace EPSSEditor
 
             loKey = hiKey = keyCenter = 128;
         }
-
-
-        public Sound(byte[] soundData, string outPath)
-        {
-            int sampleRate = 25033;
-            int bits = 8;
-            int channels = 1;
-            var ms = new MemoryStream(soundData);
-            var s = new RawSourceWaveStream(ms, new WaveFormat(sampleRate, bits, channels));
-            WaveFileWriter.CreateWaveFile(outPath, s);
-        }
-
 
         public Guid id() { return _id; }
 
