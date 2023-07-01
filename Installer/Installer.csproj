@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(ProjectDir)Inno\iscc.exe $(ProjectDir)installer.iss" />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EPSSEditor\EPSSEditor.csproj" />
+  </ItemGroup>
+
+</Project>
