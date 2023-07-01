@@ -83,6 +83,10 @@ namespace EPSSEditor
                 sounds.Add(snd);
             }
 
+
+            spiName = spi.ext.i_pname.Trim();
+            spiDescription = spi.ext.i_patchinfo.Trim();
+
             SfzConverter c = new SfzConverter();
             Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(ref spi);
 
