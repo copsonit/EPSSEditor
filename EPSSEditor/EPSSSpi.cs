@@ -1081,7 +1081,7 @@ namespace EPSSEditor
                 }
                 else
                 {
-                    return (sbyte)((byte)128 - b); // CHECK THIS!!
+                    return (sbyte)((int)b - 256); // 255->-1,254->-2
                 }
             }
             set { data = (UInt16)((data & ~(0xff << 8)) | ((value & 0xff) << 8)); }
