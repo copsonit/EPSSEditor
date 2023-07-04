@@ -1,8 +1,10 @@
-﻿using NAudio.MediaFoundation;
+﻿using EPSSEditor;
+using NAudio.MediaFoundation;
 using NAudio.Midi;
 using NAudio.Mixer;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -137,12 +139,12 @@ namespace EPSSEditor
                         int sound = sp.sound;
                         sbyte toneOffset = spi.sounds.sounds[sound].s_loopmode.toneoffset;
                         byte lm = spi.sounds.sounds[sound].s_loopmode.loopmode;
-                    
+
                         UInt32 startInSpi = spi.sounds.sounds[sound].s_sampstart;
                         UInt32 start = 0;
                         UInt32 end = spi.sounds.sounds[sound].s_sampend - startInSpi;
                         UInt32 loopStart = spi.sounds.sounds[sound].s_loopstart - startInSpi;
-                        
+
                         List<SfzSplitInfo> infos = dict[sound];
                         SfzSplitInfo current = infos.Last();
                         current.Update(sound, midich, lm, toneOffset, start, end, loopStart);
@@ -184,10 +186,9 @@ namespace EPSSEditor
         }
 
 
-        public bool SaveSFZ(ref Dictionary<int, List<SfzSplitInfo>> dict, ref List<Sound> sounds, string outPath, string patchName, string filenameWithExt, ref string errorMessage)
+        public bool SaveOneSFZ(int midich, string patchName, string fileName, string sampleSubDir, ref List<SfzSplitInfo> splitsForChannel, ref List<Sound> sounds, ref string errorMessage)
         {
             bool result = true;
-            string fileName = outPath + "\\" + filenameWithExt;
 
             try
             {
@@ -197,91 +198,49 @@ namespace EPSSEditor
                     writer.WriteLine("// EPSS SPI to SFZ Conversion.");
                     writer.WriteLine("// Original SPI: {0}", patchName);
 
-                    for (int midich = 0; midich < 15; midich++)
+                    writer.WriteLine("<master> loprog={0} hiprog={0} master_label=Midi channel {0}", midich);
+                    writer.WriteLine("<group>");
+
+                    foreach (var info in splitsForChannel)
                     {
-                        List<SfzSplitInfo> splitsForChannel = new List<SfzSplitInfo>();
-                        foreach (var kvp in dict)
+                        int sound = info.SoundNo;
+
+                        int noteStart = info.NoteStart;
+                        int noteEnd = info.NoteEnd;
+                        if (noteEnd < 0) noteEnd = noteStart;
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("<region>");
+
+                        sb.Append(" sample=");
+                        sb.Append(sampleSubDir + "\\" + Path.GetFileName(sounds[sound].path));
+
+                        if (info.Loopmode == 1)
                         {
-                            List<SfzSplitInfo> sfzSplitInfos = kvp.Value;
-                            foreach (var split in sfzSplitInfos)
-                            {
-                                if (split.Midich == midich)
-                                {
-                                    splitsForChannel.Add(split);
-                                }
-                            }
+                            sb.Append(" loop_mode=one_shot");
+                        }
+                        else if (info.Loopmode > 1)
+                        {
+                            sb.Append(" loop_mode=loop_continuous");
+                            sb.Append(" offset=");
+                            sb.Append(info.Start);
+
+                            sb.Append(" loop_end=");
+                            sb.Append(info.End);
+
+                            sb.Append(" loop_start=");
+                            sb.Append(info.LoopStart);
                         }
 
-                        if (splitsForChannel.Count > 0)
-                        {
+                        sb.Append(" lokey=");
+                        sb.Append(noteStart);
 
-                            splitsForChannel.Sort();
+                        sb.Append(" hikey=");
+                        sb.Append(noteEnd);
 
+                        sb.Append(" pitch_keycenter=");
+                        sb.Append(noteStart + 84 - info.Low - info.Transpose);
 
-                            writer.WriteLine("<master> loprog={0} hiprog={0} master_label=Midi channel {0}", midich);
-                            writer.WriteLine("<group>");
-
-                            foreach (var info in splitsForChannel)
-                            {
-
-
-                                int sound = info.SoundNo;
-
-                                if (info.Midich == midich)
-                                {
-                                    int noteStart = info.NoteStart;
-                                    int noteEnd = info.NoteEnd;
-                                    if (noteEnd < 0) noteEnd = noteStart;
-                                    StringBuilder sb = new StringBuilder();
-                                    sb.Append("<region>");
-                                    
-                                    sb.Append(" sample=");
-                                    sb.Append(Path.GetFileName(sounds[sound].path));
-
-                                    if (info.Loopmode == 1)
-                                    {
-                                        sb.Append(" loop_mode=one_shot");
-                                    } else if (info.Loopmode > 1)
-                                    {
-                                        sb.Append(" loop_mode=loop_continuous");
-                                        sb.Append(" offset=");
-                                        sb.Append(info.Start);
-
-                                        sb.Append(" loop_end=");
-                                        sb.Append(info.End);
-
-                                        sb.Append(" loop_start=");
-                                        sb.Append(info.LoopStart);                                    }
-
-                                    sb.Append(" lokey=");
-                                    sb.Append(noteStart);
-
-                                    sb.Append(" hikey=");
-                                    sb.Append(noteEnd);
-
-                                    sb.Append(" pitch_keycenter=");
-                                    sb.Append(noteStart + 84 - info.Low - info.Transpose);
-
-                                    writer.WriteLine(sb.ToString());
-
-                                    /*
-                                    writer.WriteLine("<region> sample={0} lokey={1} hikey={2} pitch_keycenter={3}",
-                                       ,
-                                        noteStart,
-                                        noteEnd,
-                                        noteStart + 84 - info.Low - info.Transpose);
-                                    Console.WriteLine(info.Transpose);
-                                    */
-
-
-
-
-
-                                }
-
-                            }
-                            writer.WriteLine("");
-                        }
+                        writer.WriteLine(sb.ToString());
                     }
                 }
             }
@@ -292,7 +251,40 @@ namespace EPSSEditor
                 result = false;
             }
             return result;
+        }
 
+
+        public bool SaveSFZ(ref Dictionary<int, List<SfzSplitInfo>> dict, ref List<Sound> sounds, string outPath, string sampleSubDir, string patchName, ref string errorMessage)
+        {
+            bool result = true;
+
+            for (int midich = 0; midich < 15; midich++)
+            {
+                List<SfzSplitInfo> splitsForChannel = new List<SfzSplitInfo>();
+                foreach (var kvp in dict)
+                {
+                    List<SfzSplitInfo> sfzSplitInfos = kvp.Value;
+                    foreach (var split in sfzSplitInfos)
+                    {
+                        if (split.Midich == midich)
+                        {
+                            splitsForChannel.Add(split);
+                        }
+                    }
+                }
+
+                if (splitsForChannel.Count > 0)
+                {
+
+                    splitsForChannel.Sort();
+
+                    string fileName = outPath + "\\" + "Channel " + midich.ToString() + ".sfz";
+                    bool saveOneSfzResult = SaveOneSFZ(midich, patchName, fileName, sampleSubDir, ref splitsForChannel, ref sounds, ref errorMessage);
+                    if (!saveOneSfzResult) break;
+                }
+            }
+
+            return result;
         }
     }
 }

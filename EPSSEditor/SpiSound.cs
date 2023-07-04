@@ -63,7 +63,7 @@ namespace EPSSEditor
             midiChannel = (byte)sfz.Midich;
             startNote = (byte)sfz.NoteStart;
             endNote = (byte)sfz.NoteEnd;
-            int center = sfz.NoteStart + 84 - sfz.NoteEnd;
+            int center = sfz.NoteStart + 84 - sfz.Low;
             midiNote = (byte)(84 - (center - sfz.NoteStart));
             transpose = (sbyte)sfz.Transpose;
             loopMode = (byte)sfz.Loopmode;
