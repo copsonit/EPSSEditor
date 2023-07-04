@@ -101,8 +101,21 @@ namespace EPSSEditor
         {
             this.Text = "EPSS Editor v" + GetRunningVersion().ToString();
 
+            Size s = Properties.Settings.Default.WinSize;
 
+            if (s.Width == 0) Properties.Settings.Default.Upgrade();
 
+            if (s.Width == 0 || s.Height == 0)
+            {
+                // Do nothing, use default here.
+            } else
+            {
+                this.WindowState = Properties.Settings.Default.WinState;
+
+                if (this.WindowState == FormWindowState.Minimized) this.WindowState = FormWindowState.Normal;
+
+                this.Size = s;
+            }
         }
 
 
@@ -139,6 +152,21 @@ namespace EPSSEditor
 
         private void exit()
         {
+            Properties.Settings.Default.WinState = this.WindowState;
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                // save location and size if the state is normal
+                //Properties.Settings.Default.WinLocation = this.Location;
+                Properties.Settings.Default.WinSize = this.Size;
+            }
+            else
+            {
+                // save the RestoreBounds if the form is minimized or maximized!
+                //Properties.Settings.Default.F1Location = this.RestoreBounds.Location;
+                Properties.Settings.Default.WinSize = this.RestoreBounds.Size;
+            }
+
+
             Properties.Settings.Default.Save();
             saveProjectSettings();
         }
@@ -1348,20 +1376,39 @@ namespace EPSSEditor
 
         private void soundListBox_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!deletePressed)
+              
+            if (e.KeyChar == ' ')
             {
                 playSelectedSound();
+                e.Handled = true;
             }
+            if (ctrlAPressed) e.Handled = true;
         }
 
+        private bool ctrlAPressed;
 
         private void soundListBox_KeyDown(object sender, KeyEventArgs e)
         {
             deletePressed = false;
+            ctrlAPressed = false;
             if (e.KeyCode == Keys.Delete)
             {
                 deleteSelectedSound();
                 deletePressed = true;
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.A && e.Control)
+            {
+                soundListBox.BeginUpdate();
+
+                for (int i = 0; i < soundListBox.Items.Count; i++)
+                {
+                    soundListBox.SetSelected(i, true);
+                }
+
+                soundListBox.EndUpdate();
+                e.Handled = true;
+                ctrlAPressed = true;
             }
         }
 

@@ -70,5 +70,41 @@ namespace EPSSEditor.Properties {
                 this["SfzFile"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
+        public global::System.Drawing.Point WinLocation {
+            get {
+                return ((global::System.Drawing.Point)(this["WinLocation"]));
+            }
+            set {
+                this["WinLocation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
+        public global::System.Windows.Forms.FormWindowState WinState {
+            get {
+                return ((global::System.Windows.Forms.FormWindowState)(this["WinState"]));
+            }
+            set {
+                this["WinState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0, 0")]
+        public global::System.Drawing.Size WinSize {
+            get {
+                return ((global::System.Drawing.Size)(this["WinSize"]));
+            }
+            set {
+                this["WinSize"] = value;
+            }
+        }
     }
 }
