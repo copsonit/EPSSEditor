@@ -26,6 +26,12 @@ namespace EPSSEditor
         public string _name;
         public string _extName;
 
+        public byte loopMode;
+        public UInt32 start;
+        public UInt32 end;
+        public UInt32 loopStart;
+
+
         private MemoryStream ms = null;
 
         public SpiSound() {
@@ -46,6 +52,26 @@ namespace EPSSEditor
         }
         
         
+        public SpiSound(ref Sound sound, SfzSplitInfo sfz)
+        {
+            midiNoteMapped = 84;
+            soundId = sound.id();
+            _name = sound.name();
+            _extName = sound.name() + " MSWav"; // TODO, find more info in sound??         
+
+
+            midiChannel = (byte)sfz.Midich;
+            startNote = (byte)sfz.NoteStart;
+            endNote = (byte)sfz.NoteEnd;
+            int center = sfz.NoteStart + 84 - sfz.NoteEnd;
+            midiNote = (byte)(84 - (center - sfz.NoteStart));
+            transpose = (sbyte)sfz.Transpose;
+            loopMode = (byte)sfz.Loopmode;
+            start = sfz.Start;
+            end = sfz.End;
+            loopStart = sfz.LoopStart;
+        }
+
         public SpiSound(EPSSSpi_soundInfo soundInfo, EPSSSpi_extSoundInfo extSoundInfo, EPSSSpi_sample soundData)
         {
             _name = extSoundInfo.s_sampname;

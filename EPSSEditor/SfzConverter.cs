@@ -18,14 +18,23 @@ namespace EPSSEditor
         public int Low;
         public int High;
         public int NoteStart;
-        public int NoteEnd;
+        private int _noteEnd;
+        public int NoteEnd
+        {
+            get { return _noteEnd == -1 ? NoteStart : _noteEnd; }
+            set { _noteEnd = value; }
+        }
         public int LastPitch;
         public int LastMidich;
         public int SoundNo;
         public int Transpose;
+        public int Loopmode;
+        public UInt32 Start;
+        public UInt32 End;
+        public UInt32 LoopStart;
 
         public SfzSplitInfo() {
-            Midich = -1; Low = -1; High = -1; NoteStart = -1; NoteEnd = -1; LastPitch = -1; LastMidich = -1; SoundNo = -1; Transpose = -1;
+            Midich = -1; Low = -1; High = -1; NoteStart = -1; NoteEnd = -1; LastPitch = -1; LastMidich = -1; SoundNo = -1; Transpose = -1; Loopmode = -1;
         }
 
 
@@ -42,6 +51,49 @@ namespace EPSSEditor
             LastPitch = LastMidich = -1;
             SoundNo = soundNo;
             Transpose = sound.transpose;
+
+            Loopmode = sound.loopMode;
+            Start = sound.start;
+            End = sound.end;
+            LoopStart = sound.loopStart;
+        }
+
+        public void Update(int sound, int midich, int loopmode, int toneOffset, UInt32 start, UInt32 end, UInt32 loopStart)
+        {
+            if (Midich == -1)
+            {
+                SoundNo = sound;
+                Midich = midich;
+                Loopmode = loopmode;
+                Transpose = toneOffset;
+                Start = start;
+                End = end;
+                LoopStart = loopStart;
+            }
+        }
+
+        public void UpdateHigh(int midich, int pitch, int current)
+        {
+            Midich = midich;
+
+            High = pitch;
+            NoteEnd = current;
+
+            LastPitch = pitch;
+            LastMidich = midich;
+        }
+
+
+        public void UpdateLow(int midich, int pitch, int current)
+        {
+            Midich = midich;
+
+            Low = pitch;
+            NoteStart = current;
+
+            LastPitch = pitch;
+            LastMidich = midich;
+
         }
 
         public int CompareTo(SfzSplitInfo other)
@@ -82,51 +134,44 @@ namespace EPSSEditor
                 {
                     if (sp.noSound == 0) // We have a sound defined
                     {
-                        //int sound = sp.sound;
-                        sbyte toneOffset = spi.sounds.sounds[sp.sound].s_loopmode.toneoffset;
-
-                        List<SfzSplitInfo> infos = dict[sp.sound];
+                        int sound = sp.sound;
+                        sbyte toneOffset = spi.sounds.sounds[sound].s_loopmode.toneoffset;
+                        byte lm = spi.sounds.sounds[sound].s_loopmode.loopmode;
+                        Console.WriteLine("Loopmode:{0}", lm);
+                        UInt32 startInSpi = spi.sounds.sounds[sound].s_sampstart;
+                        UInt32 start = 0;
+                        UInt32 end = spi.sounds.sounds[sound].s_sampend - startInSpi;
+                        UInt32 loopStart = spi.sounds.sounds[sound].s_loopstart - startInSpi;
+                        
+                        List<SfzSplitInfo> infos = dict[sound];
                         SfzSplitInfo current = infos.Last();
-                        if (current.Midich == -1) current.Midich = midich;
-                        if (current.SoundNo == -1) current.SoundNo = sp.sound;
-                        current.Transpose = toneOffset;
+                        current.Update(sound, midich, lm, toneOffset, start, end, loopStart);
 
                         if (current.Low >= 0)
                         {
                             if (current.LastPitch == (sp.pitch - 1) &&
                                 current.LastMidich == midich)
                             {
-                                current.High = sp.pitch;
-                                current.NoteEnd = currentMidiNote;
-                                current.LastPitch = sp.pitch;
-                                current.LastMidich = midich;
+                                current.UpdateHigh(midich, sp.pitch, currentMidiNote);
+
                             }
                             else
                             {
                                 infos.Add(new SfzSplitInfo());
                                 current = infos.Last();
-                                current.Midich = midich;
-                                current.SoundNo = sp.sound;
-                                current.Transpose = toneOffset;
+                                current.Update(sound, midich, lm, toneOffset, start, end, loopStart);
 
-                                current.High = -1;
+                                current.UpdateLow(midich, sp.pitch, currentMidiNote);
                                 current.Low = sp.pitch;
-                                current.LastPitch = sp.pitch;
-                                current.LastMidich = midich;
-                                current.NoteStart = currentMidiNote;
-
                             }
                         }
                         else
                         {
-                            current.Low = sp.pitch;
-                            current.LastPitch = sp.pitch;
-                            current.LastMidich = midich;
-                            current.NoteStart = currentMidiNote;
+                            current.UpdateLow(midich, sp.pitch, currentMidiNote);
 
                         }
 
-                        dict[sp.sound] = infos;
+                        dict[sound] = infos;
 
                     }
                     else
@@ -188,12 +233,46 @@ namespace EPSSEditor
                                     int noteStart = info.NoteStart;
                                     int noteEnd = info.NoteEnd;
                                     if (noteEnd < 0) noteEnd = noteStart;
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.Append("<region>");
+                                    
+                                    sb.Append(" sample=");
+                                    sb.Append(Path.GetFileName(sounds[sound].path));
+
+                                    if (info.Loopmode == 1)
+                                    {
+                                        sb.Append(" loop_mode=one_shot");
+                                    } else if (info.Loopmode > 1)
+                                    {
+                                        sb.Append(" loop_mode=loop_continuous");
+                                        sb.Append(" offset=");
+                                        sb.Append(info.Start);
+
+                                        sb.Append(" loop_end=");
+                                        sb.Append(info.End);
+
+                                        sb.Append(" loop_start=");
+                                        sb.Append(info.LoopStart);                                    }
+
+                                    sb.Append(" lokey=");
+                                    sb.Append(noteStart);
+
+                                    sb.Append(" hikey=");
+                                    sb.Append(noteEnd);
+
+                                    sb.Append(" pitch_keycenter=");
+                                    sb.Append(noteStart + 84 - info.Low - info.Transpose);
+
+                                    writer.WriteLine(sb.ToString());
+
+                                    /*
                                     writer.WriteLine("<region> sample={0} lokey={1} hikey={2} pitch_keycenter={3}",
-                                        Path.GetFileName(sounds[sound].path),
+                                       ,
                                         noteStart,
                                         noteEnd,
                                         noteStart + 84 - info.Low - info.Transpose);
                                     Console.WriteLine(info.Transpose);
+                                    */
 
 
 

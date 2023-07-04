@@ -1057,14 +1057,14 @@ namespace EPSSEditor
         internal UInt16 data;
 
         // public Byte loopmode : 2
-        public Byte loopmode // 0x00 - reserved, 0x01 - One shop, 0x02 - Loop on, 0x03 - reserved
+        public byte loopmode // 0x00 - reserved, 0x01 - One shot, 0x02 - Loop on, 0x03 - reserved
         {
             get { return (byte)(data & 0x3); }
             set { data = (UInt16)((data & ~0x3) | (value & 0x3)); }
         }
 
         // public Byte vvfe : 6
-        public Byte vvfe
+        public byte vvfe
         {
             get { return (byte)((data >> 6) & 0x3f); }
             set { data = (UInt16)((data & ~(0x3f << 6)) | ((value & 0x3f) << 6)); }
