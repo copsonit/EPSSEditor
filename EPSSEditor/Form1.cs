@@ -45,7 +45,7 @@ namespace EPSSEditor
      * OK      UI and add sounds
      * NYI     Save as SPI v3 if program change sounds are used.
      * OK  Load SPI G1 and G2
-     * TODO Load SPI G0
+     * OK  Load SPI G0
      * OK  Export SPI to SFZ
      *  
      * Bugs:
@@ -70,7 +70,7 @@ namespace EPSSEditor
      *          Idea: project file as sqlite instead of db3?
      *          Check what sample formats that we support through the libs and make more possible to read? 
      *          SoundFonts?
-     * 
+     * TODO Right click on samples left hand to rename them.
      * 
      * */
 
@@ -717,16 +717,25 @@ namespace EPSSEditor
                 Sound snd = getSoundAtSelectedIndex();
                 if (snd != null)
                 {
-                    FileStream wav = File.OpenRead(snd.path);
-                    wav.Seek(0, SeekOrigin.Begin);
+                    using (FileStream wav = File.OpenRead(snd.path))
+                    {
+                        wav.Seek(0, SeekOrigin.Begin);
 
-                    WaveStream ws = new WaveFileReader(wav);
-                    ws = WaveFormatConversionStream.CreatePcmStream(ws);
+                        using (WaveStream ws = new WaveFileReader(wav))
+                        {
+                            using (var ws2 = WaveFormatConversionStream.CreatePcmStream(ws))
+                            {
 
-                    WaveOutEvent output = new WaveOutEvent();
-                    output.Init(ws);
-                    output.Play();
-
+                                WaveOutEvent output = new WaveOutEvent();
+                                output.Init(ws);
+                                output.Play();
+                                while (output.PlaybackState == PlaybackState.Playing)
+                                {
+                                    System.Threading.Thread.Sleep(100);
+                                }
+                            }
+                        }
+                     }
 
                 }
             } catch (Exception ex)
@@ -769,7 +778,9 @@ namespace EPSSEditor
                             }
                         }
                     }
+                    ms.Close();
                 }
+               
 
                 /*
                 string outFile = data.convertSoundFileName();
@@ -2210,6 +2221,48 @@ namespace EPSSEditor
         {
             doSaveSpi();
         }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+            List<Sound> sounds = getSelectedSounds();
+            //var indices = soundListBox.SelectedIndices;
+            if (sounds.Count == 1)
+            {
+                Sound snd = sounds[0];
+                //int index = indices[0];
+
+                RenameForm r = new RenameForm(snd.name());
+                r.StartPosition = FormStartPosition.Manual;
+
+                System.Windows.Forms.ToolStripMenuItem b = (System.Windows.Forms.ToolStripMenuItem)sender;
+                Point p = b.Owner.Location;
+                r.Location = p;
+
+                
+                DialogResult res = r.ShowDialog();
+                if (res == DialogResult.OK)
+                {
+                    string s = r.GetText();
+                    if (snd.Rename(s))
+                    {
+                        updateSoundListBox();
+                        data.RefreshSpiSounds();
+                        updateSpiSoundListBox();
+                        dataNeedsSaving = true;
+                        saveProjectSettings();
+                    }
+                }
+            }
+
+
+
+        }
     }
 
 
@@ -2296,4 +2349,7 @@ namespace EPSSEditor
             return (short)HIWORD(wParam);
         }
     }
+
+
+
 }

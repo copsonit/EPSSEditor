@@ -108,6 +108,29 @@ namespace EPSSEditor
             return description;
         }
 
+        public bool Rename(string newName)
+        {
+            string newFullPath = Path.GetDirectoryName(path);
+            newFullPath += "\\" + newName + Path.GetExtension(path);
+            if (!File.Exists(newFullPath))
+            {
+                try
+                {
+                    File.Move(path, newFullPath);
+                    path = newFullPath;
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+
+
+
         public override string ToString()
         {
             return base.ToString() + $" ({path}, {description}, {length}, {_id}, {channels}, {bitsPerSample}, {samplesPerSecond}, {loKey}, {hiKey}, {keyCenter})";

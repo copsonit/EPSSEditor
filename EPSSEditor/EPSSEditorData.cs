@@ -362,6 +362,15 @@ namespace EPSSEditor
             spiSnd.transpose = transpose;
             spiSounds.Add(spiSnd);
         }
-       
+
+
+        public void RefreshSpiSounds()
+        {
+            foreach (var spiSnd in spiSounds)
+            {
+                spiSnd.SetNameFromSound(getSoundFromSoundId(spiSnd.soundId));
+            }
+        }
+
     }
 }

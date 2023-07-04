@@ -192,44 +192,8 @@ namespace EPSSEditor
                     }
                 }
                 if (result == 0) result = samples.Read(ref reader, this, ref errorMessage);
-              
-
-
-
-                /*				Block ReadBlock()
-				{
-					Block block = new Block();
-					block.version = Reader.ReadChars(4);
-					block.field1 = Reader.ReadInt32();
-					block.field2 = Reader.ReadInt32();
-					block.records = new Record[15];
-					for (int i = 0; i < block.records.Length; i++)
-						block.records[i] = ReadRecord();
-					block.filler1 = Reader.ReadChars(24);*/
-                /*
-                if (main.isValidBlock())
-                {
-
-                    result = main.write(ref writer);
-
-                    result = ext.write(ref writer);
-                }
-                else
-                {
-                    throw (new Exception("Old version of SPI not supported!"));
-                }
-
-                result = split.write(ref writer);
-
-                result = sounds.write(ref writer);
-
-                result = extSounds.write(ref writer);
-
-                result = samples.write(ref writer);
-                */
-
+            
                 reader.Close();
-                //                fs.Close();
             }
             catch (Exception ex)
             {
@@ -489,15 +453,12 @@ namespace EPSSEditor
 
             try
             {
-                /*
-                if (spi.main.i_fileID.versionLow == 0)
+                
+                if (spi.main.i_fileID.versionLow == 2)
                 {
-                    throw (new Exception("Generation 0 patchfile NYI."));
-                } else if (spi.main.i_fileID.versionLow > 1)
-                {
-                    throw (new Exception("Generation 2+ patchfile NYI."));
+                    throw (new Exception("Generation 2 patchfile NYI."));
                 }
-                */
+
 
                 i_sx_offset = reader.ReadBigEndianUInt16();
                 i_crtime = reader.ReadBigEndianUInt16();

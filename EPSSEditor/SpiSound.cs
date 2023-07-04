@@ -46,8 +46,7 @@ namespace EPSSEditor
             startNote = endNote = programNumber = 128;
             midiNoteMapped = 84;
             soundId = sound.id();
-            _name = sound.name();
-            _extName = sound.name() + " MSWav"; // TODO, find more info in sound??         
+            SetNameFromSound(sound);
             transpose = 0;
         }
         
@@ -56,10 +55,8 @@ namespace EPSSEditor
         {
             midiNoteMapped = 84;
             soundId = sound.id();
-            _name = sound.name();
-            _extName = sound.name() + " MSWav"; // TODO, find more info in sound??         
-
-
+            SetNameFromSound(sound);
+ 
             midiChannel = (byte)sfz.Midich;
             startNote = (byte)sfz.NoteStart;
             endNote = (byte)sfz.NoteEnd;
@@ -82,6 +79,7 @@ namespace EPSSEditor
 
         public string name() { return _name; }
         public string extName() { return _extName; }
+
 
         public string description(ref EPSSEditorData data)
         {
@@ -134,6 +132,7 @@ namespace EPSSEditor
                         }
                     } while (read > 0);
                 }
+            
             }
 
         }
@@ -194,18 +193,20 @@ namespace EPSSEditor
                         using (var wav = File.OpenRead(outFile))
                         {
                             wav.Seek(0, SeekOrigin.Begin);
-                            WaveFileReader fr = new WaveFileReader(wav);
-                            len = fr.Length;
-
-                            byte[] buffer = new byte[len];
-                            int rd = fr.Read(buffer, 0, (int)len);
-
-                            foreach (byte b in buffer)
+                            using (var fr = new WaveFileReader(wav))
                             {
-                                byte newB = b;
-                                spl.Add(newB);
+                                len = fr.Length;
+
+                                byte[] buffer = new byte[len];
+                                int rd = fr.Read(buffer, 0, (int)len);
+
+                                foreach (byte b in buffer)
+                                {
+                                    byte newB = b;
+                                    spl.Add(newB);
+                                }
                             }
-                        }
+                         }
 
                         WaveFormat waveFormat = new WaveFormat(newFreq, bits, channels);
                         using (WaveFileWriter writer = new WaveFileWriter(outFile, waveFormat))
@@ -216,12 +217,15 @@ namespace EPSSEditor
 
                     System.IO.File.Delete(volTempPath);
                 }
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 result = false;
             }
+
+
 
             return result;
         }
@@ -243,9 +247,8 @@ namespace EPSSEditor
                         file.Read(bytes, 0, (int)file.Length);
                         ms.Write(bytes, 0, (int)file.Length);
                     }
+                   
                 }
-
-               
             }
             return ms;
         }
@@ -265,6 +268,13 @@ namespace EPSSEditor
             if (newNote > 128) newNote = 128;
             else if (newNote < 0) newNote = 0;
             return (byte)newNote;
+        }
+
+        public void SetNameFromSound(Sound sound)
+        {
+            _name = sound.name();
+            _extName = sound.name() + " MSWav"; // TODO, find more info in sound??         
+
         }
     }
 }
