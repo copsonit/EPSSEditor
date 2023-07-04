@@ -44,8 +44,10 @@ namespace EPSSEditor
      * WIP  Support to build SPI v3 with program change.
      * OK      UI and add sounds
      * NYI     Save as SPI v3 if program change sounds are used.
-     * WIP  Load SPI.
-     * 
+     * OK  Load SPI G1 and G2
+     * TODO Load SPI G0
+     * OK  Export SPI to SFZ
+     *  
      * Bugs:
      * OK.  Cannot find the drumMappings.xml in installed version.
      * OK.  Did not update the sample size field for Sound correctly.

@@ -8,6 +8,7 @@ using NAudio.Wave;
 using NAudio.MediaFoundation;
 using System.Security.Policy;
 using System.Security.Cryptography;
+using System.Windows.Forms.VisualStyles;
 
 /*
  * Example https://stackoverflow.com/questions/14464/bit-fields-in-c-sharp
@@ -159,12 +160,37 @@ namespace EPSSEditor
             {
                 FileStream fs = new FileStream(src.LocalPath, FileMode.Open, FileAccess.Read);
                 BinaryReader reader = new BinaryReader(fs);
+                bool isG0 = false;
 
                 result = main.Read(ref reader, this, ref errorMessage);
-                if (result == 0) result = ext.Read(ref reader, this, ref errorMessage);
+                if (result == 0)
+                {
+                    byte low = main.i_fileID.versionLow;
+                    byte high= main.i_fileID.versionHigh;
+                    isG0 = (low == 0);
+                    if (isG0)
+                    {
+                        string fileName = Path.GetFileNameWithoutExtension(src.LocalPath);
+                        ext.InitForG0(fileName);
+                    }
+                    else
+                    {
+                        result = ext.Read(ref reader, this, ref errorMessage);
+                    }
+                }
                 if (result == 0) result = split.Read(ref reader, this, ref errorMessage);
                 if (result == 0) result = sounds.Read(ref reader, this, ref errorMessage);
-                if (result == 0) result = extSounds.Read(ref reader, this, ref errorMessage);
+                if (result == 0)
+                {
+                    if (isG0)
+                    {
+                        extSounds.InitForG0(this);
+                    }
+                    else
+                    {
+                        result = extSounds.Read(ref reader, this, ref errorMessage);
+                    }
+                }
                 if (result == 0) result = samples.Read(ref reader, this, ref errorMessage);
               
 
@@ -395,6 +421,20 @@ namespace EPSSEditor
         public UInt16 i_sinflen; // 28
         public string i_patchinfo; // 30 . Up to 32 bytes.
 
+        public void InitForG0(string filename)
+        {
+            i_sx_offset = 0;
+            i_crtime = 0; // TODO
+            i_crdate = 0; // TODO
+            i_chtime = 0; // TODO
+            i_chdate = 0; // TODO
+            i_pname = filename;
+            i_mainlen = 16; // Check!
+            i_splitlen = 2;
+            i_xsinflen = 0;
+            i_sinflen = 16;
+            i_patchinfo = filename + " conv from v0";
+        }
 
         public virtual void writeExpansionBytes(ref BinaryWriter writer)
         {
@@ -449,6 +489,7 @@ namespace EPSSEditor
 
             try
             {
+                /*
                 if (spi.main.i_fileID.versionLow == 0)
                 {
                     throw (new Exception("Generation 0 patchfile NYI."));
@@ -456,6 +497,7 @@ namespace EPSSEditor
                 {
                     throw (new Exception("Generation 2+ patchfile NYI."));
                 }
+                */
 
                 i_sx_offset = reader.ReadBigEndianUInt16();
                 i_crtime = reader.ReadBigEndianUInt16();
@@ -924,6 +966,21 @@ namespace EPSSEditor
     {
         public EPSSSpi_extSoundInfo[] sounds;
 
+
+        public void InitForG0(EPSSSpi spi)
+        {
+            byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+            List<EPSSSpi_extSoundInfo> soundList = new List<EPSSSpi_extSoundInfo>();
+            for (int i = 0; i < maxSoundNo; i++)
+            {
+                EPSSSpi_extSoundInfo s = new EPSSSpi_extSoundInfo();
+                string name = "Sample" + i.ToString();
+                s.InitForG0(name);
+                soundList.Add(s);
+            }
+            sounds = soundList.ToArray();
+        }
+        
         public override int write(ref BinaryWriter writer)
         {
             int result = 0;
@@ -997,6 +1054,14 @@ namespace EPSSEditor
         public UInt16 s_subtone; // only valid when sound if subtone
 
         // reserved after this. Fill with zeroes.
+
+        public void InitForG0(string name)
+        {
+            s_sampname = name;
+            s_extname = name;
+            s_extvolume = 100; //??
+            s_subtone = 0;
+        }
 
         public int length() { return 64; }
 
