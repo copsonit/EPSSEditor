@@ -137,7 +137,7 @@ namespace EPSSEditor
                         int sound = sp.sound;
                         sbyte toneOffset = spi.sounds.sounds[sound].s_loopmode.toneoffset;
                         byte lm = spi.sounds.sounds[sound].s_loopmode.loopmode;
-                        Console.WriteLine("Loopmode:{0}", lm);
+                    
                         UInt32 startInSpi = spi.sounds.sounds[sound].s_sampstart;
                         UInt32 start = 0;
                         UInt32 end = spi.sounds.sounds[sound].s_sampend - startInSpi;
@@ -162,7 +162,6 @@ namespace EPSSEditor
                                 current.Update(sound, midich, lm, toneOffset, start, end, loopStart);
 
                                 current.UpdateLow(midich, sp.pitch, currentMidiNote);
-                                current.Low = sp.pitch;
                             }
                         }
                         else

@@ -129,12 +129,12 @@ namespace EPSSEditor
                         //
                         if (info.Midich == midich)
                         {
-                            int noteStart = info.NoteStart;
+                            /*int noteStart = info.NoteStart;
                             int noteEnd = info.NoteEnd;
                             if (noteEnd < 0) noteEnd = noteStart;
                             int center = noteStart + 84 - info.Low;
                             int transpose = info.Transpose;
-
+                            */
 
                             /*
                             writer.WriteLine("<region> sample={0} lokey={1} hikey={2} pitch_keycenter={3}",
