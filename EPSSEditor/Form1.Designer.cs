@@ -56,7 +56,6 @@
             this.GmPercMidiMappingRadioButton = new System.Windows.Forms.RadioButton();
             this.defaultMidiMapRadioButton = new System.Windows.Forms.RadioButton();
             this.midiChTextBox = new System.Windows.Forms.TextBox();
-            this.label21 = new System.Windows.Forms.Label();
             this.drumsComboBox1 = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -161,7 +160,7 @@
             this.soundListBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.soundListBox.Name = "soundListBox";
             this.soundListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.soundListBox.Size = new System.Drawing.Size(213, 446);
+            this.soundListBox.Size = new System.Drawing.Size(213, 394);
             this.soundListBox.TabIndex = 2;
             this.soundListBox.SelectedIndexChanged += new System.EventHandler(this.soundListBox_SelectedIndexChanged);
             this.soundListBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.soundListBox_DragDrop);
@@ -202,7 +201,7 @@
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.helpProvider1.SetShowHelp(this.groupBox2, true);
-            this.groupBox2.Size = new System.Drawing.Size(431, 523);
+            this.groupBox2.Size = new System.Drawing.Size(436, 460);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
@@ -213,7 +212,7 @@
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(215, 490);
+            this.button1.Location = new System.Drawing.Point(220, 427);
             this.button1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(71, 23);
@@ -233,10 +232,10 @@
             "Premixed for 4 Channel EPSS",
             "Premixed for 8 Channel EPSS",
             "Unmixed 8 Bit "});
-            this.previewComboBox.Location = new System.Drawing.Point(55, 493);
+            this.previewComboBox.Location = new System.Drawing.Point(55, 430);
             this.previewComboBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.previewComboBox.Name = "previewComboBox";
-            this.previewComboBox.Size = new System.Drawing.Size(156, 21);
+            this.previewComboBox.Size = new System.Drawing.Size(161, 21);
             this.previewComboBox.TabIndex = 17;
             this.previewComboBox.SelectedIndexChanged += new System.EventHandler(this.previewComboBox_SelectedIndexChanged);
             // 
@@ -244,7 +243,7 @@
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(4, 495);
+            this.label9.Location = new System.Drawing.Point(4, 432);
             this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(48, 13);
@@ -254,7 +253,7 @@
             // spiSoundListenButton
             // 
             this.spiSoundListenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.spiSoundListenButton.Location = new System.Drawing.Point(291, 490);
+            this.spiSoundListenButton.Location = new System.Drawing.Point(296, 427);
             this.spiSoundListenButton.Name = "spiSoundListenButton";
             this.spiSoundListenButton.Size = new System.Drawing.Size(66, 23);
             this.spiSoundListenButton.TabIndex = 8;
@@ -272,7 +271,7 @@
             this.spiSoundListView.HideSelection = false;
             this.spiSoundListView.Location = new System.Drawing.Point(5, 19);
             this.spiSoundListView.Name = "spiSoundListView";
-            this.spiSoundListView.Size = new System.Drawing.Size(422, 466);
+            this.spiSoundListView.Size = new System.Drawing.Size(427, 402);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
             this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.spiSoundListView_ItemSelectionChanged);
@@ -284,7 +283,7 @@
             // 
             this.deleteSpiSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.deleteSpiSoundButton.Enabled = false;
-            this.deleteSpiSoundButton.Location = new System.Drawing.Point(366, 490);
+            this.deleteSpiSoundButton.Location = new System.Drawing.Point(371, 427);
             this.deleteSpiSoundButton.Name = "deleteSpiSoundButton";
             this.deleteSpiSoundButton.Size = new System.Drawing.Size(61, 23);
             this.deleteSpiSoundButton.TabIndex = 8;
@@ -300,7 +299,7 @@
             this.groupBox9.Controls.Add(this.groupBox11);
             this.groupBox9.Location = new System.Drawing.Point(6, 305);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(211, 326);
+            this.groupBox9.Size = new System.Drawing.Size(211, 271);
             this.groupBox9.TabIndex = 11;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Sound Mapping";
@@ -342,6 +341,7 @@
             // 
             // groupBox11
             // 
+            this.groupBox11.Controls.Add(this.midiChTextBox);
             this.groupBox11.Controls.Add(this.custMidiToneToTextBox);
             this.groupBox11.Controls.Add(this.custMidiToneLabel);
             this.groupBox11.Controls.Add(this.midiChTrackBar);
@@ -352,19 +352,17 @@
             this.groupBox11.Controls.Add(this.MultiSampleRadioButton);
             this.groupBox11.Controls.Add(this.GmPercMidiMappingRadioButton);
             this.groupBox11.Controls.Add(this.defaultMidiMapRadioButton);
-            this.groupBox11.Controls.Add(this.midiChTextBox);
-            this.groupBox11.Controls.Add(this.label21);
             this.groupBox11.Controls.Add(this.drumsComboBox1);
             this.groupBox11.Location = new System.Drawing.Point(8, 60);
             this.groupBox11.Name = "groupBox11";
-            this.groupBox11.Size = new System.Drawing.Size(196, 260);
+            this.groupBox11.Size = new System.Drawing.Size(195, 205);
             this.groupBox11.TabIndex = 22;
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "Mapping type";
             // 
             // custMidiToneToTextBox
             // 
-            this.custMidiToneToTextBox.Location = new System.Drawing.Point(129, 200);
+            this.custMidiToneToTextBox.Location = new System.Drawing.Point(129, 173);
             this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
             this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneToTextBox.TabIndex = 21;
@@ -372,7 +370,7 @@
             // custMidiToneLabel
             // 
             this.custMidiToneLabel.AutoSize = true;
-            this.custMidiToneLabel.Location = new System.Drawing.Point(110, 205);
+            this.custMidiToneLabel.Location = new System.Drawing.Point(110, 178);
             this.custMidiToneLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.custMidiToneLabel.Name = "custMidiToneLabel";
             this.custMidiToneLabel.Size = new System.Drawing.Size(16, 13);
@@ -388,14 +386,14 @@
             this.midiChTrackBar.Maximum = 16;
             this.midiChTrackBar.Minimum = 1;
             this.midiChTrackBar.Name = "midiChTrackBar";
-            this.midiChTrackBar.Size = new System.Drawing.Size(184, 45);
+            this.midiChTrackBar.Size = new System.Drawing.Size(129, 45);
             this.midiChTrackBar.TabIndex = 5;
             this.midiChTrackBar.Value = 1;
             this.midiChTrackBar.Scroll += new System.EventHandler(this.midiChTrackBar_Scroll);
             // 
             // custMidiToneFromTextBox
             // 
-            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(75, 200);
+            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(75, 173);
             this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
             this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneFromTextBox.TabIndex = 20;
@@ -403,7 +401,7 @@
             // CustomSampleRadioButton
             // 
             this.CustomSampleRadioButton.AutoSize = true;
-            this.CustomSampleRadioButton.Location = new System.Drawing.Point(12, 203);
+            this.CustomSampleRadioButton.Location = new System.Drawing.Point(12, 176);
             this.CustomSampleRadioButton.Name = "CustomSampleRadioButton";
             this.CustomSampleRadioButton.Size = new System.Drawing.Size(60, 17);
             this.CustomSampleRadioButton.TabIndex = 19;
@@ -414,7 +412,7 @@
             // midiToneLabel
             // 
             this.midiToneLabel.AutoSize = true;
-            this.midiToneLabel.Location = new System.Drawing.Point(26, 173);
+            this.midiToneLabel.Location = new System.Drawing.Point(26, 146);
             this.midiToneLabel.Name = "midiToneLabel";
             this.midiToneLabel.Size = new System.Drawing.Size(82, 13);
             this.midiToneLabel.TabIndex = 8;
@@ -424,7 +422,7 @@
             // 
             // midiToneTextBox
             // 
-            this.midiToneTextBox.Location = new System.Drawing.Point(114, 170);
+            this.midiToneTextBox.Location = new System.Drawing.Point(114, 143);
             this.midiToneTextBox.Name = "midiToneTextBox";
             this.midiToneTextBox.Size = new System.Drawing.Size(45, 20);
             this.midiToneTextBox.TabIndex = 8;
@@ -432,7 +430,7 @@
             // MultiSampleRadioButton
             // 
             this.MultiSampleRadioButton.AutoSize = true;
-            this.MultiSampleRadioButton.Location = new System.Drawing.Point(12, 153);
+            this.MultiSampleRadioButton.Location = new System.Drawing.Point(12, 126);
             this.MultiSampleRadioButton.Name = "MultiSampleRadioButton";
             this.MultiSampleRadioButton.Size = new System.Drawing.Size(80, 17);
             this.MultiSampleRadioButton.TabIndex = 18;
@@ -443,7 +441,7 @@
             // GmPercMidiMappingRadioButton
             // 
             this.GmPercMidiMappingRadioButton.AutoSize = true;
-            this.GmPercMidiMappingRadioButton.Location = new System.Drawing.Point(12, 106);
+            this.GmPercMidiMappingRadioButton.Location = new System.Drawing.Point(12, 79);
             this.GmPercMidiMappingRadioButton.Name = "GmPercMidiMappingRadioButton";
             this.GmPercMidiMappingRadioButton.Size = new System.Drawing.Size(143, 17);
             this.GmPercMidiMappingRadioButton.TabIndex = 17;
@@ -455,7 +453,7 @@
             // defaultMidiMapRadioButton
             // 
             this.defaultMidiMapRadioButton.AutoSize = true;
-            this.defaultMidiMapRadioButton.Location = new System.Drawing.Point(12, 83);
+            this.defaultMidiMapRadioButton.Location = new System.Drawing.Point(12, 56);
             this.defaultMidiMapRadioButton.Name = "defaultMidiMapRadioButton";
             this.defaultMidiMapRadioButton.Size = new System.Drawing.Size(160, 17);
             this.defaultMidiMapRadioButton.TabIndex = 16;
@@ -467,26 +465,17 @@
             // 
             // midiChTextBox
             // 
-            this.midiChTextBox.Location = new System.Drawing.Point(129, 60);
+            this.midiChTextBox.Location = new System.Drawing.Point(139, 14);
             this.midiChTextBox.Name = "midiChTextBox";
             this.midiChTextBox.ReadOnly = true;
             this.midiChTextBox.Size = new System.Drawing.Size(41, 20);
             this.midiChTextBox.TabIndex = 13;
             // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(7, 64);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(119, 13);
-            this.label21.TabIndex = 12;
-            this.label21.Text = "MIDI Channel/Program:";
-            // 
             // drumsComboBox1
             // 
             this.drumsComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.drumsComboBox1.FormattingEnabled = true;
-            this.drumsComboBox1.Location = new System.Drawing.Point(18, 128);
+            this.drumsComboBox1.Location = new System.Drawing.Point(18, 101);
             this.drumsComboBox1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.drumsComboBox1.Name = "drumsComboBox1";
             this.drumsComboBox1.Size = new System.Drawing.Size(164, 21);
@@ -566,7 +555,7 @@
             this.groupBox3.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.groupBox3.Size = new System.Drawing.Size(229, 635);
+            this.groupBox3.Size = new System.Drawing.Size(229, 582);
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Input";
@@ -574,7 +563,7 @@
             // playButton
             // 
             this.playButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.playButton.Location = new System.Drawing.Point(122, 482);
+            this.playButton.Location = new System.Drawing.Point(122, 429);
             this.playButton.Name = "playButton";
             this.playButton.Size = new System.Drawing.Size(46, 23);
             this.playButton.TabIndex = 0;
@@ -586,7 +575,7 @@
             // loadSoundButton
             // 
             this.loadSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.loadSoundButton.Location = new System.Drawing.Point(70, 482);
+            this.loadSoundButton.Location = new System.Drawing.Point(70, 429);
             this.loadSoundButton.Name = "loadSoundButton";
             this.loadSoundButton.Size = new System.Drawing.Size(46, 23);
             this.loadSoundButton.TabIndex = 7;
@@ -607,7 +596,7 @@
             // deleteSoundButton
             // 
             this.deleteSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.deleteSoundButton.Location = new System.Drawing.Point(174, 482);
+            this.deleteSoundButton.Location = new System.Drawing.Point(174, 429);
             this.deleteSoundButton.Name = "deleteSoundButton";
             this.deleteSoundButton.Size = new System.Drawing.Size(50, 23);
             this.deleteSoundButton.TabIndex = 5;
@@ -629,7 +618,7 @@
             this.groupBox5.Controls.Add(this.bitsTextBox);
             this.groupBox5.Controls.Add(this.sizeTextBox);
             this.groupBox5.Controls.Add(this.freqTextBox);
-            this.groupBox5.Location = new System.Drawing.Point(5, 507);
+            this.groupBox5.Location = new System.Drawing.Point(5, 454);
             this.groupBox5.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
@@ -718,7 +707,7 @@
             this.compressionTypeTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.compressionTypeTextBox.Name = "compressionTypeTextBox";
             this.compressionTypeTextBox.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.compressionTypeTextBox.Size = new System.Drawing.Size(228, 635);
+            this.compressionTypeTextBox.Size = new System.Drawing.Size(226, 583);
             this.compressionTypeTextBox.TabIndex = 7;
             this.compressionTypeTextBox.TabStop = false;
             this.compressionTypeTextBox.Text = "Conversion parameters";
@@ -915,7 +904,7 @@
             this.useInSpiButton.Enabled = false;
             this.useInSpiButton.Location = new System.Drawing.Point(477, 46);
             this.useInSpiButton.Name = "useInSpiButton";
-            this.useInSpiButton.Size = new System.Drawing.Size(24, 466);
+            this.useInSpiButton.Size = new System.Drawing.Size(24, 347);
             this.useInSpiButton.TabIndex = 11;
             this.useInSpiButton.Text = "A\r\nD\r\nD\r\n\r\n->\r\n->\r\n->\r\n\r\nS\r\nO\r\nU\r\nN\r\nD";
             this.useInSpiButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -930,7 +919,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(944, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(949, 24);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1067,7 +1056,7 @@
             this.groupBox4.Controls.Add(this.totalSizeTextBox);
             this.groupBox4.Location = new System.Drawing.Point(6, 14);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(167, 88);
+            this.groupBox4.Size = new System.Drawing.Size(167, 96);
             this.groupBox4.TabIndex = 15;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Size";
@@ -1077,9 +1066,9 @@
             this.groupBox8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox8.Controls.Add(this.groupBox10);
             this.groupBox8.Controls.Add(this.groupBox4);
-            this.groupBox8.Location = new System.Drawing.Point(502, 556);
+            this.groupBox8.Location = new System.Drawing.Point(502, 492);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(431, 106);
+            this.groupBox8.Size = new System.Drawing.Size(431, 117);
             this.groupBox8.TabIndex = 11;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "EPSS SPI - Sound Patch Information";
@@ -1094,7 +1083,7 @@
             this.groupBox10.Controls.Add(this.spiNameTextBox);
             this.groupBox10.Location = new System.Drawing.Point(179, 14);
             this.groupBox10.Name = "groupBox10";
-            this.groupBox10.Size = new System.Drawing.Size(243, 88);
+            this.groupBox10.Size = new System.Drawing.Size(243, 96);
             this.groupBox10.TabIndex = 19;
             this.groupBox10.TabStop = false;
             this.groupBox10.Text = "Save...";
@@ -1169,7 +1158,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(944, 666);
+            this.ClientSize = new System.Drawing.Size(949, 611);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.useInSpiButton);
             this.Controls.Add(this.compressionTypeTextBox);
@@ -1184,7 +1173,7 @@
             this.Location = global::EPSSEditor.Properties.Settings.Default.WinLocation;
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.MinimumSize = new System.Drawing.Size(952, 705);
+            this.MinimumSize = new System.Drawing.Size(952, 650);
             this.Name = "Form1";
             this.helpProvider1.SetShowHelp(this, false);
             this.Text = "EPSS Editor v1.08 - 20210116";
@@ -1274,7 +1263,6 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.TrackBar midiChTrackBar;
         private System.Windows.Forms.TextBox midiChTextBox;
-        private System.Windows.Forms.Label label21;
         private System.Windows.Forms.RadioButton GmPercMidiMappingRadioButton;
         private System.Windows.Forms.RadioButton defaultMidiMapRadioButton;
         private System.Windows.Forms.Button useInSpiButton;

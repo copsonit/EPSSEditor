@@ -269,11 +269,13 @@ namespace EPSSEditor
                 drumsComboBox1.Enabled = ch == 10 ? true : false;
 
                 midiChTrackBar.Maximum = 16;
+                groupBox11.Text = "MIDI Channel";
             }
             else
             {
                 drumsComboBox1.Enabled = midiMappingMode;
                 midiChTrackBar.Maximum = 128;
+                groupBox11.Text = "Program number";
             }
 
 
