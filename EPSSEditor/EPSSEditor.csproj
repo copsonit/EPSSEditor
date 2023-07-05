@@ -25,7 +25,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <WebPage>publish.htm</WebPage>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>15</ApplicationRevision>
+    <ApplicationRevision>18</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -72,6 +72,12 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\logo_PX7_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NAudio, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -137,6 +143,7 @@
     <None Include="EPSSEditor_1_TemporaryKey.pfx" />
     <None Include="EPSSEditor_TemporaryKey.pfx" />
     <None Include="packages.config" />
+    <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -80,10 +80,11 @@ namespace EPSSEditor
     {
 
         public EPSSEditorData data;
-        public bool deletePressed;
-        public bool callbacks = true;
-        public int initialize;
-        public bool dataNeedsSaving;
+        private bool deletePressed;
+        private bool ctrlAPressed;
+        private bool callbacks = true;
+        private int initialize;
+        private bool dataNeedsSaving;
         private ControlScrollListener _processListViewScrollListener;
 
         public Form1()
@@ -96,29 +97,7 @@ namespace EPSSEditor
             _processListViewScrollListener.ControlScrolled += SpiSoundListViewScrollListener_ControlScrolled;
         }
 
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            this.Text = "EPSS Editor v" + GetRunningVersion().ToString();
-
-            Size s = Properties.Settings.Default.WinSize;
-
-            if (s.Width == 0) Properties.Settings.Default.Upgrade();
-
-            if (s.Width == 0 || s.Height == 0)
-            {
-                // Do nothing, use default here.
-            } else
-            {
-                this.WindowState = Properties.Settings.Default.WinState;
-
-                if (this.WindowState == FormWindowState.Minimized) this.WindowState = FormWindowState.Normal;
-
-                this.Size = s;
-            }
-        }
-
-
+  
         private Version GetRunningVersion()
         {
             try
@@ -132,46 +111,6 @@ namespace EPSSEditor
         }
 
 
-        private void Form1_Activated(object sender, EventArgs e)
-        {
-
-            if (initialize < 1)
-            {
-                initialize++;
-
-                initEpssEditorData();
-            }
-
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            exit();
-        }
-
-
-        private void exit()
-        {
-            Properties.Settings.Default.WinState = this.WindowState;
-            if (this.WindowState == FormWindowState.Normal)
-            {
-                // save location and size if the state is normal
-                //Properties.Settings.Default.WinLocation = this.Location;
-                Properties.Settings.Default.WinSize = this.Size;
-            }
-            else
-            {
-                // save the RestoreBounds if the form is minimized or maximized!
-                //Properties.Settings.Default.F1Location = this.RestoreBounds.Location;
-                Properties.Settings.Default.WinSize = this.RestoreBounds.Size;
-            }
-
-
-            Properties.Settings.Default.Save();
-            saveProjectSettings();
-        }
-
-
         private void initEpssEditorData(bool forceNewProject = false)
         {
             string projectFile = Properties.Settings.Default.ProjectFile;
@@ -181,7 +120,8 @@ namespace EPSSEditor
                 initNewProjectFile = true;
 
 
-            } else
+            }
+            else
             {
                 if (!loadProjectSettings(projectFile))
                 {
@@ -281,6 +221,38 @@ namespace EPSSEditor
         }
 
 
+        private void exit()
+        {
+            Properties.Settings.Default.WinState = this.WindowState;
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                // save location and size if the state is normal
+                //Properties.Settings.Default.WinLocation = this.Location;
+                Properties.Settings.Default.WinSize = this.Size;
+            }
+            else
+            {
+                // save the RestoreBounds if the form is minimized or maximized!
+                //Properties.Settings.Default.F1Location = this.RestoreBounds.Location;
+                Properties.Settings.Default.WinSize = this.RestoreBounds.Size;
+            }
+
+
+            Properties.Settings.Default.Save();
+            saveProjectSettings();
+        }
+
+
+        private void updateDialog()
+        {
+            updateDrumSettings();
+            updateSoundListBox();
+            updateSpiSoundListBox();
+            updatePreview();
+            updateMappingMode();
+        }
+
+
         private void updateMappingMode()
         {
             bool midiMappingMode = mappingModeMidiRadioButton.Checked;
@@ -296,7 +268,8 @@ namespace EPSSEditor
                 drumsComboBox1.Enabled = ch == 10 ? true : false;
 
                 midiChTrackBar.Maximum = 16;
-            } else
+            }
+            else
             {
                 drumsComboBox1.Enabled = midiMappingMode;
                 midiChTrackBar.Maximum = 128;
@@ -314,16 +287,6 @@ namespace EPSSEditor
         }
 
 
-        private void updateDialog()
-        {
-            updateDrumSettings();
-            updateSoundListBox();
-            updateSpiSoundListBox();
-            updatePreview();
-            updateMappingMode();
-        }
-
-
         private void updatePreview()
         {
             if (initialize > 0)
@@ -332,6 +295,178 @@ namespace EPSSEditor
             }
         }
 
+
+        private void updateDrumSettings()
+        {
+            foreach (Mapping m in data.drumMappings.mappings)
+            {
+                drumsComboBox1.Items.Add(m.dropDownDescription());
+            }
+            drumsComboBox1.SelectedIndex = 0;
+        }
+
+
+        private void updateSoundListBox()
+        {
+            soundListBox.Items.Clear();
+            foreach (Sound s in data.sounds)
+            {
+                soundListBox.Items.Add(s.name());
+            }
+        }
+
+
+        private void updateListViewItemValue(SpiSound snd, ListViewItem item, int columnIndex)
+        {
+            if (columnIndex == 7)
+            {
+                ListViewItem.ListViewSubItem subItem = item.SubItems[7];
+                subItem.Text = snd.transposeString();
+            }
+        }
+
+
+        private void updateSpiSoundListBox()
+        {
+            spiSoundListView.Clear();
+            spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("MIDI", 35, HorizontalAlignment.Right);
+            spiSoundListView.Columns.Add("Note", 55, HorizontalAlignment.Right);
+            spiSoundListView.Columns.Add("Program", 55, HorizontalAlignment.Right);
+
+            spiSoundListView.Columns.Add("Sound", 165, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("#", 25, HorizontalAlignment.Right);
+            spiSoundListView.Columns.Add("Size", 55, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("Transpose", 55, HorizontalAlignment.Left);
+            spiSoundListView.View = View.Details;
+
+            spiSoundListView.FullRowSelect = true;
+            int i = 0;
+            foreach (SpiSound s in data.spiSounds)
+            {
+                //ListViewItem item = new ListViewItem(i++.ToString());
+                ListViewItem item = new ListViewItem(i++.ToString());
+                //item.Tag = i;
+
+                if (s.midiChannel <= 16)
+                {
+                    item.SubItems.Add(s.midiChannel.ToString());
+                }
+                else
+                {
+                    item.SubItems.Add("-");
+                }
+
+                if (s.startNote < 128 && s.endNote < 128)
+                {
+                    item.SubItems.Add(s.startNote.ToString() + "-" + s.endNote.ToString());
+                }
+                else
+                {
+                    item.SubItems.Add(s.midiNote.ToString());
+                }
+
+                if (s.programNumber < 128)
+                {
+                    item.SubItems.Add(s.programNumber.ToString());
+                }
+                else
+                {
+                    item.SubItems.Add("-");
+                }
+
+                item.SubItems.Add(s.name());
+                int nr = data.getSoundNumberFromGuid(s.soundId);
+                item.SubItems.Add(nr.ToString());
+
+                item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 2));
+                item.SubItems.Add(s.transposeString());
+
+                spiSoundListView.Items.Add(item);
+            }
+
+            bool spiSaveEnabled = data.spiSounds.Count > 0;
+            var mi = menuStrip1.Items.Find("saveSPIToolStripMenuItem", true);
+            foreach (var item in mi)
+            {
+                item.Enabled = spiSaveEnabled;
+            }
+
+
+            Sound snd = getSoundAtSelectedIndex();
+            if (snd != null)
+            {
+                List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
+                deleteSoundButton.Enabled = spiSounds.Count == 0;
+
+            }
+
+            spiNameTextBox.Text = data.spiName;
+            spiInfoTextBox.Text = data.spiDescription;
+            omniPatchCheckBox.Checked = data.omni;
+        }
+
+
+        private void updateTotalSize()
+        {
+            if (data != null)
+            {
+                EPSSSpiCreator creator = new EPSSSpiCreator(spiVersion());
+                long sz = creator.length(ref data);
+                totalSizeTextBox.Text = Ext.ToPrettySize(sz, 2);
+
+                int v = (int)(sz / 1024);
+                totalSizeProgressBar.Value = Math.Min(14000, v); // Only show up to max 14MB but we support unlimited size..
+            }
+        }
+
+
+        private void updateAfterSoundChange(ref Sound snd, int toFreq)
+        {
+            callbacks = false;
+            int numberOfDecimals = 2;
+            sizeTextBox.Text = Ext.ToPrettySize(snd.length, numberOfDecimals);
+            channelsTextBox.Text = snd.channels.ToString() + " Channels";
+            freqTextBox.Text = snd.samplesPerSecond.ToString() + " Hz";
+            bitsTextBox.Text = snd.bitsPerSample.ToString() + " Bit";
+
+            int toBit = AtariConstants.SampleBits;
+
+            snd.updateConversionParameters(toBit, toFreq);
+            conversionTextBox.Text = snd.parameters().description();
+
+            long lengthAfter = snd.parameters().sizeAfterConversion(ref snd);
+
+            soundSizeAfterTextBox.Text = Ext.ToPrettySize(lengthAfter, numberOfDecimals);
+
+            updateShowCompressionProgressBar(snd.length, lengthAfter);
+
+            bool normalized = snd.parameters().normalize.normalize;
+            normalizeCheckBox.Checked = normalized;
+            if (normalized)
+            {
+                normalizeTextBox.Text = snd.parameters().normalize.normalizePercentage + "%";
+                normalizeTrackBar.Value = snd.parameters().normalize.normalizePercentage;
+            }
+            else
+            {
+                normalizeTextBox.Text = "";
+                normalizeTrackBar.Value = 100;
+            }
+            normalizeTrackBar.Enabled = snd.parameters().normalize.normalize;
+
+            callbacks = true;
+        }
+
+
+        private void updateShowCompressionProgressBar(long lengthBefore, long lengthAfter)
+        {
+            int v = (int)(((double)lengthAfter / (double)lengthBefore) * 100);
+            showCompProgressBar.Value = v;
+        }
+
+
+        // Settings
 
         private bool loadProjectSettings(string file)
         {
@@ -360,8 +495,6 @@ namespace EPSSEditor
         }
 
 
-
-
         private void saveProjectSettings()
         {
             if (dataNeedsSaving)
@@ -379,6 +512,60 @@ namespace EPSSEditor
                 }
             }
         }
+
+
+        private bool loadProjectSettingsFileDialog()
+        {
+            bool result = false;
+            string s = Properties.Settings.Default.ProjectFile;
+            if (s == null || s == "")
+            {
+                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                s = Path.Combine(s, "EPSS Projects", "default.epf");
+            }
+
+
+            string projFile = Path.GetDirectoryName(s);
+            loadProjectFileDialog.InitialDirectory = projFile;
+            string fileName = Path.GetFileName(s);
+            loadProjectFileDialog.FileName = fileName;
+            if (loadProjectFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string file = loadProjectFileDialog.FileName;
+                Properties.Settings.Default.ProjectFile = file;
+                Properties.Settings.Default.Save();
+                loadProjectSettings(file);
+                result = true;
+            }
+
+            return result;
+
+        }
+
+
+        private void saveProjectSettingsFileDialog()
+        {
+            string s = Properties.Settings.Default.ProjectFile;
+            if (s == null || s == "")
+            {
+                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                s = Path.Combine(s, "EPSS Projects", "default.epf");
+            }
+            string projFile = Path.GetDirectoryName(s);
+            saveProjectFileDialog.InitialDirectory = projFile;
+            string fileName = Path.GetFileName(s);
+            saveProjectFileDialog.FileName = fileName;
+            saveProjectFileDialog.Title = "Choose filename where EPSS project should be saved...";
+            if (saveProjectFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string file = saveProjectFileDialog.FileName;
+                Properties.Settings.Default.ProjectFile = file;
+                Properties.Settings.Default.Save();
+                saveProjectSettings();
+            }
+        }
+
+        // SPI
 
 
         private bool WarnAndConfirmDir(string dir, string message)
@@ -443,188 +630,107 @@ namespace EPSSEditor
         }
 
 
-
-        private void updateDrumSettings()
+        private bool doLoadSpiFileDialog(ref string errorMessage)
         {
-            foreach (Mapping m in data.drumMappings.mappings)
+            bool result = false;
+            string s = Properties.Settings.Default.SpiFile;
+            if (s == null || s == "")
             {
-                drumsComboBox1.Items.Add(m.dropDownDescription());
+                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                s = Path.Combine(s, "EPSS Projects", "default.spi");
             }
-            drumsComboBox1.SelectedIndex = 0;
-        }
-
-
-        private void updateSoundListBox()
-        {
-            soundListBox.Items.Clear();
-            foreach (Sound s in data.sounds)
+            else if (Path.GetExtension(s).ToLower() != "spi")
             {
-                soundListBox.Items.Add(s.name());
+                s = Path.ChangeExtension(s, "spi");
             }
-        }
 
-
-        ListViewItem SelectedListViewItem(Point lwPos)
-        {
-            ListViewHitTestInfo info = spiSoundListView.HitTest(lwPos.X, lwPos.Y);
-            ListViewItem item = info.Item;
-
-            return item;
-        }
-
-
-        // Only with shift key pressed!
-        void SpiSoundListViewScrollListener_ControlScrolled(object sender, EventArgs e, int delta, Point pos)
-        {
-            if ((Control.ModifierKeys & Keys.Shift) != Keys.None)
+            string spiFile = Path.GetDirectoryName(s);
+            loadSpiFileDialog.InitialDirectory = spiFile;
+            string fileName = Path.GetFileName(s);
+            loadSpiFileDialog.FileName = fileName;
+            if (loadSpiFileDialog.ShowDialog() == DialogResult.OK)
             {
-                Point lwPos = spiSoundListView.PointToClient(pos);
-                ListViewItem item = SelectedListViewItem(lwPos);
-                if (item != null)
+                string file = loadSpiFileDialog.FileName;
+                Properties.Settings.Default.SpiFile = file;
+                Properties.Settings.Default.Save();
+                result = loadSpiFile(file, ref errorMessage);
+                if (result)
                 {
-                    SpiSound snd = data.spiSounds[item.Index];
-                    if (delta > 0 && snd.transpose < 127) snd.transpose++;
-                    else if (delta < 0 && snd.transpose > -128) snd.transpose--;
 
-                    updateListViewItemValue(snd, item, 7);
                 }
             }
+
+            return result;
+
         }
 
 
-        private void spiSoundListView_MouseUp(object sender, MouseEventArgs e)
+        private void doSaveSpi()
         {
-            if (e.Button == MouseButtons.Middle && (Control.ModifierKeys & Keys.Shift) != Keys.None)
+            List<SpiSound> soundsToSave = data.getSortedSpiSounds();
+            if (soundsToSave.Count > 0)
             {
+                saveSpiFileDialog.InitialDirectory = Path.GetDirectoryName(data.spiFileName);
 
-                Point pos = e.Location;
-                ListViewItem item = SelectedListViewItem(pos);
-                if (item != null)
+                if (saveSpiFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    SpiSound snd = data.spiSounds[item.Index];
-                    snd.transpose = 0;
-                    updateListViewItemValue(snd, item, 7);
+                    string spiFile = saveSpiFileDialog.FileName;
+                    Uri url = new Uri(spiFile);
 
-                    Console.WriteLine($"Item: {item}");
+                    EPSSSpiCreator creator = new EPSSSpiCreator(spiVersion());
+                    int sampFreq = AtariConstants.SampleFreq25k;
+                    data.omni = omniPatchCheckBox.Checked;
+                    EPSSSpi spi = creator.create(ref data, soundsToSave, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
+
+                    if (spi != null)
+                    {
+                        int result = spi.save(url);
+                        if (result == 0)
+                        {
+                            data.spiFileName = spiFile;
+                            dataNeedsSaving = true;
+                            saveProjectSettings();
+                        }
+                        else
+                        {
+                            System.Windows.Forms.MessageBox.Show("Error occured during save! Patch file might not be valid.");
+                        }
+                    }
                 }
 
             }
-
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("No sounds to save!");
+            }
         }
 
-        private void updateListViewItemValue(SpiSound snd, ListViewItem item, int columnIndex)
+
+        // Sound
+
+        private void loadSound()
         {
-            if (columnIndex == 7)
+            loadSoundFileDialog.InitialDirectory = Path.GetDirectoryName(data.soundFileName);
+
+            if (loadSoundFileDialog.ShowDialog() == DialogResult.OK)
             {
-                ListViewItem.ListViewSubItem subItem = item.SubItems[7];
-                subItem.Text = snd.transposeString();
-            }
-        }
-
-        private void updateSpiSoundListBox()
-        {
-            spiSoundListView.Clear();
-            spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("MIDI", 35, HorizontalAlignment.Right);
-            spiSoundListView.Columns.Add("Note", 55, HorizontalAlignment.Right);
-            spiSoundListView.Columns.Add("Program", 55, HorizontalAlignment.Right);
-
-            spiSoundListView.Columns.Add("Sound", 165, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("#", 25, HorizontalAlignment.Right);
-            spiSoundListView.Columns.Add("Size", 55, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("Transpose", 55, HorizontalAlignment.Left);
-            spiSoundListView.View = View.Details;
-
-            spiSoundListView.FullRowSelect = true;
-            int i = 0;
-            foreach (SpiSound s in data.spiSounds)
-            {
-                //ListViewItem item = new ListViewItem(i++.ToString());
-                ListViewItem item = new ListViewItem(i++.ToString());
-                //item.Tag = i;
-
-                if (s.midiChannel <= 16)
+                string anyFile = "";
+                foreach (string name in loadSoundFileDialog.FileNames)
                 {
-                    item.SubItems.Add(s.midiChannel.ToString());
+                    Sound s = new Sound(name);
+                    data.sounds.Add(s);
+                    anyFile = name;
                 }
-                else
-                {
-                    item.SubItems.Add("-");
-                }
-                
-                if (s.startNote < 128 && s.endNote < 128)
-                {
-                    item.SubItems.Add(s.startNote.ToString() + "-" + s.endNote.ToString());
-                }
-                else
-                {
-                    item.SubItems.Add(s.midiNote.ToString());
-                }
+                updateSoundListBox();
 
-                if (s.programNumber < 128)
-                {
-                    item.SubItems.Add(s.programNumber.ToString());
-                }
-                else
-                {
-                    item.SubItems.Add("-");
-                }
-
-                item.SubItems.Add(s.name());
-                int nr = data.getSoundNumberFromGuid(s.soundId);
-                item.SubItems.Add(nr.ToString());
-
-                item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 2));
-                item.SubItems.Add(s.transposeString());
-
-                spiSoundListView.Items.Add(item);
-            }
-
-            bool spiSaveEnabled = data.spiSounds.Count > 0;
-            var mi = menuStrip1.Items.Find("saveSPIToolStripMenuItem", true);
-            foreach (var item in mi)
-            {
-                item.Enabled= spiSaveEnabled;
-            }
-
-
-            Sound snd = getSoundAtSelectedIndex();
-            if (snd != null)
-            {
-                List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
-                deleteSoundButton.Enabled = spiSounds.Count == 0;
-
-            }
-
-            spiNameTextBox.Text = data.spiName;
-            spiInfoTextBox.Text = data.spiDescription;
-            omniPatchCheckBox.Checked = data.omni;
-        }
-
-
-        private void updateTotalSize()
-        {
-            if (data != null)
-            {
-                EPSSSpiCreator creator = new EPSSSpiCreator(spiVersion());
-                long sz = creator.length(ref data);
-                totalSizeTextBox.Text = Ext.ToPrettySize(sz, 2);
-
-                int v = (int)(sz / 1024);
-                totalSizeProgressBar.Value = Math.Min(14000, v); // Only show up to max 14MB but we support unlimited size..
+                data.soundFileName = anyFile;
+                dataNeedsSaving = true;
+                saveProjectSettings();
             }
         }
 
 
-        private void setMidiChannel(int ch)
-        {
-            midiChTextBox.Text = ch.ToString();
-            midiChTrackBar.Value = ch;
-
-            updateMappingMode();
-
-        }
-
+        // Sound List Box
 
         private void deleteSelectedSound()
         {
@@ -674,40 +780,6 @@ namespace EPSSEditor
                 dataNeedsSaving = true;
                 saveProjectSettings();
             }
-        }
-
-
-        private bool soundRefersToSPISound(int idx)
-        {
-
-            Sound snd = data.sounds[idx];
-            List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
-            return spiSounds.Count > 0;
-        }
-
-
-        private void deleteSelectedSpiSound()
-        {
-            List<int> idxRemoved = new List<int>();
-            foreach (ListViewItem item in spiSoundListView.SelectedItems)
-            {
-                idxRemoved.Add(item.Index);
-            }
-
-            if (idxRemoved.Count > 0)
-            {
-                int removed = 0;
-                foreach(int index in idxRemoved)
-                {
-                    data.spiSounds.RemoveAt(index - removed);
-                    removed++;
-                }
-                dataNeedsSaving = true;
-                updateSpiSoundListBox();
-                saveProjectSettings();
-                updateTotalSize();
-            }
-
         }
 
 
@@ -763,13 +835,59 @@ namespace EPSSEditor
                                 }
                             }
                         }
-                     }
+                    }
 
                 }
-            } catch (Exception ex)
-            {
-                MessageBox.Show("Cannot play sound:"+ex.Message);
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Cannot play sound:" + ex.Message);
+            }
+        }
+
+
+        // SPI Sound List View
+
+        ListViewItem SelectedListViewItem(Point lwPos)
+        {
+            ListViewHitTestInfo info = spiSoundListView.HitTest(lwPos.X, lwPos.Y);
+            ListViewItem item = info.Item;
+
+            return item;
+        }
+
+         
+        private bool soundRefersToSPISound(int idx)
+        {
+
+            Sound snd = data.sounds[idx];
+            List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
+            return spiSounds.Count > 0;
+        }
+
+
+        private void deleteSelectedSpiSound()
+        {
+            List<int> idxRemoved = new List<int>();
+            foreach (ListViewItem item in spiSoundListView.SelectedItems)
+            {
+                idxRemoved.Add(item.Index);
+            }
+
+            if (idxRemoved.Count > 0)
+            {
+                int removed = 0;
+                foreach(int index in idxRemoved)
+                {
+                    data.spiSounds.RemoveAt(index - removed);
+                    removed++;
+                }
+                dataNeedsSaving = true;
+                updateSpiSoundListBox();
+                saveProjectSettings();
+                updateTotalSize();
+            }
+
         }
 
 
@@ -874,175 +992,54 @@ namespace EPSSEditor
         }
 
 
-        private void updateAfterSoundChange(ref Sound snd, int toFreq)
+        private void saveSampleWithFileDialog()
         {
-            callbacks = false;
-            int numberOfDecimals = 2;
-            sizeTextBox.Text = Ext.ToPrettySize(snd.length, numberOfDecimals);
-            channelsTextBox.Text = snd.channels.ToString() + " Channels";
-            freqTextBox.Text = snd.samplesPerSecond.ToString() + " Hz";
-            bitsTextBox.Text = snd.bitsPerSample.ToString() + " Bit";
-
-            int toBit = AtariConstants.SampleBits;
-
-            snd.updateConversionParameters(toBit, toFreq);
-            conversionTextBox.Text = snd.parameters().description();
-
-            long lengthAfter = snd.parameters().sizeAfterConversion(ref snd);
-
-            soundSizeAfterTextBox.Text = Ext.ToPrettySize(lengthAfter, numberOfDecimals);
-
-            updateShowCompressionProgressBar(snd.length, lengthAfter);
-
-            bool normalized = snd.parameters().normalize.normalize;
-            normalizeCheckBox.Checked = normalized;
-            if (normalized)
+            bool anySelected = false;
+            foreach (ListViewItem item in spiSoundListView.SelectedItems)
             {
-                normalizeTextBox.Text = snd.parameters().normalize.normalizePercentage + "%";
-                normalizeTrackBar.Value = snd.parameters().normalize.normalizePercentage;
+                anySelected = true;
+
+                break;
+
             }
-            else
+
+
+            if (anySelected)
             {
-                normalizeTextBox.Text = "";
-                normalizeTrackBar.Value = 100;
-            }
-            normalizeTrackBar.Enabled = snd.parameters().normalize.normalize;
 
-            callbacks = true;
-        }
-
-
-        private void updateShowCompressionProgressBar(long lengthBefore, long lengthAfter)
-        {
-            int v = (int)(((double)lengthAfter / (double)lengthBefore) * 100);
-            showCompProgressBar.Value = v;
-        }
-
-
-        private int frequencyFromCompressionTrackBar(int v)
-        {
-            if (v == 0) return AtariConstants.SampleFreq50k;
-            else if (v == 1) return AtariConstants.SampleFreq25k;
-            else if (v == 2) return AtariConstants.SampleFreq12k;
-            else if (v == 3) return AtariConstants.SampleFreq6k;
-
-            return AtariConstants.SampleFreq25k;
-        }
-
-        private int compressionTrackBarValueFromFrequency(int f)
-        {
-            if (f == AtariConstants.SampleFreq50k) return 0;
-            else if (f == AtariConstants.SampleFreq25k) return 1;
-            else if (f == AtariConstants.SampleFreq12k) return 2;
-            else if (f == AtariConstants.SampleFreq6k) return 3;
-
-            return 2;
-        }
-
-
-        private int currentMidiChannel()
-        {
-            return midiChTrackBar.Value;
-        }
-
-
-        private byte percussionNote()
-        {
-            int i = 0;
-            foreach (Mapping m in data.drumMappings.mappings)
-            {
-                int selected = drumsComboBox1.SelectedIndex;
-                if (i == selected) return m.midiNote;
-                i++;
-            }
-            return 0;
-        }
-
-
-        private void loadSound()
-        {
-            loadSoundFileDialog.InitialDirectory = Path.GetDirectoryName(data.soundFileName);
-
-            if (loadSoundFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                string anyFile = "";
-                foreach (string name in loadSoundFileDialog.FileNames)
+                foreach (ListViewItem item in spiSoundListView.SelectedItems)
                 {
-                    Sound s = new Sound(name);
-                    data.sounds.Add(s);
-                    anyFile = name;
-                }
-                updateSoundListBox();
+                    int selected = item.Index;
 
-                data.soundFileName = anyFile;
-                dataNeedsSaving = true;
-                saveProjectSettings();
-            }
-        }        
+                    if (selected >= 0)
+                    {
 
+                        saveSampleFileDialog.InitialDirectory = Path.GetDirectoryName(data.soundFileName);
+                        if (saveSampleFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            string outFile = saveSampleFileDialog.FileName;
+                            SpiSound snd = data.spiSounds[selected];
+                            if (snd.convertSound(ref data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
+                            {
+                            }
 
-        private bool loadProjectSettingsFileDialog()
-        {
-            bool result = false;
-            string s = Properties.Settings.Default.ProjectFile;
-            if (s == null || s == "")
-            {
-                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                s = Path.Combine(s, "EPSS Projects", "default.epf");
-            }
+                        }
+                        else
+                        {
+                            if (MessageBox.Show("Do you want to stop saving sounds?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            {
+                                break;
+                            }
+                        }
+                    }
 
-
-            string projFile = Path.GetDirectoryName(s);
-            loadProjectFileDialog.InitialDirectory = projFile;
-            string fileName = Path.GetFileName(s);
-            loadProjectFileDialog.FileName = fileName;
-            if (loadProjectFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                string file = loadProjectFileDialog.FileName;
-                Properties.Settings.Default.ProjectFile = file;
-                Properties.Settings.Default.Save();
-                loadProjectSettings(file);
-                result = true;
-            }
-
-            return result;
-
-        }
-
-
-        private bool doLoadSpiFileDialog(ref string errorMessage)
-        {
-            bool result = false;
-            string s = Properties.Settings.Default.SpiFile;
-            if (s == null || s == "")
-            {
-                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                s = Path.Combine(s, "EPSS Projects", "default.spi");
-            } else if (Path.GetExtension(s).ToLower() != "spi")
-            {
-                s = Path.ChangeExtension(s, "spi");
-            }
-                        
-            string spiFile = Path.GetDirectoryName(s);
-            loadSpiFileDialog.InitialDirectory = spiFile;
-            string fileName = Path.GetFileName(s);
-            loadSpiFileDialog.FileName = fileName;
-            if (loadSpiFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                string file = loadSpiFileDialog.FileName;
-                Properties.Settings.Default.SpiFile = file;
-                Properties.Settings.Default.Save();
-                result = loadSpiFile(file, ref errorMessage);
-                if (result)
-                {
 
                 }
             }
-
-            return result;
-
         }
 
+
+        // SFZ
 
         private bool doLoadSfzFileDialog(ref string errorMessage)
         {
@@ -1069,116 +1066,16 @@ namespace EPSSEditor
                 Properties.Settings.Default.Save();
 
                 string anyFile = LoadSfzSound(file);
- 
+
 
                 data.soundFileName = anyFile;
                 result = true;
-            
+
             }
 
             return result;
         }
 
-
-        private void saveProjectSettingsFileDialog()
-        {
-            string s = Properties.Settings.Default.ProjectFile;
-            if (s == null || s == "")
-            {
-                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                s = Path.Combine(s, "EPSS Projects", "default.epf");
-            }
-            string projFile = Path.GetDirectoryName(s);
-            saveProjectFileDialog.InitialDirectory = projFile;
-            string fileName = Path.GetFileName(s);
-            saveProjectFileDialog.FileName = fileName;
-            saveProjectFileDialog.Title = "Choose filename where EPSS project should be saved...";
-            if (saveProjectFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                string file = saveProjectFileDialog.FileName;
-                Properties.Settings.Default.ProjectFile = file;
-                Properties.Settings.Default.Save();
-                saveProjectSettings();
-            }
-        }
-
-
-        private void saveSampleWithFileDialog()
-        {
-            bool anySelected = false;
-            foreach (ListViewItem item in spiSoundListView.SelectedItems)
-            {
-                anySelected = true;
-               
-                break;
-
-            }
-
-
-            if (anySelected)
-            {
-
-                foreach (ListViewItem item in spiSoundListView.SelectedItems)
-                {
-                    int selected = item.Index;
-
-                    if (selected >= 0)
-                    {
-
-                        saveSampleFileDialog.InitialDirectory = Path.GetDirectoryName(data.soundFileName);
-                        if (saveSampleFileDialog.ShowDialog() == DialogResult.OK)
-                        {
-                            string outFile = saveSampleFileDialog.FileName;
-                            SpiSound snd = data.spiSounds[selected];
-                            if (snd.convertSound(ref data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
-                            {
-                            }
-
-                        } else
-                        {
-                            if (MessageBox.Show("Do you want to stop saving sounds?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                  
-
-                }
-            }
-        }
-
-
-        // Control Events
-
-
-        private void soundListBox_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.Text))
-            {
-                e.Effect = DragDropEffects.Copy;
-            }
-            else if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effect = DragDropEffects.Copy;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
-
-        }
-
-
-        private string addOneSoundDirect(string file, string baseName)
-        {
-            Sound s = new Sound(file);
-
-            data.sounds.Add(s);
-            return file;
-        }
-
-     
 
         private string LoadSfzSound(string filePath)
         {
@@ -1225,14 +1122,15 @@ namespace EPSSEditor
                     if (sounds.ContainsKey(fp))
                     {
                         s = sounds[fp];
-                    } else
+                    }
+                    else
                     {
                         s = new Sound(fp);
                         s.description = Path.GetFileNameWithoutExtension(fp);
                         data.sounds.Add(s);
                         sounds.Add(fp, s);
                     }
-                    
+
 
 
                     //Sound s = new Sound(fp);
@@ -1307,6 +1205,259 @@ namespace EPSSEditor
         }
 
 
+        // Other functions
+
+        private int frequencyFromCompressionTrackBar(int v)
+        {
+            if (v == 0) return AtariConstants.SampleFreq50k;
+            else if (v == 1) return AtariConstants.SampleFreq25k;
+            else if (v == 2) return AtariConstants.SampleFreq12k;
+            else if (v == 3) return AtariConstants.SampleFreq6k;
+
+            return AtariConstants.SampleFreq25k;
+        }
+
+
+        private int compressionTrackBarValueFromFrequency(int f)
+        {
+            if (f == AtariConstants.SampleFreq50k) return 0;
+            else if (f == AtariConstants.SampleFreq25k) return 1;
+            else if (f == AtariConstants.SampleFreq12k) return 2;
+            else if (f == AtariConstants.SampleFreq6k) return 3;
+
+            return 2;
+        }
+
+
+        private int currentMidiChannel()
+        {
+            return midiChTrackBar.Value;
+        }
+
+
+        private byte percussionNote()
+        {
+            int i = 0;
+            foreach (Mapping m in data.drumMappings.mappings)
+            {
+                int selected = drumsComboBox1.SelectedIndex;
+                if (i == selected) return m.midiNote;
+                i++;
+            }
+            return 0;
+        }
+
+
+        private string addOneSoundDirect(string file, string baseName)
+        {
+            Sound s = new Sound(file);
+
+            data.sounds.Add(s);
+            return file;
+        }
+
+   
+        public static bool TryToByte(object value, out byte result)
+        {
+            if (value == null)
+            {
+                result = 0;
+                return false;
+            }
+
+            return byte.TryParse(value.ToString(), out result);
+        }
+
+
+        private int parseNoteToInt(string midiNote, int octaveOffset)
+        {
+            midiNote = midiNote.ToUpper();
+            int v = 0;
+            Dictionary<string, byte> notes = new Dictionary<string, byte>()
+            {
+                { "C", 0 }, { "C#", 1}, { "D", 2 }, { "D#", 3 }, { "E", 4 },  { "F", 5 }, { "F#", 6 },
+                { "G", 7 }, { "G#", 8 }, { "A", 9 }, { "A#", 10 }, { "B", 11 },
+                { "H", 11 }, { "DB", 1 }, { "EB", 3 }, { "GB", 6 }, { "AB", 8 }, {"BB", 10}
+            };
+
+
+            try
+            {
+                int i = 0;
+                foreach (var c in midiNote)
+                {
+                    if ((c >= '0' && c <= '9') || c == '-')
+                    {
+                        string n = midiNote.Substring(0, i);
+                        short oct = (short)((Convert.ToInt16(midiNote.Substring(i, midiNote.Length - i)) + octaveOffset) * 12);
+                        v = Convert.ToInt32(oct);
+                        v += notes[n];
+                        break;
+                    }
+                    i++;
+                }
+                return v;
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+        }
+
+
+        private byte parseMidiTone(string s)
+        {
+            byte note = 128;
+            if (!TryToByte(s, out note))
+            {
+                int v = parseNoteToInt(s, 2);
+                if (v < 0 || v > 127)
+                {
+                    System.Windows.Forms.MessageBox.Show("Unsupported MIDI Note!");
+                }
+                else
+                {
+                    note = (byte)v;
+                }
+            }
+            return note;
+        }
+
+  
+        private int spiVersion()
+        {
+            return gen2CheckBox.Checked ? 2 : 1;
+        }
+
+
+        private void setMidiChannel(int ch)
+        {
+            midiChTextBox.Text = ch.ToString();
+            midiChTrackBar.Value = ch;
+
+            updateMappingMode();
+
+        }
+
+
+        // Events
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            this.Text = "EPSS Editor v" + GetRunningVersion().ToString();
+
+            Size s = Properties.Settings.Default.WinSize;
+
+            if (s.Width == 0) Properties.Settings.Default.Upgrade();
+
+            if (s.Width == 0 || s.Height == 0)
+            {
+                // Do nothing, use default here.
+            }
+            else
+            {
+                this.WindowState = Properties.Settings.Default.WinState;
+
+                if (this.WindowState == FormWindowState.Minimized) this.WindowState = FormWindowState.Normal;
+
+                this.Size = s;
+            }
+        }
+
+
+        private void Form1_Activated(object sender, EventArgs e)
+        {
+
+            if (initialize < 1)
+            {
+                initialize++;
+
+                initEpssEditorData();
+            }
+
+        }
+
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            exit();
+        }
+
+
+        private void SpiSoundListViewScrollListener_ControlScrolled(object sender, EventArgs e, int delta, Point pos)
+        {
+            if ((Control.ModifierKeys & Keys.Shift) != Keys.None)             // Only with shift key pressed!
+            {
+                Point lwPos = spiSoundListView.PointToClient(pos);
+                ListViewItem item = SelectedListViewItem(lwPos);
+                if (item != null)
+                {
+                    SpiSound snd = data.spiSounds[item.Index];
+                    if (delta > 0 && snd.transpose < 127) snd.transpose++;
+                    else if (delta < 0 && snd.transpose > -128) snd.transpose--;
+
+                    updateListViewItemValue(snd, item, 7);
+                }
+            }
+        }
+
+
+        private void spiSoundListView_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Middle && (Control.ModifierKeys & Keys.Shift) != Keys.None)
+            {
+
+                Point pos = e.Location;
+                ListViewItem item = SelectedListViewItem(pos);
+                if (item != null)
+                {
+                    SpiSound snd = data.spiSounds[item.Index];
+                    snd.transpose = 0;
+                    updateListViewItemValue(snd, item, 7);
+
+                    Console.WriteLine($"Item: {item}");
+                }
+
+            }
+
+        }
+
+
+        private void spiSoundListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            bool enabled = false;
+            foreach (ListViewItem item in spiSoundListView.SelectedItems)
+            {
+                enabled = true;
+            }
+            deleteSpiSoundButton.Enabled = enabled;
+            button1.Enabled = enabled;
+        }
+
+
+        private void spiSoundListView_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void soundListBox_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.Text))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+
+        }
+
+
         private void soundListBox_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
@@ -1373,10 +1524,9 @@ namespace EPSSEditor
         }
 
 
-
         private void soundListBox_KeyPress(object sender, KeyPressEventArgs e)
         {
-              
+
             if (e.KeyChar == ' ')
             {
                 playSelectedSound();
@@ -1385,7 +1535,6 @@ namespace EPSSEditor
             if (ctrlAPressed) e.Handled = true;
         }
 
-        private bool ctrlAPressed;
 
         private void soundListBox_KeyDown(object sender, KeyEventArgs e)
         {
@@ -1452,25 +1601,16 @@ namespace EPSSEditor
         }
 
 
-
         private void deleteSoundButton_Click(object sender, EventArgs e)
         {
             deleteSelectedSound();
         }
 
 
-        
         private void playButton_KeyDown(object sender, KeyEventArgs e)
         {
             playSelectedSound();
         }
-
-
-        private void playButton_KeyUp(object sender, KeyEventArgs e)
-        {
-            //player.Stop();
-        }
-
 
 
         private void compressionTrackBar_Scroll(object sender, EventArgs e)
@@ -1501,88 +1641,18 @@ namespace EPSSEditor
 
                     defaultMidiMapRadioButton.Checked = true;
                 }
-            } else
+            }
+            else
             {
 
             }
-            
+
         }
+
 
         private void GmPercMidiMappingRadioButton_CheckedChanged(object sender, EventArgs e)
         {
             setMidiChannel(10);
-        }
-
-
-        private void defaultMidiMapRadioButton_CheckedChanged(object sender, EventArgs e)
-        { 
-            //int ch = data.getNextFreeMidiChannel();
-            //if (ch > 0) setMidiChannel(ch);
-        }
-
-        public static bool TryToByte(object value, out byte result)
-        {
-            if (value == null)
-            {
-                result = 0;
-                return false;
-            }
-
-            return byte.TryParse(value.ToString(), out result);
-        }
-
-        private int parseNoteToInt(string midiNote, int octaveOffset)
-        {
-            midiNote = midiNote.ToUpper();
-            int v = 0;
-            Dictionary<string, byte> notes = new Dictionary<string, byte>()
-            {
-                { "C", 0 }, { "C#", 1}, { "D", 2 }, { "D#", 3 }, { "E", 4 },  { "F", 5 }, { "F#", 6 },
-                { "G", 7 }, { "G#", 8 }, { "A", 9 }, { "A#", 10 }, { "B", 11 },
-                { "H", 11 }, { "DB", 1 }, { "EB", 3 }, { "GB", 6 }, { "AB", 8 }, {"BB", 10}
-            };
-
-
-            try
-            {
-                int i = 0;
-                foreach (var c in midiNote)
-                {
-                    if ((c >= '0' && c <= '9') || c == '-')
-                    {
-                        string n = midiNote.Substring(0, i);
-                        short oct = (short)((Convert.ToInt16(midiNote.Substring(i, midiNote.Length - i)) + octaveOffset) * 12);
-                        v = Convert.ToInt32(oct);
-                        v += notes[n];
-                        break;
-                    }
-                    i++;
-                }
-                return v;
-            }
-            catch (Exception ex)
-            {
-                return -1;
-            }
-        }
-
-
-        private byte parseMidiTone(string s)
-        {
-            byte note = 128;
-            if (!TryToByte(s, out note))
-            {
-                int v = parseNoteToInt(s, 2);
-                if (v < 0 || v > 127)
-                {
-                    System.Windows.Forms.MessageBox.Show("Unsupported MIDI Note!");
-                }
-                else
-                {
-                    note = (byte)v;
-                }
-            }
-            return note;
         }
 
 
@@ -1816,9 +1886,6 @@ namespace EPSSEditor
         }
 
 
-
-        // Menu
-
         private void newProjectToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             bool doNew = true;
@@ -1826,10 +1893,11 @@ namespace EPSSEditor
             {
                 if (MessageBox.Show("You have unsaved data in current project!\nDo you really want to create new project?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 {
-                    doNew= false;
+                    doNew = false;
                 }
             }
-            if (doNew) {
+            if (doNew)
+            {
                 initEpssEditorData(forceNewProject: true);
                 dataNeedsSaving = true;
                 saveProjectSettings();
@@ -1883,6 +1951,7 @@ namespace EPSSEditor
             }
         }
 
+
         private void importSFZToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string errorMessage = "";
@@ -1892,6 +1961,7 @@ namespace EPSSEditor
                 MessageBox.Show("SFZ file cannot be loaded:\n" + errorMessage);
             }
         }
+
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1917,7 +1987,7 @@ namespace EPSSEditor
                 }
             }
         }
-        
+
 
         private void normalizeCheckBox_CheckedChanged(object sender, EventArgs e)
         {
@@ -1934,72 +2004,19 @@ namespace EPSSEditor
         }
 
 
-        private int spiVersion()
-        {
-            return gen2CheckBox.Checked ? 2 : 1;
-        }
-
-
-        private void doSaveSpi()
-        {
-            List<SpiSound> soundsToSave = data.getSortedSpiSounds();
-            if (soundsToSave.Count > 0)
-            {
-                saveSpiFileDialog.InitialDirectory = Path.GetDirectoryName(data.spiFileName);
-
-                if (saveSpiFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string spiFile = saveSpiFileDialog.FileName;
-                    Uri url = new Uri(spiFile);
-
-                    EPSSSpiCreator creator = new EPSSSpiCreator(spiVersion());
-                    int sampFreq = AtariConstants.SampleFreq25k;
-                    data.omni = omniPatchCheckBox.Checked;
-                    EPSSSpi spi = creator.create(ref data, soundsToSave, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
-
-                    if (spi != null)
-                    {
-                        int result = spi.save(url);
-                        if (result == 0)
-                        {
-                            data.spiFileName = spiFile;
-                            dataNeedsSaving = true;
-                            saveProjectSettings();
-                        }
-                        else
-                        {
-                            System.Windows.Forms.MessageBox.Show("Error occured during save! Patch file might not be valid.");
-                        }
-                    }
-                }
-
-            }
-            else
-            {
-                System.Windows.Forms.MessageBox.Show("No sounds to save!");
-            }
-        }
-
-
-        private void saveSpiButton_Click(object sender, EventArgs e)
-        {
-
-
-        }
-
-
         private void saveSFZToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string startDir;
             if (data.spiFileName != null)
             {
                 startDir = Path.GetDirectoryName(data.spiFileName);
-            } else
+            }
+            else
             {
                 startDir = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
             }
             saveSfzFileDialog.InitialDirectory = startDir;
-           
+
             if (saveSfzFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string sfzFile = saveSfzFileDialog.FileName;
@@ -2034,7 +2051,8 @@ namespace EPSSEditor
                 }
 
 
-                if (doSave) {
+                if (doSave)
+                {
                     Dictionary<int, List<SfzSplitInfo>> dict = data.ConvertToSfzSplitInfo();
                     SfzConverter c = new SfzConverter();
                     string errorMessage = "";
@@ -2046,7 +2064,7 @@ namespace EPSSEditor
                             string path = sampleDir + "\\" + Path.GetFileName(sound.path);
                             if (File.Exists(path))
                             {
-                                long oldSize =new System.IO.FileInfo(sound.path).Length;
+                                long oldSize = new System.IO.FileInfo(sound.path).Length;
                                 long newSize = new System.IO.FileInfo(path).Length;
                                 if (oldSize != newSize)
                                 {
@@ -2070,7 +2088,8 @@ namespace EPSSEditor
                             }
                         }
 
-                    } else
+                    }
+                    else
                     {
                         MessageBox.Show("Save sfz failed:\n" + errorMessage);
                     }
@@ -2079,7 +2098,7 @@ namespace EPSSEditor
         }
 
 
-            private void clearSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void clearSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string settingsFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
             if (System.Windows.Forms.MessageBox.Show("Settings files is stored:\n" + settingsFile + "\nDo you want to clear them?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -2089,42 +2108,13 @@ namespace EPSSEditor
             }
         }
 
-        private void spiSoundListView_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void spiSoundListView_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
-
-        }
-
-        private void spiSoundListView_ItemChecked(object sender, ItemCheckedEventArgs e)
-        {
-        }
-
-
-        private void spiSoundListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
-        {
-            bool enabled = false;
-            foreach (ListViewItem item in spiSoundListView.SelectedItems)
-            {
-                enabled = true;
-            }
-            deleteSpiSoundButton.Enabled = enabled;
-            button1.Enabled = enabled;
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void spiSoundListenButton_Click(object sender, EventArgs e)
         {
             playConvertedSound();
 
         }
+
 
         private void previewComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -2133,21 +2123,11 @@ namespace EPSSEditor
             saveProjectSettings();
         }
 
+
         private void saveSampleButton_Click(object sender, EventArgs e)
         {
             saveSampleWithFileDialog();
         }
-
-        
-        /*private void selectAllButton_Click(object sender, EventArgs e)
-        {
-            List<int> idxRemoved = new List<int>();
-            foreach (ListViewItem item in spiSoundListView.Items)
-            {
-                item.Checked = true;
-            }
-
-        }*/
 
 
         private void spiNameTextBox_TextChanged(object sender, EventArgs e)
@@ -2157,12 +2137,14 @@ namespace EPSSEditor
             saveProjectSettings();
         }
 
+
         private void spiInfoTextBox_TextChanged(object sender, EventArgs e)
         {
             data.spiDescription = spiInfoTextBox.Text;
             dataNeedsSaving = true;
             saveProjectSettings();
         }
+
 
         private void omniPatchCheckBox_CheckedChanged(object sender, EventArgs e)
         {
@@ -2171,63 +2153,11 @@ namespace EPSSEditor
             saveProjectSettings();
         }
 
+
         private void playButton_Click(object sender, EventArgs e)
         {
-
             playSelectedSound();
         }
-
-
-        private void custMidiToneToTextBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label11_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void custMidiToneFromTextBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void CustomSampleRadioButton_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label10_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void midiToneTextBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void MultiSampleRadioButton_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void midiChTextBox_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label21_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void drumsComboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
 
 
         private void mappingModeMidiRadioButton_CheckedChanged(object sender, EventArgs e)
@@ -2245,6 +2175,7 @@ namespace EPSSEditor
 
         }
 
+
         private void mappingModeProgramRadioButton_CheckedChanged(object sender, EventArgs e)
         {
             if (mappingModeMidiRadioButton.Checked)
@@ -2253,26 +2184,24 @@ namespace EPSSEditor
                 if (v > 16)
                 {
                     setMidiChannel(1);
-            
+
                 }
             }
             updateMappingMode();
         }
+
 
         private void spiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             Console.WriteLine(e.X + " " + e.Y);
         }
 
+
         private void saveSPIToolStripMenuItem_Click(object sender, EventArgs e)
         {
             doSaveSpi();
         }
 
-        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
-        {
-
-        }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -2291,7 +2220,7 @@ namespace EPSSEditor
                 Point p = b.Owner.Location;
                 r.Location = p;
 
-                
+
                 DialogResult res = r.ShowDialog();
                 if (res == DialogResult.OK)
                 {
@@ -2314,7 +2243,6 @@ namespace EPSSEditor
 
 
 
-
     internal class ControlScrollListener : NativeWindow, IDisposable
     {
         public event ControlScrolledEventHandler ControlScrolled;
@@ -2333,11 +2261,13 @@ namespace EPSSEditor
 
         protected bool Disposed { get; set; }
 
+
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
 
         private void Dispose(bool disposing)
         {
@@ -2355,11 +2285,13 @@ namespace EPSSEditor
             Disposed = true;
         }
 
+
         protected override void WndProc(ref Message m)
         {
             HandleControlScrollMessages(m);
             base.WndProc(ref m);
         }
+
 
         private void HandleControlScrollMessages(Message m)
         {
@@ -2377,19 +2309,24 @@ namespace EPSSEditor
             }
         }
 
+
         internal static ushort HIWORD(IntPtr dwValue)
         {
             return (ushort)((((long)dwValue) >> 0x10) & 0xffff);
         }
+ 
+
         internal static ushort HIWORD(uint dwValue)
         {
             return (ushort)(dwValue >> 0x10);
         }
 
+
         internal static int GET_WHEEL_DELTA_WPARAM(uint wParam)
         {
             return (short)HIWORD(wParam);
         }
+
 
         internal static int GET_WHEEL_DELTA_WPARAM(IntPtr wParam)
         {

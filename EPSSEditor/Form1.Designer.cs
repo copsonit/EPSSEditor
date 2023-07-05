@@ -157,11 +157,12 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.soundListBox.ContextMenuStrip = this.contextMenuStrip1;
             this.soundListBox.FormattingEnabled = true;
-            this.soundListBox.Location = new System.Drawing.Point(11, 27);
-            this.soundListBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.soundListBox.ItemHeight = 25;
+            this.soundListBox.Location = new System.Drawing.Point(22, 52);
+            this.soundListBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.soundListBox.Name = "soundListBox";
             this.soundListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.soundListBox.Size = new System.Drawing.Size(210, 381);
+            this.soundListBox.Size = new System.Drawing.Size(416, 729);
             this.soundListBox.TabIndex = 2;
             this.soundListBox.SelectedIndexChanged += new System.EventHandler(this.soundListBox_SelectedIndexChanged);
             this.soundListBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.soundListBox_DragDrop);
@@ -197,12 +198,12 @@
             this.helpProvider1.SetHelpKeyword(this.groupBox2, "spiSounds");
             this.helpProvider1.SetHelpString(this.groupBox2, "Change transpose with Shift+mouse wheel on sound. Reset transpose with Shift+midd" +
         "le mouse button on sound.");
-            this.groupBox2.Location = new System.Drawing.Point(502, 32);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.groupBox2.Location = new System.Drawing.Point(1004, 62);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.helpProvider1.SetShowHelp(this.groupBox2, true);
-            this.groupBox2.Size = new System.Drawing.Size(423, 466);
+            this.groupBox2.Size = new System.Drawing.Size(846, 896);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
@@ -213,10 +214,10 @@
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(215, 433);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.button1.Location = new System.Drawing.Point(430, 833);
+            this.button1.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(71, 23);
+            this.button1.Size = new System.Drawing.Size(142, 44);
             this.button1.TabIndex = 18;
             this.button1.Text = "Save...";
             this.infoToolTip.SetToolTip(this.button1, "Saving all selected SPI Sounds to file one by one.");
@@ -232,10 +233,10 @@
             "Premixed for 4 Channel EPSS",
             "Premixed for 8 Channel EPSS",
             "Unmixed 8 Bit "});
-            this.previewComboBox.Location = new System.Drawing.Point(55, 436);
-            this.previewComboBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.previewComboBox.Location = new System.Drawing.Point(110, 838);
+            this.previewComboBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.previewComboBox.Name = "previewComboBox";
-            this.previewComboBox.Size = new System.Drawing.Size(156, 21);
+            this.previewComboBox.Size = new System.Drawing.Size(308, 33);
             this.previewComboBox.TabIndex = 17;
             this.previewComboBox.SelectedIndexChanged += new System.EventHandler(this.previewComboBox_SelectedIndexChanged);
             // 
@@ -243,19 +244,20 @@
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(4, 438);
-            this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label9.Location = new System.Drawing.Point(8, 842);
+            this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(48, 13);
+            this.label9.Size = new System.Drawing.Size(94, 25);
             this.label9.TabIndex = 16;
             this.label9.Text = "Preview:";
             // 
             // spiSoundListenButton
             // 
             this.spiSoundListenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.spiSoundListenButton.Location = new System.Drawing.Point(291, 433);
+            this.spiSoundListenButton.Location = new System.Drawing.Point(582, 833);
+            this.spiSoundListenButton.Margin = new System.Windows.Forms.Padding(6);
             this.spiSoundListenButton.Name = "spiSoundListenButton";
-            this.spiSoundListenButton.Size = new System.Drawing.Size(66, 23);
+            this.spiSoundListenButton.Size = new System.Drawing.Size(132, 44);
             this.spiSoundListenButton.TabIndex = 8;
             this.spiSoundListenButton.Text = "Listen";
             this.infoToolTip.SetToolTip(this.spiSoundListenButton, "Listen to SPI Sound sample. Only first selected is played.");
@@ -269,15 +271,14 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.spiSoundListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.spiSoundListView.HideSelection = false;
-            this.spiSoundListView.Location = new System.Drawing.Point(5, 19);
+            this.spiSoundListView.Location = new System.Drawing.Point(10, 37);
+            this.spiSoundListView.Margin = new System.Windows.Forms.Padding(6);
             this.spiSoundListView.Name = "spiSoundListView";
-            this.spiSoundListView.Size = new System.Drawing.Size(414, 409);
+            this.spiSoundListView.Size = new System.Drawing.Size(824, 783);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
-            this.spiSoundListView.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.spiSoundListView_ItemCheck);
-            this.spiSoundListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.spiSoundListView_ItemChecked);
             this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.spiSoundListView_ItemSelectionChanged);
-            this.spiSoundListView.SelectedIndexChanged += new System.EventHandler(this.spiSoundListView_SelectedIndexChanged);
+            this.spiSoundListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.spiSoundListView_KeyDown);
             this.spiSoundListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.spiSoundListView_MouseDoubleClick);
             this.spiSoundListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.spiSoundListView_MouseUp);
             // 
@@ -285,9 +286,10 @@
             // 
             this.deleteSpiSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.deleteSpiSoundButton.Enabled = false;
-            this.deleteSpiSoundButton.Location = new System.Drawing.Point(358, 433);
+            this.deleteSpiSoundButton.Location = new System.Drawing.Point(716, 833);
+            this.deleteSpiSoundButton.Margin = new System.Windows.Forms.Padding(6);
             this.deleteSpiSoundButton.Name = "deleteSpiSoundButton";
-            this.deleteSpiSoundButton.Size = new System.Drawing.Size(61, 23);
+            this.deleteSpiSoundButton.Size = new System.Drawing.Size(122, 44);
             this.deleteSpiSoundButton.TabIndex = 8;
             this.deleteSpiSoundButton.Text = "Delete";
             this.infoToolTip.SetToolTip(this.deleteSpiSoundButton, "You can also use the Delete button on your keyboard to delete an SPI Sound from t" +
@@ -299,9 +301,11 @@
             // 
             this.groupBox9.Controls.Add(this.groupBox12);
             this.groupBox9.Controls.Add(this.groupBox11);
-            this.groupBox9.Location = new System.Drawing.Point(6, 305);
+            this.groupBox9.Location = new System.Drawing.Point(12, 587);
+            this.groupBox9.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(211, 295);
+            this.groupBox9.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox9.Size = new System.Drawing.Size(422, 567);
             this.groupBox9.TabIndex = 11;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Sound Mapping";
@@ -310,9 +314,11 @@
             // 
             this.groupBox12.Controls.Add(this.mappingModeProgramRadioButton);
             this.groupBox12.Controls.Add(this.mappingModeMidiRadioButton);
-            this.groupBox12.Location = new System.Drawing.Point(8, 20);
+            this.groupBox12.Location = new System.Drawing.Point(16, 38);
+            this.groupBox12.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox12.Name = "groupBox12";
-            this.groupBox12.Size = new System.Drawing.Size(201, 40);
+            this.groupBox12.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox12.Size = new System.Drawing.Size(402, 77);
             this.groupBox12.TabIndex = 23;
             this.groupBox12.TabStop = false;
             this.groupBox12.Text = "Mapping mode";
@@ -320,9 +326,10 @@
             // mappingModeProgramRadioButton
             // 
             this.mappingModeProgramRadioButton.AutoSize = true;
-            this.mappingModeProgramRadioButton.Location = new System.Drawing.Point(99, 17);
+            this.mappingModeProgramRadioButton.Location = new System.Drawing.Point(198, 33);
+            this.mappingModeProgramRadioButton.Margin = new System.Windows.Forms.Padding(6);
             this.mappingModeProgramRadioButton.Name = "mappingModeProgramRadioButton";
-            this.mappingModeProgramRadioButton.Size = new System.Drawing.Size(104, 17);
+            this.mappingModeProgramRadioButton.Size = new System.Drawing.Size(192, 29);
             this.mappingModeProgramRadioButton.TabIndex = 1;
             this.mappingModeProgramRadioButton.TabStop = true;
             this.mappingModeProgramRadioButton.Text = "Program Change";
@@ -332,9 +339,10 @@
             // mappingModeMidiRadioButton
             // 
             this.mappingModeMidiRadioButton.AutoSize = true;
-            this.mappingModeMidiRadioButton.Location = new System.Drawing.Point(8, 17);
+            this.mappingModeMidiRadioButton.Location = new System.Drawing.Point(16, 33);
+            this.mappingModeMidiRadioButton.Margin = new System.Windows.Forms.Padding(6);
             this.mappingModeMidiRadioButton.Name = "mappingModeMidiRadioButton";
-            this.mappingModeMidiRadioButton.Size = new System.Drawing.Size(90, 17);
+            this.mappingModeMidiRadioButton.Size = new System.Drawing.Size(159, 29);
             this.mappingModeMidiRadioButton.TabIndex = 0;
             this.mappingModeMidiRadioButton.TabStop = true;
             this.mappingModeMidiRadioButton.Text = "MIDI Channel";
@@ -356,104 +364,106 @@
             this.groupBox11.Controls.Add(this.midiChTextBox);
             this.groupBox11.Controls.Add(this.label21);
             this.groupBox11.Controls.Add(this.drumsComboBox1);
-            this.groupBox11.Location = new System.Drawing.Point(8, 60);
+            this.groupBox11.Location = new System.Drawing.Point(16, 115);
+            this.groupBox11.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox11.Name = "groupBox11";
-            this.groupBox11.Size = new System.Drawing.Size(196, 235);
+            this.groupBox11.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox11.Size = new System.Drawing.Size(392, 452);
             this.groupBox11.TabIndex = 22;
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "Mapping type";
             // 
             // custMidiToneToTextBox
             // 
-            this.custMidiToneToTextBox.Location = new System.Drawing.Point(129, 200);
+            this.custMidiToneToTextBox.Location = new System.Drawing.Point(258, 385);
+            this.custMidiToneToTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
-            this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
+            this.custMidiToneToTextBox.Size = new System.Drawing.Size(56, 31);
             this.custMidiToneToTextBox.TabIndex = 21;
-            this.custMidiToneToTextBox.TextChanged += new System.EventHandler(this.custMidiToneToTextBox_TextChanged);
             // 
             // custMidiToneLabel
             // 
             this.custMidiToneLabel.AutoSize = true;
-            this.custMidiToneLabel.Location = new System.Drawing.Point(110, 205);
-            this.custMidiToneLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.custMidiToneLabel.Location = new System.Drawing.Point(220, 394);
+            this.custMidiToneLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.custMidiToneLabel.Name = "custMidiToneLabel";
-            this.custMidiToneLabel.Size = new System.Drawing.Size(16, 13);
+            this.custMidiToneLabel.Size = new System.Drawing.Size(30, 25);
             this.custMidiToneLabel.TabIndex = 11;
             this.custMidiToneLabel.Text = "to";
-            this.custMidiToneLabel.Click += new System.EventHandler(this.label11_Click);
             // 
             // midiChTrackBar
             // 
             this.midiChTrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.midiChTrackBar.Location = new System.Drawing.Point(4, 14);
-            this.midiChTrackBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.midiChTrackBar.Location = new System.Drawing.Point(8, 27);
+            this.midiChTrackBar.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.midiChTrackBar.Maximum = 16;
             this.midiChTrackBar.Minimum = 1;
             this.midiChTrackBar.Name = "midiChTrackBar";
-            this.midiChTrackBar.Size = new System.Drawing.Size(184, 45);
+            this.midiChTrackBar.Size = new System.Drawing.Size(368, 45);
             this.midiChTrackBar.TabIndex = 5;
             this.midiChTrackBar.Value = 1;
             this.midiChTrackBar.Scroll += new System.EventHandler(this.midiChTrackBar_Scroll);
             // 
             // custMidiToneFromTextBox
             // 
-            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(75, 200);
+            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(150, 385);
+            this.custMidiToneFromTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
-            this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
+            this.custMidiToneFromTextBox.Size = new System.Drawing.Size(56, 31);
             this.custMidiToneFromTextBox.TabIndex = 20;
-            this.custMidiToneFromTextBox.TextChanged += new System.EventHandler(this.custMidiToneFromTextBox_TextChanged);
             // 
             // CustomSampleRadioButton
             // 
             this.CustomSampleRadioButton.AutoSize = true;
-            this.CustomSampleRadioButton.Location = new System.Drawing.Point(12, 203);
+            this.CustomSampleRadioButton.Location = new System.Drawing.Point(24, 390);
+            this.CustomSampleRadioButton.Margin = new System.Windows.Forms.Padding(6);
             this.CustomSampleRadioButton.Name = "CustomSampleRadioButton";
-            this.CustomSampleRadioButton.Size = new System.Drawing.Size(60, 17);
+            this.CustomSampleRadioButton.Size = new System.Drawing.Size(103, 29);
             this.CustomSampleRadioButton.TabIndex = 19;
             this.CustomSampleRadioButton.TabStop = true;
             this.CustomSampleRadioButton.Text = "Custom";
             this.CustomSampleRadioButton.UseVisualStyleBackColor = true;
-            this.CustomSampleRadioButton.CheckedChanged += new System.EventHandler(this.CustomSampleRadioButton_CheckedChanged);
             // 
             // midiToneLabel
             // 
             this.midiToneLabel.AutoSize = true;
-            this.midiToneLabel.Location = new System.Drawing.Point(26, 173);
+            this.midiToneLabel.Location = new System.Drawing.Point(52, 333);
+            this.midiToneLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.midiToneLabel.Name = "midiToneLabel";
-            this.midiToneLabel.Size = new System.Drawing.Size(82, 13);
+            this.midiToneLabel.Size = new System.Drawing.Size(161, 25);
             this.midiToneLabel.TabIndex = 8;
             this.midiToneLabel.Text = "Start MIDI-note:";
             this.infoToolTip.SetToolTip(this.midiToneLabel, "Enter the MIDI note as a number or string. Note convention is C-2=0, C3=60, G8=12" +
         "7.");
-            this.midiToneLabel.Click += new System.EventHandler(this.label10_Click);
             // 
             // midiToneTextBox
             // 
-            this.midiToneTextBox.Location = new System.Drawing.Point(114, 170);
+            this.midiToneTextBox.Location = new System.Drawing.Point(228, 327);
+            this.midiToneTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.midiToneTextBox.Name = "midiToneTextBox";
-            this.midiToneTextBox.Size = new System.Drawing.Size(45, 20);
+            this.midiToneTextBox.Size = new System.Drawing.Size(86, 31);
             this.midiToneTextBox.TabIndex = 8;
-            this.midiToneTextBox.TextChanged += new System.EventHandler(this.midiToneTextBox_TextChanged);
             // 
             // MultiSampleRadioButton
             // 
             this.MultiSampleRadioButton.AutoSize = true;
-            this.MultiSampleRadioButton.Location = new System.Drawing.Point(12, 153);
+            this.MultiSampleRadioButton.Location = new System.Drawing.Point(24, 294);
+            this.MultiSampleRadioButton.Margin = new System.Windows.Forms.Padding(6);
             this.MultiSampleRadioButton.Name = "MultiSampleRadioButton";
-            this.MultiSampleRadioButton.Size = new System.Drawing.Size(80, 17);
+            this.MultiSampleRadioButton.Size = new System.Drawing.Size(145, 29);
             this.MultiSampleRadioButton.TabIndex = 18;
             this.MultiSampleRadioButton.TabStop = true;
             this.MultiSampleRadioButton.Text = "Multisample";
             this.MultiSampleRadioButton.UseVisualStyleBackColor = true;
-            this.MultiSampleRadioButton.CheckedChanged += new System.EventHandler(this.MultiSampleRadioButton_CheckedChanged);
             // 
             // GmPercMidiMappingRadioButton
             // 
             this.GmPercMidiMappingRadioButton.AutoSize = true;
-            this.GmPercMidiMappingRadioButton.Location = new System.Drawing.Point(12, 106);
+            this.GmPercMidiMappingRadioButton.Location = new System.Drawing.Point(24, 204);
+            this.GmPercMidiMappingRadioButton.Margin = new System.Windows.Forms.Padding(6);
             this.GmPercMidiMappingRadioButton.Name = "GmPercMidiMappingRadioButton";
-            this.GmPercMidiMappingRadioButton.Size = new System.Drawing.Size(143, 17);
+            this.GmPercMidiMappingRadioButton.Size = new System.Drawing.Size(271, 29);
             this.GmPercMidiMappingRadioButton.TabIndex = 17;
             this.GmPercMidiMappingRadioButton.TabStop = true;
             this.GmPercMidiMappingRadioButton.Text = "GM Percussion mapping:";
@@ -463,103 +473,102 @@
             // defaultMidiMapRadioButton
             // 
             this.defaultMidiMapRadioButton.AutoSize = true;
-            this.defaultMidiMapRadioButton.Location = new System.Drawing.Point(12, 83);
+            this.defaultMidiMapRadioButton.Location = new System.Drawing.Point(24, 160);
+            this.defaultMidiMapRadioButton.Margin = new System.Windows.Forms.Padding(6);
             this.defaultMidiMapRadioButton.Name = "defaultMidiMapRadioButton";
-            this.defaultMidiMapRadioButton.Size = new System.Drawing.Size(160, 17);
+            this.defaultMidiMapRadioButton.Size = new System.Drawing.Size(302, 29);
             this.defaultMidiMapRadioButton.TabIndex = 16;
             this.defaultMidiMapRadioButton.TabStop = true;
             this.defaultMidiMapRadioButton.Text = "Default MIDI mapping C2-C6";
             this.infoToolTip.SetToolTip(this.defaultMidiMapRadioButton, "If one sound selected, this sound is used on all keys. If multiple sounds selecte" +
         "d, it assumes the sounds have been imported from sfz.");
             this.defaultMidiMapRadioButton.UseVisualStyleBackColor = true;
-            this.defaultMidiMapRadioButton.CheckedChanged += new System.EventHandler(this.defaultMidiMapRadioButton_CheckedChanged);
             // 
             // midiChTextBox
             // 
-            this.midiChTextBox.Location = new System.Drawing.Point(129, 60);
+            this.midiChTextBox.Location = new System.Drawing.Point(258, 115);
+            this.midiChTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.midiChTextBox.Name = "midiChTextBox";
             this.midiChTextBox.ReadOnly = true;
-            this.midiChTextBox.Size = new System.Drawing.Size(41, 20);
+            this.midiChTextBox.Size = new System.Drawing.Size(78, 31);
             this.midiChTextBox.TabIndex = 13;
-            this.midiChTextBox.TextChanged += new System.EventHandler(this.midiChTextBox_TextChanged);
             // 
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(7, 64);
+            this.label21.Location = new System.Drawing.Point(14, 123);
+            this.label21.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(119, 13);
+            this.label21.Size = new System.Drawing.Size(234, 25);
             this.label21.TabIndex = 12;
             this.label21.Text = "MIDI Channel/Program:";
-            this.label21.Click += new System.EventHandler(this.label21_Click);
             // 
             // drumsComboBox1
             // 
             this.drumsComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.drumsComboBox1.FormattingEnabled = true;
-            this.drumsComboBox1.Location = new System.Drawing.Point(18, 128);
-            this.drumsComboBox1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.drumsComboBox1.Location = new System.Drawing.Point(36, 246);
+            this.drumsComboBox1.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.drumsComboBox1.Name = "drumsComboBox1";
-            this.drumsComboBox1.Size = new System.Drawing.Size(164, 21);
+            this.drumsComboBox1.Size = new System.Drawing.Size(324, 33);
             this.drumsComboBox1.TabIndex = 11;
-            this.drumsComboBox1.SelectedIndexChanged += new System.EventHandler(this.drumsComboBox1_SelectedIndexChanged);
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(124, 14);
-            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label4.Location = new System.Drawing.Point(248, 27);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(35, 13);
+            this.label4.Size = new System.Drawing.Size(68, 25);
             this.label4.TabIndex = 10;
             this.label4.Text = "14MB";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(37, 14);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label3.Location = new System.Drawing.Point(74, 27);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(29, 13);
+            this.label3.Size = new System.Drawing.Size(56, 25);
             this.label3.TabIndex = 9;
             this.label3.Text = "4MB";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(5, 14);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Location = new System.Drawing.Point(10, 27);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(29, 13);
+            this.label2.Size = new System.Drawing.Size(56, 25);
             this.label2.TabIndex = 8;
             this.label2.Text = "1MB";
             // 
             // totalSizeProgressBar
             // 
-            this.totalSizeProgressBar.Location = new System.Drawing.Point(5, 31);
-            this.totalSizeProgressBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.totalSizeProgressBar.Location = new System.Drawing.Point(10, 60);
+            this.totalSizeProgressBar.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.totalSizeProgressBar.Maximum = 14000;
             this.totalSizeProgressBar.Name = "totalSizeProgressBar";
-            this.totalSizeProgressBar.Size = new System.Drawing.Size(147, 20);
+            this.totalSizeProgressBar.Size = new System.Drawing.Size(294, 38);
             this.totalSizeProgressBar.TabIndex = 7;
             this.totalSizeProgressBar.Value = 100;
             // 
             // totalSizeTextBox
             // 
-            this.totalSizeTextBox.Location = new System.Drawing.Point(5, 55);
-            this.totalSizeTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.totalSizeTextBox.Location = new System.Drawing.Point(10, 106);
+            this.totalSizeTextBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.totalSizeTextBox.Name = "totalSizeTextBox";
-            this.totalSizeTextBox.Size = new System.Drawing.Size(147, 20);
+            this.totalSizeTextBox.Size = new System.Drawing.Size(290, 31);
             this.totalSizeTextBox.TabIndex = 6;
             this.totalSizeTextBox.Text = "Total Size in Bytes";
             // 
             // spiNameTextBox
             // 
-            this.spiNameTextBox.Location = new System.Drawing.Point(64, 13);
-            this.spiNameTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.spiNameTextBox.Location = new System.Drawing.Point(128, 25);
+            this.spiNameTextBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.spiNameTextBox.MaxLength = 8;
             this.spiNameTextBox.Name = "spiNameTextBox";
-            this.spiNameTextBox.Size = new System.Drawing.Size(174, 20);
+            this.spiNameTextBox.Size = new System.Drawing.Size(344, 31);
             this.spiNameTextBox.TabIndex = 5;
             this.spiNameTextBox.Text = "EPSSEDIT";
             this.spiNameTextBox.TextChanged += new System.EventHandler(this.spiNameTextBox_TextChanged);
@@ -574,11 +583,11 @@
             this.groupBox3.Controls.Add(this.deleteSoundButton);
             this.groupBox3.Controls.Add(this.groupBox5);
             this.groupBox3.Controls.Add(this.soundListBox);
-            this.groupBox3.Location = new System.Drawing.Point(11, 26);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.groupBox3.Location = new System.Drawing.Point(22, 50);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.groupBox3.Size = new System.Drawing.Size(229, 599);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.groupBox3.Size = new System.Drawing.Size(458, 1152);
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Input";
@@ -586,22 +595,23 @@
             // playButton
             // 
             this.playButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.playButton.Location = new System.Drawing.Point(122, 430);
+            this.playButton.Location = new System.Drawing.Point(244, 827);
+            this.playButton.Margin = new System.Windows.Forms.Padding(6);
             this.playButton.Name = "playButton";
-            this.playButton.Size = new System.Drawing.Size(46, 23);
+            this.playButton.Size = new System.Drawing.Size(92, 44);
             this.playButton.TabIndex = 0;
             this.playButton.Text = "Listen";
             this.playButton.UseVisualStyleBackColor = true;
             this.playButton.Click += new System.EventHandler(this.playButton_Click);
             this.playButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.playButton_KeyDown);
-            this.playButton.KeyUp += new System.Windows.Forms.KeyEventHandler(this.playButton_KeyUp);
             // 
             // loadSoundButton
             // 
             this.loadSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.loadSoundButton.Location = new System.Drawing.Point(70, 430);
+            this.loadSoundButton.Location = new System.Drawing.Point(140, 827);
+            this.loadSoundButton.Margin = new System.Windows.Forms.Padding(6);
             this.loadSoundButton.Name = "loadSoundButton";
-            this.loadSoundButton.Size = new System.Drawing.Size(46, 23);
+            this.loadSoundButton.Size = new System.Drawing.Size(92, 44);
             this.loadSoundButton.TabIndex = 7;
             this.loadSoundButton.Text = "Load...";
             this.infoToolTip.SetToolTip(this.loadSoundButton, "You can drag sounds to the  box to add them faster!");
@@ -611,18 +621,20 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(10, 14);
+            this.label13.Location = new System.Drawing.Point(20, 27);
+            this.label13.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(46, 13);
+            this.label13.Size = new System.Drawing.Size(91, 25);
             this.label13.TabIndex = 6;
             this.label13.Text = "Sounds:";
             // 
             // deleteSoundButton
             // 
             this.deleteSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.deleteSoundButton.Location = new System.Drawing.Point(174, 430);
+            this.deleteSoundButton.Location = new System.Drawing.Point(348, 827);
+            this.deleteSoundButton.Margin = new System.Windows.Forms.Padding(6);
             this.deleteSoundButton.Name = "deleteSoundButton";
-            this.deleteSoundButton.Size = new System.Drawing.Size(50, 23);
+            this.deleteSoundButton.Size = new System.Drawing.Size(100, 44);
             this.deleteSoundButton.TabIndex = 5;
             this.deleteSoundButton.Text = "Delete";
             this.infoToolTip.SetToolTip(this.deleteSoundButton, "You can also use the Delete button on your keyboard to delete souds from the list" +
@@ -642,11 +654,11 @@
             this.groupBox5.Controls.Add(this.bitsTextBox);
             this.groupBox5.Controls.Add(this.sizeTextBox);
             this.groupBox5.Controls.Add(this.freqTextBox);
-            this.groupBox5.Location = new System.Drawing.Point(4, 458);
-            this.groupBox5.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.groupBox5.Location = new System.Drawing.Point(8, 881);
+            this.groupBox5.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.groupBox5.Size = new System.Drawing.Size(225, 126);
+            this.groupBox5.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.groupBox5.Size = new System.Drawing.Size(450, 242);
             this.groupBox5.TabIndex = 3;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Sample Info";
@@ -654,68 +666,74 @@
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(8, 94);
+            this.label16.Location = new System.Drawing.Point(16, 181);
+            this.label16.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(54, 13);
+            this.label16.Size = new System.Drawing.Size(109, 25);
             this.label16.TabIndex = 7;
             this.label16.Text = "Channels:";
             // 
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(8, 69);
+            this.label15.Location = new System.Drawing.Point(16, 133);
+            this.label15.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(27, 13);
+            this.label15.Size = new System.Drawing.Size(54, 25);
             this.label15.TabIndex = 6;
             this.label15.Text = "Bits:";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 44);
+            this.label8.Location = new System.Drawing.Point(12, 85);
+            this.label8.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(60, 13);
+            this.label8.Size = new System.Drawing.Size(120, 25);
             this.label8.TabIndex = 5;
             this.label8.Text = "Frequency:";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(5, 20);
+            this.label5.Location = new System.Drawing.Point(10, 38);
+            this.label5.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(30, 13);
+            this.label5.Size = new System.Drawing.Size(60, 25);
             this.label5.TabIndex = 4;
             this.label5.Text = "Size:";
             // 
             // channelsTextBox
             // 
-            this.channelsTextBox.Location = new System.Drawing.Point(148, 91);
+            this.channelsTextBox.Location = new System.Drawing.Point(296, 175);
+            this.channelsTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.channelsTextBox.Name = "channelsTextBox";
-            this.channelsTextBox.Size = new System.Drawing.Size(67, 20);
+            this.channelsTextBox.Size = new System.Drawing.Size(130, 31);
             this.channelsTextBox.TabIndex = 3;
             // 
             // bitsTextBox
             // 
-            this.bitsTextBox.Location = new System.Drawing.Point(148, 65);
+            this.bitsTextBox.Location = new System.Drawing.Point(296, 125);
+            this.bitsTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.bitsTextBox.Name = "bitsTextBox";
-            this.bitsTextBox.Size = new System.Drawing.Size(68, 20);
+            this.bitsTextBox.Size = new System.Drawing.Size(132, 31);
             this.bitsTextBox.TabIndex = 2;
             // 
             // sizeTextBox
             // 
-            this.sizeTextBox.Location = new System.Drawing.Point(148, 17);
-            this.sizeTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.sizeTextBox.Location = new System.Drawing.Point(296, 33);
+            this.sizeTextBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.sizeTextBox.Name = "sizeTextBox";
-            this.sizeTextBox.Size = new System.Drawing.Size(68, 20);
+            this.sizeTextBox.Size = new System.Drawing.Size(132, 31);
             this.sizeTextBox.TabIndex = 1;
             this.sizeTextBox.Text = "Size kb";
             // 
             // freqTextBox
             // 
-            this.freqTextBox.Location = new System.Drawing.Point(148, 40);
-            this.freqTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.freqTextBox.Location = new System.Drawing.Point(296, 77);
+            this.freqTextBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.freqTextBox.Name = "freqTextBox";
-            this.freqTextBox.Size = new System.Drawing.Size(68, 20);
+            this.freqTextBox.Size = new System.Drawing.Size(132, 31);
             this.freqTextBox.TabIndex = 0;
             this.freqTextBox.Text = "Freq 48kHz";
             // 
@@ -727,11 +745,11 @@
             this.compressionTypeTextBox.Controls.Add(this.groupBox6);
             this.compressionTypeTextBox.Controls.Add(this.groupBox9);
             this.compressionTypeTextBox.Controls.Add(this.groupBox7);
-            this.compressionTypeTextBox.Location = new System.Drawing.Point(240, 27);
-            this.compressionTypeTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.compressionTypeTextBox.Location = new System.Drawing.Point(480, 52);
+            this.compressionTypeTextBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.compressionTypeTextBox.Name = "compressionTypeTextBox";
-            this.compressionTypeTextBox.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.compressionTypeTextBox.Size = new System.Drawing.Size(228, 600);
+            this.compressionTypeTextBox.Padding = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.compressionTypeTextBox.Size = new System.Drawing.Size(456, 1154);
             this.compressionTypeTextBox.TabIndex = 7;
             this.compressionTypeTextBox.TabStop = false;
             this.compressionTypeTextBox.Text = "Conversion parameters";
@@ -741,27 +759,31 @@
             this.groupBox1.Controls.Add(this.normalizeTextBox);
             this.groupBox1.Controls.Add(this.normalizeCheckBox);
             this.groupBox1.Controls.Add(this.normalizeTrackBar);
-            this.groupBox1.Location = new System.Drawing.Point(5, 216);
+            this.groupBox1.Location = new System.Drawing.Point(10, 415);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(212, 82);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox1.Size = new System.Drawing.Size(424, 158);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Normalizing";
             // 
             // normalizeTextBox
             // 
-            this.normalizeTextBox.Location = new System.Drawing.Point(97, 9);
+            this.normalizeTextBox.Location = new System.Drawing.Point(194, 17);
+            this.normalizeTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.normalizeTextBox.Name = "normalizeTextBox";
             this.normalizeTextBox.ReadOnly = true;
-            this.normalizeTextBox.Size = new System.Drawing.Size(100, 20);
+            this.normalizeTextBox.Size = new System.Drawing.Size(196, 31);
             this.normalizeTextBox.TabIndex = 2;
             // 
             // normalizeCheckBox
             // 
             this.normalizeCheckBox.AutoSize = true;
-            this.normalizeCheckBox.Location = new System.Drawing.Point(6, 12);
+            this.normalizeCheckBox.Location = new System.Drawing.Point(12, 23);
+            this.normalizeCheckBox.Margin = new System.Windows.Forms.Padding(6);
             this.normalizeCheckBox.Name = "normalizeCheckBox";
-            this.normalizeCheckBox.Size = new System.Drawing.Size(72, 17);
+            this.normalizeCheckBox.Size = new System.Drawing.Size(127, 29);
             this.normalizeCheckBox.TabIndex = 1;
             this.normalizeCheckBox.Text = "Normalize";
             this.normalizeCheckBox.UseVisualStyleBackColor = true;
@@ -771,11 +793,11 @@
             // 
             this.normalizeTrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.normalizeTrackBar.Location = new System.Drawing.Point(5, 27);
-            this.normalizeTrackBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.normalizeTrackBar.Location = new System.Drawing.Point(10, 52);
+            this.normalizeTrackBar.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.normalizeTrackBar.Maximum = 1000;
             this.normalizeTrackBar.Name = "normalizeTrackBar";
-            this.normalizeTrackBar.Size = new System.Drawing.Size(202, 45);
+            this.normalizeTrackBar.Size = new System.Drawing.Size(404, 45);
             this.normalizeTrackBar.TabIndex = 0;
             this.normalizeTrackBar.TickFrequency = 100;
             this.normalizeTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
@@ -784,24 +806,24 @@
             // 
             // conversionTextBox
             // 
-            this.conversionTextBox.Location = new System.Drawing.Point(4, 30);
-            this.conversionTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.conversionTextBox.Location = new System.Drawing.Point(8, 58);
+            this.conversionTextBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.conversionTextBox.Multiline = true;
             this.conversionTextBox.Name = "conversionTextBox";
             this.conversionTextBox.ReadOnly = true;
-            this.conversionTextBox.Size = new System.Drawing.Size(212, 40);
+            this.conversionTextBox.Size = new System.Drawing.Size(420, 73);
             this.conversionTextBox.TabIndex = 14;
             this.conversionTextBox.Text = "Size kb before";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(5, 14);
+            this.label1.Location = new System.Drawing.Point(10, 27);
+            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(97, 13);
+            this.label1.Size = new System.Drawing.Size(196, 25);
             this.label1.TabIndex = 13;
             this.label1.Text = "Used compression:";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // groupBox6
             // 
@@ -809,9 +831,11 @@
             this.groupBox6.Controls.Add(this.label6);
             this.groupBox6.Controls.Add(this.label7);
             this.groupBox6.Controls.Add(this.soundSizeAfterTextBox);
-            this.groupBox6.Location = new System.Drawing.Point(5, 153);
+            this.groupBox6.Location = new System.Drawing.Point(10, 294);
+            this.groupBox6.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(211, 57);
+            this.groupBox6.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox6.Size = new System.Drawing.Size(422, 110);
             this.groupBox6.TabIndex = 9;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Sound size after compression:";
@@ -820,21 +844,21 @@
             // 
             this.showCompProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.showCompProgressBar.Location = new System.Drawing.Point(5, 18);
-            this.showCompProgressBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.showCompProgressBar.Location = new System.Drawing.Point(10, 35);
+            this.showCompProgressBar.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.showCompProgressBar.Maximum = 200;
             this.showCompProgressBar.Name = "showCompProgressBar";
-            this.showCompProgressBar.Size = new System.Drawing.Size(138, 17);
+            this.showCompProgressBar.Size = new System.Drawing.Size(276, 33);
             this.showCompProgressBar.TabIndex = 4;
             this.showCompProgressBar.Value = 50;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(5, 38);
-            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label6.Location = new System.Drawing.Point(10, 73);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(21, 13);
+            this.label6.Size = new System.Drawing.Size(43, 25);
             this.label6.TabIndex = 6;
             this.label6.Text = "0%";
             // 
@@ -843,20 +867,20 @@
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(121, 38);
-            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label7.Location = new System.Drawing.Point(242, 73);
+            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(33, 13);
+            this.label7.Size = new System.Drawing.Size(67, 25);
             this.label7.TabIndex = 7;
             this.label7.Text = "200%";
             // 
             // soundSizeAfterTextBox
             // 
             this.soundSizeAfterTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.soundSizeAfterTextBox.Location = new System.Drawing.Point(147, 18);
-            this.soundSizeAfterTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.soundSizeAfterTextBox.Location = new System.Drawing.Point(294, 35);
+            this.soundSizeAfterTextBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.soundSizeAfterTextBox.Name = "soundSizeAfterTextBox";
-            this.soundSizeAfterTextBox.Size = new System.Drawing.Size(59, 20);
+            this.soundSizeAfterTextBox.Size = new System.Drawing.Size(114, 31);
             this.soundSizeAfterTextBox.TabIndex = 3;
             this.soundSizeAfterTextBox.Text = "SizeAfter";
             // 
@@ -867,9 +891,11 @@
             this.groupBox7.Controls.Add(this.label18);
             this.groupBox7.Controls.Add(this.label17);
             this.groupBox7.Controls.Add(this.compressionTrackBar);
-            this.groupBox7.Location = new System.Drawing.Point(5, 75);
+            this.groupBox7.Location = new System.Drawing.Point(10, 144);
+            this.groupBox7.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(212, 72);
+            this.groupBox7.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox7.Size = new System.Drawing.Size(424, 138);
             this.groupBox7.TabIndex = 10;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Sample Conversion";
@@ -877,36 +903,40 @@
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(161, 51);
+            this.label20.Location = new System.Drawing.Point(322, 98);
+            this.label20.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(19, 13);
+            this.label20.Size = new System.Drawing.Size(35, 25);
             this.label20.TabIndex = 4;
             this.label20.Text = "6k";
             // 
             // label19
             // 
             this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(109, 51);
+            this.label19.Location = new System.Drawing.Point(218, 98);
+            this.label19.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(25, 13);
+            this.label19.Size = new System.Drawing.Size(47, 25);
             this.label19.TabIndex = 3;
             this.label19.Text = "12k";
             // 
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(55, 51);
+            this.label18.Location = new System.Drawing.Point(110, 98);
+            this.label18.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(25, 13);
+            this.label18.Size = new System.Drawing.Size(47, 25);
             this.label18.TabIndex = 2;
             this.label18.Text = "25k";
             // 
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(7, 51);
+            this.label17.Location = new System.Drawing.Point(14, 98);
+            this.label17.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(25, 13);
+            this.label17.Size = new System.Drawing.Size(47, 25);
             this.label17.TabIndex = 1;
             this.label17.Text = "50k";
             // 
@@ -914,20 +944,21 @@
             // 
             this.compressionTrackBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.compressionTrackBar.Location = new System.Drawing.Point(5, 18);
-            this.compressionTrackBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.compressionTrackBar.Location = new System.Drawing.Point(10, 35);
+            this.compressionTrackBar.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.compressionTrackBar.Maximum = 3;
             this.compressionTrackBar.Name = "compressionTrackBar";
-            this.compressionTrackBar.Size = new System.Drawing.Size(202, 45);
+            this.compressionTrackBar.Size = new System.Drawing.Size(404, 45);
             this.compressionTrackBar.TabIndex = 0;
             this.compressionTrackBar.Scroll += new System.EventHandler(this.compressionTrackBar_Scroll);
             // 
             // useInSpiButton
             // 
             this.useInSpiButton.Enabled = false;
-            this.useInSpiButton.Location = new System.Drawing.Point(473, 53);
+            this.useInSpiButton.Location = new System.Drawing.Point(946, 102);
+            this.useInSpiButton.Margin = new System.Windows.Forms.Padding(6);
             this.useInSpiButton.Name = "useInSpiButton";
-            this.useInSpiButton.Size = new System.Drawing.Size(24, 407);
+            this.useInSpiButton.Size = new System.Drawing.Size(48, 783);
             this.useInSpiButton.TabIndex = 11;
             this.useInSpiButton.Text = "A\r\nD\r\nD\r\n\r\n->\r\n->\r\n->\r\n\r\nS\r\nO\r\nU\r\nN\r\nD";
             this.useInSpiButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -941,8 +972,8 @@
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(936, 24);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(1872, 24);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -961,7 +992,7 @@
             this.clearSettingsToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 22);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // newProjectToolStripMenuItem
@@ -1047,10 +1078,10 @@
             // omniPatchCheckBox
             // 
             this.omniPatchCheckBox.AutoSize = true;
-            this.omniPatchCheckBox.Location = new System.Drawing.Point(9, 58);
-            this.omniPatchCheckBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.omniPatchCheckBox.Location = new System.Drawing.Point(18, 112);
+            this.omniPatchCheckBox.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.omniPatchCheckBox.Name = "omniPatchCheckBox";
-            this.omniPatchCheckBox.Size = new System.Drawing.Size(80, 17);
+            this.omniPatchCheckBox.Size = new System.Drawing.Size(140, 29);
             this.omniPatchCheckBox.TabIndex = 19;
             this.omniPatchCheckBox.Text = "Omni patch";
             this.infoToolTip.SetToolTip(this.omniPatchCheckBox, "Create the patch with the same sound on all MIDI channels in the patch.");
@@ -1060,10 +1091,10 @@
             // gen2CheckBox
             // 
             this.gen2CheckBox.AutoSize = true;
-            this.gen2CheckBox.Location = new System.Drawing.Point(162, 58);
-            this.gen2CheckBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.gen2CheckBox.Location = new System.Drawing.Point(324, 112);
+            this.gen2CheckBox.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.gen2CheckBox.Name = "gen2CheckBox";
-            this.gen2CheckBox.Size = new System.Drawing.Size(72, 17);
+            this.gen2CheckBox.Size = new System.Drawing.Size(122, 29);
             this.gen2CheckBox.TabIndex = 20;
             this.gen2CheckBox.Text = "SPI Gen2";
             this.infoToolTip.SetToolTip(this.gen2CheckBox, "Only supported in EPSS Driver 3.7 and newer! Create a patch that contains both MI" +
@@ -1077,9 +1108,11 @@
             this.groupBox4.Controls.Add(this.label2);
             this.groupBox4.Controls.Add(this.totalSizeProgressBar);
             this.groupBox4.Controls.Add(this.totalSizeTextBox);
-            this.groupBox4.Location = new System.Drawing.Point(6, 14);
+            this.groupBox4.Location = new System.Drawing.Point(12, 27);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(167, 107);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox4.Size = new System.Drawing.Size(334, 206);
             this.groupBox4.TabIndex = 15;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Size";
@@ -1089,9 +1122,11 @@
             this.groupBox8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox8.Controls.Add(this.groupBox10);
             this.groupBox8.Controls.Add(this.groupBox4);
-            this.groupBox8.Location = new System.Drawing.Point(493, 502);
+            this.groupBox8.Location = new System.Drawing.Point(986, 965);
+            this.groupBox8.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(428, 125);
+            this.groupBox8.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox8.Size = new System.Drawing.Size(856, 240);
             this.groupBox8.TabIndex = 11;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "EPSS SPI - Sound Patch Information";
@@ -1104,9 +1139,11 @@
             this.groupBox10.Controls.Add(this.label23);
             this.groupBox10.Controls.Add(this.spiInfoTextBox);
             this.groupBox10.Controls.Add(this.spiNameTextBox);
-            this.groupBox10.Location = new System.Drawing.Point(179, 14);
+            this.groupBox10.Location = new System.Drawing.Point(358, 27);
+            this.groupBox10.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox10.Name = "groupBox10";
-            this.groupBox10.Size = new System.Drawing.Size(243, 107);
+            this.groupBox10.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox10.Size = new System.Drawing.Size(486, 206);
             this.groupBox10.TabIndex = 19;
             this.groupBox10.TabStop = false;
             this.groupBox10.Text = "Save...";
@@ -1114,28 +1151,30 @@
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(6, 16);
+            this.label22.Location = new System.Drawing.Point(12, 31);
+            this.label22.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(58, 13);
+            this.label22.Size = new System.Drawing.Size(113, 25);
             this.label22.TabIndex = 16;
             this.label22.Text = "SPI Name:";
             // 
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(7, 40);
+            this.label23.Location = new System.Drawing.Point(14, 77);
+            this.label23.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(48, 13);
+            this.label23.Size = new System.Drawing.Size(92, 25);
             this.label23.TabIndex = 17;
             this.label23.Text = "SPI Info:";
             // 
             // spiInfoTextBox
             // 
-            this.spiInfoTextBox.Location = new System.Drawing.Point(64, 38);
-            this.spiInfoTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.spiInfoTextBox.Location = new System.Drawing.Point(128, 73);
+            this.spiInfoTextBox.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             this.spiInfoTextBox.MaxLength = 16;
             this.spiInfoTextBox.Name = "spiInfoTextBox";
-            this.spiInfoTextBox.Size = new System.Drawing.Size(174, 20);
+            this.spiInfoTextBox.Size = new System.Drawing.Size(344, 31);
             this.spiInfoTextBox.TabIndex = 18;
             this.spiInfoTextBox.Text = "Created with EPSSEditor";
             this.spiInfoTextBox.TextChanged += new System.EventHandler(this.spiInfoTextBox_TextChanged);
@@ -1179,9 +1218,9 @@
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(936, 614);
+            this.ClientSize = new System.Drawing.Size(1872, 1181);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.useInSpiButton);
             this.Controls.Add(this.compressionTypeTextBox);
@@ -1195,8 +1234,8 @@
             this.KeyPreview = true;
             this.Location = global::EPSSEditor.Properties.Settings.Default.WinLocation;
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.MinimumSize = new System.Drawing.Size(952, 617);
+            this.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            this.MinimumSize = new System.Drawing.Size(1888, 1151);
             this.Name = "Form1";
             this.helpProvider1.SetShowHelp(this, false);
             this.Text = "EPSS Editor v1.08 - 20210116";
