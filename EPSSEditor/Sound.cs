@@ -110,19 +110,22 @@ namespace EPSSEditor
 
         public bool Rename(string newName)
         {
-            string newFullPath = Path.GetDirectoryName(path);
-            newFullPath += "\\" + newName + Path.GetExtension(path);
-            if (!File.Exists(newFullPath))
+            if (newName != name())
             {
-                try
+                string newFullPath = Path.GetDirectoryName(path);
+                newFullPath += "\\" + newName + Path.GetExtension(path);
+                if (!File.Exists(newFullPath))
                 {
-                    File.Move(path, newFullPath);
-                    path = newFullPath;
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    return false;
+                    try
+                    {
+                        File.Move(path, newFullPath);
+                        path = newFullPath;
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        return false;
+                    }
                 }
             }
             return false;

@@ -20,15 +20,20 @@ namespace EPSSEditor
             textBox1.Text = text;
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            
-            Close();
-        }
 
         public string GetText()
         {
             return textBox1.Text;
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                DialogResult = DialogResult.OK;
+                Close();
+                e.Handled = true;
+            }
         }
     }
 }

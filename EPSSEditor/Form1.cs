@@ -1437,8 +1437,20 @@ namespace EPSSEditor
 
         private void spiSoundListView_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.A && e.Control)
+            {
+                spiSoundListView.BeginUpdate();
 
+                for (int i = 0; i < spiSoundListView.Items.Count; i++)
+                {
+                    spiSoundListView.Items[i].Selected = true;
+                }
+
+                spiSoundListView.EndUpdate();
+                e.Handled = true;
+            }
         }
+
 
         private void soundListBox_DragEnter(object sender, DragEventArgs e)
         {
@@ -2224,14 +2236,17 @@ namespace EPSSEditor
                 DialogResult res = r.ShowDialog();
                 if (res == DialogResult.OK)
                 {
-                    string s = r.GetText();
-                    if (snd.Rename(s))
+                    string s = r.GetText().Trim();
+                    if (!String.IsNullOrEmpty(s))
                     {
-                        updateSoundListBox();
-                        data.RefreshSpiSounds();
-                        updateSpiSoundListBox();
-                        dataNeedsSaving = true;
-                        saveProjectSettings();
+                        if (snd.Rename(s))
+                        {
+                            updateSoundListBox();
+                            data.RefreshSpiSounds();
+                            updateSpiSoundListBox();
+                            dataNeedsSaving = true;
+                            saveProjectSettings();
+                        }
                     }
                 }
             }
@@ -2240,7 +2255,6 @@ namespace EPSSEditor
 
         }
     }
-
 
 
     internal class ControlScrollListener : NativeWindow, IDisposable
@@ -2333,7 +2347,4 @@ namespace EPSSEditor
             return (short)HIWORD(wParam);
         }
     }
-
-
-
 }
