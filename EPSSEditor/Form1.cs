@@ -1515,7 +1515,12 @@ namespace EPSSEditor
 
         private void spiSoundListView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.A && e.Control)
+            if (e.KeyCode == Keys.Delete)
+            {
+                deleteSelectedSpiSound();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.A && e.Control)
             {
                 spiSoundListView.BeginUpdate();
 
