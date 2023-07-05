@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Management;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Web;
 
 namespace EPSSEditor
 {
@@ -1205,6 +1206,81 @@ namespace EPSSEditor
         }
 
 
+        private void DoSaveSfz()
+        {
+            string sfzFile = SfzFileName();
+            string sampleSubDir = "samples";
+            string sfzDir = "";
+            string sampleDir = "";
+            string name = "";
+            if (CheckSfzDirectories(sfzFile, sampleSubDir, ref name, ref sfzDir, ref sampleDir))
+            {
+                Dictionary<int, List<SfzSplitInfo>> dict = data.ConvertToSfzSplitInfo();
+                SfzConverter c = new SfzConverter();
+                string errorMessage = "";
+                bool result = c.SaveSFZ(ref dict, ref data.sounds, sfzDir, sampleSubDir, name, ref errorMessage);
+                if (result) result = data.ExportSoundsToDir(sampleDir, ref errorMessage);
+                if (result) MessageBox.Show("Exported successfully!", "EPSS Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                else MessageBox.Show("Save sfz failed:\n" + errorMessage);
+            }
+        }
+
+        private string SfzFileName()
+        {
+            string startDir;
+            if (data.spiFileName != null)
+            {
+                startDir = Path.GetDirectoryName(data.spiFileName);
+            }
+            else
+            {
+                startDir = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
+            }
+            saveSfzFileDialog.InitialDirectory = startDir;
+
+            if (saveSfzFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                return saveSfzFileDialog.FileName;
+            }
+            return null;
+        }
+
+        private bool CheckSfzDirectories(string sfzFile, string sampleSubDir, ref string name, ref string sfzDir, ref string sampleDir)
+        {
+            if (String.IsNullOrEmpty(sfzFile)) return false;
+           
+
+            name = Path.GetFileNameWithoutExtension(sfzFile);
+            sfzDir = Path.GetDirectoryName(sfzFile) + "\\" + name;
+
+            if (Directory.Exists(sfzDir))
+            {
+                if (System.Windows.Forms.MessageBox.Show("Directory " + name + " already exists here.\nDo you want to delete it?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    Directory.Delete(sfzDir, true);
+                }
+            }
+            Directory.CreateDirectory(sfzDir);
+
+            bool doSave = true;
+
+            //string sampleSubDir = "samples";
+            sampleDir = sfzDir + "\\" + sampleSubDir;
+            if (Directory.Exists(sampleDir))
+            {
+                if (System.Windows.Forms.MessageBox.Show("Directory 'samples' already exists here.\nAll used samples will be copied here.\nDo you want to continue?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                {
+                    doSave = false;
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(sampleDir);
+            }
+
+            return doSave;
+        }
+
         // Other functions
 
         private int frequencyFromCompressionTrackBar(int v)
@@ -2018,95 +2094,7 @@ namespace EPSSEditor
 
         private void saveSFZToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string startDir;
-            if (data.spiFileName != null)
-            {
-                startDir = Path.GetDirectoryName(data.spiFileName);
-            }
-            else
-            {
-                startDir = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
-            }
-            saveSfzFileDialog.InitialDirectory = startDir;
-
-            if (saveSfzFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                string sfzFile = saveSfzFileDialog.FileName;
-                string name = Path.GetFileNameWithoutExtension(sfzFile);
-
-                string sfzDir = Path.GetDirectoryName(sfzFile) + "\\" + name;
-                //string sfzFileName = Path.GetFileName(sfzFile);
-
-                if (Directory.Exists(sfzDir))
-                {
-                    if (System.Windows.Forms.MessageBox.Show("Directory " + name + " already exists here.\nDo you want to delete it?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                    {
-                        Directory.Delete(sfzDir, true);
-                    }
-                }
-                Directory.CreateDirectory(sfzDir);
-
-                bool doSave = true;
-
-                string sampleSubDir = "samples";
-                string sampleDir = sfzDir + "\\" + sampleSubDir;
-                if (Directory.Exists(sampleDir))
-                {
-                    if (System.Windows.Forms.MessageBox.Show("Directory 'samples' already exists here.\nAll used samples will be copied here.\nDo you want to continue?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-                    {
-                        doSave = false;
-                    }
-                }
-                else
-                {
-                    Directory.CreateDirectory(sampleDir);
-                }
-
-
-                if (doSave)
-                {
-                    Dictionary<int, List<SfzSplitInfo>> dict = data.ConvertToSfzSplitInfo();
-                    SfzConverter c = new SfzConverter();
-                    string errorMessage = "";
-                    bool result = c.SaveSFZ(ref dict, ref data.sounds, sfzDir, sampleSubDir, name, ref errorMessage);
-                    if (result)
-                    {
-                        foreach (var sound in data.sounds)
-                        {
-                            string path = sampleDir + "\\" + Path.GetFileName(sound.path);
-                            if (File.Exists(path))
-                            {
-                                long oldSize = new System.IO.FileInfo(sound.path).Length;
-                                long newSize = new System.IO.FileInfo(path).Length;
-                                if (oldSize != newSize)
-                                {
-                                    string backupPath = path + ".bak";
-                                    string dirName = Path.GetDirectoryName(path);
-                                    int i = 1;
-                                    while (File.Exists(backupPath))
-                                    {
-                                        backupPath = dirName + "\\" + Path.GetFileNameWithoutExtension(path) + " (Backup " + i.ToString() + ")" + ".bak";
-                                        i++;
-                                    }
-
-                                    string tmp = Path.GetTempFileName();
-                                    File.Copy(sound.path, tmp, true);
-                                    File.Replace(tmp, path, backupPath);
-                                }
-                            }
-                            else
-                            {
-                                File.Copy(sound.path, path);
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        MessageBox.Show("Save sfz failed:\n" + errorMessage);
-                    }
-                }
-            }
+            DoSaveSfz();
         }
 
 

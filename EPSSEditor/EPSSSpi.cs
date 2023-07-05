@@ -467,7 +467,7 @@ namespace EPSSEditor
                 i_chdate = reader.ReadBigEndianUInt16();
 
                 byte[] bs = reader.ReadBytes(8);
-                i_pname = bs.FromFixedByteStream();
+                i_pname = bs.FromFixedByteStream().Trim();
 
                 i_mainlen = reader.ReadBigEndianUInt16();
                 i_splitlen = reader.ReadBigEndianUInt16();
@@ -477,7 +477,7 @@ namespace EPSSEditor
                 byte[] expansions = reader.ReadBytes(6);
 
                 bs = reader.ReadBytes(32);
-                i_patchinfo = bs.FromFixedByteStream();
+                i_patchinfo = bs.FromFixedByteStream().Trim();
 
                 // No additional bytes
             }

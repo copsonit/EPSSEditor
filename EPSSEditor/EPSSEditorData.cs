@@ -79,6 +79,13 @@ namespace EPSSEditor
                 if (String.IsNullOrEmpty(safe)) safe = "NULL";
 
                 string outPath = soundDir + '\\' + safe + ".wav";
+                int n = 1;
+                while (File.Exists(outPath))
+                {
+                    outPath = soundDir + '\\' + safe + " (Copy " + n.ToString() + ").wav";
+                    n++;
+                }
+
                 Sound snd = new Sound(spi.samples.samples[i].data, outPath);
                 sounds.Add(snd);
             }
@@ -372,5 +379,48 @@ namespace EPSSEditor
             }
         }
 
+
+        public bool ExportSoundsToDir(string exportDir, ref string errorMessage)
+        {
+            bool result = true;
+
+            try
+            {
+                foreach (var sound in sounds)
+                {
+                    string path = exportDir + "\\" + Path.GetFileName(sound.path);
+                    if (File.Exists(path))
+                    {
+                        long oldSize = new System.IO.FileInfo(sound.path).Length;
+                        long newSize = new System.IO.FileInfo(path).Length;
+                        if (oldSize != newSize)
+                        {
+                            string backupPath = path + ".bak";
+                            string dirName = Path.GetDirectoryName(path);
+                            int i = 1;
+                            while (File.Exists(backupPath))
+                            {
+                                backupPath = dirName + "\\" + Path.GetFileNameWithoutExtension(path) + " (Backup " + i.ToString() + ")" + ".bak";
+                                i++;
+                            }
+
+                            string tmp = Path.GetTempFileName();
+                            File.Copy(sound.path, tmp, true);
+                            File.Replace(tmp, path, backupPath);
+                        }
+                    }
+                    else
+                    {
+                        File.Copy(sound.path, path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                errorMessage = ex.Message;
+            }
+            return result;
+        }
     }
 }
