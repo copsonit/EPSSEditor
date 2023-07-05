@@ -57,12 +57,16 @@ namespace EPSSEditor
      * TODO If no sounds found, shoulnt crash:
      *         Need to show load dialog for each sound to let the user find missing sounds:
      *         Use file name to try to find them. After loading of a sound, try to find all in same folder.
-     * TODO When Loading a patch, not everything is updated: windows, Total Size in Bytes etc.
-     * TODO Let sample window info should be disabled if nothing is selected, i.e. first time loaded, alt auto click first sound.
+     * OK   When Loading a patch, not everything is updated: windows, Total Size in Bytes etc.
+     * TODO Left sample window info should be disabled if nothing is selected, i.e. first time loaded, alt auto click first sound. Test with empty project, open sample, delete sample etc and ensure all is updated accordingly (buttons, information etc)
      * TODO Sound size after compression also need to be initialized correctly.
-     * TODO MIDI Mapping button has to be correctly set according to what is saved in patch when loaded.
+     * TODO MIDI Mapping button has to be correctly set according to what is saved in patch when loaded. Only when loading project then? If added in EPSSEditorData it should work automatically.
      * TODO Change default text to "Created with EPSS Editor" + version number. Or somewhere store which version it is created in, in SPI Info. Reserve a few bytes for this?
-     *      
+     * OK   Mapping when adding sounds worked not at all, only for drums. Never Default, etc. Should now work, needs testing.
+     * TODO Using same Sound on multiple spiSounds: calculate wrong size, exports invalid SPI (wrong number of sounds reported when loading SPI)
+     * TODO center tone when export sfz can be negative. Probably wrong transpose-tables used, need to use a map to find real tone (from EPSS map) and then use that to recalculate center tone.
+     * TODO Test with epf from older versions and see how it behaves when we now have much more data in EpssEditorData class. Possibly write some fix code.
+     * TODO Look at doing some unit test code when we get things working. Possibly more refactoring needed. Load old epf and ensure not crashing, load and convert set data to spi and compare output. Deserialize EPSSSpi for easier tracking of errors. Export to SPI and import same file.
      * 
      * Wishlist:
      * OK      Multiple selection of sounds to automatically add? Mutisample + Drums
@@ -487,6 +491,7 @@ namespace EPSSEditor
 
                 }
                 updateDialog();
+                updateTotalSize();
             }
             catch (Exception ex)
             {
@@ -1757,7 +1762,7 @@ namespace EPSSEditor
 
             if (mappingModeMidiRadioButton.Checked)
             {
-                if (sounds.Count >= 1)
+                if (sounds.Count > 1)
                 {
                     bool mappingOk = false;
                     byte startNote = 128;
@@ -1839,31 +1844,43 @@ namespace EPSSEditor
                     Sound s = getSoundAtSelectedIndex();
                     if (s != null)
                     {
-                        if (CustomSampleRadioButton.Checked)
+                       
+                        if (defaultMidiMapRadioButton.Checked || CustomSampleRadioButton.Checked)
                         {
-                            byte startNote = parseMidiTone(custMidiToneFromTextBox.Text);
-                            byte endNote = parseMidiTone(custMidiToneToTextBox.Text);
-                            if (startNote < 128 && endNote < 128 && startNote < endNote)
+                            bool doAdd = true;
+                            byte startNote = 60;
+                            byte endNote = 108;
+                            if (CustomSampleRadioButton.Checked)
                             {
-                                int midiChannel = currentMidiChannel();
-                                SpiSound spiSnd = new SpiSound(ref s);
-                                spiSnd.midiChannel = (byte)midiChannel;
-                                spiSnd.midiNote = 84;
-                                spiSnd.startNote = startNote;
-                                spiSnd.endNote = endNote;
-                                data.spiSounds.Add(spiSnd);
-
-                                updateSpiSoundListBox();
-                                dataNeedsSaving = true;
-                                saveProjectSettings();
-                                updateTotalSize();
+                                startNote = parseMidiTone(custMidiToneFromTextBox.Text);
+                                endNote = parseMidiTone(custMidiToneToTextBox.Text);
+                                doAdd = (startNote < 128 && endNote < 128 && startNote < endNote);
+                                if (!doAdd) MessageBox.Show("Incorrect from and to note values!");
                             }
-                            else
+                            if (doAdd)
                             {
-                                System.Windows.Forms.MessageBox.Show("Incorrect from and to note values!");
+                                bool added = data.AddSoundToSpiSound(ref s, currentMidiChannel(), startNote, endNote);
+                                if (!added)
+                                {
+                                    MessageBox.Show("Notes overlap!");
+                                }
+                                else
+                                {
+                                    updateSpiSoundListBox();
+
+                                    if (defaultMidiMapRadioButton.Checked)
+                                    {
+                                        int ch = data.getNextFreeMidiChannel();
+                                        if (ch > 0) setMidiChannel(ch);
+                                    }
+
+                                    dataNeedsSaving = true;
+                                    saveProjectSettings();
+                                    updateTotalSize();
+                                }
                             }
                         }
-                        else
+                        else // Drums and Multisample (one sample per note)
                         {
                             bool addOk = true;
                             SpiSound spiSnd = new SpiSound(ref s);
@@ -1871,42 +1888,34 @@ namespace EPSSEditor
                             int midiChannel = currentMidiChannel();
                             spiSnd.midiChannel = (byte)midiChannel;
 
-                            if (midiChannel == 10)
+                            if (GmPercMidiMappingRadioButton.Checked) // Always channel 10 when gmperc is chosen. 
                             {
                                 spiSnd.midiNote = percussionNote(); // 1-128
-                            }
 
-                            if (midiChannel != 10)
+                                if (data.isDrumSoundOccupied(spiSnd.midiNote))
+                                {
+                                    addOk = false;
+                                    System.Windows.Forms.MessageBox.Show("Drum sound " + spiSnd.midiNote.ToString() + " already occupied!");
+                                }
+
+                            } else // multisample
                             {
+                                byte startNote = parseMidiTone(midiToneTextBox.Text);
+                                spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
+
                                 if (data.isMidiChannelOccupied(midiChannel))
                                 {
                                     addOk = false;
                                     System.Windows.Forms.MessageBox.Show("MIDI channel " + midiChannel.ToString() + " already occupied!");
                                 }
                             }
-                            else if (midiChannel == 10)
-                            {
-                                if (data.isDrumSoundOccupied(spiSnd.midiNote))
-                                {
-                                    addOk = false;
-                                    System.Windows.Forms.MessageBox.Show("Drum sound " + spiSnd.midiNote.ToString() + " already occupied!");
-                                }
-                            }
-
 
                             if (addOk)
                             {
                                 data.spiSounds.Add(spiSnd);
                                 updateSpiSoundListBox();
-
-
-                                if (defaultMidiMapRadioButton.Checked)
-                                {
-                                    int ch = data.getNextFreeMidiChannel();
-                                    if (ch > 0) setMidiChannel(ch);
-                                }
-                                else
-                                {
+                                
+                                if (GmPercMidiMappingRadioButton.Checked) {
                                     int idx = drumsComboBox1.SelectedIndex;
                                     if (idx < drumsComboBox1.Items.Count - 1)
                                     {
@@ -1923,7 +1932,7 @@ namespace EPSSEditor
                     }
                 }
             }
-            else
+            else // This is for patches with Program Change!
             {
                 if (sounds.Count > 1)
                 {
@@ -2250,6 +2259,16 @@ namespace EPSSEditor
 
 
 
+        }
+
+        private void custMidiToneFromTextBox_TextChanged(object sender, EventArgs e)
+        {
+            CustomSampleRadioButton.Checked = true;
+        }
+
+        private void custMidiToneToTextBox_TextChanged(object sender, EventArgs e)
+        {
+            CustomSampleRadioButton.Checked = true;
         }
     }
 

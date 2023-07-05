@@ -14,16 +14,11 @@ namespace EPSSEditor
 
     public class EPSSEditorData
     {
-
         public DrumSettingsHelper drumMappings;
-
 
         public List<Sound> sounds;
 
-
         public List<SpiSound> spiSounds;
-
-
 
         public string soundFileName;
         public string spiFileName;
@@ -357,6 +352,33 @@ namespace EPSSEditor
             return result;
         }
 
+
+        public bool OverlapWithAnyExisting(int midiChannel, byte lo, byte hi)
+        {
+            bool overlapping = false;
+            foreach (var spiSnd in spiSounds)
+            {
+                if (spiSnd.midiChannel == midiChannel)
+                {
+                    if ((spiSnd.endNote < lo && spiSnd.startNote < lo) ||
+                        (spiSnd.startNote > hi && spiSnd.endNote > hi))
+                    {
+                        overlapping = false;
+                    }
+                    else
+                    {
+                        overlapping = true;
+                    }
+                }
+                else
+                {
+                    overlapping = false;
+                }
+
+                if (overlapping) break;
+            }
+            return overlapping;
+        }
         
         // Used when loading sound from sfz file
         public void AddSfzSound(ref Sound sound, int midiChannel, byte lo, byte hi, byte center, sbyte transpose)
@@ -422,5 +444,22 @@ namespace EPSSEditor
             }
             return result;
         }
+
+
+        public bool AddSoundToSpiSound(ref Sound sound, int midiChannel, byte startNote, byte endNote)
+        {
+            if (OverlapWithAnyExisting(midiChannel, startNote, endNote))
+            {
+                return false;
+            }
+            SpiSound spiSnd = new SpiSound(ref sound);
+            spiSnd.midiChannel = (byte)midiChannel;
+            spiSnd.midiNote = 84;
+            spiSnd.startNote = startNote;
+            spiSnd.endNote = endNote;
+            spiSounds.Add(spiSnd);
+            return true;
+        }
     }
+
 }

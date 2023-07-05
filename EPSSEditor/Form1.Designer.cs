@@ -387,6 +387,7 @@
             this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
             this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneToTextBox.TabIndex = 21;
+            this.custMidiToneToTextBox.TextChanged += new System.EventHandler(this.custMidiToneToTextBox_TextChanged);
             // 
             // custMidiToneLabel
             // 
@@ -418,6 +419,7 @@
             this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
             this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneFromTextBox.TabIndex = 20;
+            this.custMidiToneFromTextBox.TextChanged += new System.EventHandler(this.custMidiToneFromTextBox_TextChanged);
             // 
             // CustomSampleRadioButton
             // 
@@ -453,10 +455,10 @@
             this.MultiSampleRadioButton.AutoSize = true;
             this.MultiSampleRadioButton.Location = new System.Drawing.Point(12, 126);
             this.MultiSampleRadioButton.Name = "MultiSampleRadioButton";
-            this.MultiSampleRadioButton.Size = new System.Drawing.Size(80, 17);
+            this.MultiSampleRadioButton.Size = new System.Drawing.Size(150, 17);
             this.MultiSampleRadioButton.TabIndex = 18;
             this.MultiSampleRadioButton.TabStop = true;
-            this.MultiSampleRadioButton.Text = "Multisample";
+            this.MultiSampleRadioButton.Text = "Multisample (1 snd/1 note)";
             this.MultiSampleRadioButton.UseVisualStyleBackColor = true;
             // 
             // GmPercMidiMappingRadioButton
