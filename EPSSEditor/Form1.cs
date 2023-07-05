@@ -2221,7 +2221,9 @@ namespace EPSSEditor
                 r.Location = p;
 
 
+                r.Size = new Size(40, 20);
                 DialogResult res = r.ShowDialog();
+
                 if (res == DialogResult.OK)
                 {
                     string s = r.GetText().Trim();
