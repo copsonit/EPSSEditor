@@ -688,6 +688,7 @@ namespace EPSSEditor
                     EPSSSpiCreator creator = new EPSSSpiCreator(spiVersion());
                     int sampFreq = AtariConstants.SampleFreq25k;
                     data.omni = omniPatchCheckBox.Checked;
+                    
                     EPSSSpi spi = creator.create(ref data, soundsToSave, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
 
                     if (spi != null)

@@ -78,7 +78,7 @@ namespace EPSSEditor
 
 
 
-        private List<EPSSSpi_midiChannelSplit> fillInMidiSplits(ref EPSSSpi spi, ref List<SpiSound> sounds, bool omni)
+        private List<EPSSSpi_midiChannelSplit> fillInMidiSplits(ref EPSSEditorData data, ref EPSSSpi spi, ref List<SpiSound> sounds)
         {
             List<EPSSSpi_midiChannelSplit> channels = new List<EPSSSpi_midiChannelSplit>();
 
@@ -87,7 +87,7 @@ namespace EPSSEditor
                 EPSSSpi_midiChannelSplit channel = new EPSSSpi_midiChannelSplit();
                 channel.data = new EPSSSpi_soundAndPitch[128];
 
-                List<SpiSound> sound = getSoundForMidiChannel(ref sounds, ch + 1, omni);
+                List<SpiSound> sound = getSoundForMidiChannel(ref sounds, ch + 1, data.omni);
 
                 bool useMidiSplit = false;
                 foreach (SpiSound sndToFind in sound)
@@ -133,7 +133,8 @@ namespace EPSSEditor
                             for (int i = sndToFind.startNote; i <= sndToFind.endNote; i++)
                             {
                                 EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch();
-                                sp.sound = (byte)sndToFind.soundNumber;
+
+                                sp.sound = (byte)data.getSoundNumberFromGuid(sndToFind.soundId);
                                 sp.pitch = (byte)(sndToFind.midiNote + j);
                                 sp.noSound = 0;
                                 j++;
@@ -156,7 +157,7 @@ namespace EPSSEditor
 
                         if (i >= 36 && i <= 84) // C2 - C6
                         {
-                            sp.sound = (byte)snd.soundNumber;
+                            sp.sound = (byte)data.getSoundNumberFromGuid(snd.soundId);
                             sp.pitch = snd.transposedNote(note);
                             note++;
                             sp.noSound = 0;
@@ -187,7 +188,7 @@ namespace EPSSEditor
                         {
                             if (sndToFind.midiNote == i + 1)
                             {
-                                sp.sound = (byte)sndToFind.soundNumber;
+                                sp.sound = (byte)data.getSoundNumberFromGuid(sndToFind.soundId);
                                 sp.pitch = snd.transposedNote(84);
                                 sp.noSound = 0;
                                 found = true;
@@ -220,7 +221,7 @@ namespace EPSSEditor
                             if (snd.midiNote == i)
                             {
                                 note = snd.transposedNote(84);
-                                spiSound = (byte)snd.soundNumber;
+                                spiSound = (byte)data.getSoundNumberFromGuid(snd.soundId);
                                 break; // Only use first found. UI only allows one sound per not so it should be safe.
                             }
                         }
@@ -293,9 +294,9 @@ namespace EPSSEditor
         }
 
 
-        public void fillInSplit(ref EPSSSpi spi, ref List<SpiSound> sounds, bool omni)
+        public void fillInSplit(ref EPSSEditorData data, ref EPSSSpi spi, ref List<SpiSound> sounds)
         {
-            List<EPSSSpi_midiChannelSplit> channels = fillInMidiSplits(ref spi, ref sounds, omni);
+            List<EPSSSpi_midiChannelSplit> channels = fillInMidiSplits(ref data, ref spi, ref sounds);
 
             spi.split.channels = channels.ToArray();
 
@@ -530,8 +531,12 @@ namespace EPSSEditor
 
         public EPSSSpi create(ref EPSSEditorData data, List<SpiSound> sounds, string name, string info, int sampFreq)
         {
-            noOfSounds = sounds.Count;
-            if (noOfSounds < 256)
+            
+            
+            //noOfSounds = sounds.Count;
+            noOfSounds = data.sounds.Count; // not number of split (i.e. SpiSounds) as it was before...
+            if ((version <= 1 && noOfSounds < 256) ||
+                (version >=2 && noOfSounds < 65536))
             {
                 EPSSSpi spi;
 
@@ -547,12 +552,11 @@ namespace EPSSEditor
 
                 initialize(ref spi);
 
-
                 fillInMain(ref spi);
 
                 fillInExt(ref spi, name, info);
 
-                fillInSplit(ref spi, ref sounds, data.omni);
+                fillInSplit(ref data, ref spi, ref sounds);
 
                 fillInSamples(ref data, ref spi, ref sounds, sampFreq);
 
