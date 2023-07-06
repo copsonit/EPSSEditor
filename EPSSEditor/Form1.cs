@@ -26,67 +26,10 @@ using System.Web;
 
 namespace EPSSEditor
 {
-
-
-    /*
-     * TODO:
-     * OK. Show and reset settings
-     * OK. Check for adding same drum sound on the same note
-     * OK. Auto increase for adding drums
-     * OK. Multisample patch
-     * OK. Omni switch
-     * OK. Multisample for drums, automatic spread
-     * OK. Remove the checkbox look of the right window.
-     * 
-     * OK. Delete should work for selected samples in left window!
-     * TODO Support 32-bit sounds! Some newly found Wav reports as 32-bit Wav. 
-     * TODO Until we support, warn when loading the sound!
-     * OK  Support for loading sfz
-     * WIP  Support to build SPI v3 with program change.
-     * OK      UI and add sounds
-     * NYI     Save as SPI v3 if program change sounds are used.
-     * OK  Load SPI G1 and G2
-     * OK  Load SPI G0
-     * OK  Export SPI to SFZ
-     *  
-     * Bugs:
-     * OK.  Cannot find the drumMappings.xml in installed version.
-     * OK.  Did not update the sample size field for Sound correctly.
-     *      DOS-date interpreted wrong in EPSS. 2000 issue, needs to be fixed in EPSS!
-     * OK.  Did not save the directories for project, samples and spi correctly. Fixed in 1.04.
-     * TODO If no sounds found, shoulnt crash:
-     *         Need to show load dialog for each sound to let the user find missing sounds:
-     *         Use file name to try to find them. After loading of a sound, try to find all in same folder.
-     * OK   When Loading a patch, not everything is updated: windows, Total Size in Bytes etc.
-     * TODO Left sample window info should be disabled if nothing is selected, i.e. first time loaded, alt auto click first sound. Test with empty project, open sample, delete sample etc and ensure all is updated accordingly (buttons, information etc)
-     * TODO Sound size after compression also need to be initialized correctly.
-     * TODO MIDI Mapping button has to be correctly set according to what is saved in patch when loaded. Only when loading project then? If added in EPSSEditorData it should work automatically.
-     * TODO Change default text to "Created with EPSS Editor" + version number. Or somewhere store which version it is created in, in SPI Info. Reserve a few bytes for this?
-     * OK   Mapping when adding sounds worked not at all, only for drums. Never Default, etc. Should now work, needs testing.
-     * OK   Using same Sound on multiple spiSounds: calculate wrong size, exports invalid SPI (wrong number of sounds reported when loading SPI)
-     * TODO center tone when export sfz can be negative. Probably wrong transpose-tables used, need to use a map to find real tone (from EPSS map) and then use that to recalculate center tone.
-     * TODO Test with epf from older versions and see how it behaves when we now have much more data in EpssEditorData class. Possibly write some fix code.
-     * TODO Look at doing some unit test code when we get things working. Possibly more refactoring needed. Load old epf and ensure not crashing, load and convert set data to spi and compare output. Deserialize EPSSSpi for easier tracking of errors. Export to SPI and import same file.
-     * 
-     * Wishlist:
-     * OK      Multiple selection of sounds to automatically add? Mutisample + Drums
-     * WIP      Play converted sound on PC? What is not working?
-     *          Project should save all samples as well in the project file. Stream it to xml? Binary format.
-     *          Idea: project file as sqlite instead of db3?
-     *          Check what sample formats that we support through the libs and make more possible to read? 
-     *          SoundFonts? SFZ to SF2 via Polyphone!
-     * OK  Right click on samples left hand to rename them.
-     * OK  Show used sounds.
-     * 
-     * */
-
-
-
     public partial class Form1 : Form
     {
 
         public EPSSEditorData data;
-        private bool deletePressed;
         private bool ctrlAPressed;
         private bool callbacks = true;
         private int initialize;
