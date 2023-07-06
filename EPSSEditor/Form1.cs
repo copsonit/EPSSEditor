@@ -74,9 +74,9 @@ namespace EPSSEditor
      *          Project should save all samples as well in the project file. Stream it to xml? Binary format.
      *          Idea: project file as sqlite instead of db3?
      *          Check what sample formats that we support through the libs and make more possible to read? 
-     *          SoundFonts?
-     * TODO Right click on samples left hand to rename them.
-     * TODO Show used sounds.
+     *          SoundFonts? SFZ to SF2 via Polyphone!
+     * OK  Right click on samples left hand to rename them.
+     * OK  Show used sounds.
      * 
      * */
 
