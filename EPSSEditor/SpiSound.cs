@@ -14,7 +14,6 @@ namespace EPSSEditor
     {
         public byte midiChannel;
         public byte midiNote;
-        public int soundNumber;
 
         public byte startNote;
         public byte endNote;

@@ -45,6 +45,8 @@
             this.mappingModeProgramRadioButton = new System.Windows.Forms.RadioButton();
             this.mappingModeMidiRadioButton = new System.Windows.Forms.RadioButton();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.defaultMidiMapRadioButton = new System.Windows.Forms.RadioButton();
+            this.midiChTextBox = new System.Windows.Forms.TextBox();
             this.custMidiToneToTextBox = new System.Windows.Forms.TextBox();
             this.custMidiToneLabel = new System.Windows.Forms.Label();
             this.midiChTrackBar = new System.Windows.Forms.TrackBar();
@@ -54,8 +56,6 @@
             this.midiToneTextBox = new System.Windows.Forms.TextBox();
             this.MultiSampleRadioButton = new System.Windows.Forms.RadioButton();
             this.GmPercMidiMappingRadioButton = new System.Windows.Forms.RadioButton();
-            this.defaultMidiMapRadioButton = new System.Windows.Forms.RadioButton();
-            this.midiChTextBox = new System.Windows.Forms.TextBox();
             this.drumsComboBox1 = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -341,6 +341,7 @@
             // 
             // groupBox11
             // 
+            this.groupBox11.Controls.Add(this.defaultMidiMapRadioButton);
             this.groupBox11.Controls.Add(this.midiChTextBox);
             this.groupBox11.Controls.Add(this.custMidiToneToTextBox);
             this.groupBox11.Controls.Add(this.custMidiToneLabel);
@@ -351,7 +352,6 @@
             this.groupBox11.Controls.Add(this.midiToneTextBox);
             this.groupBox11.Controls.Add(this.MultiSampleRadioButton);
             this.groupBox11.Controls.Add(this.GmPercMidiMappingRadioButton);
-            this.groupBox11.Controls.Add(this.defaultMidiMapRadioButton);
             this.groupBox11.Controls.Add(this.drumsComboBox1);
             this.groupBox11.Location = new System.Drawing.Point(8, 60);
             this.groupBox11.Name = "groupBox11";
@@ -360,12 +360,34 @@
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "Mapping type";
             // 
+            // defaultMidiMapRadioButton
+            // 
+            this.defaultMidiMapRadioButton.AutoSize = true;
+            this.defaultMidiMapRadioButton.Location = new System.Drawing.Point(12, 56);
+            this.defaultMidiMapRadioButton.Name = "defaultMidiMapRadioButton";
+            this.defaultMidiMapRadioButton.Size = new System.Drawing.Size(160, 17);
+            this.defaultMidiMapRadioButton.TabIndex = 16;
+            this.defaultMidiMapRadioButton.TabStop = true;
+            this.defaultMidiMapRadioButton.Text = "Default MIDI mapping C2-C6";
+            this.infoToolTip.SetToolTip(this.defaultMidiMapRadioButton, "If one sound selected, this sound is used on all keys. If multiple sounds selecte" +
+        "d, it assumes the sounds have been imported from sfz.");
+            this.defaultMidiMapRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // midiChTextBox
+            // 
+            this.midiChTextBox.Location = new System.Drawing.Point(139, 14);
+            this.midiChTextBox.Name = "midiChTextBox";
+            this.midiChTextBox.ReadOnly = true;
+            this.midiChTextBox.Size = new System.Drawing.Size(41, 20);
+            this.midiChTextBox.TabIndex = 13;
+            // 
             // custMidiToneToTextBox
             // 
             this.custMidiToneToTextBox.Location = new System.Drawing.Point(129, 173);
             this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
             this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneToTextBox.TabIndex = 21;
+            this.custMidiToneToTextBox.TextChanged += new System.EventHandler(this.custMidiToneToTextBox_TextChanged);
             // 
             // custMidiToneLabel
             // 
@@ -397,6 +419,7 @@
             this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
             this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneFromTextBox.TabIndex = 20;
+            this.custMidiToneFromTextBox.TextChanged += new System.EventHandler(this.custMidiToneFromTextBox_TextChanged);
             // 
             // CustomSampleRadioButton
             // 
@@ -432,10 +455,10 @@
             this.MultiSampleRadioButton.AutoSize = true;
             this.MultiSampleRadioButton.Location = new System.Drawing.Point(12, 126);
             this.MultiSampleRadioButton.Name = "MultiSampleRadioButton";
-            this.MultiSampleRadioButton.Size = new System.Drawing.Size(80, 17);
+            this.MultiSampleRadioButton.Size = new System.Drawing.Size(150, 17);
             this.MultiSampleRadioButton.TabIndex = 18;
             this.MultiSampleRadioButton.TabStop = true;
-            this.MultiSampleRadioButton.Text = "Multisample";
+            this.MultiSampleRadioButton.Text = "Multisample (1 snd/1 note)";
             this.MultiSampleRadioButton.UseVisualStyleBackColor = true;
             // 
             // GmPercMidiMappingRadioButton
@@ -449,27 +472,6 @@
             this.GmPercMidiMappingRadioButton.Text = "GM Percussion mapping:";
             this.GmPercMidiMappingRadioButton.UseVisualStyleBackColor = true;
             this.GmPercMidiMappingRadioButton.CheckedChanged += new System.EventHandler(this.GmPercMidiMappingRadioButton_CheckedChanged);
-            // 
-            // defaultMidiMapRadioButton
-            // 
-            this.defaultMidiMapRadioButton.AutoSize = true;
-            this.defaultMidiMapRadioButton.Location = new System.Drawing.Point(12, 56);
-            this.defaultMidiMapRadioButton.Name = "defaultMidiMapRadioButton";
-            this.defaultMidiMapRadioButton.Size = new System.Drawing.Size(160, 17);
-            this.defaultMidiMapRadioButton.TabIndex = 16;
-            this.defaultMidiMapRadioButton.TabStop = true;
-            this.defaultMidiMapRadioButton.Text = "Default MIDI mapping C2-C6";
-            this.infoToolTip.SetToolTip(this.defaultMidiMapRadioButton, "If one sound selected, this sound is used on all keys. If multiple sounds selecte" +
-        "d, it assumes the sounds have been imported from sfz.");
-            this.defaultMidiMapRadioButton.UseVisualStyleBackColor = true;
-            // 
-            // midiChTextBox
-            // 
-            this.midiChTextBox.Location = new System.Drawing.Point(139, 14);
-            this.midiChTextBox.Name = "midiChTextBox";
-            this.midiChTextBox.ReadOnly = true;
-            this.midiChTextBox.Size = new System.Drawing.Size(41, 20);
-            this.midiChTextBox.TabIndex = 13;
             // 
             // drumsComboBox1
             // 
@@ -904,7 +906,7 @@
             this.useInSpiButton.Enabled = false;
             this.useInSpiButton.Location = new System.Drawing.Point(477, 46);
             this.useInSpiButton.Name = "useInSpiButton";
-            this.useInSpiButton.Size = new System.Drawing.Size(24, 347);
+            this.useInSpiButton.Size = new System.Drawing.Size(24, 402);
             this.useInSpiButton.TabIndex = 11;
             this.useInSpiButton.Text = "A\r\nD\r\nD\r\n\r\n->\r\n->\r\n->\r\n\r\nS\r\nO\r\nU\r\nN\r\nD";
             this.useInSpiButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;

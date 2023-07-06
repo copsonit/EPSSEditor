@@ -78,7 +78,7 @@ namespace EPSSEditor
 
 
 
-        private List<EPSSSpi_midiChannelSplit> fillInMidiSplits(ref EPSSSpi spi, ref List<SpiSound> sounds, bool omni)
+        private List<EPSSSpi_midiChannelSplit> fillInMidiSplits(ref EPSSEditorData data, ref EPSSSpi spi, ref List<SpiSound> sounds)
         {
             List<EPSSSpi_midiChannelSplit> channels = new List<EPSSSpi_midiChannelSplit>();
 
@@ -87,7 +87,7 @@ namespace EPSSEditor
                 EPSSSpi_midiChannelSplit channel = new EPSSSpi_midiChannelSplit();
                 channel.data = new EPSSSpi_soundAndPitch[128];
 
-                List<SpiSound> sound = getSoundForMidiChannel(ref sounds, ch + 1, omni);
+                List<SpiSound> sound = getSoundForMidiChannel(ref sounds, ch + 1, data.omni);
 
                 bool useMidiSplit = false;
                 foreach (SpiSound sndToFind in sound)
@@ -133,7 +133,8 @@ namespace EPSSEditor
                             for (int i = sndToFind.startNote; i <= sndToFind.endNote; i++)
                             {
                                 EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch();
-                                sp.sound = (byte)sndToFind.soundNumber;
+
+                                sp.sound = (byte)data.getSoundNumberFromGuid(sndToFind.soundId);
                                 sp.pitch = (byte)(sndToFind.midiNote + j);
                                 sp.noSound = 0;
                                 j++;
@@ -156,7 +157,7 @@ namespace EPSSEditor
 
                         if (i >= 36 && i <= 84) // C2 - C6
                         {
-                            sp.sound = (byte)snd.soundNumber;
+                            sp.sound = (byte)data.getSoundNumberFromGuid(snd.soundId);
                             sp.pitch = snd.transposedNote(note);
                             note++;
                             sp.noSound = 0;
@@ -187,7 +188,7 @@ namespace EPSSEditor
                         {
                             if (sndToFind.midiNote == i + 1)
                             {
-                                sp.sound = (byte)sndToFind.soundNumber;
+                                sp.sound = (byte)data.getSoundNumberFromGuid(sndToFind.soundId);
                                 sp.pitch = snd.transposedNote(84);
                                 sp.noSound = 0;
                                 found = true;
@@ -220,7 +221,7 @@ namespace EPSSEditor
                             if (snd.midiNote == i)
                             {
                                 note = snd.transposedNote(84);
-                                spiSound = (byte)snd.soundNumber;
+                                spiSound = (byte)data.getSoundNumberFromGuid(snd.soundId);
                                 break; // Only use first found. UI only allows one sound per not so it should be safe.
                             }
                         }
@@ -254,7 +255,7 @@ namespace EPSSEditor
         }
 
 
-        private List<EPSSSpi_programChangeSplit> fillInProgramChangeSplits(ref EPSSSpi spi, ref List<SpiSound> sounds)
+        private List<EPSSSpi_programChangeSplit> fillInProgramChangeSplits(ref EPSSEditorData data, ref EPSSSpi spi, ref List<SpiSound> sounds)
         {
             // Initialize all splits to empty.
             List<EPSSSpi_programChangeSplit> programChanges = new List<EPSSSpi_programChangeSplit>();
@@ -284,7 +285,7 @@ namespace EPSSEditor
                     {
                         programChanges[snd.programNumber].data[key].noSound = 0; // Mark that sound is used
                         programChanges[snd.programNumber].data[key].pitch = (byte)(snd.midiNote + key - loNote);
-                        programChanges[snd.programNumber].data[key].sound = (UInt16)snd.soundNumber;
+                        programChanges[snd.programNumber].data[key].sound = (UInt16)data.getSoundNumberFromGuid(snd.soundId);
                     }
                 }
             }
@@ -293,9 +294,9 @@ namespace EPSSEditor
         }
 
 
-        public void fillInSplit(ref EPSSSpi spi, ref List<SpiSound> sounds, bool omni)
+        public void fillInSplit(ref EPSSEditorData data, ref EPSSSpi spi, ref List<SpiSound> sounds)
         {
-            List<EPSSSpi_midiChannelSplit> channels = fillInMidiSplits(ref spi, ref sounds, omni);
+            List<EPSSSpi_midiChannelSplit> channels = fillInMidiSplits(ref data, ref spi, ref sounds);
 
             spi.split.channels = channels.ToArray();
 
@@ -304,7 +305,7 @@ namespace EPSSEditor
             var tSplit = sp as EPSSSpi_splitInfoGen2;
             if (tSplit != null)
             {
-                List<EPSSSpi_programChangeSplit> programChanges = fillInProgramChangeSplits(ref spi, ref sounds);
+                List<EPSSSpi_programChangeSplit> programChanges = fillInProgramChangeSplits(ref data, ref spi, ref sounds);
                 tSplit.programs = programChanges.ToArray();
             }
 
@@ -437,7 +438,7 @@ namespace EPSSEditor
             return smp;
         }
 
-        public EPSSSpi_soundInfo getSoundInfoFromSpiSound(EPSSSpi_sample smp, SpiSound snd)
+        public EPSSSpi_soundInfo getSoundInfo(EPSSSpi_sample smp/*, SpiSound snd*/)
         {
             EPSSSpi_soundInfo info = new EPSSSpi_soundInfo();
             info.s_sampstart = 0;
@@ -458,7 +459,7 @@ namespace EPSSEditor
             return info;
         }
 
-        public EPSSSpi_extSoundInfo getExtSoundInfoFromSpiSound(EPSSSpi_sample smp, SpiSound snd)
+        public EPSSSpi_extSoundInfo getExtSoundInfoFromSpiSound(/*EPSSSpi_sample smp, */SpiSound snd)
         {
             EPSSSpi_extSoundInfo extInfo = new EPSSSpi_extSoundInfo();
             extInfo.s_sampname = snd.name();  // "TstSam" + (i + 1).ToString();
@@ -476,18 +477,29 @@ namespace EPSSEditor
             List<EPSSSpi_extSoundInfo> extSoundInfos = new List<EPSSSpi_extSoundInfo>();
             List<EPSSSpi_sample> samples = new List<EPSSSpi_sample>();
 
+
+
+            HashSet<int> usedSounds = new HashSet<int>();
+
             foreach (SpiSound snd in sounds)
             {
-                EPSSSpi_sample sample = getSampleFromSpiSound(ref data, snd, sampFreq);
+                int soundNumber = data.getSoundNumberFromGuid(snd.soundId);
+                if (!usedSounds.Contains(soundNumber))
+                {
 
-                EPSSSpi_soundInfo sInfo = getSoundInfoFromSpiSound(sample, snd);
+                    EPSSSpi_sample sample = getSampleFromSpiSound(ref data, snd, sampFreq);
 
-                EPSSSpi_extSoundInfo extSinfo = getExtSoundInfoFromSpiSound(sample, snd);
+                    EPSSSpi_soundInfo sInfo = getSoundInfo(sample);
+
+                    EPSSSpi_extSoundInfo extSinfo = getExtSoundInfoFromSpiSound(snd);
 
 
-                samples.Add(sample);
-                soundInfos.Add(sInfo);
-                extSoundInfos.Add(extSinfo);
+                    samples.Add(sample);
+                    soundInfos.Add(sInfo);
+                    extSoundInfos.Add(extSinfo);
+                    
+                    usedSounds.Add(soundNumber);
+                }
             }
 
             spi.sounds.sounds = soundInfos.ToArray();
@@ -530,8 +542,12 @@ namespace EPSSEditor
 
         public EPSSSpi create(ref EPSSEditorData data, List<SpiSound> sounds, string name, string info, int sampFreq)
         {
-            noOfSounds = sounds.Count;
-            if (noOfSounds < 256)
+            
+            
+            //noOfSounds = sounds.Count;
+            noOfSounds = data.sounds.Count; // not number of split (i.e. SpiSounds) as it was before...
+            if ((version <= 1 && noOfSounds < 256) ||
+                (version >=2 && noOfSounds < 65536))
             {
                 EPSSSpi spi;
 
@@ -547,12 +563,11 @@ namespace EPSSEditor
 
                 initialize(ref spi);
 
-
                 fillInMain(ref spi);
 
                 fillInExt(ref spi, name, info);
 
-                fillInSplit(ref spi, ref sounds, data.omni);
+                fillInSplit(ref data, ref spi, ref sounds);
 
                 fillInSamples(ref data, ref spi, ref sounds, sampFreq);
 
@@ -581,7 +596,17 @@ namespace EPSSEditor
             long spiExtSoundsLength = 64 * noOfSounds;
             long spiSamplesLength = 0;
 
-            foreach (SpiSound snd in sounds) spiSamplesLength += snd.preLength(ref data);
+            HashSet<int> usedSounds = new HashSet<int>();
+
+            foreach (SpiSound snd in sounds)
+            {
+                int soundNumber = data.getSoundNumberFromGuid(snd.soundId);
+                if (!usedSounds.Contains(soundNumber))
+                {
+                    spiSamplesLength += snd.preLength(ref data);
+                    usedSounds.Add(soundNumber);
+                }
+            }
 
             return mainLength + spiExtLength + spiSplitLength + spiSoundsLength + spiExtSoundsLength + spiSamplesLength;
 
