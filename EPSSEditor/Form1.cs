@@ -63,7 +63,7 @@ namespace EPSSEditor
      * TODO MIDI Mapping button has to be correctly set according to what is saved in patch when loaded. Only when loading project then? If added in EPSSEditorData it should work automatically.
      * TODO Change default text to "Created with EPSS Editor" + version number. Or somewhere store which version it is created in, in SPI Info. Reserve a few bytes for this?
      * OK   Mapping when adding sounds worked not at all, only for drums. Never Default, etc. Should now work, needs testing.
-     * TODO Using same Sound on multiple spiSounds: calculate wrong size, exports invalid SPI (wrong number of sounds reported when loading SPI)
+     * OK   Using same Sound on multiple spiSounds: calculate wrong size, exports invalid SPI (wrong number of sounds reported when loading SPI)
      * TODO center tone when export sfz can be negative. Probably wrong transpose-tables used, need to use a map to find real tone (from EPSS map) and then use that to recalculate center tone.
      * TODO Test with epf from older versions and see how it behaves when we now have much more data in EpssEditorData class. Possibly write some fix code.
      * TODO Look at doing some unit test code when we get things working. Possibly more refactoring needed. Load old epf and ensure not crashing, load and convert set data to spi and compare output. Deserialize EPSSSpi for easier tracking of errors. Export to SPI and import same file.
@@ -76,6 +76,7 @@ namespace EPSSEditor
      *          Check what sample formats that we support through the libs and make more possible to read? 
      *          SoundFonts?
      * TODO Right click on samples left hand to rename them.
+     * TODO Show used sounds.
      * 
      * */
 
@@ -629,6 +630,7 @@ namespace EPSSEditor
                     if (result)
                     {
                         updateDialog();
+                        updateTotalSize();
                         dataNeedsSaving = true;
                         saveProjectSettings();
                     }
@@ -699,10 +701,11 @@ namespace EPSSEditor
                             data.spiFileName = spiFile;
                             dataNeedsSaving = true;
                             saveProjectSettings();
+                            MessageBox.Show("SPI exported successfully!", "EPSS Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else
                         {
-                            System.Windows.Forms.MessageBox.Show("Error occured during save! Patch file might not be valid.");
+                            MessageBox.Show("Error occured during save! Patch file might not be valid.");
                         }
                     }
                 }
@@ -1513,6 +1516,7 @@ namespace EPSSEditor
             foreach (ListViewItem item in spiSoundListView.SelectedItems)
             {
                 enabled = true;
+                break;
             }
             deleteSpiSoundButton.Enabled = enabled;
             button1.Enabled = enabled;
@@ -1686,8 +1690,30 @@ namespace EPSSEditor
                 List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
                 deleteSoundButton.Enabled = spiSounds.Count == 0;
 
+                if ((Control.ModifierKeys & Keys.Alt) != Keys.None)
+                {
+                    foreach (ListViewItem item in spiSoundListView.Items) {
+                        item.Selected = false;
+                    }
+                        
 
+                    foreach (ListViewItem item in spiSoundListView.Items)
+                    {
+                        int selected = item.Index;
 
+                        if (selected >= 0)
+                        {
+                            SpiSound selectedSnd = data.spiSounds[selected];
+                            foreach(var spiSnd in spiSounds)
+                            {
+                                if (spiSnd == selectedSnd)
+                                {
+                                    item.Selected = true;
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else
             {
