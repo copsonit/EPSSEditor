@@ -30,6 +30,7 @@ namespace EPSSEditor
     {
 
         public EPSSEditorData data;
+        private bool deletePressed;
         private bool ctrlAPressed;
         private bool callbacks = true;
         private int initialize;
@@ -140,10 +141,6 @@ namespace EPSSEditor
                 {
 
                     data = new EPSSEditorData();
-
-
-
-                    //string dir = Path.GetDirectoryName(System.Reflection.Assembly.G‌​etEntryAssembly().Lo‌​cation);
                     string dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
                     string combined = Path.Combine(dir, "drumMappings.xml");
                     FileInfo fi = new FileInfo(combined);
@@ -194,6 +191,9 @@ namespace EPSSEditor
 
         private void updateDialog()
         {
+            string file = Properties.Settings.Default.ProjectFile;
+            this.Text = "EPSS Editor v" + GetRunningVersion().ToString() + "   -   Project: " + file;
+
             updateDrumSettings();
             updateSoundListBox();
             updateSpiSoundListBox();
@@ -1374,8 +1374,6 @@ namespace EPSSEditor
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.Text = "EPSS Editor v" + GetRunningVersion().ToString();
-
             Size s = Properties.Settings.Default.WinSize;
 
             if (s.Width == 0) Properties.Settings.Default.Upgrade();
