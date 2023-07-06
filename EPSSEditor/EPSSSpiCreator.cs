@@ -255,7 +255,7 @@ namespace EPSSEditor
         }
 
 
-        private List<EPSSSpi_programChangeSplit> fillInProgramChangeSplits(ref EPSSSpi spi, ref List<SpiSound> sounds)
+        private List<EPSSSpi_programChangeSplit> fillInProgramChangeSplits(ref EPSSEditorData data, ref EPSSSpi spi, ref List<SpiSound> sounds)
         {
             // Initialize all splits to empty.
             List<EPSSSpi_programChangeSplit> programChanges = new List<EPSSSpi_programChangeSplit>();
@@ -285,7 +285,7 @@ namespace EPSSEditor
                     {
                         programChanges[snd.programNumber].data[key].noSound = 0; // Mark that sound is used
                         programChanges[snd.programNumber].data[key].pitch = (byte)(snd.midiNote + key - loNote);
-                        programChanges[snd.programNumber].data[key].sound = (UInt16)snd.soundNumber;
+                        programChanges[snd.programNumber].data[key].sound = (UInt16)data.getSoundNumberFromGuid(snd.soundId);
                     }
                 }
             }
@@ -305,7 +305,7 @@ namespace EPSSEditor
             var tSplit = sp as EPSSSpi_splitInfoGen2;
             if (tSplit != null)
             {
-                List<EPSSSpi_programChangeSplit> programChanges = fillInProgramChangeSplits(ref spi, ref sounds);
+                List<EPSSSpi_programChangeSplit> programChanges = fillInProgramChangeSplits(ref data, ref spi, ref sounds);
                 tSplit.programs = programChanges.ToArray();
             }
 
@@ -438,7 +438,7 @@ namespace EPSSEditor
             return smp;
         }
 
-        public EPSSSpi_soundInfo getSoundInfoFromSpiSound(EPSSSpi_sample smp, SpiSound snd)
+        public EPSSSpi_soundInfo getSoundInfo(EPSSSpi_sample smp/*, SpiSound snd*/)
         {
             EPSSSpi_soundInfo info = new EPSSSpi_soundInfo();
             info.s_sampstart = 0;
@@ -459,7 +459,7 @@ namespace EPSSEditor
             return info;
         }
 
-        public EPSSSpi_extSoundInfo getExtSoundInfoFromSpiSound(EPSSSpi_sample smp, SpiSound snd)
+        public EPSSSpi_extSoundInfo getExtSoundInfoFromSpiSound(/*EPSSSpi_sample smp, */SpiSound snd)
         {
             EPSSSpi_extSoundInfo extInfo = new EPSSSpi_extSoundInfo();
             extInfo.s_sampname = snd.name();  // "TstSam" + (i + 1).ToString();
@@ -477,18 +477,29 @@ namespace EPSSEditor
             List<EPSSSpi_extSoundInfo> extSoundInfos = new List<EPSSSpi_extSoundInfo>();
             List<EPSSSpi_sample> samples = new List<EPSSSpi_sample>();
 
+
+
+            HashSet<int> usedSounds = new HashSet<int>();
+
             foreach (SpiSound snd in sounds)
             {
-                EPSSSpi_sample sample = getSampleFromSpiSound(ref data, snd, sampFreq);
+                int soundNumber = data.getSoundNumberFromGuid(snd.soundId);
+                if (!usedSounds.Contains(soundNumber))
+                {
 
-                EPSSSpi_soundInfo sInfo = getSoundInfoFromSpiSound(sample, snd);
+                    EPSSSpi_sample sample = getSampleFromSpiSound(ref data, snd, sampFreq);
 
-                EPSSSpi_extSoundInfo extSinfo = getExtSoundInfoFromSpiSound(sample, snd);
+                    EPSSSpi_soundInfo sInfo = getSoundInfo(sample);
+
+                    EPSSSpi_extSoundInfo extSinfo = getExtSoundInfoFromSpiSound(snd);
 
 
-                samples.Add(sample);
-                soundInfos.Add(sInfo);
-                extSoundInfos.Add(extSinfo);
+                    samples.Add(sample);
+                    soundInfos.Add(sInfo);
+                    extSoundInfos.Add(extSinfo);
+                    
+                    usedSounds.Add(soundNumber);
+                }
             }
 
             spi.sounds.sounds = soundInfos.ToArray();
@@ -585,7 +596,17 @@ namespace EPSSEditor
             long spiExtSoundsLength = 64 * noOfSounds;
             long spiSamplesLength = 0;
 
-            foreach (SpiSound snd in sounds) spiSamplesLength += snd.preLength(ref data);
+            HashSet<int> usedSounds = new HashSet<int>();
+
+            foreach (SpiSound snd in sounds)
+            {
+                int soundNumber = data.getSoundNumberFromGuid(snd.soundId);
+                if (!usedSounds.Contains(soundNumber))
+                {
+                    spiSamplesLength += snd.preLength(ref data);
+                    usedSounds.Add(soundNumber);
+                }
+            }
 
             return mainLength + spiExtLength + spiSplitLength + spiSoundsLength + spiExtSoundsLength + spiSamplesLength;
 

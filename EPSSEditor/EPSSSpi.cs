@@ -494,7 +494,7 @@ namespace EPSSEditor
 
         public override int length()
         {
-            return 80;
+            return 80 - 16; // !! Note that documentation start this offset at 16. This should be the length of this block only!
         }
 
     }

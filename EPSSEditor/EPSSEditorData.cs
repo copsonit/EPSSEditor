@@ -7,6 +7,7 @@ using System.IO;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EPSSEditor
 {
@@ -61,16 +62,7 @@ namespace EPSSEditor
             for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
             {
                 string safe = spi.extSounds.sounds[i].s_sampname.Trim();
-
-                foreach (char lDisallowed in System.IO.Path.GetInvalidFileNameChars())
-                {
-                    safe = safe.Replace(lDisallowed.ToString(), "");
-                }
-                foreach (char lDisallowed in System.IO.Path.GetInvalidPathChars())
-                {
-                    safe = safe.Replace(lDisallowed.ToString(), "");
-                }
-
+                safe = Utility.ReplaceIllegalCharacters(safe);
                 if (String.IsNullOrEmpty(safe)) safe = "NULL";
 
                 string outPath = soundDir + '\\' + safe + ".wav";
@@ -304,17 +296,6 @@ namespace EPSSEditor
                 if (!occupied[i]) return i + 1;
             }
             return 0;
-        }
-
-
-        public List<SpiSound> getSortedSpiSounds()
-        {
-            int i = 0;
-            foreach (SpiSound snd in spiSounds)
-            {
-                snd.soundNumber = i++;
-            }
-            return spiSounds;
         }
 
 

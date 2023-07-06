@@ -612,14 +612,14 @@ namespace EPSSEditor
             if (spi != null)
             {
                 // warn user, if we have spi sounds, these will be cleared
-                string patchName = spi.ext.i_pname;
+                string patchName = Utility.ReplaceIllegalCharacters(spi.ext.i_pname);
                 if (String.IsNullOrEmpty(patchName))
                 {
                     patchName = Path.GetFileName(file);
                 }                                
 
                 string path = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile); // Sample create dir
-                path += "\\" + spi.ext.i_pname;
+                path += "\\" + patchName;
                 
                 //if (doConversion)
                 if (WarnAndConfirmDir(path, "Directory for conversion of SPI already exists.\nDo you want to delete it?"))
@@ -675,7 +675,7 @@ namespace EPSSEditor
 
         private void doSaveSpi()
         {
-            List<SpiSound> soundsToSave = data.getSortedSpiSounds();
+            List<SpiSound> soundsToSave = data.spiSounds;
             if (soundsToSave.Count > 0)
             {
                 saveSpiFileDialog.InitialDirectory = Path.GetDirectoryName(data.spiFileName);

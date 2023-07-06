@@ -6,6 +6,26 @@ using System.IO;
 
 namespace EPSSEditor
 {
+    // Utilities and extensions.
+
+    public static class Utility
+    {
+        public static string ReplaceIllegalCharacters(string text)
+        {
+            foreach (char lDisallowed in System.IO.Path.GetInvalidFileNameChars())
+            {
+                text = text.Replace(lDisallowed.ToString(), "");
+            }
+            foreach (char lDisallowed in System.IO.Path.GetInvalidPathChars())
+            {
+                text = text.Replace(lDisallowed.ToString(), "");
+            }
+
+            return text;
+        }
+    }
+    
+
     // https://stackoverflow.com/questions/14488796/does-net-provide-an-easy-way-convert-bytes-to-kb-mb-gb-etc
     // JerKimball suggestion.
     
