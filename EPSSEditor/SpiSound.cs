@@ -12,7 +12,7 @@ namespace EPSSEditor
   
     public class SpiSound
     {
-        public byte midiChannel;
+        public byte midiChannel; // [1-16]
         public byte midiNote;
 
         public byte startNote;
@@ -56,7 +56,7 @@ namespace EPSSEditor
             soundId = sound.id();
             SetNameFromSound(sound);
  
-            midiChannel = (byte)sfz.Midich;
+            midiChannel = (byte)(sfz.Midich + 1);
             startNote = (byte)sfz.NoteStart;
             endNote = (byte)sfz.NoteEnd;
             int center = sfz.NoteStart + 84 - sfz.Low;
@@ -137,7 +137,7 @@ namespace EPSSEditor
         }
 
 
-        public bool convertSound(ref EPSSEditorData data, string outFile, int newFreq, int bits, int channels)
+        public bool convertSound(EPSSEditorData data, string outFile, int newFreq, int bits, int channels)
         {
             bool result = true;
 
@@ -230,13 +230,13 @@ namespace EPSSEditor
         }
 
 
-        public MemoryStream getWaveStream(ref EPSSEditorData data, int newFreq, int bits, int channels)
+        public MemoryStream getWaveStream(EPSSEditorData data, int newFreq, int bits, int channels)
         {
             if (ms == null)
             {
                 string outFile = data.convertSoundFileName();
 
-                if (convertSound(ref data, outFile, newFreq, bits, channels))
+                if (convertSound(data, outFile, newFreq, bits, channels))
                 {
                     ms = new MemoryStream();
                     using (FileStream file = new FileStream(outFile, FileMode.Open, FileAccess.Read))

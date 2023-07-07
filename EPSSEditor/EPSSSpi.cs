@@ -323,7 +323,7 @@ namespace EPSSEditor
 
 
 
-    public struct EPSSSpi_i_no_of_MIDICh
+    public struct EPSSSpi_i_no_of_MIDICh   // [1-16]
     {
         internal UInt16 data;
 
@@ -564,7 +564,7 @@ namespace EPSSEditor
                 reader.BaseStream.Seek(spi.main.i_patch_offset, SeekOrigin.Begin);
                 byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
                 List<EPSSSpi_midiChannelSplit> channelList = new List<EPSSSpi_midiChannelSplit>();
-                for (int i = 1; i <= spi.main.i_no_of_MIDIch.no_of_MIDICh; i++)
+                for (int midiChannel = 1; midiChannel <= spi.main.i_no_of_MIDIch.no_of_MIDICh; midiChannel++)
                 {
                     EPSSSpi_midiChannelSplit channel = new EPSSSpi_midiChannelSplit();
                     channel.data = new EPSSSpi_soundAndPitch[128];
@@ -1092,8 +1092,8 @@ namespace EPSSEditor
         // public Byte vvfe : 6
         public byte vvfe
         {
-            get { return (byte)((data >> 6) & 0x3f); }
-            set { data = (UInt16)((data & ~(0x3f << 6)) | ((value & 0x3f) << 6)); }
+            get { return (byte)((data >> 2) & 0x3f); }
+            set { data = (UInt16)((data & ~(0x3f << 2)) | ((value & 0x3f) << 2)); }
         }
 
         // public Byte toneoffset : 1

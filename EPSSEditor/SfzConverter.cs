@@ -16,7 +16,7 @@ namespace EPSSEditor
 {
     public class SfzSplitInfo : IComparable<SfzSplitInfo>
     {
-        public int Midich;
+        public int Midich; // [0-15]
         public int Low;
         public int High;
         public int NoteStart;
@@ -186,7 +186,7 @@ namespace EPSSEditor
         }
 
 
-        public bool SaveOneSFZ(int midich, string patchName, string fileName, string sampleSubDir, ref List<SfzSplitInfo> splitsForChannel, ref List<Sound> sounds, ref string errorMessage)
+        public bool SaveOneSFZ(int midiChannel, string patchName, string fileName, string sampleSubDir, ref List<SfzSplitInfo> splitsForChannel, ref List<Sound> sounds, ref string errorMessage)
         {
             bool result = true;
 
@@ -198,7 +198,7 @@ namespace EPSSEditor
                     writer.WriteLine("// EPSS SPI to SFZ Conversion.");
                     writer.WriteLine("// Original SPI: {0}", patchName);
 
-                    writer.WriteLine("<master> loprog={0} hiprog={0} master_label=Midi channel {0}", midich);
+                    writer.WriteLine("<master> loprog={0} hiprog={0} master_label=Midi channel {0}", midiChannel);
                     writer.WriteLine("<group>");
 
                     foreach (var info in splitsForChannel)

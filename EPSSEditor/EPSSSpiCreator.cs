@@ -82,12 +82,12 @@ namespace EPSSEditor
         {
             List<EPSSSpi_midiChannelSplit> channels = new List<EPSSSpi_midiChannelSplit>();
 
-            for (int ch = 0; ch < noOfMidiCh; ch++)
+            for (int midiChannel = 1; midiChannel <= noOfMidiCh; midiChannel++)
             {
                 EPSSSpi_midiChannelSplit channel = new EPSSSpi_midiChannelSplit();
                 channel.data = new EPSSSpi_soundAndPitch[128];
 
-                List<SpiSound> sound = getSoundForMidiChannel(ref sounds, ch + 1, data.omni);
+                List<SpiSound> sound = getSoundForMidiChannel(ref sounds, midiChannel, data.omni);
 
                 bool useMidiSplit = false;
                 foreach (SpiSound sndToFind in sound)
@@ -145,7 +145,7 @@ namespace EPSSEditor
 
                     channels.Add(channel);
                 }
-                else if (sound.Count == 1 && ch != 9)
+                else if (sound.Count == 1 && midiChannel != 10)
                 {
                     SpiSound snd = sound.First();
 
@@ -176,7 +176,7 @@ namespace EPSSEditor
 
                 }
                 // What does this really do? Seems to be mapping samples like drum samples for other channels than MIDI 10?
-                else if (sound.Count > 1 && ch != 9)
+                else if (sound.Count > 1 && midiChannel != 10)
                 {
 
                     SpiSound snd = sound.First();
@@ -206,7 +206,7 @@ namespace EPSSEditor
                     }
                     channels.Add(channel);
                 }
-                else if (ch == 9) // drums
+                else if (midiChannel == 10) // drums
                 {
 
                     for (int i = 0; i < 128; i++)
@@ -329,12 +329,12 @@ namespace EPSSEditor
         }
 
 
-        public EPSSSpi_sample getSampleFromSpiSound(ref EPSSEditorData data, SpiSound snd, int freq)
+        public EPSSSpi_sample getSampleFromSpiSound(EPSSEditorData data, SpiSound snd, int freq)
         {
             EPSSSpi_sample smp = new EPSSSpi_sample();
 
             string outFile = Path.GetTempFileName();
-            if (snd.convertSound(ref data, outFile, freq, AtariConstants.SampleBits, AtariConstants.SampleChannels))
+            if (snd.convertSound(data, outFile, freq, AtariConstants.SampleBits, AtariConstants.SampleChannels))
             {
                 using (var wav = File.OpenRead(outFile))
                 {
@@ -438,15 +438,15 @@ namespace EPSSEditor
             return smp;
         }
 
-        public EPSSSpi_soundInfo getSoundInfo(EPSSSpi_sample smp/*, SpiSound snd*/)
+        public EPSSSpi_soundInfo getSoundInfo(EPSSSpi_sample smp, SpiSound snd)
         {
             EPSSSpi_soundInfo info = new EPSSSpi_soundInfo();
             info.s_sampstart = 0;
             info.s_sampend = (uint)smp.data.Length;
             info.s_loopstart = 0;
-            info.s_loopmode.toneoffset = 0; // transpose?
+            info.s_loopmode.toneoffset = snd.transpose;
             info.s_loopmode.loopmode = 1;
-            info.s_loopmode.vvfe = 0;
+            info.s_loopmode.vvfe = 0x3f;
             info.s_gr_freq.drum = 0;
             info.s_gr_freq.velocity = 0;
             info.s_gr_freq.soundType = 0;
@@ -477,29 +477,33 @@ namespace EPSSEditor
             List<EPSSSpi_extSoundInfo> extSoundInfos = new List<EPSSSpi_extSoundInfo>();
             List<EPSSSpi_sample> samples = new List<EPSSSpi_sample>();
 
-
-
+            SortedDictionary<int, SpiSound> sortedSounds = new SortedDictionary<int, SpiSound>();
             HashSet<int> usedSounds = new HashSet<int>();
-
             foreach (SpiSound snd in sounds)
             {
                 int soundNumber = data.getSoundNumberFromGuid(snd.soundId);
                 if (!usedSounds.Contains(soundNumber))
                 {
-
-                    EPSSSpi_sample sample = getSampleFromSpiSound(ref data, snd, sampFreq);
-
-                    EPSSSpi_soundInfo sInfo = getSoundInfo(sample);
-
-                    EPSSSpi_extSoundInfo extSinfo = getExtSoundInfoFromSpiSound(snd);
-
-
-                    samples.Add(sample);
-                    soundInfos.Add(sInfo);
-                    extSoundInfos.Add(extSinfo);
-                    
+                    sortedSounds.Add(soundNumber, snd);
                     usedSounds.Add(soundNumber);
                 }
+            }
+
+
+            foreach (KeyValuePair<int, SpiSound> entry in sortedSounds)
+            {
+                SpiSound snd = entry.Value;
+
+                EPSSSpi_sample sample = getSampleFromSpiSound(data, snd, sampFreq);
+
+                EPSSSpi_soundInfo sInfo = getSoundInfo(sample, snd);
+
+                EPSSSpi_extSoundInfo extSinfo = getExtSoundInfoFromSpiSound(snd);
+
+
+                samples.Add(sample);
+                soundInfos.Add(sInfo);
+                extSoundInfos.Add(extSinfo);
             }
 
             spi.sounds.sounds = soundInfos.ToArray();

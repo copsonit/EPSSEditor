@@ -52,7 +52,6 @@ namespace EPSSEditor
             spiDescription = "Created with EPSSEditor";
 
             previewSelected = 0;
-
         }
 
 

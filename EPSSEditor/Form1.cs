@@ -106,7 +106,16 @@ namespace EPSSEditor
 
                     else
                     {
-
+                        string s = Properties.Settings.Default.ProjectFile;
+                        if (s == null || s == "")
+                        {
+                            s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                            s = Path.Combine(s, "EPSS Projects", "default.epf");
+                        }
+                        string projFile = Path.GetDirectoryName(s);
+                        saveProjectFileDialog.InitialDirectory = projFile;
+                        string fileName = Path.GetFileName(s);
+                        saveProjectFileDialog.FileName = fileName;
 
                         saveProjectFileDialog.Title = "Choose filename for new EPSS project ...";
                         if (saveProjectFileDialog.ShowDialog() == DialogResult.OK)
@@ -861,7 +870,7 @@ namespace EPSSEditor
             {
                 SpiSound snd = data.spiSounds[selected];
 
-                MemoryStream ms = snd.getWaveStream(ref data, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels);
+                MemoryStream ms = snd.getWaveStream(data, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels);
                 if (ms != null) {
                     ms.Position = 0;
                     using (WaveStream blockAlignedStream =
@@ -974,7 +983,7 @@ namespace EPSSEditor
                         {
                             string outFile = saveSampleFileDialog.FileName;
                             SpiSound snd = data.spiSounds[selected];
-                            if (snd.convertSound(ref data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
+                            if (snd.convertSound(data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
                             {
                             }
 
