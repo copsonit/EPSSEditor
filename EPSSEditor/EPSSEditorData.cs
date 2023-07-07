@@ -8,6 +8,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
+using System.Drawing;
 
 namespace EPSSEditor
 {
@@ -150,7 +151,7 @@ namespace EPSSEditor
         }
 
 
-        public Dictionary<int, List<SfzSplitInfo>> ConvertToSfzSplitInfo()
+        public Dictionary<int, List<SfzSplitInfo>> ConvertToSfzSplitInfoForSfzExport()
         {
             Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = new Dictionary<int, List<SfzSplitInfo>>();
 

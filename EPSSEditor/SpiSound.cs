@@ -21,6 +21,7 @@ namespace EPSSEditor
         public byte programNumber;
         public sbyte transpose;
         public byte vvfe;
+        public UInt16 s_gr_frek;
 
         public Guid soundId;
         public string _name;
@@ -30,6 +31,9 @@ namespace EPSSEditor
         public UInt32 start;
         public UInt32 end;
         public UInt32 loopStart;
+
+        public UInt16 extVolume;
+        public UInt16 subTone;
 
 
         private MemoryStream ms = null;
@@ -51,7 +55,7 @@ namespace EPSSEditor
         }
         
         
-        public SpiSound(ref Sound sound, SfzSplitInfo sfz)
+        public SpiSound(ref Sound sound, SfzSplitInfo sfz) // Used when importing from SPI
         {
             midiNoteMapped = 84;
             soundId = sound.id();
@@ -64,10 +68,15 @@ namespace EPSSEditor
             midiNote = (byte)(84 - (center - sfz.NoteStart));
             transpose = (sbyte)sfz.Transpose;
             vvfe = (byte)sfz.Vvfe;
+            s_gr_frek = sfz.S_gr_frek;
+
             loopMode = (byte)sfz.Loopmode;
             start = sfz.Start;
             end = sfz.End;
             loopStart = sfz.LoopStart;
+
+            extVolume = sfz.ExtVolume;
+            subTone = sfz.SubTone;
         }
 
         public SpiSound(EPSSSpi_soundInfo soundInfo, EPSSSpi_extSoundInfo extSoundInfo, EPSSSpi_sample soundData)

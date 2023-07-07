@@ -299,6 +299,20 @@ namespace EPSSEditor
             spiSoundListView.Columns.Add("Size", 55, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("Transpose", 55, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("Vvfe", 35, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("D", 20, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("V", 20, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("T", 20, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("M", 20, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("A", 20, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("S", 20, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("P", 20, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("F", 20, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("Start", 65, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("Loop", 65, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("End", 65, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("L", 20, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("Vol", 40, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("Sub", 40, HorizontalAlignment.Left);
             spiSoundListView.View = View.Details;
 
             spiSoundListView.FullRowSelect = true;
@@ -343,6 +357,27 @@ namespace EPSSEditor
                 item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 2));
                 item.SubItems.Add(s.transposeString());
                 item.SubItems.Add(s.VvfeString());
+
+                EPSSSpi_s_gr_frek props = new EPSSSpi_s_gr_frek();
+                props.data = s.s_gr_frek;
+
+                item.SubItems.Add(props.drum.ToString());
+                item.SubItems.Add(props.velocity.ToString());
+                item.SubItems.Add(props.soundType.ToString());
+                item.SubItems.Add(props.mode.ToString());
+                item.SubItems.Add(props.aftertouch.ToString());
+                item.SubItems.Add(props.stereoType.ToString());
+                item.SubItems.Add(props.stereoPan.ToString());
+                item.SubItems.Add(props.orgFreq.ToString());
+
+
+                item.SubItems.Add(s.start.ToString("X8"));
+                item.SubItems.Add(s.loopStart.ToString("X8"));
+                item.SubItems.Add(s.end.ToString("X8"));
+                item.SubItems.Add(s.loopMode.ToString());
+
+                item.SubItems.Add(s.extVolume.ToString());
+                item.SubItems.Add(s.subTone.ToString());
 
                 spiSoundListView.Items.Add(item);
             }
@@ -1180,7 +1215,7 @@ namespace EPSSEditor
             string name = "";
             if (CheckSfzDirectories(sfzFile, sampleSubDir, ref name, ref sfzDir, ref sampleDir))
             {
-                Dictionary<int, List<SfzSplitInfo>> dict = data.ConvertToSfzSplitInfo();
+                Dictionary<int, List<SfzSplitInfo>> dict = data.ConvertToSfzSplitInfoForSfzExport();
                 SfzConverter c = new SfzConverter();
                 string errorMessage = "";
                 bool result = c.SaveSFZ(ref dict, ref data.sounds, sfzDir, sampleSubDir, name, ref errorMessage);

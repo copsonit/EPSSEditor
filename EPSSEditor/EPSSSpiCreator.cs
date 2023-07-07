@@ -443,18 +443,11 @@ namespace EPSSEditor
             EPSSSpi_soundInfo info = new EPSSSpi_soundInfo();
             info.s_sampstart = 0;
             info.s_sampend = (uint)smp.data.Length;
-            info.s_loopstart = 0;
+            info.s_loopstart = snd.loopStart;
             info.s_loopmode.toneoffset = snd.transpose;
-            info.s_loopmode.loopmode = 1;
+            info.s_loopmode.loopmode = snd.loopMode;
             info.s_loopmode.vvfe = snd.vvfe;
-            info.s_gr_freq.drum = 0;
-            info.s_gr_freq.velocity = 0;
-            info.s_gr_freq.soundType = 0;
-            info.s_gr_freq.mode = 1;
-            info.s_gr_freq.aftertouch = 0;
-            info.s_gr_freq.stereoType = 0;
-            info.s_gr_freq.stereoPan = 0;
-            info.s_gr_freq.orgFreq = 3;
+            info.s_gr_freq.data = snd.s_gr_frek;
 
             return info;
         }
@@ -464,8 +457,8 @@ namespace EPSSEditor
             EPSSSpi_extSoundInfo extInfo = new EPSSSpi_extSoundInfo();
             extInfo.s_sampname = snd.name();  // "TstSam" + (i + 1).ToString();
             extInfo.s_extname = snd.extName(); ///  "Sample #" + (i + 1).ToString();
-            extInfo.s_extvolume = 100;
-            extInfo.s_subtone = 0;
+            extInfo.s_extvolume = snd.extVolume;
+            extInfo.s_subtone = snd.subTone;
 
             return extInfo;
         }

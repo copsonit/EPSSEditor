@@ -31,17 +31,24 @@ namespace EPSSEditor
         public int SoundNo;
         public int Transpose;
         public int Vvfe;
+        public UInt16 S_gr_frek;
         public int Loopmode;
         public UInt32 Start;
         public UInt32 End;
         public UInt32 LoopStart;
 
+        public UInt16 ExtVolume;
+        public UInt16 SubTone;
+
         public SfzSplitInfo() {
             Midich = -1; Low = -1; High = -1; NoteStart = -1; NoteEnd = -1; LastPitch = -1; LastMidich = -1; SoundNo = -1; Transpose = -1; Vvfe = -1;  Loopmode = -1;
+            S_gr_frek = 0;
+            ExtVolume = 0;
+            SubTone = 0;
         }
 
 
-        public SfzSplitInfo(int soundNo, SpiSound sound)
+        public SfzSplitInfo(int soundNo, SpiSound sound) // Used when exporting sound to SFZ Format.
         {
             Midich = sound.midiChannel;
 
@@ -54,6 +61,7 @@ namespace EPSSEditor
             LastPitch = LastMidich = -1;
             SoundNo = soundNo;
             Transpose = sound.transpose;
+            Vvfe = sound.vvfe;
 
             Loopmode = sound.loopMode;
             Start = sound.start;
@@ -61,7 +69,7 @@ namespace EPSSEditor
             LoopStart = sound.loopStart;
         }
 
-        public void Update(int sound, int midich, int loopmode, int toneOffset, int vvfe, UInt32 start, UInt32 end, UInt32 loopStart)
+        public void Update(int sound, int midich, int loopmode, int toneOffset, int vvfe, UInt16 s_gr_frek, UInt32 start, UInt32 end, UInt32 loopStart, UInt16 extVolume, UInt16 subTone)
         {
             if (Midich == -1)
             {
@@ -70,9 +78,12 @@ namespace EPSSEditor
                 Loopmode = loopmode;
                 Transpose = toneOffset;
                 Vvfe = vvfe;
+                S_gr_frek = s_gr_frek;
                 Start = start;
                 End = end;
                 LoopStart = loopStart;
+                ExtVolume = extVolume;
+                SubTone = subTone;
             }
         }
 
@@ -142,15 +153,19 @@ namespace EPSSEditor
                         sbyte toneOffset = spi.sounds.sounds[sound].s_loopmode.toneoffset;
                         byte vvfe = spi.sounds.sounds[sound].s_loopmode.vvfe;
                         byte lm = spi.sounds.sounds[sound].s_loopmode.loopmode;
+                        UInt16 s_gr_frek = spi.sounds.sounds[sound].s_gr_freq.data;
 
                         UInt32 startInSpi = spi.sounds.sounds[sound].s_sampstart;
                         UInt32 start = 0;
                         UInt32 end = spi.sounds.sounds[sound].s_sampend - startInSpi;
                         UInt32 loopStart = spi.sounds.sounds[sound].s_loopstart - startInSpi;
 
+                        UInt16 extVolume = spi.extSounds.sounds[sound].s_extvolume;
+                        UInt16 subTone = spi.extSounds.sounds[sound].s_subtone;
+
                         List<SfzSplitInfo> infos = dict[sound];
                         SfzSplitInfo current = infos.Last();
-                        current.Update(sound, midich, lm, toneOffset, vvfe, start, end, loopStart);
+                        current.Update(sound, midich, lm, toneOffset, vvfe, s_gr_frek, start, end, loopStart, extVolume, subTone);
 
                         if (current.Low >= 0)
                         {
@@ -164,7 +179,7 @@ namespace EPSSEditor
                             {
                                 infos.Add(new SfzSplitInfo());
                                 current = infos.Last();
-                                current.Update(sound, midich, lm, toneOffset, vvfe, start, end, loopStart);
+                                current.Update(sound, midich, lm, toneOffset, vvfe, s_gr_frek, start, end, loopStart, extVolume, subTone);
 
                                 current.UpdateLow(midich, sp.pitch, currentMidiNote);
                             }
