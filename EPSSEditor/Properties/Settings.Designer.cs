@@ -106,5 +106,29 @@ namespace EPSSEditor.Properties {
                 this["WinSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SpiExportFile {
+            get {
+                return ((string)(this["SpiExportFile"]));
+            }
+            set {
+                this["SpiExportFile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SfzExportFile {
+            get {
+                return ((string)(this["SfzExportFile"]));
+            }
+            set {
+                this["SfzExportFile"] = value;
+            }
+        }
     }
 }

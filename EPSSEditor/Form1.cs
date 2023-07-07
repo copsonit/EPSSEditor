@@ -633,7 +633,7 @@ namespace EPSSEditor
         {
             bool result = false;
             string s = Properties.Settings.Default.SpiFile;
-            if (s == null || s == "")
+            if (String.IsNullOrEmpty(s))
             {
                 s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 s = Path.Combine(s, "EPSS Projects", "default.spi");
@@ -669,7 +669,20 @@ namespace EPSSEditor
             List<SpiSound> soundsToSave = data.spiSounds;
             if (soundsToSave.Count > 0)
             {
-                saveSpiFileDialog.InitialDirectory = Path.GetDirectoryName(data.spiFileName);
+                 string startDir;
+                string startFile = Properties.Settings.Default.SpiExportFile;
+
+                if (String.IsNullOrEmpty(startFile)) 
+                {
+                    startDir = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
+                }
+                else
+                {
+                    startDir = Path.GetDirectoryName(startFile);
+                }
+
+                saveSpiFileDialog.FileName = spiNameTextBox.Text + ".spi";
+                saveSpiFileDialog.InitialDirectory = startDir;
 
                 if (saveSpiFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -687,7 +700,9 @@ namespace EPSSEditor
                         int result = spi.save(url);
                         if (result == 0)
                         {
-                            data.spiFileName = spiFile;
+                            Properties.Settings.Default.SpiExportFile = spiFile;
+                            Properties.Settings.Default.Save();
+
                             dataNeedsSaving = true;
                             saveProjectSettings();
                             MessageBox.Show("SPI exported successfully!", "EPSS Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1208,7 +1223,7 @@ namespace EPSSEditor
 
         private void DoSaveSfz()
         {
-            string sfzFile = SfzFileName();
+            string sfzFile = SfzExportFileName();
             string sampleSubDir = "samples";
             string sfzDir = "";
             string sampleDir = "";
@@ -1222,25 +1237,32 @@ namespace EPSSEditor
                 if (result) result = data.ExportSoundsToDir(sampleDir, ref errorMessage);
                 if (result) MessageBox.Show("Exported successfully!", "EPSS Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 else MessageBox.Show("Save sfz failed:\n" + errorMessage);
+
             }
         }
 
-        private string SfzFileName()
+        private string SfzExportFileName()
         {
             string startDir;
-            if (data.spiFileName != null)
-            {
-                startDir = Path.GetDirectoryName(data.spiFileName);
-            }
-            else
+            string startFile = Properties.Settings.Default.SfzExportFile;
+
+            if (String.IsNullOrEmpty(startFile))
             {
                 startDir = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
             }
+            else
+            {
+                startDir = Path.GetDirectoryName(startFile);
+            }
+            saveSfzFileDialog.FileName = spiNameTextBox.Text;
             saveSfzFileDialog.InitialDirectory = startDir;
 
             if (saveSfzFileDialog.ShowDialog() == DialogResult.OK)
             {
-                return saveSfzFileDialog.FileName;
+                string sfzFile = saveSfzFileDialog.FileName;
+                Properties.Settings.Default.SfzExportFile = sfzFile;
+                Properties.Settings.Default.Save();
+                return sfzFile;
             }
             return null;
         }

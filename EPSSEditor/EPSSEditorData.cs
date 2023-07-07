@@ -23,7 +23,7 @@ namespace EPSSEditor
         public List<SpiSound> spiSounds;
 
         public string soundFileName;
-        public string spiFileName;
+        //public string spiFileName;
 
         public string spiName;
         public string spiDescription;
@@ -47,7 +47,7 @@ namespace EPSSEditor
             drumMappings.initialize(drumSettingsFileName);
 
             soundFileName = null;
-            spiFileName = null;
+            //spiFileName = null;
 
             spiName = "EPSSEDIT";
             spiDescription = "Created with EPSSEditor";

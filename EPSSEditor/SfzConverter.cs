@@ -49,8 +49,8 @@ namespace EPSSEditor
 
 
         public SfzSplitInfo(int soundNo, SpiSound sound) // Used when exporting sound to SFZ Format.
-        {
-            Midich = sound.midiChannel;
+        { 
+            Midich = sound.midiChannel -1;
 
             NoteStart = sound.startNote;
             NoteEnd = sound.endNote;
@@ -295,9 +295,9 @@ namespace EPSSEditor
                 {
 
                     splitsForChannel.Sort();
-
-                    string fileName = outPath + "\\" + "Channel " + midich.ToString() + ".sfz";
-                    bool saveOneSfzResult = SaveOneSFZ(midich, patchName, fileName, sampleSubDir, ref splitsForChannel, ref sounds, ref errorMessage);
+                    int midiChannel = midich + 1;
+                    string fileName = outPath + "\\" + "Channel " + midiChannel.ToString() + ".sfz";
+                    bool saveOneSfzResult = SaveOneSFZ(midiChannel, patchName, fileName, sampleSubDir, ref splitsForChannel, ref sounds, ref errorMessage);
                     if (!saveOneSfzResult) break;
                 }
             }
