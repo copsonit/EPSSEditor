@@ -158,8 +158,9 @@ namespace EPSSEditor
                 factor = factor * channel.compressionFactor();
             } else
             {
-                var stdErr = Console.Error; 
-                stdErr.WriteLine($"No conversion data for sound '{snd}' found, using 1. Size might be calculated incorrect!.");
+                // This is normal case when using samples 'as is'.
+                //var stdErr = Console.Error; 
+                //stdErr.WriteLine($"No conversion data for sound '{snd}' found, using 1. Size might be calculated incorrect!.");
             }
 
             return (long)((double)snd.length * factor);

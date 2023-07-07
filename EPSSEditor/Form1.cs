@@ -477,7 +477,7 @@ namespace EPSSEditor
             bool result = true;
             try
             {
-                XmlSerializer ser = new XmlSerializer(typeof(EPSSEditorData));
+                XmlSerializer ser = new XmlSerializer(typeof(EPSSEditorData)); // Enable Options - Debugging - Just My Code to not show the FileNotFoundExceptions.
                 using (FileStream fs = new FileStream(file, FileMode.Open))
                 {
                     data = (EPSSEditorData)ser.Deserialize(fs);
@@ -947,7 +947,6 @@ namespace EPSSEditor
                             }
                         }
                     }
-                    ms.Close();
                 }
                
 
