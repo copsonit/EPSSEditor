@@ -37,6 +37,7 @@ namespace EPSSEditor
         public byte hiKey;
         public byte keyCenter;
 
+        private CachedSound _cachedAudio = null;
 
         public Sound() { }
 
@@ -132,6 +133,14 @@ namespace EPSSEditor
         }
 
 
+        public CachedSound cachedSound()
+        {
+            if (_cachedAudio == null)
+            {
+                _cachedAudio = new CachedSound(path);
+            }
+            return _cachedAudio;
+        }
 
 
         public override string ToString()

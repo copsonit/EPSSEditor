@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AtariConstants.cs" />
+    <Compile Include="AudioPlaybackEngine.cs" />
     <Compile Include="ConversionParameters.cs" />
     <Compile Include="EPSSData.cs" />
     <Compile Include="EPSSEditorData.cs" />

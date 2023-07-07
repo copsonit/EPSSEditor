@@ -36,6 +36,7 @@ namespace EPSSEditor
         private int initialize;
         private bool dataNeedsSaving;
         private ControlScrollListener _processListViewScrollListener;
+        private AudioPlaybackEngine audio = null;
 
         public Form1()
         {
@@ -195,8 +196,25 @@ namespace EPSSEditor
 
             Properties.Settings.Default.Save();
             saveProjectSettings();
+            ExitAudioSystem();
         }
 
+
+        private void InitAudioSystem()
+        {
+            if (audio == null) audio = new AudioPlaybackEngine();
+            audio.Start();
+        }
+
+
+        private void ExitAudioSystem()
+        {
+            if (audio != null) {
+                audio.Stop();
+                audio.Dispose();
+                audio = null;
+            }
+        }
 
         private void updateDialog()
         {
@@ -837,29 +855,11 @@ namespace EPSSEditor
         {
             try
             {
-                Sound snd = getSoundAtSelectedIndex();
-                if (snd != null)
+                List<Sound> sounds = getSelectedSounds();
+                foreach(var snd in sounds)
                 {
-                    using (FileStream wav = File.OpenRead(snd.path))
-                    {
-                        wav.Seek(0, SeekOrigin.Begin);
-
-                        using (WaveStream ws = new WaveFileReader(wav))
-                        {
-                            using (var ws2 = WaveFormatConversionStream.CreatePcmStream(ws))
-                            {
-
-                                WaveOutEvent output = new WaveOutEvent();
-                                output.Init(ws);
-                                output.Play();
-                                while (output.PlaybackState == PlaybackState.Playing)
-                                {
-                                    System.Threading.Thread.Sleep(100);
-                                }
-                            }
-                        }
-                    }
-
+                    CachedSound cs = snd.cachedSound();
+                    audio.PlaySound(cs);
                 }
             }
             catch (Exception ex)
@@ -1464,6 +1464,9 @@ namespace EPSSEditor
 
                 this.Size = s;
             }
+
+            InitAudioSystem();
+
         }
 
 
