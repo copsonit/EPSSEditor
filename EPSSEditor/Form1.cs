@@ -208,6 +208,13 @@ namespace EPSSEditor
             updateSpiSoundListBox();
             updatePreview();
             updateMappingMode();
+            UpdateSoundDialog();
+        }
+
+
+        private void UpdateSoundDialog()
+        {
+            groupBox5.Enabled = soundListBox.SelectedItems.Count == 1;
         }
 
 
@@ -1577,7 +1584,7 @@ namespace EPSSEditor
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             string anyFile = "";
 
-
+            List<string> filesAdded = new List<string>();
             foreach (var file in files)
             {
                 string filePath = file;
@@ -1593,45 +1600,33 @@ namespace EPSSEditor
                     string baseName = Path.GetFileNameWithoutExtension(filePath);
                     baseName = baseName.Substring(0, Math.Min(baseName.Length - 1, 13));
                     anyFile = addOneSoundDirect(filePath, baseName);
+                    filesAdded.Add(anyFile);
                 }
             }
 
-
-            /*
-            if (files.Length == 1)
+            if (filesAdded.Count > 0)
             {
-                string filePath = files[0];
-                string ext = Path.GetExtension(filePath).ToUpper();
+                updateSoundListBox();
 
-                string baseName = Path.GetFileNameWithoutExtension(filePath);
-                baseName = baseName.Substring(0, Math.Min(baseName.Length-1, 13));
-                if (ext == ".SFZ")
-                {
-                    
-                }
-                else
-                {
-                    Sound s = new Sound(filePath);
+                soundListBox.BeginUpdate();
+                Sound[] snds = data.sounds.ToArray();
 
-                    data.sounds.Add(s);
-                    anyFile = filePath;
+                foreach (string file in filesAdded)
+                {
+                    for (int i = 0; i < snds.Count(); i++)
+                    {
+                        if (snds[i].path == file)
+                        {
+                            soundListBox.SetSelected(i, true);
+                            break;
+                        }
+                    }
                 }
             }
-            else
-            {
 
-                foreach (string filePath in files)
-                {
-
-                    Sound s = new Sound(filePath);
-
-                    data.sounds.Add(s);
-                    anyFile = filePath;
-                }
-
-            }
-            */
-            updateSoundListBox();
+            soundListBox.EndUpdate(); 
+            
+            UpdateSoundDialog();
             data.soundFileName = anyFile;
             dataNeedsSaving = true;
             saveProjectSettings();
@@ -1728,6 +1723,7 @@ namespace EPSSEditor
             {
                 useInSpiButton.Enabled = false;
             }
+            UpdateSoundDialog();
         }
 
 
