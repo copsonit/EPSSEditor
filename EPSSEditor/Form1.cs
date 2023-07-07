@@ -298,6 +298,7 @@ namespace EPSSEditor
             spiSoundListView.Columns.Add("#", 25, HorizontalAlignment.Right);
             spiSoundListView.Columns.Add("Size", 55, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("Transpose", 55, HorizontalAlignment.Left);
+            spiSoundListView.Columns.Add("Vvfe", 35, HorizontalAlignment.Left);
             spiSoundListView.View = View.Details;
 
             spiSoundListView.FullRowSelect = true;
@@ -341,6 +342,7 @@ namespace EPSSEditor
 
                 item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 2));
                 item.SubItems.Add(s.transposeString());
+                item.SubItems.Add(s.VvfeString());
 
                 spiSoundListView.Items.Add(item);
             }

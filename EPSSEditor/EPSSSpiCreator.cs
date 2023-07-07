@@ -446,7 +446,7 @@ namespace EPSSEditor
             info.s_loopstart = 0;
             info.s_loopmode.toneoffset = snd.transpose;
             info.s_loopmode.loopmode = 1;
-            info.s_loopmode.vvfe = 0x3f;
+            info.s_loopmode.vvfe = snd.vvfe;
             info.s_gr_freq.drum = 0;
             info.s_gr_freq.velocity = 0;
             info.s_gr_freq.soundType = 0;

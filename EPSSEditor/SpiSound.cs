@@ -20,6 +20,7 @@ namespace EPSSEditor
         public byte midiNoteMapped;
         public byte programNumber;
         public sbyte transpose;
+        public byte vvfe;
 
         public Guid soundId;
         public string _name;
@@ -62,6 +63,7 @@ namespace EPSSEditor
             int center = sfz.NoteStart + 84 - sfz.Low;
             midiNote = (byte)(84 - (center - sfz.NoteStart));
             transpose = (sbyte)sfz.Transpose;
+            vvfe = (byte)sfz.Vvfe;
             loopMode = (byte)sfz.Loopmode;
             start = sfz.Start;
             end = sfz.End;
@@ -274,6 +276,22 @@ namespace EPSSEditor
             _name = sound.name();
             _extName = sound.name() + " MSWav"; // TODO, find more info in sound??         
 
+        }
+
+        public string VvfeString()
+        {
+            switch (vvfe)
+            {
+                case 0x3b: return "x1";
+                case 0x3c: return "x2";
+                case 0x3d: return "x4";
+                case 0x3e: return "x8";
+                case 0x3f: return "x16";
+                case 0: return "x32";
+                case 1: return "x64";
+                case 2: return "x128";
+                default: return "---";
+            }
         }
     }
 }

@@ -30,13 +30,14 @@ namespace EPSSEditor
         public int LastMidich;
         public int SoundNo;
         public int Transpose;
+        public int Vvfe;
         public int Loopmode;
         public UInt32 Start;
         public UInt32 End;
         public UInt32 LoopStart;
 
         public SfzSplitInfo() {
-            Midich = -1; Low = -1; High = -1; NoteStart = -1; NoteEnd = -1; LastPitch = -1; LastMidich = -1; SoundNo = -1; Transpose = -1; Loopmode = -1;
+            Midich = -1; Low = -1; High = -1; NoteStart = -1; NoteEnd = -1; LastPitch = -1; LastMidich = -1; SoundNo = -1; Transpose = -1; Vvfe = -1;  Loopmode = -1;
         }
 
 
@@ -60,7 +61,7 @@ namespace EPSSEditor
             LoopStart = sound.loopStart;
         }
 
-        public void Update(int sound, int midich, int loopmode, int toneOffset, UInt32 start, UInt32 end, UInt32 loopStart)
+        public void Update(int sound, int midich, int loopmode, int toneOffset, int vvfe, UInt32 start, UInt32 end, UInt32 loopStart)
         {
             if (Midich == -1)
             {
@@ -68,6 +69,7 @@ namespace EPSSEditor
                 Midich = midich;
                 Loopmode = loopmode;
                 Transpose = toneOffset;
+                Vvfe = vvfe;
                 Start = start;
                 End = end;
                 LoopStart = loopStart;
@@ -138,6 +140,7 @@ namespace EPSSEditor
                     {
                         int sound = sp.sound;
                         sbyte toneOffset = spi.sounds.sounds[sound].s_loopmode.toneoffset;
+                        byte vvfe = spi.sounds.sounds[sound].s_loopmode.vvfe;
                         byte lm = spi.sounds.sounds[sound].s_loopmode.loopmode;
 
                         UInt32 startInSpi = spi.sounds.sounds[sound].s_sampstart;
@@ -147,7 +150,7 @@ namespace EPSSEditor
 
                         List<SfzSplitInfo> infos = dict[sound];
                         SfzSplitInfo current = infos.Last();
-                        current.Update(sound, midich, lm, toneOffset, start, end, loopStart);
+                        current.Update(sound, midich, lm, toneOffset, vvfe, start, end, loopStart);
 
                         if (current.Low >= 0)
                         {
@@ -161,7 +164,7 @@ namespace EPSSEditor
                             {
                                 infos.Add(new SfzSplitInfo());
                                 current = infos.Last();
-                                current.Update(sound, midich, lm, toneOffset, start, end, loopStart);
+                                current.Update(sound, midich, lm, toneOffset, vvfe, start, end, loopStart);
 
                                 current.UpdateLow(midich, sp.pitch, currentMidiNote);
                             }
