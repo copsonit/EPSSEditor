@@ -10,7 +10,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 namespace EPSSEditor
 {
   
-    public class SpiSound
+    public class SpiSound : IDisposable
     {
         public byte midiChannel; // [1-16]
         public byte midiNote;
@@ -36,7 +36,9 @@ namespace EPSSEditor
         public UInt16 subTone;
 
 
-        private MemoryStream ms = null;
+        private MemoryStream _ms = null;
+        private BlockAlignReductionStream _blockAlignedStream = null;
+        private CachedSound _cachedAudio;
 
         public SpiSound() {
             startNote = endNote = programNumber = 128;
@@ -85,6 +87,21 @@ namespace EPSSEditor
             _extName = extSoundInfo.s_extname;
             transpose = soundInfo.s_loopmode.toneoffset;
             // TODO
+        }
+
+        public void Dispose()
+        {
+            if (_blockAlignedStream != null)
+            {
+                _blockAlignedStream.Close();
+                _blockAlignedStream.Dispose();
+                _blockAlignedStream = null;
+            }
+            if (_ms != null)
+            {
+                _ms.Close();
+                _ms.Dispose();
+            }
         }
 
         public string name() { return _name; }
@@ -243,24 +260,55 @@ namespace EPSSEditor
 
         public MemoryStream getWaveStream(EPSSEditorData data, int newFreq, int bits, int channels)
         {
-            if (ms == null)
+            if (_ms == null)
             {
                 string outFile = data.convertSoundFileName();
 
                 if (convertSound(data, outFile, newFreq, bits, channels))
                 {
-                    ms = new MemoryStream();
+                    _ms = new MemoryStream();
                     using (FileStream file = new FileStream(outFile, FileMode.Open, FileAccess.Read))
                     {
 
                         byte[] bytes = new byte[file.Length];
                         file.Read(bytes, 0, (int)file.Length);
-                        ms.Write(bytes, 0, (int)file.Length);
+                        _ms.Write(bytes, 0, (int)file.Length);
                     }
                    
                 }
             }
-            return ms;
+            return _ms;
+        }
+
+
+        public WaveStream waveStream()
+        {
+            if (_ms != null)
+            {
+                if (_blockAlignedStream != null)
+                {
+                    _blockAlignedStream.Close();
+                    _blockAlignedStream.Dispose();
+                    _blockAlignedStream = null;
+                }
+                _blockAlignedStream = new BlockAlignReductionStream(
+                                        WaveFormatConversionStream.CreatePcmStream(
+                                        new WaveFileReader(_ms)));
+              
+                 
+                return _blockAlignedStream;
+            }
+            return null;
+        }
+
+
+        public CachedSound cachedSound(MemoryStream ms, int newFreq, int bits, int channels)
+        {
+            if (_cachedAudio == null)
+            {
+                _cachedAudio = new CachedSound(ms, newFreq, bits, channels);
+            }
+            return _cachedAudio;
         }
 
 

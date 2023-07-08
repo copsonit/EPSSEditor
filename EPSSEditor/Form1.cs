@@ -30,7 +30,7 @@ namespace EPSSEditor
     {
 
         public EPSSEditorData data;
-        private bool deletePressed;
+        private bool deletePressed = false;
         private bool ctrlAPressed;
         private bool callbacks = true;
         private int initialize;
@@ -917,99 +917,28 @@ namespace EPSSEditor
         private void playConvertedSound()
         {
 
-         
-            int selected = -1;
+            List<int> selectedSnds = new List<int>();
             foreach (ListViewItem item in spiSoundListView.SelectedItems)
             {
-                selected = item.Index;
-                break;
+                selectedSnds.Add(item.Index);
             }
 
-            if (selected >= 0)
+            if (selectedSnds.Count > 0)
             {
-                SpiSound snd = data.spiSounds[selected];
-
-                MemoryStream ms = snd.getWaveStream(data, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels);
-                if (ms != null) {
-                    ms.Position = 0;
-                    using (WaveStream blockAlignedStream =
-                        new BlockAlignReductionStream(
-                            WaveFormatConversionStream.CreatePcmStream(
-                                new WaveFileReader(ms))))
+                foreach (var selected in selectedSnds)
+                {
+                    SpiSound snd = data.spiSounds[selected];
+                    int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
+                    int newBits = AtariConstants.SampleBits;
+                    int newChannels = AtariConstants.SampleChannels;
+                    MemoryStream ms = snd.getWaveStream(data, newFreq, newBits, newChannels);
+                    if (ms != null)
                     {
-                        using (WaveOut waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
-                        {
-                            waveOut.Init(blockAlignedStream);
-                            waveOut.Play();
-                            while (waveOut.PlaybackState == PlaybackState.Playing)
-                            {
-                                System.Threading.Thread.Sleep(100);
-                            }
-                        }
+                        ms.Position = 0;
+                        CachedSound cs = snd.cachedSound(ms, newFreq, newBits, newChannels);
+                        audio.PlaySound(cs);
                     }
                 }
-               
-
-                /*
-                string outFile = data.convertSoundFileName();
-
-                if (snd.convertSound(ref data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
-                {
-                    FileStream wav = File.OpenRead(outFile);
-                    wav.Seek(0, SeekOrigin.Begin);
-
-                    WaveStream ws = new WaveFileReader(wav);
-                    ws = WaveFormatConversionStream.CreatePcmStream(ws);
-
-                    WaveOutEvent output = new WaveOutEvent();
-                    output.Init(ws);
-                    output.Play();
-
-                    wav.Close();
-                    ws.Close();
-                } else
-                {
-                    System.Windows.Forms.MessageBox.Show("Sound could not be converted!", "EPSS Editor");
-                }
-                */
-
-                /*
-                Sound sound = data.getSoundFromSoundId(snd.soundId);
-                if (sound != null)
-                {
-                    string path = sound.path;
-
-                    string outFile = Path.GetTempFileName();
-
-                    // TODO Normalize as well...
-                    // TODO use this principle when converting spi sounds instead of manually do it
-
-
-                    using (var reader = new WaveFileReader(path))
-                    {
-                        var newFormat = new WaveFormat(frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels);
-                        using (var conversionStream = new WaveFormatConversionStream(newFormat, reader))
-                        {
-                            WaveFileWriter.CreateWaveFile(outFile, conversionStream);
-                        }
-                    }
-
-
-                    FileStream wav = File.OpenRead(outFile);
-                    wav.Seek(0, SeekOrigin.Begin);
-
-                    WaveStream ws = new WaveFileReader(wav);
-                    ws = WaveFormatConversionStream.CreatePcmStream(ws);
-
-                    WaveOutEvent output = new WaveOutEvent();
-                    output.Init(ws);
-                    output.Play();
-
-                    //TODO delete tmp file after it has been finished playing.. how to determine? Alternatively use a fixed path every time to avoid filling up with tmp files...
-                    //File.Delete(outFile);
-
-                }
-                */
             }
         }
 
@@ -1022,7 +951,6 @@ namespace EPSSEditor
                 anySelected = true;
 
                 break;
-
             }
 
 

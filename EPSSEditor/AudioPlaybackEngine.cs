@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace EPSSEditor
         {
             outputDevice = new WaveOutEvent();
             mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount));
+
+            //outputDevice.PlaybackStopped += this.PlaybackLoopCallback;
+           
         }
 
 
@@ -29,18 +33,18 @@ namespace EPSSEditor
         }
 
 
-        public void PlaySound(string fileName)
+        /*public void PlaySound(string fileName)
         {
             var input = new AudioFileReader(fileName);
             AddMixerInput(new AutoDisposeFileReader(input));
         }
+        */
 
 
         public void PlaySound(CachedSound sound)
         {
             AddMixerInput(new CachedSoundSampleProvider(sound));
         }
-
 
         private void AddMixerInput(ISampleProvider input)
         {
@@ -62,6 +66,7 @@ namespace EPSSEditor
 
         public void Stop()
         {
+            mixer.RemoveAllMixerInputs();
             outputDevice.Stop();
         }
 
@@ -71,7 +76,7 @@ namespace EPSSEditor
         }
     }
 
-
+    /*
     public class AutoDisposeFileReader : ISampleProvider
     {
         private readonly AudioFileReader reader;
@@ -97,6 +102,7 @@ namespace EPSSEditor
 
         public WaveFormat WaveFormat { get; private set; }
     }
+    */
 
 
     public class CachedSoundSampleProvider : ISampleProvider
@@ -107,10 +113,40 @@ namespace EPSSEditor
         public CachedSoundSampleProvider(CachedSound cachedSound)
         {
             this.cachedSound = cachedSound;
+            
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
+
+            /*
+            int read = 0;
+            while (read < count)
+            {
+                //int bytesRead = _reader.Read(buffer, offset + read, count - read);
+                var availableSamples = cachedSound.AudioData.Length - position;
+                var samplesToCopy = Math.Min(availableSamples, count);
+                Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
+
+                if (bytesRead == 0)
+                {
+                    if (_reader.Position == 0 || !_loop)
+                    {
+                        break;
+                    }
+                    _reader.Position = 0;
+                }
+                read += bytesRead;
+            }
+
+            if (read < count)
+            {
+                Dispose();
+            }
+            return read;
+            */
+
+
             var availableSamples = cachedSound.AudioData.Length - position;
             var samplesToCopy = Math.Min(availableSamples, count);
             Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
@@ -125,11 +161,29 @@ namespace EPSSEditor
     {
         public float[] AudioData { get; private set; }
         public WaveFormat WaveFormat { get; private set; }
+
+        public CachedSound(MemoryStream ms, int newFreq, int bits, int channels)
+        {
+            var rs = new RawSourceWaveStream(ms, new WaveFormat(newFreq, bits, channels));
+            var rsAsSampleProvider = rs.ToSampleProvider();
+
+            var resampler = new WdlResamplingSampleProvider(rsAsSampleProvider, 44100);
+            WaveFormat = resampler.WaveFormat;
+            long l = ms.Length;
+            var wholeFile = new List<float>((int)l);
+            var readBuffer = new float[resampler.WaveFormat.SampleRate * resampler.WaveFormat.Channels];
+            int samplesRead;
+            while ((samplesRead = resampler.Read(readBuffer, 0, readBuffer.Length)) > 0)
+            {
+                wholeFile.AddRange(readBuffer.Take(samplesRead));
+            }
+            AudioData = wholeFile.ToArray();
+        }
+
         public CachedSound(string audioFileName)
         {
             using (var audioFileReader = new AudioFileReader(audioFileName))
             {
-                
                 var resampler = new WdlResamplingSampleProvider(audioFileReader, 44100);
                 WaveFormat = resampler.WaveFormat;
                 var wholeFile = new List<float>((int)(audioFileReader.Length / 4));
