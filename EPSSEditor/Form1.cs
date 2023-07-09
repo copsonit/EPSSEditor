@@ -1680,12 +1680,6 @@ namespace EPSSEditor
         }
 
 
-        private void playButton_KeyDown(object sender, KeyEventArgs e)
-        {
-            playSelectedSound();
-        }
-
-
         private void compressionTrackBar_Scroll(object sender, EventArgs e)
         {
             Sound snd = getSoundAtSelectedIndex();

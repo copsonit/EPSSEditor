@@ -53,6 +53,7 @@ namespace EPSSEditor
         {
             sound.IsPlaying = false;
             //mixer.RemoveMixerInput(provider);
+            //mixer.RemoveAllMixerInputs();
         }
 
         private void AddMixerInput(ISampleProvider input)
@@ -118,6 +119,7 @@ namespace EPSSEditor
     {
         private readonly CachedSound cachedSound;
         private long position;
+        private bool isEnding = false;
 
         public CachedSoundSampleProvider(CachedSound cachedSound)
         {
@@ -157,7 +159,24 @@ namespace EPSSEditor
             return read;
             */
             //            Console.WriteLine(count.ToString());
-            if (!cachedSound.IsPlaying) return 0;
+
+            if (!cachedSound.IsPlaying) {
+                return 0;
+            }
+            /*
+                isEnding = true;
+                for (int i = 0; i < count; i++)
+                {
+                    buffer[i] = 0;
+                }
+                return count; //xfade down to 0 to avoid clicks.
+            }
+            if (isEnding)
+            {
+                isEnding = false;
+                return 0;
+            }
+            */
 
 
             var availableSamples = cachedSound.AudioData.Length - position;

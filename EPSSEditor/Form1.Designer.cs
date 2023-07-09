@@ -572,7 +572,6 @@
             this.playButton.TabIndex = 0;
             this.playButton.Text = "Listen";
             this.playButton.UseVisualStyleBackColor = true;
-            this.playButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.playButton_KeyDown);
             this.playButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.playButton_MouseDown);
             this.playButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.playButton_MouseUp);
             // 
