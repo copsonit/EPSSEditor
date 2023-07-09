@@ -302,11 +302,11 @@ namespace EPSSEditor
         }
 
 
-        public CachedSound cachedSound(MemoryStream ms, int newFreq, int bits, int channels)
+        public CachedSound cachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop)
         {
             if (_cachedAudio == null)
             {
-                _cachedAudio = new CachedSound(ms, newFreq, bits, channels);
+                _cachedAudio = new CachedSound(ms, newFreq, bits, channels, loop);
             }
             return _cachedAudio;
         }
