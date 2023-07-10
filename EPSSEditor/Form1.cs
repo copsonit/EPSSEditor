@@ -30,12 +30,13 @@ namespace EPSSEditor
     {
 
         public EPSSEditorData data;
-        private bool deletePressed;
+        private bool deletePressed = false;
         private bool ctrlAPressed;
         private bool callbacks = true;
         private int initialize;
         private bool dataNeedsSaving;
         private ControlScrollListener _processListViewScrollListener;
+        private AudioPlaybackEngine audio = null;
 
         public Form1()
         {
@@ -47,7 +48,7 @@ namespace EPSSEditor
             _processListViewScrollListener.ControlScrolled += SpiSoundListViewScrollListener_ControlScrolled;
         }
 
-  
+
         private Version GetRunningVersion()
         {
             try
@@ -195,8 +196,25 @@ namespace EPSSEditor
 
             Properties.Settings.Default.Save();
             saveProjectSettings();
+            ExitAudioSystem();
         }
 
+
+        private void InitAudioSystem()
+        {
+            if (audio == null) audio = new AudioPlaybackEngine();
+            audio.Start();
+        }
+
+
+        private void ExitAudioSystem()
+        {
+            if (audio != null) {
+                audio.Stop();
+                audio.Dispose();
+                audio = null;
+            }
+        }
 
         private void updateDialog()
         {
@@ -429,7 +447,7 @@ namespace EPSSEditor
         {
             callbacks = false;
             int numberOfDecimals = 2;
-            sizeTextBox.Text = Ext.ToPrettySize(snd.length, numberOfDecimals);
+            sizeTextBox.Text = Ext.ToPrettySize(snd.sampleDataLength, numberOfDecimals);
             channelsTextBox.Text = snd.channels.ToString() + " Channels";
             freqTextBox.Text = snd.samplesPerSecond.ToString() + " Hz";
             bitsTextBox.Text = snd.bitsPerSample.ToString() + " Bit";
@@ -439,11 +457,11 @@ namespace EPSSEditor
             snd.updateConversionParameters(toBit, toFreq);
             conversionTextBox.Text = snd.parameters().description();
 
-            long lengthAfter = snd.parameters().sizeAfterConversion(ref snd);
+            long lengthAfter = snd.parameters().sizeAfterConversion(snd);
 
             soundSizeAfterTextBox.Text = Ext.ToPrettySize(lengthAfter, numberOfDecimals);
 
-            updateShowCompressionProgressBar(snd.length, lengthAfter);
+            updateShowCompressionProgressBar(snd.sampleDataLength, lengthAfter);
 
             bool normalized = snd.parameters().normalize.normalize;
             normalizeCheckBox.Checked = normalized;
@@ -577,7 +595,7 @@ namespace EPSSEditor
         {
             bool result = true;
 
-            
+
             if (Directory.Exists(dir))
             {
                 if (MessageBox.Show(message, "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -613,11 +631,11 @@ namespace EPSSEditor
                 if (String.IsNullOrEmpty(patchName))
                 {
                     patchName = Path.GetFileName(file);
-                }                                
+                }
 
                 string path = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile); // Sample create dir
                 path += "\\" + patchName;
-                
+
                 //if (doConversion)
                 if (WarnAndConfirmDir(path, "Directory for conversion of SPI already exists.\nDo you want to delete it?"))
                 {
@@ -676,10 +694,10 @@ namespace EPSSEditor
             List<SpiSound> soundsToSave = data.spiSounds;
             if (soundsToSave.Count > 0)
             {
-                 string startDir;
+                string startDir;
                 string startFile = Properties.Settings.Default.SpiExportFile;
 
-                if (String.IsNullOrEmpty(startFile)) 
+                if (String.IsNullOrEmpty(startFile))
                 {
                     startDir = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
                 }
@@ -699,7 +717,7 @@ namespace EPSSEditor
                     EPSSSpiCreator creator = new EPSSSpiCreator(spiVersion());
                     int sampFreq = AtariConstants.SampleFreq25k;
                     data.omni = omniPatchCheckBox.Checked;
-                    
+
                     EPSSSpi spi = creator.create(ref data, soundsToSave, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
 
                     if (spi != null)
@@ -833,40 +851,27 @@ namespace EPSSEditor
         }
 
 
-        private void playSelectedSound()
+        private List<CachedSound> playSelectedSound()
         {
+            List<CachedSound> soundsPlaying = new List<CachedSound>();
             try
             {
-                Sound snd = getSoundAtSelectedIndex();
-                if (snd != null)
+                List<Sound> sounds = getSelectedSounds();
+                foreach (var snd in sounds)
                 {
-                    using (FileStream wav = File.OpenRead(snd.path))
-                    {
-                        wav.Seek(0, SeekOrigin.Begin);
-
-                        using (WaveStream ws = new WaveFileReader(wav))
-                        {
-                            using (var ws2 = WaveFormatConversionStream.CreatePcmStream(ws))
-                            {
-
-                                WaveOutEvent output = new WaveOutEvent();
-                                output.Init(ws);
-                                output.Play();
-                                while (output.PlaybackState == PlaybackState.Playing)
-                                {
-                                    System.Threading.Thread.Sleep(100);
-                                }
-                            }
-                        }
-                    }
-
+                    CachedSound cs = snd.cachedSound();
+                    audio.PlaySound(cs);
+                    soundsPlaying.Add(cs);
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Cannot play sound:" + ex.Message);
             }
+            return soundsPlaying;
         }
+
+
 
 
         // SPI Sound List View
@@ -879,7 +884,7 @@ namespace EPSSEditor
             return item;
         }
 
-         
+
         private bool soundRefersToSPISound(int idx)
         {
 
@@ -900,7 +905,7 @@ namespace EPSSEditor
             if (idxRemoved.Count > 0)
             {
                 int removed = 0;
-                foreach(int index in idxRemoved)
+                foreach (int index in idxRemoved)
                 {
                     data.spiSounds.RemoveAt(index - removed);
                     removed++;
@@ -914,103 +919,40 @@ namespace EPSSEditor
         }
 
 
-        private void playConvertedSound()
+        private List<CachedSound> playConvertedSound()
         {
 
-         
-            int selected = -1;
+            List<int> selectedSnds = new List<int>();
             foreach (ListViewItem item in spiSoundListView.SelectedItems)
             {
-                selected = item.Index;
-                break;
+                selectedSnds.Add(item.Index);
             }
 
-            if (selected >= 0)
+            if (selectedSnds.Count > 0)
             {
-                SpiSound snd = data.spiSounds[selected];
-
-                MemoryStream ms = snd.getWaveStream(data, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels);
-                if (ms != null) {
-                    ms.Position = 0;
-                    using (WaveStream blockAlignedStream =
-                        new BlockAlignReductionStream(
-                            WaveFormatConversionStream.CreatePcmStream(
-                                new WaveFileReader(ms))))
+                List<CachedSound> playedSounds = new List<CachedSound>();
+                foreach (var selected in selectedSnds)
+                {
+                    SpiSound snd = data.spiSounds[selected];
+                    int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
+                    int newBits = AtariConstants.SampleBits;
+                    int newChannels = AtariConstants.SampleChannels;
+ 
+                    MemoryStream ms = snd.getWaveStream(data, newFreq, newBits, newChannels);
+                    if (ms != null)
                     {
-                        using (WaveOut waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
-                        {
-                            waveOut.Init(blockAlignedStream);
-                            waveOut.Play();
-                            while (waveOut.PlaybackState == PlaybackState.Playing)
-                            {
-                                System.Threading.Thread.Sleep(100);
-                            }
-                        }
+                        ms.Position = 0;
+                        bool loop = snd.loopMode == 2;
+                        //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
+                            // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
+                        CachedSound cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop, (int)snd.loopStart, (int)snd.loopEnd, (int)snd.orgSampleCount);
+                        audio.PlaySound(cs);
+                        playedSounds.Add(cs);
                     }
                 }
-               
-
-                /*
-                string outFile = data.convertSoundFileName();
-
-                if (snd.convertSound(ref data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
-                {
-                    FileStream wav = File.OpenRead(outFile);
-                    wav.Seek(0, SeekOrigin.Begin);
-
-                    WaveStream ws = new WaveFileReader(wav);
-                    ws = WaveFormatConversionStream.CreatePcmStream(ws);
-
-                    WaveOutEvent output = new WaveOutEvent();
-                    output.Init(ws);
-                    output.Play();
-
-                    wav.Close();
-                    ws.Close();
-                } else
-                {
-                    System.Windows.Forms.MessageBox.Show("Sound could not be converted!", "EPSS Editor");
-                }
-                */
-
-                /*
-                Sound sound = data.getSoundFromSoundId(snd.soundId);
-                if (sound != null)
-                {
-                    string path = sound.path;
-
-                    string outFile = Path.GetTempFileName();
-
-                    // TODO Normalize as well...
-                    // TODO use this principle when converting spi sounds instead of manually do it
-
-
-                    using (var reader = new WaveFileReader(path))
-                    {
-                        var newFormat = new WaveFormat(frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels);
-                        using (var conversionStream = new WaveFormatConversionStream(newFormat, reader))
-                        {
-                            WaveFileWriter.CreateWaveFile(outFile, conversionStream);
-                        }
-                    }
-
-
-                    FileStream wav = File.OpenRead(outFile);
-                    wav.Seek(0, SeekOrigin.Begin);
-
-                    WaveStream ws = new WaveFileReader(wav);
-                    ws = WaveFormatConversionStream.CreatePcmStream(ws);
-
-                    WaveOutEvent output = new WaveOutEvent();
-                    output.Init(ws);
-                    output.Play();
-
-                    //TODO delete tmp file after it has been finished playing.. how to determine? Alternatively use a fixed path every time to avoid filling up with tmp files...
-                    //File.Delete(outFile);
-
-                }
-                */
+                return playedSounds;
             }
+            return null;
         }
 
 
@@ -1022,7 +964,6 @@ namespace EPSSEditor
                 anySelected = true;
 
                 break;
-
             }
 
 
@@ -1276,7 +1217,7 @@ namespace EPSSEditor
         private bool CheckSfzDirectories(string sfzFile, string sampleSubDir, ref string name, ref string sfzDir, ref string sampleDir)
         {
             if (String.IsNullOrEmpty(sfzFile)) return false;
-           
+
 
             name = Path.GetFileNameWithoutExtension(sfzFile);
             sfzDir = Path.GetDirectoryName(sfzFile) + "\\" + name;
@@ -1360,7 +1301,7 @@ namespace EPSSEditor
             return file;
         }
 
-   
+
         public static bool TryToByte(object value, out byte result)
         {
             if (value == null)
@@ -1427,7 +1368,7 @@ namespace EPSSEditor
             return note;
         }
 
-  
+
         private int spiVersion()
         {
             return gen2CheckBox.Checked ? 2 : 1;
@@ -1464,6 +1405,9 @@ namespace EPSSEditor
 
                 this.Size = s;
             }
+
+            InitAudioSystem();
+
         }
 
 
@@ -1623,8 +1567,8 @@ namespace EPSSEditor
                 }
             }
 
-            soundListBox.EndUpdate(); 
-            
+            soundListBox.EndUpdate();
+
             UpdateSoundDialog();
             data.soundFileName = anyFile;
             dataNeedsSaving = true;
@@ -1698,7 +1642,7 @@ namespace EPSSEditor
                     foreach (ListViewItem item in spiSoundListView.Items) {
                         item.Selected = false;
                     }
-                        
+
 
                     foreach (ListViewItem item in spiSoundListView.Items)
                     {
@@ -1707,7 +1651,7 @@ namespace EPSSEditor
                         if (selected >= 0)
                         {
                             SpiSound selectedSnd = data.spiSounds[selected];
-                            foreach(var spiSnd in spiSounds)
+                            foreach (var spiSnd in spiSounds)
                             {
                                 if (spiSnd == selectedSnd)
                                 {
@@ -1735,12 +1679,6 @@ namespace EPSSEditor
         private void deleteSoundButton_Click(object sender, EventArgs e)
         {
             deleteSelectedSound();
-        }
-
-
-        private void playButton_KeyDown(object sender, KeyEventArgs e)
-        {
-            playSelectedSound();
         }
 
 
@@ -1819,7 +1757,7 @@ namespace EPSSEditor
                         foreach (Sound sound in sounds)
                         {
                             Sound s = sound;
-                            SpiSound spiSnd = new SpiSound(ref s);
+                            SpiSound spiSnd = new SpiSound(s);
 
                             if (defaultMidiMapRadioButton.Checked)
                             {
@@ -1875,7 +1813,7 @@ namespace EPSSEditor
                     Sound s = getSoundAtSelectedIndex();
                     if (s != null)
                     {
-                       
+
                         if (defaultMidiMapRadioButton.Checked || CustomSampleRadioButton.Checked)
                         {
                             bool doAdd = true;
@@ -1914,7 +1852,7 @@ namespace EPSSEditor
                         else // Drums and Multisample (one sample per note)
                         {
                             bool addOk = true;
-                            SpiSound spiSnd = new SpiSound(ref s);
+                            SpiSound spiSnd = new SpiSound(s);
 
                             int midiChannel = currentMidiChannel();
                             spiSnd.midiChannel = (byte)midiChannel;
@@ -1945,7 +1883,7 @@ namespace EPSSEditor
                             {
                                 data.spiSounds.Add(spiSnd);
                                 updateSpiSoundListBox();
-                                
+
                                 if (GmPercMidiMappingRadioButton.Checked) {
                                     int idx = drumsComboBox1.SelectedIndex;
                                     if (idx < drumsComboBox1.Items.Count - 1)
@@ -1970,7 +1908,7 @@ namespace EPSSEditor
                     foreach (Sound sound in sounds)
                     {
                         Sound s = sound;
-                        SpiSound spiSnd = new SpiSound(ref s);
+                        SpiSound spiSnd = new SpiSound(s);
 
                         spiSnd.midiChannel = 128;
                         spiSnd.startNote = s.loKey;
@@ -1994,7 +1932,7 @@ namespace EPSSEditor
 
                         // TODO Check if program have been used before, remove if it is the case
 
-                        SpiSound spiSnd = new SpiSound(ref s);
+                        SpiSound spiSnd = new SpiSound(s);
                         spiSnd.midiChannel = 128;
                         spiSnd.startNote = s.loKey;
                         spiSnd.endNote = s.hiKey;
@@ -2155,11 +2093,20 @@ namespace EPSSEditor
             }
         }
 
+        private List<CachedSound> playedSpiSounds;
 
-        private void spiSoundListenButton_Click(object sender, EventArgs e)
+        private void spiSoundListenButton_MouseDown(object sender, MouseEventArgs e)
         {
-            playConvertedSound();
+            playedSpiSounds = playConvertedSound();
+        }
 
+        private void spiSoundListenButton_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (playedSpiSounds != null)
+            {
+                foreach (var sound in playedSpiSounds) audio.StopSound(sound);
+                playedSpiSounds = null;
+            }
         }
 
 
@@ -2200,12 +2147,21 @@ namespace EPSSEditor
             saveProjectSettings();
         }
 
+        private List<CachedSound> _playingSounds;
 
-        private void playButton_Click(object sender, EventArgs e)
+
+        private void playButton_MouseDown(object sender, MouseEventArgs e)
         {
-            playSelectedSound();
+            _playingSounds = playSelectedSound();
         }
 
+        private void playButton_MouseUp(object sender, MouseEventArgs e)
+        {
+            foreach (var sound in _playingSounds)
+            {
+                audio.StopSound(sound);
+            }
+        }
 
         private void mappingModeMidiRadioButton_CheckedChanged(object sender, EventArgs e)
         {
@@ -2301,6 +2257,8 @@ namespace EPSSEditor
         {
             CustomSampleRadioButton.Checked = true;
         }
+
+
     }
 
 

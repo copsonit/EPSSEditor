@@ -147,7 +147,7 @@ namespace EPSSEditor
         }
 
 
-        public long sizeAfterConversion(ref Sound snd)
+        public long sizeAfterConversion(Sound snd)
         {
             double factor = 1.0;
 
@@ -163,7 +163,9 @@ namespace EPSSEditor
                 //stdErr.WriteLine($"No conversion data for sound '{snd}' found, using 1. Size might be calculated incorrect!.");
             }
 
-            return (long)((double)snd.length * factor);
+            //Console.WriteLine("File.length {0}", snd.sampleDataLength);
+
+            return (long)((double)snd.sampleDataLength * factor);
         }
 
 

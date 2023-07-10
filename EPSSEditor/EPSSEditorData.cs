@@ -139,7 +139,7 @@ namespace EPSSEditor
                             */
                             Sound s = sounds[sound];
 
-                            SpiSound spiSnd = new SpiSound(ref s, info);
+                            SpiSound spiSnd = new SpiSound(s, info);
                             spiSounds.Add(spiSnd);
 
                             //AddSfzSound(ref s, midich, (byte)noteStart, (byte)noteEnd, (byte)center, (sbyte)transpose);
@@ -180,10 +180,7 @@ namespace EPSSEditor
 
         }
 
-
-        
-
-
+             
         public string convertSoundFileName()
         {
             if (_fileNameForListenConvertedSound == null)
@@ -199,6 +196,10 @@ namespace EPSSEditor
                 if (snd.parameters().normalize == null)
                 {
                     snd.parameters().normalize = new ConversionNormalize();
+                }
+                if (snd.sampleDataLength == 0)
+                {
+                    snd.sampleDataLength = new System.IO.FileInfo(snd.path).Length;
                 }
             }
         }
@@ -364,7 +365,7 @@ namespace EPSSEditor
         // Used when loading sound from sfz file
         public void AddSfzSound(ref Sound sound, int midiChannel, byte lo, byte hi, byte center, sbyte transpose)
         {
-            SpiSound spiSnd = new SpiSound(ref sound);
+            SpiSound spiSnd = new SpiSound(sound);
             spiSnd.startNote = lo;
             spiSnd.endNote = hi;
             spiSnd.midiNote = (byte)(84 - (center - lo));
@@ -433,7 +434,7 @@ namespace EPSSEditor
             {
                 return false;
             }
-            SpiSound spiSnd = new SpiSound(ref sound);
+            SpiSound spiSnd = new SpiSound(sound);
             spiSnd.midiChannel = (byte)midiChannel;
             spiSnd.midiNote = 84;
             spiSnd.startNote = startNote;

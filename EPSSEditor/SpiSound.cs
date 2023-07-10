@@ -10,7 +10,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 namespace EPSSEditor
 {
   
-    public class SpiSound
+    public class SpiSound : IDisposable
     {
         public byte midiChannel; // [1-16]
         public byte midiNote;
@@ -27,16 +27,20 @@ namespace EPSSEditor
         public string _name;
         public string _extName;
 
-        public byte loopMode;
+        public byte loopMode; // EPSS, 1 -> single shot, 2 -> loop
         public UInt32 start;
         public UInt32 end;
         public UInt32 loopStart;
+        public UInt32 loopEnd;
+        public UInt32 orgSampleCount; // From Sound, needed to be able to recalculate loopStart.
 
         public UInt16 extVolume;
         public UInt16 subTone;
 
 
-        private MemoryStream ms = null;
+        private MemoryStream _ms = null;
+        private BlockAlignReductionStream _blockAlignedStream = null;
+        private CachedSound _cachedAudio;
 
         public SpiSound() {
             startNote = endNote = programNumber = 128;
@@ -45,17 +49,36 @@ namespace EPSSEditor
             
         }
 
-        public SpiSound(ref Sound sound)
+        public SpiSound(Sound sound)
         {
             startNote = endNote = programNumber = 128;
             midiNoteMapped = 84;
             soundId = sound.id();
             SetNameFromSound(sound);
             transpose = 0;
+
+            end = (UInt32)sound.parameters().sizeAfterConversion(sound);
+
+            loopMode = (byte)(sound.loop ? 2 : 1);
+            if (sound.loop)
+            {
+                loopMode = 2;
+                loopStart = (UInt32)sound.loopStart; //Initially from original Sound based on Sound freq, channels, bits
+                loopEnd = (UInt32)sound.loopEnd;
+                orgSampleCount = (UInt32)sound.sampleCount;
+                //end = (UInt32)sound.loopEnd;
+            } else
+            {
+                loopMode = 1;
+                loopStart = 0;
+                loopEnd = 0;
+                orgSampleCount = 0;
+                //end = (UInt32)sound.length; // TODO 16 8 bits etc
+            }
         }
         
         
-        public SpiSound(ref Sound sound, SfzSplitInfo sfz) // Used when importing from SPI
+        public SpiSound(Sound sound, SfzSplitInfo sfz) // Used when importing from SPI
         {
             midiNoteMapped = 84;
             soundId = sound.id();
@@ -74,6 +97,7 @@ namespace EPSSEditor
             start = sfz.Start;
             end = sfz.End;
             loopStart = sfz.LoopStart;
+            loopEnd = sfz.LoopEnd;
 
             extVolume = sfz.ExtVolume;
             subTone = sfz.SubTone;
@@ -85,6 +109,21 @@ namespace EPSSEditor
             _extName = extSoundInfo.s_extname;
             transpose = soundInfo.s_loopmode.toneoffset;
             // TODO
+        }
+
+        public void Dispose()
+        {
+            if (_blockAlignedStream != null)
+            {
+                _blockAlignedStream.Close();
+                _blockAlignedStream.Dispose();
+                _blockAlignedStream = null;
+            }
+            if (_ms != null)
+            {
+                _ms.Close();
+                _ms.Dispose();
+            }
         }
 
         public string name() { return _name; }
@@ -113,7 +152,7 @@ namespace EPSSEditor
 
             if (sound != null)
             {
-                return sound.parameters().sizeAfterConversion(ref sound);
+                return sound.parameters().sizeAfterConversion(sound);
             }
             return 0;
         }
@@ -182,6 +221,9 @@ namespace EPSSEditor
                             WaveFileWriter.CreateWaveFile(volTempPath, resampler);
                         }
 
+
+
+                        
                     }
 
                     using (var reader = new WaveFileReader(volTempPath))
@@ -243,24 +285,56 @@ namespace EPSSEditor
 
         public MemoryStream getWaveStream(EPSSEditorData data, int newFreq, int bits, int channels)
         {
-            if (ms == null)
+            if (_ms == null)
             {
                 string outFile = data.convertSoundFileName();
 
                 if (convertSound(data, outFile, newFreq, bits, channels))
                 {
-                    ms = new MemoryStream();
+                    _ms = new MemoryStream();
                     using (FileStream file = new FileStream(outFile, FileMode.Open, FileAccess.Read))
                     {
 
                         byte[] bytes = new byte[file.Length];
                         file.Read(bytes, 0, (int)file.Length);
-                        ms.Write(bytes, 0, (int)file.Length);
+                        _ms.Write(bytes, 0, (int)file.Length);
                     }
                    
                 }
             }
-            return ms;
+            return _ms;
+        }
+
+        /*
+        public WaveStream waveStream()
+        {
+            if (_ms != null)
+            {
+                if (_blockAlignedStream != null)
+                {
+                    _blockAlignedStream.Close();
+                    _blockAlignedStream.Dispose();
+                    _blockAlignedStream = null;
+                }
+                _blockAlignedStream = new BlockAlignReductionStream(
+                                        WaveFormatConversionStream.CreatePcmStream(
+                                        new WaveFileReader(_ms)));
+              
+                 
+                return _blockAlignedStream;
+            }
+            return null;
+        }
+        */
+
+
+        public CachedSound cachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopStart, int loopEnd, int orgSampleCount)
+        {
+            if (_cachedAudio == null)
+            {
+                _cachedAudio = new CachedSound(ms, newFreq, bits, channels, loop, loopStart, loopEnd, orgSampleCount);
+            }
+            return _cachedAudio;
         }
 
 

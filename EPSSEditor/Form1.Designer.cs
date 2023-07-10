@@ -260,7 +260,8 @@
             this.spiSoundListenButton.Text = "Listen";
             this.infoToolTip.SetToolTip(this.spiSoundListenButton, "Listen to SPI Sound sample. Only first selected is played.");
             this.spiSoundListenButton.UseVisualStyleBackColor = true;
-            this.spiSoundListenButton.Click += new System.EventHandler(this.spiSoundListenButton_Click);
+            this.spiSoundListenButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.spiSoundListenButton_MouseDown);
+            this.spiSoundListenButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.spiSoundListenButton_MouseUp);
             // 
             // spiSoundListView
             // 
@@ -571,8 +572,8 @@
             this.playButton.TabIndex = 0;
             this.playButton.Text = "Listen";
             this.playButton.UseVisualStyleBackColor = true;
-            this.playButton.Click += new System.EventHandler(this.playButton_Click);
-            this.playButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.playButton_KeyDown);
+            this.playButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.playButton_MouseDown);
+            this.playButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.playButton_MouseUp);
             // 
             // loadSoundButton
             // 
