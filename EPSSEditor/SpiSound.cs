@@ -306,7 +306,7 @@ namespace EPSSEditor
         {
             if (_cachedAudio == null)
             {
-                _cachedAudio = new CachedSound(ms, newFreq, bits, channels, loop);
+                _cachedAudio = new CachedSound(ms, newFreq, bits, channels, loop, 0, 0, (int)ms.Length); // TODO real loop values!
             }
             return _cachedAudio;
         }

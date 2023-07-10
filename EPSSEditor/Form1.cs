@@ -942,7 +942,7 @@ namespace EPSSEditor
                     if (ms != null)
                     {
                         ms.Position = 0;
-                        bool loop = snd.loopMode != 1;
+                        bool loop = snd.loopMode != 0;
                         CachedSound cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop);
                         audio.PlaySound(cs);
                         playedSounds.Add(cs);
