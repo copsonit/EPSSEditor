@@ -483,8 +483,11 @@ namespace EPSSEditor
 
         private void updateShowCompressionProgressBar(long lengthBefore, long lengthAfter)
         {
-            int v = (int)(((double)lengthAfter / (double)lengthBefore) * 100);
-            showCompProgressBar.Value = v;
+            if (lengthBefore > 0)
+            {
+                int v = (int)(((double)lengthAfter / (double)lengthBefore) * 100);
+                showCompProgressBar.Value = v;
+            }
         }
 
 
@@ -1055,8 +1058,10 @@ namespace EPSSEditor
             string basePath = Path.GetDirectoryName(filePath);
             int midiChannel = currentMidiChannel();
             bool skipFirstGroup = true;
+            bool abortLoad = false;
             foreach (SfzBase bas in bases)
             {
+                if (abortLoad) break;
                 var gSection = bas as SfzGenericSection;
                 if (gSection != null)
                 {
@@ -1088,65 +1093,90 @@ namespace EPSSEditor
                     }
                     else
                     {
-                        s = new Sound(fp);
-                        s.description = Path.GetFileNameWithoutExtension(fp);
-                        data.sounds.Add(s);
-                        sounds.Add(fp, s);
+                        if (Path.GetExtension(fp).ToLower() == ".wav") {
+                            s = new Sound(fp);
+                            s.description = Path.GetFileNameWithoutExtension(fp);
+                            data.sounds.Add(s);
+                            sounds.Add(fp, s);
+                        } else
+                        {
+                            MessageBox.Show("Unsupported format for samples. Only supports WAV.");
+                            abortLoad = true;
+                            s = null;
+                        }
                     }
 
 
+                    string kcS = tBase.GetValue("pitch_keycenter");
+                    byte kcByte = 0;
+                    if (!String.IsNullOrEmpty(kcS)) {
+
+                        //                    string kcS = tBase.variables[""];
+                        if (!TryToByte(kcS, out kcByte))
+                        {
+                            int v = parseNoteToInt(kcS, 0);
+                            if (v < 0 || v > 127)
+                            {
+                                kcByte = 128;
+                            }
+                            else
+                            {
+                                kcByte = (byte)v;
+                            }
+                        }
+                    }
 
                     //Sound s = new Sound(fp);
                     //s.description = baseName + Path.GetFileNameWithoutExtension(fp);
-                    byte loByte;
-                    string loKeyS = tBase.variables["lokey"];
-                    if (!TryToByte(loKeyS, out loByte))
+                    string loKeyS = tBase.GetValue("lokey");
+                    byte loByte = 0;
+                    if (!String.IsNullOrEmpty(loKeyS))
                     {
-                        int v = parseNoteToInt(loKeyS, 0);
-                        if (v < 0 || v > 127)
+
+                        if (!TryToByte(loKeyS, out loByte))
                         {
-                            loByte = 128;
+                            int v = parseNoteToInt(loKeyS, 0);
+                            if (v < 0 || v > 127)
+                            {
+                                loByte = 128;
+                            }
+                            else
+                            {
+                                loByte = (byte)v;
+                            }
                         }
-                        else
-                        {
-                            loByte = (byte)v;
-                        }
+                    } else
+                    {
+                        loByte = (byte)Math.Max(0, (int)kcByte - 24);
                     }
                     //s.loKey = loByte;
 
 
 
-                    byte hiByte;
-                    string hiKeyS = tBase.variables["hikey"];
-                    if (!TryToByte(hiKeyS, out hiByte))
+                    string hiKeyS = tBase.GetValue("hikey");
+                    byte hiByte = 0;
+                    if (!String.IsNullOrEmpty(hiKeyS)) {
+
+                        if (!TryToByte(hiKeyS, out hiByte))
+                        {
+                            int v = parseNoteToInt(hiKeyS, 0);
+                            if (v < 0 || v > 127)
+                            {
+                                hiByte = 128;
+                            }
+                            else
+                            {
+                                hiByte = (byte)v;
+                            }
+                        }
+                    } else
                     {
-                        int v = parseNoteToInt(hiKeyS, 0);
-                        if (v < 0 || v > 127)
-                        {
-                            hiByte = 128;
-                        }
-                        else
-                        {
-                            hiByte = (byte)v;
-                        }
+                        hiByte = (byte)Math.Min(127, (int)kcByte + 24);
                     }
                     //s.hiKey = hiByte;
 
 
-                    byte kcByte;
-                    string kcS = tBase.variables["pitch_keycenter"];
-                    if (!TryToByte(kcS, out kcByte))
-                    {
-                        int v = parseNoteToInt(kcS, 0);
-                        if (v < 0 || v > 127)
-                        {
-                            kcByte = 128;
-                        }
-                        else
-                        {
-                            kcByte = (byte)v;
-                        }
-                    }
+
                     //s.keyCenter = kcByte;
 
 
@@ -1154,8 +1184,12 @@ namespace EPSSEditor
                     //{
                     //data.sounds.Add(s);
                     //}
-                    anyFile = fp;
-                    data.AddSfzSound(ref s, midiChannel, loByte, hiByte, kcByte, 0);
+                    if (s != null)
+                    {
+                        anyFile = fp;
+                        data.AddSfzSound(s, midiChannel, loByte, hiByte, kcByte, 0);
+
+                    }
 
                 }
             }
@@ -1163,6 +1197,9 @@ namespace EPSSEditor
             updateDialog();
             dataNeedsSaving = true;
             saveProjectSettings();
+
+            int ch = data.getNextFreeMidiChannel();
+            if (ch > 0) setMidiChannel(ch);
 
             return anyFile;
         }

@@ -363,7 +363,7 @@ namespace EPSSEditor
         }
         
         // Used when loading sound from sfz file
-        public void AddSfzSound(ref Sound sound, int midiChannel, byte lo, byte hi, byte center, sbyte transpose)
+        public void AddSfzSound(Sound sound, int midiChannel, byte lo, byte hi, byte center, sbyte transpose)
         {
             SpiSound spiSnd = new SpiSound(sound);
             spiSnd.startNote = lo;

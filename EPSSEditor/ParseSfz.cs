@@ -92,6 +92,12 @@ namespace EPSSEditor
         }
 
 
+        public string GetValue(string variable)
+        {
+            if (variables.ContainsKey(variable)) { return variables[variable]; }
+            return null;
+        }
+
         
     }
 
