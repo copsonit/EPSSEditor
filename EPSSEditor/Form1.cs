@@ -1538,12 +1538,17 @@ namespace EPSSEditor
                 {
                     anyFile = LoadSfzSound(filePath);
                 }
-                else
+                else if (ext == ".WAV")
                 {
                     string baseName = Path.GetFileNameWithoutExtension(filePath);
                     baseName = baseName.Substring(0, Math.Min(baseName.Length - 1, 13));
                     anyFile = addOneSoundDirect(filePath, baseName);
                     filesAdded.Add(anyFile);
+                }
+                else
+                {
+                    MessageBox.Show("Only support .WAV or .SFZ format.");
+                    break;
                 }
             }
 
