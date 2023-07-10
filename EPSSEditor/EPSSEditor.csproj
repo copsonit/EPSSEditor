@@ -104,6 +104,7 @@
     <Compile Include="EPSSEditorData.cs" />
     <Compile Include="EPSSSpi.cs" />
     <Compile Include="EPSSSpiCreator.cs" />
+    <Compile Include="EPSSMidFile.cs" />
     <Compile Include="utililty.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
