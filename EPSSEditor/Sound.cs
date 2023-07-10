@@ -6,6 +6,7 @@ using System.IO;
 using NAudio.Wave;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
 
 namespace EPSSEditor
 {
@@ -25,7 +26,7 @@ namespace EPSSEditor
     {
         public string path;
         public string description;
-        public long length;
+        //public long length; // File length, not samples!
 
         public Guid _id;
         public ConversionParameters _parameters;
@@ -33,6 +34,8 @@ namespace EPSSEditor
         public int channels;
         public int bitsPerSample;
         public int samplesPerSecond; // i.e. Hz
+        public long sampleDataLength; // Length in bytes of the raw sample
+        public long sampleCount;
 
         public byte loKey;
         public byte hiKey;
@@ -71,7 +74,7 @@ namespace EPSSEditor
         {
             path = p;
             description = null;
-            length = new System.IO.FileInfo(path).Length;
+            //length = new System.IO.FileInfo(path).Length;
             _id = Guid.NewGuid();
 
             _parameters = new ConversionParameters();
@@ -92,7 +95,8 @@ namespace EPSSEditor
                     channels = fmt.Channels;
                     bitsPerSample = fmt.BitsPerSample;
                     samplesPerSecond = fmt.SampleRate;
-
+                    sampleDataLength = reader.Length;
+                    sampleCount = reader.SampleCount; // Does not take channels into account!
 
                     var smp = reader.ExtraChunks.FirstOrDefault(ec => ec.IdentifierAsString == "smpl");
                     if (smp != null)
@@ -116,7 +120,8 @@ namespace EPSSEditor
                             var end = BitConverter.ToInt32(chunkData, offset + 12);
                             var fraction = BitConverter.ToInt32(chunkData, offset + 16);
                             var playCount = BitConverter.ToInt32(chunkData, offset + 20);
-                            Console.WriteLine($"Sample {cuePointId} Start {start} End {end} Type {type} Fraction {fraction} PlayCount {playCount}");
+
+                            Console.WriteLine($"Sample {cuePointId} Start {start} End {end} Type {type} Fraction {fraction} PlayCount {playCount} SampleDataLength {sampleDataLength}");
                             offset += 24;
 
                             loop = true;
@@ -192,7 +197,7 @@ namespace EPSSEditor
         {
             if (_cachedAudio == null)
             {
-                _cachedAudio = new CachedSound(path, loop, loopType, loopStart, loopEnd);
+                _cachedAudio = new CachedSound(path, loop, loopStart, loopEnd);
             }
             return _cachedAudio;
         }
@@ -200,7 +205,7 @@ namespace EPSSEditor
 
         public override string ToString()
         {
-            return base.ToString() + $" ({path}, {description}, {length}, {_id}, {channels}, {bitsPerSample}, {samplesPerSecond}, {loKey}, {hiKey}, {keyCenter})";
+            return base.ToString() + $" ({path}, {description}, {sampleDataLength}, {_id}, {channels}, {bitsPerSample}, {samplesPerSecond}, {loKey}, {hiKey}, {keyCenter})";
         }
     }
 }

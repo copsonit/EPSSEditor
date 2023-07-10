@@ -27,10 +27,12 @@ namespace EPSSEditor
         public string _name;
         public string _extName;
 
-        public byte loopMode;
+        public byte loopMode; // EPSS, 1 -> single shot, 2 -> loop
         public UInt32 start;
         public UInt32 end;
         public UInt32 loopStart;
+        public UInt32 loopEnd;
+        public UInt32 orgSampleCount; // From Sound, needed to be able to recalculate loopStart.
 
         public UInt16 extVolume;
         public UInt16 subTone;
@@ -47,17 +49,36 @@ namespace EPSSEditor
             
         }
 
-        public SpiSound(ref Sound sound)
+        public SpiSound(Sound sound)
         {
             startNote = endNote = programNumber = 128;
             midiNoteMapped = 84;
             soundId = sound.id();
             SetNameFromSound(sound);
             transpose = 0;
+
+            end = (UInt32)sound.parameters().sizeAfterConversion(sound);
+
+            loopMode = (byte)(sound.loop ? 2 : 1);
+            if (sound.loop)
+            {
+                loopMode = 2;
+                loopStart = (UInt32)sound.loopStart; //Initially from original Sound based on Sound freq, channels, bits
+                loopEnd = (UInt32)sound.loopEnd;
+                orgSampleCount = (UInt32)sound.sampleCount;
+                //end = (UInt32)sound.loopEnd;
+            } else
+            {
+                loopMode = 1;
+                loopStart = 0;
+                loopEnd = 0;
+                orgSampleCount = 0;
+                //end = (UInt32)sound.length; // TODO 16 8 bits etc
+            }
         }
         
         
-        public SpiSound(ref Sound sound, SfzSplitInfo sfz) // Used when importing from SPI
+        public SpiSound(Sound sound, SfzSplitInfo sfz) // Used when importing from SPI
         {
             midiNoteMapped = 84;
             soundId = sound.id();
@@ -76,6 +97,7 @@ namespace EPSSEditor
             start = sfz.Start;
             end = sfz.End;
             loopStart = sfz.LoopStart;
+            loopEnd = sfz.LoopEnd;
 
             extVolume = sfz.ExtVolume;
             subTone = sfz.SubTone;
@@ -130,7 +152,7 @@ namespace EPSSEditor
 
             if (sound != null)
             {
-                return sound.parameters().sizeAfterConversion(ref sound);
+                return sound.parameters().sizeAfterConversion(sound);
             }
             return 0;
         }
@@ -199,6 +221,9 @@ namespace EPSSEditor
                             WaveFileWriter.CreateWaveFile(volTempPath, resampler);
                         }
 
+
+
+                        
                     }
 
                     using (var reader = new WaveFileReader(volTempPath))
@@ -280,7 +305,7 @@ namespace EPSSEditor
             return _ms;
         }
 
-
+        /*
         public WaveStream waveStream()
         {
             if (_ms != null)
@@ -300,13 +325,14 @@ namespace EPSSEditor
             }
             return null;
         }
+        */
 
 
-        public CachedSound cachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop)
+        public CachedSound cachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopStart, int loopEnd, int orgSampleCount)
         {
             if (_cachedAudio == null)
             {
-                _cachedAudio = new CachedSound(ms, newFreq, bits, channels, loop, 0, 0, (int)ms.Length); // TODO real loop values!
+                _cachedAudio = new CachedSound(ms, newFreq, bits, channels, loop, loopStart, loopEnd, orgSampleCount);
             }
             return _cachedAudio;
         }

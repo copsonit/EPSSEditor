@@ -181,17 +181,15 @@ namespace EPSSEditor
             int loopEnd = cachedSound.loopEnd;
             int loopStart = cachedSound.loopStart;
             var availableSamples = cachedSound.loop ? loopEnd - position : cachedSound.AudioData.Length - position;
+            
             var samplesToCopy = Math.Min(availableSamples, count);
-            //Console.WriteLine("AudioData:{0}, position:{1} count:{2}, available: {3}, offset: {4}", cachedSound.AudioData.Length, position, count.ToString(), availableSamples.ToString(), offset);
-
-            //int bufferSize = 500;
-            //samplesToCopy = Math.Min(bufferSize, samplesToCopy);
-
+            //Console.WriteLine("AudioData:{0}, position:{1} count:{2}, available: {3}, offset: {4} samplesToCopy: {5} loopStart {6} loopEnd {7}", cachedSound.AudioData.Length, position, count.ToString(), availableSamples.ToString(), offset, samplesToCopy, loopStart, loopEnd);
             Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
+
             position += samplesToCopy;
+
             if (cachedSound.loop && samplesToCopy < count)
             {
-                //cachedSound.IsPlaying = false;
                 position = loopStart;
                 long buffPos = offset + samplesToCopy ;
 
@@ -201,7 +199,6 @@ namespace EPSSEditor
                     samplesToCopy++;
                     if (samplesToCopy > (count - 1))
                     {
-                        Console.WriteLine("found end.");
                         break;
                     }
                 }
@@ -224,14 +221,18 @@ namespace EPSSEditor
         public int loopStart = 0;
         public int loopEnd = 0;
 
-        public CachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopType, int loopStart, int loopEnd)
+        public CachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopStart, int loopEnd, int orgSampleCount)
         {
             this.loop = loop;
-            this.loopType = loopType;
-            this.loopStart = loopStart;
-            this.loopEnd = loopEnd;
+            loopType = 0; // only forward supported in EPSS
+            //this.loopStart = loopStart;
+            //this.loopEnd = loopEnd;
 
-            var rs = new RawSourceWaveStream(ms, new WaveFormat(newFreq, bits, channels));
+            //var rs = new RawSourceWaveStream(ms, new WaveFormat(newFreq, bits, channels));
+            var rs = new WaveFileReader(ms);
+            //uint orgLoopStart = loopStart;
+            //uint orgLoopEnd = loopEnd;
+            //long newSampleDataLen = rs.Length;
             var rsAsSampleProvider = rs.ToSampleProvider();
 
             var resampler = new WdlResamplingSampleProvider(rsAsSampleProvider, 44100);
@@ -245,12 +246,18 @@ namespace EPSSEditor
                 wholeFile.AddRange(readBuffer.Take(samplesRead));
             }
             AudioData = wholeFile.ToArray();
+
+            if (loop)
+            {
+                this.loopEnd = AudioData.Length;
+                this.loopStart = (int)(((double)loopStart / (double)orgSampleCount) * (double)AudioData.Length);
+            }
         }
 
-        public CachedSound(string audioFileName, bool loop, int loopType, int loopStart, int loopEnd)
+        public CachedSound(string audioFileName, bool loop, int loopStart, int loopEnd)
         {
             this.loop = loop;
-            this.loopType = loopType;
+            loopType = 0; // Only forward supported in EPSS
             this.loopStart = loopStart;
             this.loopEnd = loopEnd;
 
@@ -267,7 +274,7 @@ namespace EPSSEditor
                     wholeFile.AddRange(readBuffer.Take(samplesRead));
                 }
                 AudioData = wholeFile.ToArray();
-
+             
 
                 /*
                 var resampler = new MediaFoundationResampler(audioFileReader, 44100);

@@ -447,7 +447,7 @@ namespace EPSSEditor
         {
             callbacks = false;
             int numberOfDecimals = 2;
-            sizeTextBox.Text = Ext.ToPrettySize(snd.length, numberOfDecimals);
+            sizeTextBox.Text = Ext.ToPrettySize(snd.sampleDataLength, numberOfDecimals);
             channelsTextBox.Text = snd.channels.ToString() + " Channels";
             freqTextBox.Text = snd.samplesPerSecond.ToString() + " Hz";
             bitsTextBox.Text = snd.bitsPerSample.ToString() + " Bit";
@@ -457,11 +457,11 @@ namespace EPSSEditor
             snd.updateConversionParameters(toBit, toFreq);
             conversionTextBox.Text = snd.parameters().description();
 
-            long lengthAfter = snd.parameters().sizeAfterConversion(ref snd);
+            long lengthAfter = snd.parameters().sizeAfterConversion(snd);
 
             soundSizeAfterTextBox.Text = Ext.ToPrettySize(lengthAfter, numberOfDecimals);
 
-            updateShowCompressionProgressBar(snd.length, lengthAfter);
+            updateShowCompressionProgressBar(snd.sampleDataLength, lengthAfter);
 
             bool normalized = snd.parameters().normalize.normalize;
             normalizeCheckBox.Checked = normalized;
@@ -942,8 +942,10 @@ namespace EPSSEditor
                     if (ms != null)
                     {
                         ms.Position = 0;
-                        bool loop = snd.loopMode != 0;
-                        CachedSound cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop);
+                        bool loop = snd.loopMode == 2;
+                        //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
+                            // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
+                        CachedSound cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop, (int)snd.loopStart, (int)snd.loopEnd, (int)snd.orgSampleCount);
                         audio.PlaySound(cs);
                         playedSounds.Add(cs);
                     }
@@ -1755,7 +1757,7 @@ namespace EPSSEditor
                         foreach (Sound sound in sounds)
                         {
                             Sound s = sound;
-                            SpiSound spiSnd = new SpiSound(ref s);
+                            SpiSound spiSnd = new SpiSound(s);
 
                             if (defaultMidiMapRadioButton.Checked)
                             {
@@ -1850,7 +1852,7 @@ namespace EPSSEditor
                         else // Drums and Multisample (one sample per note)
                         {
                             bool addOk = true;
-                            SpiSound spiSnd = new SpiSound(ref s);
+                            SpiSound spiSnd = new SpiSound(s);
 
                             int midiChannel = currentMidiChannel();
                             spiSnd.midiChannel = (byte)midiChannel;
@@ -1906,7 +1908,7 @@ namespace EPSSEditor
                     foreach (Sound sound in sounds)
                     {
                         Sound s = sound;
-                        SpiSound spiSnd = new SpiSound(ref s);
+                        SpiSound spiSnd = new SpiSound(s);
 
                         spiSnd.midiChannel = 128;
                         spiSnd.startNote = s.loKey;
@@ -1930,7 +1932,7 @@ namespace EPSSEditor
 
                         // TODO Check if program have been used before, remove if it is the case
 
-                        SpiSound spiSnd = new SpiSound(ref s);
+                        SpiSound spiSnd = new SpiSound(s);
                         spiSnd.midiChannel = 128;
                         spiSnd.startNote = s.loKey;
                         spiSnd.endNote = s.hiKey;
@@ -2100,7 +2102,11 @@ namespace EPSSEditor
 
         private void spiSoundListenButton_MouseUp(object sender, MouseEventArgs e)
         {
-            foreach (var sound in playedSpiSounds) audio.StopSound(sound);
+            if (playedSpiSounds != null)
+            {
+                foreach (var sound in playedSpiSounds) audio.StopSound(sound);
+                playedSpiSounds = null;
+            }
         }
 
 
