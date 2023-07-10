@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Management;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Web;
+using System.Net.Mail;
 
 namespace EPSSEditor
 {
@@ -513,12 +514,51 @@ namespace EPSSEditor
                 using (FileStream fs = new FileStream(file, FileMode.Open))
                 {
                     data = (EPSSEditorData)ser.Deserialize(fs);
-
                     data.fixOldVersions();
-
-
-
+                    
                 }
+
+                string newDir = "";
+                string sampleNotFound = "";
+                bool clearAllSamples = false;
+                while (true)
+                {
+                    bool vf = data.VerifyFiles(newDir, ref sampleNotFound);
+
+                    if (!vf)
+                    {
+                        int verifyResult = VerifyFiles(sampleNotFound, ref newDir);
+                        if (verifyResult == 0) break;
+                        else if (verifyResult == 2)
+                        {
+                            clearAllSamples = true;
+                            break;
+                        }
+                        // remap
+                        if (String.IsNullOrEmpty(newDir))
+                        {
+                            clearAllSamples = true;
+                            break;
+                        }
+                    } else
+                    {
+                        break;
+                    }
+                }
+
+                if (clearAllSamples)
+                {
+                    if (MessageBox.Show("Do you really want to delete all samples.\nin this project and continue?", "EPSS Editor", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        data.sounds.Clear();
+                        data.spiSounds.Clear();
+                    } else
+                    {
+                        result = false;
+                    }
+                
+                }
+
                 updateDialog();
                 updateTotalSize();
             }
@@ -529,6 +569,32 @@ namespace EPSSEditor
                 result = false;
             }
             return result;
+        }
+
+
+        private int VerifyFiles(string sampleNotFound, ref string newDir)
+        {
+            //if (!data.VerifyFiles(newDir))
+            //{
+                if (MessageBox.Show("Sample " + sampleNotFound + " cannot be found.\nDo you want to point to other directory for samples?", "EPSS Editor", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    //folderBrowserDialog1.SelectedPath = Properties.Settings.Default.ProjectFile;
+                    folderBrowserDialog1.ShowNewFolderButton = false;
+                    //folderBrowserDialog1.RootFolder = Environment.SpecialFolder.Personal;
+                    if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.Append(folderBrowserDialog1.SelectedPath);
+                        newDir = stringBuilder.ToString();
+                        return 1; // Try to remap
+                    }
+                } else
+                {
+                    return 2; // We want to quit
+                }
+            return 0;
+            //}
+            //return 0; // OK
         }
 
 

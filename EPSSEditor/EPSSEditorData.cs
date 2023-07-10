@@ -56,6 +56,33 @@ namespace EPSSEditor
         }
 
 
+        public bool VerifyFiles(string remapDir, ref string sampleNotFound)
+        {
+            foreach(Sound sound in sounds)
+            {
+                if (!File.Exists(sound.path))
+                {
+                    if (!String.IsNullOrEmpty(remapDir))
+                    {
+                        sound.path = remapDir + "\\" + Path.GetFileName(sound.path);
+                        if (!File.Exists(sound.path))
+                        {
+                            sampleNotFound = Path.GetFileName(sound.path);
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        sampleNotFound = Path.GetFileName(sound.path);
+                        return false;
+                    }
+                }
+            }
+            sampleNotFound = "";
+            return true;
+        }
+
+
         public bool LoadSpiFile(ref EPSSSpi spi, string soundDir, ref string errorMessage)
         {
             bool result = true;
