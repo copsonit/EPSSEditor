@@ -798,7 +798,7 @@
             // 
             this.showCompProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.showCompProgressBar.Location = new System.Drawing.Point(5, 18);
+            this.showCompProgressBar.Location = new System.Drawing.Point(4, 17);
             this.showCompProgressBar.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.showCompProgressBar.Maximum = 200;
             this.showCompProgressBar.Name = "showCompProgressBar";
@@ -831,12 +831,11 @@
             // soundSizeAfterTextBox
             // 
             this.soundSizeAfterTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.soundSizeAfterTextBox.Location = new System.Drawing.Point(147, 18);
+            this.soundSizeAfterTextBox.Location = new System.Drawing.Point(148, 18);
             this.soundSizeAfterTextBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.soundSizeAfterTextBox.Name = "soundSizeAfterTextBox";
             this.soundSizeAfterTextBox.Size = new System.Drawing.Size(59, 20);
             this.soundSizeAfterTextBox.TabIndex = 3;
-            this.soundSizeAfterTextBox.Text = "SizeAfter";
             // 
             // groupBox7
             // 

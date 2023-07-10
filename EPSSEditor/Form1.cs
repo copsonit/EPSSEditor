@@ -227,8 +227,19 @@ namespace EPSSEditor
             updatePreview();
             updateMappingMode();
             UpdateSoundDialog();
+            UpdateConversionSettings();
         }
 
+
+        private void UpdateConversionSettings()
+        {
+            bool enabled = soundListBox.SelectedItems.Count == 1;
+            
+            conversionTextBox.Enabled = enabled;
+            groupBox6.Enabled = enabled;
+            groupBox7.Enabled = enabled;
+            groupBox1.Enabled = enabled;
+        }
 
         private void UpdateSoundDialog()
         {
@@ -1612,6 +1623,7 @@ namespace EPSSEditor
             soundListBox.EndUpdate();
 
             UpdateSoundDialog();
+            UpdateConversionSettings();
             data.soundFileName = anyFile;
             dataNeedsSaving = true;
             saveProjectSettings();
@@ -1709,6 +1721,7 @@ namespace EPSSEditor
                 useInSpiButton.Enabled = false;
             }
             UpdateSoundDialog();
+            UpdateConversionSettings();
         }
 
 
