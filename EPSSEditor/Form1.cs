@@ -2399,7 +2399,7 @@ namespace EPSSEditor
                 SpiSoundInstrument spiSoundInstrument = new SpiSoundInstrument(data, audio, newFreq);
                 MidPlayer.RegisterInstrument(spiSoundInstrument);
                 //MidPlayer.StartPlaying(ref midPlayerTimer);
-                MidPlayer.StartPlaying();
+                MidPlayer.StartPlaying(this);
 
                 Properties.Settings.Default.MidFile = midFile;
                 Properties.Settings.Default.Save();
@@ -2443,6 +2443,7 @@ namespace EPSSEditor
             this.data = data;
             this.audio = audio;
             this.newFreq = newFreq;
+            data.InitFinder();
             //SpiSound snd = data.FindSpiSound(1, 36);
             //cachedCachedSound = data.cachedSound(snd, newFreq);
             //Sound snd = data.sounds[0];

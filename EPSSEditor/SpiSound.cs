@@ -13,10 +13,10 @@ namespace EPSSEditor
     public class SpiSound : IDisposable
     {
         public byte midiChannel; // [1-16]
-        public byte midiNote;
+        public byte midiNote; // [0-127]
 
-        public byte startNote;
-        public byte endNote;
+        public byte startNote; // [0-127]
+        public byte endNote; // [0-127]
         public byte midiNoteMapped;
         public byte programNumber;
         public sbyte transpose;
@@ -326,6 +326,12 @@ namespace EPSSEditor
             return null;
         }
         */
+
+
+        public CachedSound cachedSound()
+        {
+            return _cachedAudio;
+        }
 
 
         public CachedSound cachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopStart, int loopEnd, int orgSampleCount)

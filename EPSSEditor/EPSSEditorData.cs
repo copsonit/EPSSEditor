@@ -34,6 +34,7 @@ namespace EPSSEditor
 
         private string _fileNameForListenConvertedSound = null;
 
+        private Dictionary<int, SpiSound[]> _findSpiSoundArray;
 
         public EPSSEditorData() { }
 
@@ -473,36 +474,48 @@ namespace EPSSEditor
 
         public CachedSound cachedSound(SpiSound snd, int newFreq)
         {
-            CachedSound cs = null;
+            CachedSound cs = snd.cachedSound();
+            if (cs == null) { 
+                int newBits = AtariConstants.SampleBits;
+                int newChannels = AtariConstants.SampleChannels;
 
-            int newBits = AtariConstants.SampleBits;
-            int newChannels = AtariConstants.SampleChannels;
-
-            MemoryStream ms = snd.getWaveStream(this, newFreq, newBits, newChannels);
-            if (ms != null)
-            {
-                ms.Position = 0;
-                bool loop = snd.loopMode == 2;
-                //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
-                // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
-                cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop, (int)snd.loopStart, (int)snd.loopEnd, (int)snd.orgSampleCount);
+                MemoryStream ms = snd.getWaveStream(this, newFreq, newBits, newChannels);
+                if (ms != null)
+                {
+                    ms.Position = 0;
+                    bool loop = snd.loopMode == 2;
+                    //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
+                    // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
+                    cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop, (int)snd.loopStart, (int)snd.loopEnd, (int)snd.orgSampleCount);
+                }
             }
             return cs;
         }
 
+
+        public void InitFinder()
+        {
+            _findSpiSoundArray = new Dictionary<int, SpiSound[]>();
+            for (int i = 0; i < 15; i++)
+            {
+                _findSpiSoundArray.Add(i, new SpiSound[128]);
+            }
+            foreach (SpiSound snd in spiSounds)
+            {
+                SpiSound[] sounds = _findSpiSoundArray[snd.midiChannel - 1];
+                for (int note = snd.startNote; note <= (snd.endNote); note++) // 0 - 127
+                {
+                    sounds[note] = snd;
+                }
+                _findSpiSoundArray[snd.midiChannel - 1] = sounds;
+            }
+        }
+
+
         public SpiSound FindSpiSound(int midiChannel, int note)
         {
-            foreach(SpiSound snd in spiSounds)
-            {
-                if (snd.midiChannel == midiChannel)
-                {
-                    if (note >= snd.startNote && note <= snd.endNote)
-                    {
-                        return snd;
-                    }
-                }
-            }
-            return null;
+            SpiSound[] sounds = _findSpiSoundArray[midiChannel - 1];
+            return sounds[note];
         }
 
 }

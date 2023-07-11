@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,11 +14,15 @@ using static EPSSEditor.HPTimer;
 
 namespace EPSSEditor
 {
+
+    // Rewrite to this as time is unreliable:
+    // https://github.com/kohoutech/Kohoutech.MIDI/blob/master/MIDI/Engine/Transport.cs
     static class MidPlayer
     {
         private static EPSSMidFile _midReader = new EPSSMidFile();
-        //private static Timer midPlayerTimer = null;
+        //private static System.Timers.Timer midPlayerTimer = null;
         private static HPTimer midPlayerTimer = null;
+        //private static AccurateTimer mTimer1;
         private static IMidiInstrument _midiInstrument = null;
         private static List<long> times = new List<long>();
         private static int showTimesFrom = 0;
@@ -34,14 +39,28 @@ namespace EPSSEditor
         }
 
 
-        public static void StartPlaying()
+        public static void StartPlaying(Form form)
         {
-            midPlayerTimer = new HPTimer(20);
+            midPlayerTimer = new HPTimer(40);
             midPlayerTimer.Tick += doHpTick;
-            //midPlayerTimer = new Timer();
-            //midPlayerTimer.Tick += new System.EventHandler(dotNetTick);
+
+            //midPlayerTimer = new System.Timers.Timer();
+            //midPlayerTimer.Interval = 20;
+            //midPlayerTimer.Elapsed += Elapsed;
+            //midPlayerTimer.AutoReset = true;
+            //midPlayerTimer.Enabled = true;
+
+            //midPlayerTimer.Tick += n
             //midPlayerTimer.Interval = 20;
             //midPlayerTimer.Start();
+
+            //int delay = 20;
+            //mTimer1 = new AccurateTimer(form, new Action(TimerTick1), delay);
+        }
+
+        private static void MidPlayerTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         public static void LoadMidFile(string path)
@@ -62,6 +81,16 @@ namespace EPSSEditor
             //if (midPlayerTimer != null) midPlayerTimer.Stop();
             if (midPlayerTimer != null) { midPlayerTimer.Dispose(); }
 
+        }
+
+        private static void TimerTick1()
+        {
+            Tick();
+        }
+
+        private static void Elapsed(Object source, System.Timers.ElapsedEventArgs e)
+        {
+            Tick();
         }
 
 
@@ -103,10 +132,10 @@ namespace EPSSEditor
 
         public static void Tick()
         {
-            int tickStep = 8;
+            int tickStep = 16;
             //long now = DateTime.Now.Ticks;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-    
+
             for (int n = 0; n < _midReader.mf.Tracks; n++)
             {
                 int trackTicks = _midReader.trackTicks[n];
@@ -126,18 +155,20 @@ namespace EPSSEditor
                             if (_midiInstrument != null) _midiInstrument.DoMidiEvent(midiEvent);
 
                             //if (!MidiEvent.IsNoteOff(midiEvent))
-                                                            Console.WriteLine("{0} Delta:{1} MyAbs: {2} {3}\r\n", _midReader.ToMBT(midiEvent.AbsoluteTime, _midReader.mf.DeltaTicksPerQuarterNote, _midReader.timeSignature), midiEvent.DeltaTime, _midReader.absoluteTicks[n], midiEvent);
+/*                            Console.WriteLine("{0} Delta:{1} MyAbs: {2} {3}\r\n", _midReader.ToMBT(midiEvent.AbsoluteTime, _midReader.mf.DeltaTicksPerQuarterNote, _midReader.timeSignature), midiEvent.DeltaTime, _midReader.absoluteTicks[n], midiEvent);
                             StringBuilder sb = new StringBuilder();
                             sb.Append($"From {showTimesFrom} ");
-                            for (int i = showTimesFrom; i < times.Count; i++) {
+                            for (int i = showTimesFrom; i < times.Count; i++)
+                            {
                                 sb.Append(times[i].ToString());
                                 if (i < times.Count) sb.Append(" ");
                                 showTimesFrom = i;
                             }
                             sb.Append($" To {showTimesFrom}");
                             Console.WriteLine(sb.ToString());
-                                // Console.WriteLine("Midi event: {0}", midiEvent);
+                            // Console.WriteLine("Midi event: {0}", midiEvent);
                             //}
+*/
 
                             eventPointer++;
 
@@ -147,7 +178,7 @@ namespace EPSSEditor
                     } while (trackTicks <= 0);
                     _midReader.eventPointers[n] = eventPointer;
 
-                }                
+                }
                 else
                 {
                     trackTicks -= tickStep; // TODO tempo calc
@@ -164,6 +195,49 @@ namespace EPSSEditor
 
     }
 
+
+
+    class AccurateTimer
+    {
+        private delegate void TimerEventDel(int id, int msg, IntPtr user, int dw1, int dw2);
+        private const int TIME_PERIODIC = 1;
+        private const int EVENT_TYPE = TIME_PERIODIC;// + 0x100;  // TIME_KILL_SYNCHRONOUS causes a hang ?!
+        [DllImport("winmm.dll")]
+        private static extern int timeBeginPeriod(int msec);
+        [DllImport("winmm.dll")]
+        private static extern int timeEndPeriod(int msec);
+        [DllImport("winmm.dll")]
+        private static extern int timeSetEvent(int delay, int resolution, TimerEventDel handler, IntPtr user, int eventType);
+        [DllImport("winmm.dll")]
+        private static extern int timeKillEvent(int id);
+
+        Action mAction;
+        Form mForm;
+        private int mTimerId;
+        private TimerEventDel mHandler;  // NOTE: declare at class scope so garbage collector doesn't release it!!!
+
+        public AccurateTimer(Form form, Action action, int delay)
+        {
+            mAction = action;
+            mForm = form;
+            timeBeginPeriod(1);
+            mHandler = new TimerEventDel(TimerCallback);
+            mTimerId = timeSetEvent(delay, 0, mHandler, IntPtr.Zero, EVENT_TYPE);
+        }
+
+        public void Stop()
+        {
+            int err = timeKillEvent(mTimerId);
+            timeEndPeriod(1);
+            System.Threading.Thread.Sleep(100);// Ensure callbacks are drained
+        }
+
+        private void TimerCallback(int id, int msg, IntPtr user, int dw1, int dw2)
+        {
+            if (mTimerId != 0)
+                mForm.BeginInvoke(mAction);
+        }
+    }
 
 
     public class EPSSMidFile
