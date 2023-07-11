@@ -469,6 +469,42 @@ namespace EPSSEditor
             spiSounds.Add(spiSnd);
             return true;
         }
-    }
+
+
+        public CachedSound cachedSound(SpiSound snd, int newFreq)
+        {
+            CachedSound cs = null;
+
+            int newBits = AtariConstants.SampleBits;
+            int newChannels = AtariConstants.SampleChannels;
+
+            MemoryStream ms = snd.getWaveStream(this, newFreq, newBits, newChannels);
+            if (ms != null)
+            {
+                ms.Position = 0;
+                bool loop = snd.loopMode == 2;
+                //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
+                // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
+                cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop, (int)snd.loopStart, (int)snd.loopEnd, (int)snd.orgSampleCount);
+            }
+            return cs;
+        }
+
+        public SpiSound FindSpiSound(int midiChannel, int note)
+        {
+            foreach(SpiSound snd in spiSounds)
+            {
+                if (snd.midiChannel == midiChannel)
+                {
+                    if (note >= snd.startNote && note <= snd.endNote)
+                    {
+                        return snd;
+                    }
+                }
+            }
+            return null;
+        }
+
+}
 
 }

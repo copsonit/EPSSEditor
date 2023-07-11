@@ -205,7 +205,7 @@ namespace EPSSEditor
 
         private void InitAudioSystem()
         {
-            if (audio == null) audio = new AudioPlaybackEngine();
+            if (audio == null) audio = new AudioPlaybackEngine(Handle);
             audio.Start();
         }
 
@@ -1019,19 +1019,11 @@ namespace EPSSEditor
                 List<CachedSound> playedSounds = new List<CachedSound>();
                 foreach (var selected in selectedSnds)
                 {
-                    SpiSound snd = data.spiSounds[selected];
                     int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
-                    int newBits = AtariConstants.SampleBits;
-                    int newChannels = AtariConstants.SampleChannels;
-
-                    MemoryStream ms = snd.getWaveStream(data, newFreq, newBits, newChannels);
-                    if (ms != null)
+                    SpiSound snd = data.spiSounds[selected];
+                    CachedSound cs = data.cachedSound(snd, newFreq);
+                    if (cs != null)
                     {
-                        ms.Position = 0;
-                        bool loop = snd.loopMode == 2;
-                        //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
-                        // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
-                        CachedSound cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop, (int)snd.loopStart, (int)snd.loopEnd, (int)snd.orgSampleCount);
                         audio.PlaySound(cs);
                         playedSounds.Add(cs);
                     }
@@ -2402,7 +2394,12 @@ namespace EPSSEditor
             {
                 midFile = loadMidFileDialog.FileName;
                 MidPlayer.LoadMidFile(midFile);
-                MidPlayer.StartPlaying(ref midPlayerTimer);
+                int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
+                //CachedSound cs = data.cachedSound(selected, newFreq);
+                SpiSoundInstrument spiSoundInstrument = new SpiSoundInstrument(data, audio, newFreq);
+                MidPlayer.RegisterInstrument(spiSoundInstrument);
+                //MidPlayer.StartPlaying(ref midPlayerTimer);
+                MidPlayer.StartPlaying();
 
                 Properties.Settings.Default.MidFile = midFile;
                 Properties.Settings.Default.Save();
@@ -2411,8 +2408,7 @@ namespace EPSSEditor
 
         private void midPlayerTimer_Tick(object sender, EventArgs e)
         {
-            MidPlayer.Tick();
-           
+            MidPlayer.Tick();        
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -2420,6 +2416,95 @@ namespace EPSSEditor
             MidPlayer.StopPlaying();
         }
     }
+
+
+    public class SpiSoundInstrument : MidiInstrument
+    {
+        public EPSSEditorData data;
+
+        private Dictionary<int, CachedSound[]> playingContext;
+
+        private readonly AudioPlaybackEngine audio;
+
+        private int newFreq;
+
+        private CachedSound cachedCachedSound;
+
+        public SpiSoundInstrument() { }
+
+
+        public SpiSoundInstrument(EPSSEditorData data, AudioPlaybackEngine audio, int newFreq)
+        {
+            playingContext = new Dictionary<int, CachedSound[]>();
+            for (int channel = 0; channel < 15; channel++)
+            {
+                playingContext.Add(channel, new CachedSound[128]);
+            }
+            this.data = data;
+            this.audio = audio;
+            this.newFreq = newFreq;
+            //SpiSound snd = data.FindSpiSound(1, 36);
+            //cachedCachedSound = data.cachedSound(snd, newFreq);
+            //Sound snd = data.sounds[0];
+            //cachedCachedSound = snd.cachedSound();
+        }
+
+        public override void NoteOn(int midiChannel, int note, int vel)
+        {
+            //Console.WriteLine($"Spi got Note on: {midiChannel} {note} {vel}");
+
+            /*
+            if (midiChannel == 1 && note == 36)
+            {
+                PlaySound(cachedCachedSound, midiChannel, note);
+            }
+            */
+            
+            SpiSound snd = data.FindSpiSound(midiChannel, note);
+            if (snd != null) {
+                //Console.WriteLine($"Found sound: {snd.name()}");
+                CachedSound cs = data.cachedSound(snd, newFreq);
+                PlaySound(cs, midiChannel, note);
+            } else
+            {
+                Console.WriteLine($"!!!! No sound found for Midi:{midiChannel} Note: {note}");
+            }
+            
+        }
+
+        public override void NoteOff(int midiChannel, int note)
+        {
+            //Console.WriteLine($"Spi got Note off: {midiChannel} {note}");
+
+            CachedSound[] channelMap = playingContext[midiChannel - 1];
+            CachedSound oldSnd = channelMap[note];
+            if (oldSnd != null) {
+                //Console.WriteLine("Stopping: {0}", oldSnd.WaveFormat.ToString()); /*audio.StopSound(oldSnd); */
+                audio.StopSound(oldSnd);
+                channelMap[note] = null;
+            }
+            playingContext[midiChannel - 1] = channelMap;
+        }
+
+
+        private void PlaySound(CachedSound snd, int midiChannel, int note)
+        {
+            CachedSound[] channelMap = playingContext[midiChannel-1];
+            CachedSound oldSnd = channelMap[note];
+            if (oldSnd != null) {
+                //Console.WriteLine("Stopping: {0}", oldSnd.WaveFormat.ToString()) ; /*audio.StopSound(oldSnd); */
+                audio.StopSound(oldSnd);
+            }
+
+            audio.PlaySound(snd);
+            //Console.WriteLine("Starting: {0}", snd.WaveFormat.ToString());
+            channelMap[note] = snd;
+            playingContext[midiChannel - 1] = channelMap;
+        }
+
+    }
+
+
 
     internal class ControlScrollListener : NativeWindow, IDisposable
     {

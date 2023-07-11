@@ -11,12 +11,19 @@ namespace EPSSEditor
 {
     public class AudioPlaybackEngine : IDisposable
     {
-        private readonly IWavePlayer outputDevice;
+        private readonly WaveOutEvent outputDevice;
         private readonly MixingSampleProvider mixer;
 
-        public AudioPlaybackEngine(int sampleRate = 44100, int channelCount = 2)
+        public AudioPlaybackEngine(IntPtr winHandle, int sampleRate = 44100, int channelCount = 2)
         {
             outputDevice = new WaveOutEvent();
+
+            //outputDevice = new WaveOut();
+            outputDevice.DesiredLatency = 60;
+
+            //outputDevice = new DirectSoundOut(, 40);
+            //outputDevice.DesiredLatency = 50;
+
             mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount));
 
             //outputDevice.PlaybackStopped += this.PlaybackLoopCallback;
@@ -215,6 +222,7 @@ namespace EPSSEditor
     {
         public float[] AudioData { get; private set; }
         public WaveFormat WaveFormat { get; private set; }
+        
         public bool IsPlaying { get; set; }
         public bool loop = false;
         public int loopType = 0;
@@ -252,6 +260,8 @@ namespace EPSSEditor
                 this.loopEnd = AudioData.Length;
                 this.loopStart = (int)(((double)loopStart / (double)orgSampleCount) * (double)AudioData.Length);
             }
+
+            
         }
 
         public CachedSound(string audioFileName, bool loop, int loopStart, int loopEnd)
