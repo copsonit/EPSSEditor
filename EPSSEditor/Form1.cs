@@ -2401,13 +2401,8 @@ namespace EPSSEditor
             if (loadMidFileDialog.ShowDialog() == DialogResult.OK)
             {
                 midFile = loadMidFileDialog.FileName;
-                EPSSMidFile mf = new EPSSMidFile();
-                mf.Load(midFile);
-
-                midPlayerTimer.Interval = 10; //ms
-                midPlayerTimer.Tag = mf;
-                midPlayerTimer.Start();
-
+                MidPlayer.LoadMidFile(midFile);
+                MidPlayer.StartPlaying(ref midPlayerTimer);
 
                 Properties.Settings.Default.MidFile = midFile;
                 Properties.Settings.Default.Save();
@@ -2416,52 +2411,13 @@ namespace EPSSEditor
 
         private void midPlayerTimer_Tick(object sender, EventArgs e)
         {
-            EPSSMidFile midFile = midPlayerTimer.Tag as EPSSMidFile;
-
-            for (int n = 0; n < midFile.mf.Tracks; n++)
-            {
-                int trackTicks = midFile.trackTicks[n];
-                if (trackTicks <= 0)
-                {
-                    int eventPointer = midFile.eventPointers[n];
-                    IList<MidiEvent> events = midFile.mf.Events[n];
-
-                    while (trackTicks <= 0)
-                    {
-                        MidiEvent midiEvent = events[eventPointer++];
-                        trackTicks = midiEvent.DeltaTime;
-                        if (!MidiEvent.IsNoteOff(midiEvent))
-                        {
-                            Console.WriteLine("Midi event: {0}", midiEvent);
-                        }
-                    }
-                    
-                    midFile.eventPointers[n] = eventPointer;
-                }
-                else
-                {
-                    //trackTicks--;
-                    trackTicks -= 5;
-                }
-                midFile.trackTicks[n] = trackTicks;
-
-
-                /*
-                Console.WriteLine("Track {0}", n);
-                foreach (var midiEvent in mf.Events[n])
-                {
-                    if (!MidiEvent.IsNoteOff(midiEvent))
-                    {
-                        Console.WriteLine("{0} {1}\r\n", ToMBT(midiEvent.AbsoluteTime, mf.DeltaTicksPerQuarterNote, timeSignature), midiEvent);
-                    }
-                }
-                */
-            }
+            MidPlayer.Tick();
+           
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            midPlayerTimer.Stop();
+            MidPlayer.StopPlaying();
         }
     }
 
