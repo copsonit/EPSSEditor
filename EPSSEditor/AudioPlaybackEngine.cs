@@ -11,17 +11,18 @@ namespace EPSSEditor
 {
     public class AudioPlaybackEngine : IDisposable
     {
-        private readonly WaveOutEvent outputDevice;
+        private readonly DirectSoundOut outputDevice;
         private readonly MixingSampleProvider mixer;
 
         public AudioPlaybackEngine(IntPtr winHandle, int sampleRate = 44100, int channelCount = 2)
         {
-            outputDevice = new WaveOutEvent();
+            //outputDevice = new WaveOutEvent();
 
             //outputDevice = new WaveOut();
-            outputDevice.DesiredLatency = 60;
+            //outputDevice.DesiredLatency = 60;
 
-            //outputDevice = new DirectSoundOut(, 40);
+            outputDevice = new DirectSoundOut(40);
+
             //outputDevice.DesiredLatency = 50;
 
             mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount));
