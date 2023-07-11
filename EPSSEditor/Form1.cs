@@ -2465,6 +2465,11 @@ namespace EPSSEditor
             if (snd != null) {
                 //Console.WriteLine($"Found sound: {snd.name()}");
                 CachedSound cs = data.cachedSound(snd, newFreq);
+                // note = 60
+                int relNote = data.EPSSNoteToMidiNote(note); // -24 to +24
+                relNote += snd.transpose;
+                Console.WriteLine(relNote);
+                cs.pitch = Math.Pow(2, relNote/12);
                 PlaySound(cs, midiChannel, note);
             } else
             {

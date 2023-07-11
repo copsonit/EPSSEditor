@@ -190,10 +190,28 @@ namespace EPSSEditor
             var availableSamples = cachedSound.loop ? loopEnd - position : cachedSound.AudioData.Length - position;
             
             var samplesToCopy = Math.Min(availableSamples, count);
-            //Console.WriteLine("AudioData:{0}, position:{1} count:{2}, available: {3}, offset: {4} samplesToCopy: {5} loopStart {6} loopEnd {7}", cachedSound.AudioData.Length, position, count.ToString(), availableSamples.ToString(), offset, samplesToCopy, loopStart, loopEnd);
+            Console.WriteLine("AudioData:{0}, position:{1} count:{2}, available: {3}, offset: {4} samplesToCopy: {5} loopStart {6} loopEnd {7}", cachedSound.AudioData.Length, position, count.ToString(), availableSamples.ToString(), offset, samplesToCopy, loopStart, loopEnd);
+
+            
+            while (offset < samplesToCopy)
+            {
+                buffer[offset++] = cachedSound.AudioData[position];
+                position += (int)cachedSound.pitch;
+                if (position > availableSamples)
+                {
+                    Array.Clear(buffer, offset, count - offset);
+                    samplesToCopy = 0;
+                    break;
+                }
+            }
+            
+            
+            /*
             Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
 
             position += samplesToCopy;
+            */
+            
 
             if (cachedSound.loop && samplesToCopy < count)
             {
@@ -228,6 +246,7 @@ namespace EPSSEditor
         public int loopType = 0;
         public int loopStart = 0;
         public int loopEnd = 0;
+        public double pitch = 1.0;
 
         public CachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopStart, int loopEnd, int orgSampleCount)
         {

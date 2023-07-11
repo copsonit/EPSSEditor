@@ -17,6 +17,10 @@ namespace EPSSEditor
 
     // Rewrite to this as time is unreliable:
     // https://github.com/kohoutech/Kohoutech.MIDI/blob/master/MIDI/Engine/Transport.cs
+
+    // Sound synthesis:
+    // https://github.com/sinshu/CSharpSynthProject/tree/master
+
     static class MidPlayer
     {
         private static EPSSMidFile _midReader = new EPSSMidFile();

@@ -518,6 +518,33 @@ namespace EPSSEditor
             return sounds[note];
         }
 
-}
+
+        public int EPSSNoteToMidiNote(int note)
+        {
+            // -24 to 24 
+
+            int[] epssMap = new int[128];
+            int idx = 0;
+            for (int i = 0; i <= 47; i++)
+            {
+                epssMap[idx++] = i;
+            }
+            for (int i = 48; i <= 59; i++)
+            {
+                epssMap[idx++] = 0;
+            }
+            for (int i = 60; i <= 108; i++)
+            {
+                epssMap[idx++] = i - 60 - 24;
+            }
+            for (int i = 109; i < 128; i++)
+            {
+                epssMap[idx++] = 0;
+            }
+
+            return epssMap[note];
+        }
+
+    }
 
 }
