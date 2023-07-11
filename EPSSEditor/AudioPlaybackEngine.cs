@@ -50,7 +50,7 @@ namespace EPSSEditor
 
         public void PlaySound(CachedSound sound)
         {
-            ISampleProvider addedProvider = new CachedSoundSampleProvider(sound);
+            ISampleProvider addedProvider = new CachedSoundSampleProvider(sound, sound.vvfeOffset);
             AddMixerInput(addedProvider);
             sound.IsPlaying = true;
 //            return addedProvider;
@@ -125,13 +125,15 @@ namespace EPSSEditor
     public class CachedSoundSampleProvider : ISampleProvider
     {
         private readonly CachedSound cachedSound;
-        private long position;
+        private long position = 0;
         private bool isEnding = false;
 
-        public CachedSoundSampleProvider(CachedSound cachedSound)
+        public CachedSoundSampleProvider(CachedSound cachedSound, long vvfeOffset)
         {
             this.cachedSound = cachedSound;
-            
+            position = vvfeOffset;
+            Console.WriteLine("vvfeOffset: {0}", vvfeOffset);
+           
         }
 
 
@@ -190,20 +192,22 @@ namespace EPSSEditor
             var availableSamples = cachedSound.loop ? loopEnd - position : cachedSound.AudioData.Length - position;
             
             var samplesToCopy = Math.Min(availableSamples, count);
-            Console.WriteLine("AudioData:{0}, position:{1} count:{2}, available: {3}, offset: {4} samplesToCopy: {5} loopStart {6} loopEnd {7}", cachedSound.AudioData.Length, position, count.ToString(), availableSamples.ToString(), offset, samplesToCopy, loopStart, loopEnd);
+            //Console.WriteLine("AudioData:{0}, position:{1} count:{2}, available: {3}, offset: {4} samplesToCopy: {5} loopStart {6} loopEnd {7}", cachedSound.AudioData.Length, position, count.ToString(), availableSamples.ToString(), offset, samplesToCopy, loopStart, loopEnd);
 
-            
+            double readPos = position;
             while (offset < samplesToCopy)
             {
-                buffer[offset++] = cachedSound.AudioData[position];
-                position += (int)cachedSound.pitch;
-                if (position > availableSamples)
+                buffer[offset++] = cachedSound.AudioData[(int)readPos];
+                //position += (int)cachedSound.pitch;
+                readPos += cachedSound.pitch;
+                if (readPos > availableSamples)
                 {
                     Array.Clear(buffer, offset, count - offset);
                     samplesToCopy = 0;
                     break;
                 }
             }
+            position = (int)readPos;
             
             
             /*
@@ -247,7 +251,7 @@ namespace EPSSEditor
         public int loopStart = 0;
         public int loopEnd = 0;
         public double pitch = 1.0;
-
+        public int vvfeOffset = 0;
         public CachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopStart, int loopEnd, int orgSampleCount)
         {
             this.loop = loop;

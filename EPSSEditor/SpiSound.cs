@@ -17,7 +17,7 @@ namespace EPSSEditor
 
         public byte startNote; // [0-127]
         public byte endNote; // [0-127]
-        public byte midiNoteMapped;
+        //public byte midiNoteMapped;
         public byte programNumber;
         public sbyte transpose;
         public byte vvfe;
@@ -44,7 +44,7 @@ namespace EPSSEditor
 
         public SpiSound() {
             startNote = endNote = programNumber = 128;
-            midiNoteMapped = 84;
+            //midiNoteMapped = 84;
             transpose = 0;
             
         }
@@ -52,7 +52,7 @@ namespace EPSSEditor
         public SpiSound(Sound sound)
         {
             startNote = endNote = programNumber = 128;
-            midiNoteMapped = 84;
+            //midiNoteMapped = 84;
             soundId = sound.id();
             SetNameFromSound(sound);
             transpose = 0;
@@ -80,7 +80,7 @@ namespace EPSSEditor
         
         public SpiSound(Sound sound, SfzSplitInfo sfz) // Used when importing from SPI
         {
-            midiNoteMapped = 84;
+            //midiNoteMapped = 84;
             soundId = sound.id();
             SetNameFromSound(sound);
  

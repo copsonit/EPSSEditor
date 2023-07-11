@@ -2427,6 +2427,7 @@ namespace EPSSEditor
         private readonly AudioPlaybackEngine audio;
 
         private int newFreq;
+        //private int testTone;
 
         private CachedSound cachedCachedSound;
 
@@ -2444,8 +2445,11 @@ namespace EPSSEditor
             this.audio = audio;
             this.newFreq = newFreq;
             data.InitFinder();
-            //SpiSound snd = data.FindSpiSound(1, 36);
-            //cachedCachedSound = data.cachedSound(snd, newFreq);
+            /*
+            SpiSound snd = data.FindSpiSound(1, 1);
+            cachedCachedSound = data.cachedSound(snd, newFreq);
+            testTone = 1;
+            */
             //Sound snd = data.sounds[0];
             //cachedCachedSound = snd.cachedSound();
         }
@@ -2457,24 +2461,52 @@ namespace EPSSEditor
             /*
             if (midiChannel == 1 && note == 36)
             {
-                PlaySound(cachedCachedSound, midiChannel, note);
+                cachedCachedSound.pitch = Math.Pow(2, (double)(testTone-1) / 12.0);
+                Console.WriteLine($"{cachedCachedSound.pitch}");
+                PlaySound(cachedCachedSound, midiChannel, testTone++);
             }
             */
+            
             
             SpiSound snd = data.FindSpiSound(midiChannel, note);
             if (snd != null) {
                 //Console.WriteLine($"Found sound: {snd.name()}");
                 CachedSound cs = data.cachedSound(snd, newFreq);
+
+                int center = snd.startNote + 84 - snd.midiNote - snd.transpose;
+                int relNote = note - center;
+                //sb.Append(" pitch_keycenter=");
+                //sb.Append(noteStart + 84 - info.Low - info.Transpose);
+
                 // note = 60
-                int relNote = data.EPSSNoteToMidiNote(note); // -24 to +24
-                relNote += snd.transpose;
-                Console.WriteLine(relNote);
-                cs.pitch = Math.Pow(2, relNote/12);
+                //int relNote = data.EPSSNoteToMidiNote(note); // -24 to +24
+                //relNote += snd.transpose;
+                //Console.WriteLine(relNote);
+                
+                cs.pitch = Math.Pow(2, (double)relNote/12.0);
+
+                int vvfeMul = 1;
+                switch (snd.vvfe)
+                {
+                    case 0x3b: vvfeMul = 1; break;
+                    case 0x3c: vvfeMul = 2; break;
+                    case 0x3d: vvfeMul = 4; break;
+                    case 0x3e: vvfeMul = 8; break;
+                    case 0x3f: vvfeMul = 16; break;
+                    case 0: vvfeMul = 32; break;
+                    case 1: vvfeMul = 64; break;
+                    case 2: vvfeMul = 128; break;
+                    default: vvfeMul = 1; break;
+                }
+
+                cs.vvfeOffset = vel * vvfeMul;
+
                 PlaySound(cs, midiChannel, note);
             } else
             {
                 Console.WriteLine($"!!!! No sound found for Midi:{midiChannel} Note: {note}");
             }
+            
             
         }
 
