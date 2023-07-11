@@ -132,7 +132,7 @@ namespace EPSSEditor
         {
             this.cachedSound = cachedSound;
             position = vvfeOffset;
-            Console.WriteLine("vvfeOffset: {0}", vvfeOffset);
+            //Console.WriteLine("vvfeOffset: {0}", vvfeOffset);
            
         }
 
@@ -198,7 +198,6 @@ namespace EPSSEditor
             while (offset < samplesToCopy)
             {
                 buffer[offset++] = cachedSound.AudioData[(int)readPos];
-                //position += (int)cachedSound.pitch;
                 readPos += cachedSound.pitch;
                 if (readPos > availableSamples)
                 {
@@ -216,7 +215,7 @@ namespace EPSSEditor
             position += samplesToCopy;
             */
             
-
+            // TODO fix when we have pitch.
             if (cachedSound.loop && samplesToCopy < count)
             {
                 position = loopStart;
