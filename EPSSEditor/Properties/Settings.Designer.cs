@@ -130,5 +130,17 @@ namespace EPSSEditor.Properties {
                 this["SfzExportFile"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string MidFile {
+            get {
+                return ((string)(this["MidFile"]));
+            }
+            set {
+                this["MidFile"] = value;
+            }
+        }
     }
 }

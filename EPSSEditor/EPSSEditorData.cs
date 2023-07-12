@@ -34,6 +34,7 @@ namespace EPSSEditor
 
         private string _fileNameForListenConvertedSound = null;
 
+        private Dictionary<int, SpiSound[]> _findSpiSoundArray;
 
         public EPSSEditorData() { }
 
@@ -111,7 +112,7 @@ namespace EPSSEditor
             SfzConverter c = new SfzConverter();
             Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(ref spi);
 
-            for (int midich = 0; midich < (spi.main.i_no_of_MIDIch.no_of_MIDICh - 1); midich++)
+            for (int midich = 0; midich < spi.main.i_no_of_MIDIch.no_of_MIDICh; midich++)
             {
                 List<SfzSplitInfo> splitsForChannel = new List<SfzSplitInfo>();
                 foreach (var kvp in soundNoToSplit)
@@ -469,6 +470,111 @@ namespace EPSSEditor
             spiSounds.Add(spiSnd);
             return true;
         }
+
+
+        public CachedSound cachedSound(SpiSound snd, int newFreq, int note, int vel)
+        {
+            CachedSound cs = snd.cachedSound();
+            if (cs == null) { 
+                int newBits = AtariConstants.SampleBits;
+                int newChannels = AtariConstants.SampleChannels;
+
+                MemoryStream ms = snd.getWaveStream(this, newFreq, newBits, newChannels);
+                if (ms != null)
+                {
+                    ms.Position = 0;
+                    bool loop = snd.loopMode == 2;
+                    //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
+                    // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
+                    cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop, (int)snd.loopStart, (int)snd.loopEnd, (int)snd.orgSampleCount);
+                }
+            }
+
+            int center = snd.startNote + 84 - snd.midiNote - snd.transpose;
+            int relNote = note - center;
+            //sb.Append(" pitch_keycenter=");
+            //sb.Append(noteStart + 84 - info.Low - info.Transpose);
+
+            // note = 60
+            //int relNote = data.EPSSNoteToMidiNote(note); // -24 to +24
+            //relNote += snd.transpose;
+            //Console.WriteLine(relNote);
+
+            cs.pitch = Math.Pow(2, (double)relNote / 12.0);
+
+            int vvfeMul = 1;
+            switch (snd.vvfe)
+            {
+                case 0x3b: vvfeMul = 0; break;
+                case 0x3c: vvfeMul = 2; break;
+                case 0x3d: vvfeMul = 4; break;
+                case 0x3e: vvfeMul = 8; break;
+                case 0x3f: vvfeMul = 16; break;
+                case 0: vvfeMul = 32; break;
+                case 1: vvfeMul = 64; break;
+                case 2: vvfeMul = 128; break;
+                default: vvfeMul = 0; break;
+            }
+
+            cs.vvfeOffset = (127-vel) * vvfeMul;
+
+            return cs;
+        }
+
+
+        public void InitFinder()
+        {
+            _findSpiSoundArray = new Dictionary<int, SpiSound[]>();
+            for (int i = 0; i < 15; i++)
+            {
+                _findSpiSoundArray.Add(i, new SpiSound[128]);
+            }
+            foreach (SpiSound snd in spiSounds)
+            {
+                SpiSound[] sounds = _findSpiSoundArray[snd.midiChannel - 1];
+                for (int note = snd.startNote; note <= (snd.endNote); note++) // 0 - 127
+                {
+                    sounds[note] = snd;
+                }
+                _findSpiSoundArray[snd.midiChannel - 1] = sounds;
+            }
+        }
+
+
+        public SpiSound FindSpiSound(int midiChannel, int note)
+        {
+            if (_findSpiSoundArray == null) { InitFinder(); }
+            SpiSound[] sounds = _findSpiSoundArray[midiChannel - 1];
+            return sounds[note];
+        }
+
+
+        public int EPSSNoteToMidiNote(int note)
+        {
+            // -24 to 24 
+
+            int[] epssMap = new int[128];
+            int idx = 0;
+            for (int i = 0; i <= 47; i++)
+            {
+                epssMap[idx++] = i;
+            }
+            for (int i = 48; i <= 59; i++)
+            {
+                epssMap[idx++] = 0;
+            }
+            for (int i = 60; i <= 108; i++)
+            {
+                epssMap[idx++] = i - 60 - 24;
+            }
+            for (int i = 109; i < 128; i++)
+            {
+                epssMap[idx++] = 0;
+            }
+
+            return epssMap[note];
+        }
+
     }
 
 }

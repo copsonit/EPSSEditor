@@ -142,7 +142,7 @@ namespace EPSSEditor
                 dict.Add(i, list);
             }
 
-            for (int midich = 0; midich < (spi.main.i_no_of_MIDIch.no_of_MIDICh - 1); midich++)
+            for (int midich = 0; midich < spi.main.i_no_of_MIDIch.no_of_MIDICh; midich++)
             {
                 EPSSSpi_midiChannelSplit split = spi.split.channels[midich];
 

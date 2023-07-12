@@ -113,6 +113,8 @@
             this.infoToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.omniPatchCheckBox = new System.Windows.Forms.CheckBox();
             this.gen2CheckBox = new System.Windows.Forms.CheckBox();
+            this.loadMidButton = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
@@ -129,6 +131,9 @@
             this.loadSfzFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.helpProvider1 = new System.Windows.Forms.HelpProvider();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.groupBox13 = new System.Windows.Forms.GroupBox();
+            this.loadMidFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.midPlayerTimer = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
@@ -147,6 +152,7 @@
             this.groupBox4.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox10.SuspendLayout();
+            this.groupBox13.SuspendLayout();
             this.SuspendLayout();
             // 
             // soundListBox
@@ -202,7 +208,7 @@
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.helpProvider1.SetShowHelp(this.groupBox2, true);
-            this.groupBox2.Size = new System.Drawing.Size(436, 460);
+            this.groupBox2.Size = new System.Drawing.Size(618, 460);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
@@ -213,7 +219,7 @@
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(220, 427);
+            this.button1.Location = new System.Drawing.Point(402, 427);
             this.button1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(71, 23);
@@ -236,7 +242,7 @@
             this.previewComboBox.Location = new System.Drawing.Point(55, 430);
             this.previewComboBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.previewComboBox.Name = "previewComboBox";
-            this.previewComboBox.Size = new System.Drawing.Size(161, 21);
+            this.previewComboBox.Size = new System.Drawing.Size(343, 21);
             this.previewComboBox.TabIndex = 17;
             this.previewComboBox.SelectedIndexChanged += new System.EventHandler(this.previewComboBox_SelectedIndexChanged);
             // 
@@ -254,13 +260,14 @@
             // spiSoundListenButton
             // 
             this.spiSoundListenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.spiSoundListenButton.Location = new System.Drawing.Point(296, 427);
+            this.spiSoundListenButton.Location = new System.Drawing.Point(478, 427);
             this.spiSoundListenButton.Name = "spiSoundListenButton";
             this.spiSoundListenButton.Size = new System.Drawing.Size(66, 23);
             this.spiSoundListenButton.TabIndex = 8;
             this.spiSoundListenButton.Text = "Listen";
             this.infoToolTip.SetToolTip(this.spiSoundListenButton, "Listen to SPI Sound sample. Only first selected is played.");
             this.spiSoundListenButton.UseVisualStyleBackColor = true;
+            this.spiSoundListenButton.Click += new System.EventHandler(this.spiSoundListenButton_Click);
             this.spiSoundListenButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.spiSoundListenButton_MouseDown);
             this.spiSoundListenButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.spiSoundListenButton_MouseUp);
             // 
@@ -273,7 +280,7 @@
             this.spiSoundListView.HideSelection = false;
             this.spiSoundListView.Location = new System.Drawing.Point(5, 19);
             this.spiSoundListView.Name = "spiSoundListView";
-            this.spiSoundListView.Size = new System.Drawing.Size(427, 402);
+            this.spiSoundListView.Size = new System.Drawing.Size(609, 402);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
             this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.spiSoundListView_ItemSelectionChanged);
@@ -285,7 +292,7 @@
             // 
             this.deleteSpiSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.deleteSpiSoundButton.Enabled = false;
-            this.deleteSpiSoundButton.Location = new System.Drawing.Point(371, 427);
+            this.deleteSpiSoundButton.Location = new System.Drawing.Point(553, 427);
             this.deleteSpiSoundButton.Name = "deleteSpiSoundButton";
             this.deleteSpiSoundButton.Size = new System.Drawing.Size(61, 23);
             this.deleteSpiSoundButton.TabIndex = 8;
@@ -579,9 +586,9 @@
             // loadSoundButton
             // 
             this.loadSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.loadSoundButton.Location = new System.Drawing.Point(70, 429);
+            this.loadSoundButton.Location = new System.Drawing.Point(67, 429);
             this.loadSoundButton.Name = "loadSoundButton";
-            this.loadSoundButton.Size = new System.Drawing.Size(46, 23);
+            this.loadSoundButton.Size = new System.Drawing.Size(49, 23);
             this.loadSoundButton.TabIndex = 7;
             this.loadSoundButton.Text = "Load...";
             this.infoToolTip.SetToolTip(this.loadSoundButton, "You can drag sounds to the  box to add them faster!");
@@ -922,7 +929,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(949, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1131, 24);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1050,6 +1057,30 @@
         "DI Channel mapping and program change mappings.");
             this.gen2CheckBox.UseVisualStyleBackColor = true;
             // 
+            // loadMidButton
+            // 
+            this.loadMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.loadMidButton.Location = new System.Drawing.Point(5, 19);
+            this.loadMidButton.Name = "loadMidButton";
+            this.loadMidButton.Size = new System.Drawing.Size(165, 22);
+            this.loadMidButton.TabIndex = 8;
+            this.loadMidButton.Text = "Load and Play MID...";
+            this.infoToolTip.SetToolTip(this.loadMidButton, "You can drag sounds to the  box to add them faster!");
+            this.loadMidButton.UseVisualStyleBackColor = true;
+            this.loadMidButton.Click += new System.EventHandler(this.loadMidButton_Click);
+            // 
+            // button2
+            // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button2.Location = new System.Drawing.Point(6, 48);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(165, 22);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "Stop";
+            this.infoToolTip.SetToolTip(this.button2, "You can drag sounds to the  box to add them faster!");
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.label4);
@@ -1069,7 +1100,7 @@
             this.groupBox8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox8.Controls.Add(this.groupBox10);
             this.groupBox8.Controls.Add(this.groupBox4);
-            this.groupBox8.Location = new System.Drawing.Point(502, 492);
+            this.groupBox8.Location = new System.Drawing.Point(684, 492);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(431, 117);
             this.groupBox8.TabIndex = 11;
@@ -1157,11 +1188,34 @@
             this.loadSfzFileDialog.Filter = "SFZ files (*.sfz)|*.sfz|All files (*.*)|*.*";
             this.loadSfzFileDialog.Title = "Import SFZ file";
             // 
+            // groupBox13
+            // 
+            this.groupBox13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox13.Controls.Add(this.button2);
+            this.groupBox13.Controls.Add(this.loadMidButton);
+            this.groupBox13.Location = new System.Drawing.Point(502, 492);
+            this.groupBox13.Name = "groupBox13";
+            this.groupBox13.Size = new System.Drawing.Size(176, 118);
+            this.groupBox13.TabIndex = 20;
+            this.groupBox13.TabStop = false;
+            this.groupBox13.Text = "MIDI";
+            // 
+            // loadMidFileDialog
+            // 
+            this.loadMidFileDialog.FileName = "loadMidFileDialog";
+            this.loadMidFileDialog.Filter = "MID files (*.mid)|*.mid|All files (*.*)|*.*";
+            this.loadMidFileDialog.Title = "Import EPSS SPI file";
+            // 
+            // midPlayerTimer
+            // 
+            this.midPlayerTimer.Tick += new System.EventHandler(this.midPlayerTimer_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(949, 611);
+            this.ClientSize = new System.Drawing.Size(1131, 611);
+            this.Controls.Add(this.groupBox13);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.useInSpiButton);
             this.Controls.Add(this.compressionTypeTextBox);
@@ -1213,6 +1267,7 @@
             this.groupBox8.ResumeLayout(false);
             this.groupBox10.ResumeLayout(false);
             this.groupBox10.PerformLayout();
+            this.groupBox13.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1318,6 +1373,11 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.HelpProvider helpProvider1;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.GroupBox groupBox13;
+        private System.Windows.Forms.Button loadMidButton;
+        private System.Windows.Forms.OpenFileDialog loadMidFileDialog;
+        private System.Windows.Forms.Timer midPlayerTimer;
+        private System.Windows.Forms.Button button2;
     }
 }
 

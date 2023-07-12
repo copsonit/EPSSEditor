@@ -13,11 +13,11 @@ namespace EPSSEditor
     public class SpiSound : IDisposable
     {
         public byte midiChannel; // [1-16]
-        public byte midiNote;
+        public byte midiNote; // [0-127]
 
-        public byte startNote;
-        public byte endNote;
-        public byte midiNoteMapped;
+        public byte startNote; // [0-127]
+        public byte endNote; // [0-127]
+        //public byte midiNoteMapped;
         public byte programNumber;
         public sbyte transpose;
         public byte vvfe;
@@ -44,7 +44,7 @@ namespace EPSSEditor
 
         public SpiSound() {
             startNote = endNote = programNumber = 128;
-            midiNoteMapped = 84;
+            //midiNoteMapped = 84;
             transpose = 0;
             
         }
@@ -52,7 +52,7 @@ namespace EPSSEditor
         public SpiSound(Sound sound)
         {
             startNote = endNote = programNumber = 128;
-            midiNoteMapped = 84;
+            //midiNoteMapped = 84;
             soundId = sound.id();
             SetNameFromSound(sound);
             transpose = 0;
@@ -80,7 +80,7 @@ namespace EPSSEditor
         
         public SpiSound(Sound sound, SfzSplitInfo sfz) // Used when importing from SPI
         {
-            midiNoteMapped = 84;
+            //midiNoteMapped = 84;
             soundId = sound.id();
             SetNameFromSound(sound);
  
@@ -98,6 +98,7 @@ namespace EPSSEditor
             end = sfz.End;
             loopStart = sfz.LoopStart;
             loopEnd = sfz.LoopEnd;
+            orgSampleCount = sfz.End;
 
             extVolume = sfz.ExtVolume;
             subTone = sfz.SubTone;
@@ -326,6 +327,12 @@ namespace EPSSEditor
             return null;
         }
         */
+
+
+        public CachedSound cachedSound()
+        {
+            return _cachedAudio;
+        }
 
 
         public CachedSound cachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopStart, int loopEnd, int orgSampleCount)
