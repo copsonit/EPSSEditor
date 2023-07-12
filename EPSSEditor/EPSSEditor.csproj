@@ -263,9 +263,17 @@
     </PublishFile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\MidiUI\MidiUI\MidiUI.csproj">
-      <Project>{8B53CD59-5D7E-4624-BBC9-12E88133E52B}</Project>
+    <ProjectReference Include="..\..\..\MidiSlicer\MidiKeys\MidiKeys.csproj">
+      <Project>{b3c4aaaf-54ca-4dbc-b56e-838b42e7c039}</Project>
+      <Name>MidiKeys</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\MidiSlicer\MidiUI\MidiUI.csproj">
+      <Project>{48cb7c41-46de-44d4-b501-6db430d00607}</Project>
       <Name>MidiUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\MidiSlicer\Midi\Midi.csproj">
+      <Project>{2cee0914-509b-40bf-975c-b523434578db}</Project>
+      <Name>Midi</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

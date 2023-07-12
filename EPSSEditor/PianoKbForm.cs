@@ -49,22 +49,22 @@ namespace EPSSEditor
             midVelTextBox.Text = vel.ToString();
         }
 
-        private void pianoBox1_PianoKeyDown(object sender, M.PianoKeyEventArgs args)
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            midVelTextBox.Text = midVelTrackBar.Value.ToString();
+        }
+
+        private void pianoBox2_PianoKeyDown(object sender, M.PianoKeyEventArgs args)
         {
             int midiChannel = midiChTrackBar.Value;
             int midiVelocity = midVelTrackBar.Value;
             _form1.pianoBox1_PianoKeyDown(sender, args, midiChannel, midiVelocity);
         }
 
-        private void pianoBox1_PianoKeyUp(object sender, M.PianoKeyEventArgs args)
+        private void pianoBox2_PianoKeyUp(object sender, M.PianoKeyEventArgs args)
         {
             int midiChannel = midiChTrackBar.Value;
             _form1.pianoBox1_PianoKeyUp(sender, args, midiChannel);
-        }
-
-        private void trackBar1_Scroll(object sender, EventArgs e)
-        {
-            midVelTextBox.Text = midVelTrackBar.Value.ToString();
         }
     }
 }
