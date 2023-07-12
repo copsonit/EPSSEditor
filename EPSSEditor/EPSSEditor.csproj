@@ -133,6 +133,7 @@
     <Compile Include="EPSSMidFile.cs" />
     <Compile Include="HPTimer.cs" />
     <Compile Include="IMidiInstrument.cs" />
+    <Compile Include="MidiTimer.cs" />
     <Compile Include="utililty.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

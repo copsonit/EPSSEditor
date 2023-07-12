@@ -10,6 +10,7 @@ using System.Security.Permissions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Forms;
 using static EPSSEditor.HPTimer;
 
@@ -27,17 +28,23 @@ namespace EPSSEditor
     {
         private static EPSSMidFile _midReader = new EPSSMidFile();
         //private static System.Timers.Timer midPlayerTimer = null;
-        private static System.Threading.Timer midPlayerTimer = null;
+        //private static System.Threading.Timer midPlayerTimer = null;
         //private static HPTimer midPlayerTimer = null;
         //private static AccurateTimer mTimer1;
+        private static MidiTimer midiTimer = null;
         private static IMidiInstrument _midiInstrument = null;
         //private static List<long> times = new List<long>();
         //private static int showTimesFrom = 0;
-        private static int tickMs = 30;
-        private static int tickOrgStep = 16;
-        private static int tickStep = 16;
+        private static int tickMs = 20;
+        //private static int tickOrgStep = 16;
+        //private static int tickStep = 16;
+        private static long tickNum;
+        private static long tickLen;
+        private static long tickTime;
 
-        private static object updateLock = new object();
+        private static long startTimeTick;
+
+        //private static object updateLock = new object();
 
         //public static void StartPlaying(ref Timer timer)
         //{
@@ -54,8 +61,20 @@ namespace EPSSEditor
         {
             //midPlayerTimer = new HPTimer(tickMs);
             //midPlayerTimer.Tick += doHpTick;
+            startTimeTick = DateTime.Now.Ticks;
 
-            midPlayerTimer = new System.Threading.Timer(UpdateCallback, null, tickMs, tickMs);
+            midiTimer = new MidiTimer();
+            midiTimer.Timer += new EventHandler(OnPulse);
+
+            tickNum = 0;
+            //long rate = 250000; // Number of us per tick
+            long rate = 500000; // 500000 should be 120bpm.... 
+            long ticksPerQuarter = _midReader.mf.DeltaTicksPerQuarterNote;
+            double playbackSpeed = 1;
+            tickLen = (long)((rate / (ticksPerQuarter * playbackSpeed)) * 10.0f);     //len of each tick in 0.1 usecs (or 100 nanosecs)
+            tickTime = 0; // Cumulative tick time in 0.1usec.
+
+            //midPlayerTimer = new System.Threading.Timer(UpdateCallback, null, tickMs, tickMs);
 
             //midPlayerTimer = new System.Timers.Timer();
             //midPlayerTimer.Interval = 20;
@@ -69,6 +88,7 @@ namespace EPSSEditor
 
             //int delay = 20;
             //mTimer1 = new AccurateTimer(form, new Action(TimerTick1), delay);
+            midiTimer.start(1);
         }
 
         private static void MidPlayerTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -92,35 +112,41 @@ namespace EPSSEditor
         public static void StopPlaying()
         {
             //if (midPlayerTimer != null) midPlayerTimer.Stop();
-            if (midPlayerTimer != null) { midPlayerTimer.Dispose(); }
+            //if (midPlayerTimer != null) { midPlayerTimer.Dispose(); }
+            if (midiTimer != null) midiTimer.stop();
 
         }
 
         private static void TimerTick1()
         {
-            Tick();
+            //Tick();
         }
 
         private static void Elapsed(Object source, System.Timers.ElapsedEventArgs e)
         {
-            Tick();
+            //Tick();
         }
 
 
         private static void dotNetTick(object sender, EventArgs e) {
-            Tick();
+            //Tick();
         }
 
         public static void doHpTick(Object sender, TickEventArgs args) {
-            Tick();
+            //Tick();
             //TickStatic();
         }
 
         public static void UpdateCallback(object state)
         {
-            Tick();
+            //Tick();
         }
 
+
+        private static void OnPulse(object sender, EventArgs e)
+        {
+            Tick();
+        }
 
         public static void TickStatic()
         {
@@ -150,99 +176,43 @@ namespace EPSSEditor
 
         public static void Tick()
         {
-            bool processEvent = true;
-            if (Monitor.TryEnter(updateLock))
-            {
-                processEvent = true;
-                tickStep = tickOrgStep;
-            }
-            else
-            {
-                // previous timer tick took too long.
-                // so do nothing this time through.
-                tickStep += tickOrgStep;
-                processEvent = false;
-            }
-
-
-            if (processEvent)
             {
                 //int tickStep = 16;
                 //long now = DateTime.Now.Ticks;
-                var watch = System.Diagnostics.Stopwatch.StartNew();
+                //var watch = System.Diagnostics.Stopwatch.StartNew();
 
-                for (int n = 0; n < _midReader.mf.Tracks; n++)
+
+
+                long now = DateTime.Now.Ticks;
+                long runningTime = (now - startTimeTick);
+                //long absTimeTick = (DateTime.Now.Ticks - startTimeTick) / 10000; // ms
+
+                while (runningTime > tickTime)
                 {
-                    int trackTicks = _midReader.trackTicks[n];
-                    if (trackTicks <= 0)
+
+                    for (int n = 0; n < _midReader.mf.Tracks; n++)
                     {
+                        //int trackTicks = _midReader.trackTicks[n];
+                        //if (trackTicks <= 0)
+                        //{
                         int eventPointer = _midReader.eventPointers[n];
                         IList<MidiEvent> events = _midReader.mf.Events[n];
 
-                        //                    while (trackTicks <= 0)
-                        //{
-                        do
+                        while (tickNum >= events[eventPointer].AbsoluteTime)
                         {
-                            if (trackTicks <= 0)
-                            {
-                                MidiEvent midiEvent = events[eventPointer];
+                            MidiEvent midiEvent = events[eventPointer];
+                            if (_midiInstrument != null) _midiInstrument.DoMidiEvent(midiEvent);
 
-                                if (_midiInstrument != null) _midiInstrument.DoMidiEvent(midiEvent);
-
-                                //if (!MidiEvent.IsNoteOff(midiEvent))
-                                /*                            Console.WriteLine("{0} Delta:{1} MyAbs: {2} {3}\r\n", _midReader.ToMBT(midiEvent.AbsoluteTime, _midReader.mf.DeltaTicksPerQuarterNote, _midReader.timeSignature), midiEvent.DeltaTime, _midReader.absoluteTicks[n], midiEvent);
-                                                            StringBuilder sb = new StringBuilder();
-                                                            sb.Append($"From {showTimesFrom} ");
-                                                            for (int i = showTimesFrom; i < times.Count; i++)
-                                                            {
-                                                                sb.Append(times[i].ToString());
-                                                                if (i < times.Count) sb.Append(" ");
-                                                                showTimesFrom = i;
-                                                            }
-                                                            sb.Append($" To {showTimesFrom}");
-                                                            Console.WriteLine(sb.ToString());
-                                                            // Console.WriteLine("Midi event: {0}", midiEvent);
-                                                            //}
-                                */
-
-                                eventPointer++;
-
-                                MidiEvent nextMidiEvent = events[eventPointer];
-                                trackTicks = nextMidiEvent.DeltaTime;
-                            }
-                        } while (trackTicks <= 0);
-                        _midReader.eventPointers[n] = eventPointer;
+                            eventPointer++;
+                            _midReader.eventPointers[n] = eventPointer;
+                        }
 
                     }
-                    else
-                    {
-                        trackTicks -= tickStep; // TODO tempo calc
-                        int abs = _midReader.absoluteTicks[n];
-                        abs += tickStep;
-                        _midReader.absoluteTicks[n] = abs;
-
-                    }
-                    _midReader.trackTicks[n] = trackTicks;
+                    tickNum++;
+                    tickTime = tickTime + tickLen;
                 }
-                /*
-                long elapsed = watch.ElapsedMilliseconds;
-                if (elapsed > tickMs)
-                {
-                    long overShoot = elapsed - tickMs;
-                    double midiTickInMs = (double)tickOrgStep / (double)tickMs;
-                    long extraTickUsed = (long)(midiTickInMs * (double)overShoot);
-                    tickStep = tickOrgStep + (int)extraTickUsed * 5;
-                }
-                else
-                {
-                    tickStep = tickOrgStep;
-                }
-                */
-                Monitor.Exit(updateLock);
             }
 
-
-            //times.Add(watch.ElapsedMilliseconds);
         }
 
 
@@ -309,6 +279,7 @@ namespace EPSSEditor
             var strictMode = false;
             mf = new MidiFile(path, strictMode);
             timeSignature = mf.Events[0].OfType<TimeSignatureEvent>().FirstOrDefault();
+            Console.WriteLine("{0} {1}\r\n", ToMBT(timeSignature.AbsoluteTime, mf.DeltaTicksPerQuarterNote, timeSignature), timeSignature);
 
             eventPointers = new Dictionary<int, int>();
             trackTicks = new Dictionary<int, int>();

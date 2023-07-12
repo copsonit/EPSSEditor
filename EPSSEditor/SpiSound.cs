@@ -98,6 +98,7 @@ namespace EPSSEditor
             end = sfz.End;
             loopStart = sfz.LoopStart;
             loopEnd = sfz.LoopEnd;
+            orgSampleCount = sfz.End;
 
             extVolume = sfz.ExtVolume;
             subTone = sfz.SubTone;
