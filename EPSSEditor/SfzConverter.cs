@@ -153,6 +153,7 @@ namespace EPSSEditor
                     if (sp.noSound == 0) // We have a sound defined
                     {
                         int sound = sp.sound;
+                        int pitch = EPSSNoteToMidiNote(sp.pitch);
                         sbyte toneOffset = spi.sounds.sounds[sound].s_loopmode.toneoffset;
                         byte vvfe = spi.sounds.sounds[sound].s_loopmode.vvfe;
                         byte lm = spi.sounds.sounds[sound].s_loopmode.loopmode;
@@ -173,10 +174,10 @@ namespace EPSSEditor
 
                         if (current.Low >= 0)
                         {
-                            if (current.LastPitch == (sp.pitch - 1) &&
+                            if (current.LastPitch == (pitch - 1) &&
                                 current.LastMidich == midich)
                             {
-                                current.UpdateHigh(midich, sp.pitch, currentMidiNote);
+                                current.UpdateHigh(midich, pitch, currentMidiNote);
 
                             }
                             else
@@ -185,12 +186,12 @@ namespace EPSSEditor
                                 current = infos.Last();
                                 current.Update(sound, midich, lm, toneOffset, vvfe, s_gr_frek, start, end, loopStart, loopEnd, extVolume, subTone);
 
-                                current.UpdateLow(midich, sp.pitch, currentMidiNote);
+                                current.UpdateLow(midich, pitch, currentMidiNote);
                             }
                         }
                         else
                         {
-                            current.UpdateLow(midich, sp.pitch, currentMidiNote);
+                            current.UpdateLow(midich, pitch, currentMidiNote);
 
                         }
 
@@ -207,6 +208,36 @@ namespace EPSSEditor
             return dict;
         }
 
+
+        public int EPSSNoteToMidiNote(int note)
+        {
+            // -24 to 24 
+
+            int[] epssMap = new int[128];
+            int idx = 0;
+            for (int i = 0; i <= 24; i++)
+            {
+                epssMap[idx++] = i + 84;
+            }
+            for (int i = 25; i <= 47; i++)
+            {
+                epssMap[idx++] = i - 24;
+            }
+            for (int i = 48; i <= 59; i++)
+            {
+                epssMap[idx++] = 84;
+            }
+            for (int i = 60; i <= 108; i++)
+            {
+                epssMap[idx++] = i - 60 - 24;
+            }
+            for (int i = 109; i < 128; i++)
+            {
+                epssMap[idx++] = 84;
+            }
+
+            return epssMap[note];
+        }
 
         public bool SaveOneSFZ(int midiChannel, string patchName, string fileName, string sampleSubDir, ref List<SfzSplitInfo> splitsForChannel, ref List<Sound> sounds, ref string errorMessage)
         {

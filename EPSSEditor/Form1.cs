@@ -2267,17 +2267,20 @@ namespace EPSSEditor
         internal void pianoBox1_PianoKeyDown(object sender, M.PianoKeyEventArgs args, int midiChannel, int velocity)
         {
             byte key = (byte)args.Key;
-            SpiSound snd = data.FindSpiSound(midiChannel, args.Key);
-            Console.WriteLine($"KeyDown: {key}");
-            if (snd != null)
+            if (key >= 0 && key <= 127)
             {
-                int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
-                CachedSound cs = data.cachedSound(snd, newFreq, (int)key, velocity);
-                if (cs != null)
+                SpiSound snd = data.FindSpiSound(midiChannel, args.Key);
+                Console.WriteLine($"KeyDown: {key}");
+                if (snd != null)
                 {
-                    audio.PlaySound(cs);
-                    if (playedSpiSounds == null) playedSpiSounds = new List<CachedSound>();
-                    playedSpiSounds.Add(cs);
+                    int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
+                    CachedSound cs = data.cachedSound(snd, newFreq, (int)key, velocity);
+                    if (cs != null)
+                    {
+                        audio.PlaySound(cs);
+                        if (playedSpiSounds == null) playedSpiSounds = new List<CachedSound>();
+                        playedSpiSounds.Add(cs);
+                    }
                 }
             }
         }
@@ -2285,15 +2288,18 @@ namespace EPSSEditor
 
         internal void pianoBox1_PianoKeyUp(object sender, M.PianoKeyEventArgs args, int midiChannel)
         {
-            if (playedSpiSounds != null)
+            byte key = (byte)args.Key;
+            if (key >= 0 && key <= 127)
             {
-                foreach (var sound in playedSpiSounds) audio.StopSound(sound);
-                playedSpiSounds = null;
-            }
+                if (playedSpiSounds != null)
+                {
+                    foreach (var sound in playedSpiSounds) audio.StopSound(sound);
+                    playedSpiSounds = null;
+                }
 
-            //byte key = (byte)args.Key;
-            //SpiSound snd = data.FindSpiSound(midiChannel, args.Key);
- 
+                //byte key = (byte)args.Key;
+                //SpiSound snd = data.FindSpiSound(midiChannel, args.Key);
+            }
         }
 
 

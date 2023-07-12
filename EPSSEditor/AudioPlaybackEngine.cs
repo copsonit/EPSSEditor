@@ -218,7 +218,7 @@ namespace EPSSEditor
 
                 if (readPos >= sourceSampleEnd)
                 {
-                    Console.WriteLine($"End found {readPos} {availableSamples}");
+                    //Console.WriteLine($"End found {readPos} {availableSamples}");
                     //Array.Clear(buffer, offset, count - offset);
                     //samplesToCopy = 0;
                     //break;

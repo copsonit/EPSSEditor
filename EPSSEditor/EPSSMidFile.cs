@@ -69,6 +69,7 @@ namespace EPSSEditor
             tickNum = 0;
             //long rate = 250000; // Number of us per tick
             long rate = 500000; // 500000 should be 120bpm.... 
+            if (_midReader.timeSignature == null) rate *= 4;
             long ticksPerQuarter = _midReader.mf.DeltaTicksPerQuarterNote;
             double playbackSpeed = 1;
             tickLen = (long)((rate / (ticksPerQuarter * playbackSpeed)) * 10.0f);     //len of each tick in 0.1 usecs (or 100 nanosecs)
@@ -187,6 +188,7 @@ namespace EPSSEditor
                 long runningTime = (now - startTimeTick);
                 //long absTimeTick = (DateTime.Now.Ticks - startTimeTick) / 10000; // ms
 
+                bool midiFinished = false;
                 while (runningTime > tickTime)
                 {
 
@@ -205,12 +207,21 @@ namespace EPSSEditor
 
                             eventPointer++;
                             _midReader.eventPointers[n] = eventPointer;
+                            if (eventPointer >= events.Count)
+                            {
+                                midiFinished = true;
+                                break;
+                            }
                         }
+                        if (midiFinished) { break; }
 
                     }
                     tickNum++;
                     tickTime = tickTime + tickLen;
+                    if (midiFinished) { break; }
                 }
+
+                if (midiFinished) StopPlaying();
             }
 
         }
