@@ -228,10 +228,19 @@ namespace EPSSEditor
             updateDrumSettings();
             updateSoundListBox();
             updateSpiSoundListBox();
+            UpdateSpiSoundButtons();
             updatePreview();
             updateMappingMode();
             UpdateSoundDialog();
             UpdateConversionSettings();
+        }
+
+        private void UpdateSpiSoundButtons()
+        {
+            bool enabled = SelectedSpiSounds().Count > 0;
+            deleteSpiSoundButton.Enabled = enabled;
+            button1.Enabled = enabled;
+            spiSoundListenButton.Enabled = enabled;
         }
 
 
@@ -982,12 +991,7 @@ namespace EPSSEditor
 
         private void deleteSelectedSpiSound()
         {
-            List<int> idxRemoved = new List<int>();
-            foreach (ListViewItem item in spiSoundListView.SelectedItems)
-            {
-                idxRemoved.Add(item.Index);
-            }
-
+            List<int> idxRemoved = SelectedSpiSounds();
             if (idxRemoved.Count > 0)
             {
                 int removed = 0;
@@ -1005,15 +1009,21 @@ namespace EPSSEditor
         }
 
 
-        private List<CachedSound> playConvertedSound()
+        private List<int> SelectedSpiSounds()
         {
-
             List<int> selectedSnds = new List<int>();
             foreach (ListViewItem item in spiSoundListView.SelectedItems)
             {
                 selectedSnds.Add(item.Index);
             }
+            return selectedSnds;
+        }
 
+
+        private List<CachedSound> playConvertedSound()
+        {
+
+            List<int> selectedSnds = SelectedSpiSounds();
             if (selectedSnds.Count > 0)
             {
                 List<CachedSound> playedSounds = new List<CachedSound>();
@@ -1021,7 +1031,7 @@ namespace EPSSEditor
                 {
                     int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
                     SpiSound snd = data.spiSounds[selected];
-                    CachedSound cs = data.cachedSound(snd, newFreq);
+                    CachedSound cs = data.cachedSound(snd, newFreq, 60, 127);
                     if (cs != null)
                     {
                         audio.PlaySound(cs);
@@ -1036,25 +1046,13 @@ namespace EPSSEditor
 
         private void saveSampleWithFileDialog()
         {
-            bool anySelected = false;
-            foreach (ListViewItem item in spiSoundListView.SelectedItems)
+            List<int> selectedSpiSounds = SelectedSpiSounds();
+            if (selectedSpiSounds.Count > 0)
             {
-                anySelected = true;
-
-                break;
-            }
-
-
-            if (anySelected)
-            {
-
-                foreach (ListViewItem item in spiSoundListView.SelectedItems)
+                foreach (int selected in selectedSpiSounds)
                 {
-                    int selected = item.Index;
-
                     if (selected >= 0)
                     {
-
                         saveSampleFileDialog.InitialDirectory = Path.GetDirectoryName(data.soundFileName);
                         if (saveSampleFileDialog.ShowDialog() == DialogResult.OK)
                         {
@@ -1063,7 +1061,6 @@ namespace EPSSEditor
                             if (snd.convertSound(data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
                             {
                             }
-
                         }
                         else
                         {
@@ -1073,8 +1070,6 @@ namespace EPSSEditor
                             }
                         }
                     }
-
-
                 }
             }
         }
@@ -1589,14 +1584,7 @@ namespace EPSSEditor
 
         private void spiSoundListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            bool enabled = false;
-            foreach (ListViewItem item in spiSoundListView.SelectedItems)
-            {
-                enabled = true;
-                break;
-            }
-            deleteSpiSoundButton.Enabled = enabled;
-            button1.Enabled = enabled;
+            UpdateSpiSoundButtons();
         }
 
 
@@ -2221,20 +2209,107 @@ namespace EPSSEditor
             }
         }
 
-        private List<CachedSound> playedSpiSounds;
+
 
         private void spiSoundListenButton_MouseDown(object sender, MouseEventArgs e)
         {
-            playedSpiSounds = playConvertedSound();
+            //playedSpiSounds = playConvertedSound();
         }
 
         private void spiSoundListenButton_MouseUp(object sender, MouseEventArgs e)
+        {
+            /*
+            if (playedSpiSounds != null)
+            {
+                foreach (var sound in playedSpiSounds) audio.StopSound(sound);
+                playedSpiSounds = null;
+            }
+            */
+        }
+
+
+        private void spiSoundListenButton_Click(object sender, EventArgs e)
+        {
+            List<int> selectedSounds = SelectedSpiSounds();
+            if (selectedSounds.Count > 0)
+            {
+                SpiSound snd = data.spiSounds[selectedSounds.First()];
+                if (snd != null)
+                {
+                    int midiChannel = snd.midiChannel;
+                    if (midiChannel >= 1 && midiChannel <= 16)
+                    {
+                        PianoKbForm kb = new PianoKbForm(this, snd.midiChannel);
+                        kb.StartPosition = FormStartPosition.Manual;
+
+                        System.Windows.Forms.Button b = (System.Windows.Forms.Button)sender;
+
+                        int xOffset = (this.Width - kb.Width) / 2;
+                        Point p = this.Location + new Size(xOffset, this.Height);
+                        kb.Location = p;
+                        EnsureVisible(kb);
+
+                        //kb.Size = new Size(40, 20);
+                        kb.Show(this);
+                    } else
+                    {
+                        MessageBox.Show("Invalid MIDI Channel in sound. Valid 1-16.");
+                    }
+                } else
+                {
+                    MessageBox.Show("Sound not possible to load.");
+                }
+            }
+        }
+
+        private List<CachedSound> playedSpiSounds;
+
+        internal void pianoBox1_PianoKeyDown(object sender, M.PianoKeyEventArgs args, int midiChannel, int velocity)
+        {
+            byte key = (byte)args.Key;
+            SpiSound snd = data.FindSpiSound(midiChannel, args.Key);
+            Console.WriteLine($"KeyDown: {key}");
+            if (snd != null)
+            {
+                int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
+                CachedSound cs = data.cachedSound(snd, newFreq, (int)key, velocity);
+                if (cs != null)
+                {
+                    audio.PlaySound(cs);
+                    if (playedSpiSounds == null) playedSpiSounds = new List<CachedSound>();
+                    playedSpiSounds.Add(cs);
+                }
+            }
+        }
+
+
+        internal void pianoBox1_PianoKeyUp(object sender, M.PianoKeyEventArgs args, int midiChannel)
         {
             if (playedSpiSounds != null)
             {
                 foreach (var sound in playedSpiSounds) audio.StopSound(sound);
                 playedSpiSounds = null;
             }
+
+            //byte key = (byte)args.Key;
+            //SpiSound snd = data.FindSpiSound(midiChannel, args.Key);
+ 
+        }
+
+
+        private void EnsureVisible(Control ctrl)
+        {
+            Rectangle ctrlRect = ctrl.DisplayRectangle; //The dimensions of the ctrl
+            ctrlRect.Y = ctrl.Top; //Add in the real Top and Left Vals
+            ctrlRect.X = ctrl.Left;
+            Rectangle screenRect = Screen.GetWorkingArea(ctrl); //The Working Area fo the screen showing most of the Ctrl
+
+            //Now tweak the ctrl's Top and Left until it's fully visible. 
+            ctrl.Left += Math.Min(0, screenRect.Left + screenRect.Width - ctrl.Left - ctrl.Width);
+            ctrl.Left -= Math.Min(0, ctrl.Left - screenRect.Left);
+            ctrl.Top += Math.Min(0, screenRect.Top + screenRect.Height - ctrl.Top - ctrl.Height);
+            ctrl.Top -= Math.Min(0, ctrl.Top - screenRect.Top);
+
         }
 
 
@@ -2415,6 +2490,7 @@ namespace EPSSEditor
         {
             MidPlayer.StopPlaying();
         }
+
     }
 
 
@@ -2471,35 +2547,9 @@ namespace EPSSEditor
             SpiSound snd = data.FindSpiSound(midiChannel, note);
             if (snd != null) {
                 //Console.WriteLine($"Found sound: {snd.name()}");
-                CachedSound cs = data.cachedSound(snd, newFreq);
+                CachedSound cs = data.cachedSound(snd, newFreq, note, vel);
 
-                int center = snd.startNote + 84 - snd.midiNote - snd.transpose;
-                int relNote = note - center;
-                //sb.Append(" pitch_keycenter=");
-                //sb.Append(noteStart + 84 - info.Low - info.Transpose);
-
-                // note = 60
-                //int relNote = data.EPSSNoteToMidiNote(note); // -24 to +24
-                //relNote += snd.transpose;
-                //Console.WriteLine(relNote);
-                
-                cs.pitch = Math.Pow(2, (double)relNote/12.0);
-
-                int vvfeMul = 1;
-                switch (snd.vvfe)
-                {
-                    case 0x3b: vvfeMul = 1; break;
-                    case 0x3c: vvfeMul = 2; break;
-                    case 0x3d: vvfeMul = 4; break;
-                    case 0x3e: vvfeMul = 8; break;
-                    case 0x3f: vvfeMul = 16; break;
-                    case 0: vvfeMul = 32; break;
-                    case 1: vvfeMul = 64; break;
-                    case 2: vvfeMul = 128; break;
-                    default: vvfeMul = 1; break;
-                }
-
-                cs.vvfeOffset = vel * vvfeMul;
+    
 
                 PlaySound(cs, midiChannel, note);
             } else

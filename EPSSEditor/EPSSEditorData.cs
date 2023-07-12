@@ -112,7 +112,7 @@ namespace EPSSEditor
             SfzConverter c = new SfzConverter();
             Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(ref spi);
 
-            for (int midich = 0; midich < (spi.main.i_no_of_MIDIch.no_of_MIDICh - 1); midich++)
+            for (int midich = 0; midich < spi.main.i_no_of_MIDIch.no_of_MIDICh; midich++)
             {
                 List<SfzSplitInfo> splitsForChannel = new List<SfzSplitInfo>();
                 foreach (var kvp in soundNoToSplit)
@@ -472,7 +472,7 @@ namespace EPSSEditor
         }
 
 
-        public CachedSound cachedSound(SpiSound snd, int newFreq)
+        public CachedSound cachedSound(SpiSound snd, int newFreq, int note, int vel)
         {
             CachedSound cs = snd.cachedSound();
             if (cs == null) { 
@@ -489,6 +489,35 @@ namespace EPSSEditor
                     cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop, (int)snd.loopStart, (int)snd.loopEnd, (int)snd.orgSampleCount);
                 }
             }
+
+            int center = snd.startNote + 84 - snd.midiNote - snd.transpose;
+            int relNote = note - center;
+            //sb.Append(" pitch_keycenter=");
+            //sb.Append(noteStart + 84 - info.Low - info.Transpose);
+
+            // note = 60
+            //int relNote = data.EPSSNoteToMidiNote(note); // -24 to +24
+            //relNote += snd.transpose;
+            //Console.WriteLine(relNote);
+
+            cs.pitch = Math.Pow(2, (double)relNote / 12.0);
+
+            int vvfeMul = 1;
+            switch (snd.vvfe)
+            {
+                case 0x3b: vvfeMul = 0; break;
+                case 0x3c: vvfeMul = 2; break;
+                case 0x3d: vvfeMul = 4; break;
+                case 0x3e: vvfeMul = 8; break;
+                case 0x3f: vvfeMul = 16; break;
+                case 0: vvfeMul = 32; break;
+                case 1: vvfeMul = 64; break;
+                case 2: vvfeMul = 128; break;
+                default: vvfeMul = 0; break;
+            }
+
+            cs.vvfeOffset = (127-vel) * vvfeMul;
+
             return cs;
         }
 
@@ -514,6 +543,7 @@ namespace EPSSEditor
 
         public SpiSound FindSpiSound(int midiChannel, int note)
         {
+            if (_findSpiSoundArray == null) { InitFinder(); }
             SpiSound[] sounds = _findSpiSoundArray[midiChannel - 1];
             return sounds[note];
         }

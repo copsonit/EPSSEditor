@@ -279,7 +279,13 @@ namespace EPSSEditor
             var strictMode = false;
             mf = new MidiFile(path, strictMode);
             timeSignature = mf.Events[0].OfType<TimeSignatureEvent>().FirstOrDefault();
-            Console.WriteLine("{0} {1}\r\n", ToMBT(timeSignature.AbsoluteTime, mf.DeltaTicksPerQuarterNote, timeSignature), timeSignature);
+            if (timeSignature != null)
+            {
+                Console.WriteLine("{0} {1}\r\n", ToMBT(timeSignature.AbsoluteTime, mf.DeltaTicksPerQuarterNote, timeSignature), timeSignature);
+            } else
+            {
+                Console.WriteLine("No TimeSignatureEvent found in MID file.");
+            }
 
             eventPointers = new Dictionary<int, int>();
             trackTicks = new Dictionary<int, int>();

@@ -114,6 +114,7 @@
             this.omniPatchCheckBox = new System.Windows.Forms.CheckBox();
             this.gen2CheckBox = new System.Windows.Forms.CheckBox();
             this.loadMidButton = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
@@ -133,7 +134,6 @@
             this.groupBox13 = new System.Windows.Forms.GroupBox();
             this.loadMidFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.midPlayerTimer = new System.Windows.Forms.Timer(this.components);
-            this.button2 = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
@@ -267,6 +267,7 @@
             this.spiSoundListenButton.Text = "Listen";
             this.infoToolTip.SetToolTip(this.spiSoundListenButton, "Listen to SPI Sound sample. Only first selected is played.");
             this.spiSoundListenButton.UseVisualStyleBackColor = true;
+            this.spiSoundListenButton.Click += new System.EventHandler(this.spiSoundListenButton_Click);
             this.spiSoundListenButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.spiSoundListenButton_MouseDown);
             this.spiSoundListenButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.spiSoundListenButton_MouseUp);
             // 
@@ -1063,10 +1064,22 @@
             this.loadMidButton.Name = "loadMidButton";
             this.loadMidButton.Size = new System.Drawing.Size(165, 22);
             this.loadMidButton.TabIndex = 8;
-            this.loadMidButton.Text = "Load MID...";
+            this.loadMidButton.Text = "Load and Play MID...";
             this.infoToolTip.SetToolTip(this.loadMidButton, "You can drag sounds to the  box to add them faster!");
             this.loadMidButton.UseVisualStyleBackColor = true;
             this.loadMidButton.Click += new System.EventHandler(this.loadMidButton_Click);
+            // 
+            // button2
+            // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button2.Location = new System.Drawing.Point(6, 48);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(165, 22);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "Stop";
+            this.infoToolTip.SetToolTip(this.button2, "You can drag sounds to the  box to add them faster!");
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // groupBox4
             // 
@@ -1196,18 +1209,6 @@
             // midPlayerTimer
             // 
             this.midPlayerTimer.Tick += new System.EventHandler(this.midPlayerTimer_Tick);
-            // 
-            // button2
-            // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button2.Location = new System.Drawing.Point(6, 48);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(165, 22);
-            this.button2.TabIndex = 9;
-            this.button2.Text = "Stop";
-            this.infoToolTip.SetToolTip(this.button2, "You can drag sounds to the  box to add them faster!");
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // Form1
             // 
