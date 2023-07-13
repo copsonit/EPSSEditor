@@ -28,6 +28,7 @@ using NAudio.Midi;
 using System.Diagnostics.Eventing.Reader;
 using M;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using System.Runtime.Remoting.Messaging;
 
 namespace EPSSEditor
 {
@@ -1024,7 +1025,7 @@ namespace EPSSEditor
         }
 
 
-        private List<CachedSound> playConvertedSound()
+        private List<CachedSound> playConvertedSound(int note)
         {
 
             List<int> selectedSnds = SelectedSpiSounds();
@@ -1035,7 +1036,7 @@ namespace EPSSEditor
                 {
                     int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
                     SpiSound snd = data.spiSounds[selected];
-                    CachedSound cs = data.cachedSound(snd, newFreq, 60, 127);
+                    CachedSound cs = data.cachedSound(snd, newFreq, note, 127);
                     if (cs != null)
                     {
                         audio.PlaySound(cs);
@@ -2232,7 +2233,27 @@ namespace EPSSEditor
         }
 
 
-        private void spiSoundListenButton_Click(object sender, EventArgs e)
+        private void ShowMidiKeyboard(int midiChannel)
+        {
+            if (pianoKbForm == null)
+            {
+                pianoKbForm = new PianoKbForm(this, midiChannel);
+                pianoKbForm.StartPosition = FormStartPosition.Manual;
+
+                int xOffset = (this.Width - pianoKbForm.Width) / 2;
+                Point p = this.Location + new Size(xOffset, this.Height);
+                pianoKbForm.Location = p;
+                EnsureVisible(pianoKbForm);
+
+                //kb.Size = new Size(40, 20);
+                pianoKbForm.Show(this);
+            } else
+            {
+                //pianoKbForm.Focus();
+            }
+        }
+
+        private void ShowMidiKeyboardForSelectedSpiSound()
         {
             List<int> selectedSounds = SelectedSpiSounds();
             if (selectedSounds.Count > 0)
@@ -2243,27 +2264,24 @@ namespace EPSSEditor
                     int midiChannel = snd.midiChannel;
                     if (midiChannel >= 1 && midiChannel <= 16)
                     {
-                        pianoKbForm = new PianoKbForm(this, snd.midiChannel);
-                        pianoKbForm.StartPosition = FormStartPosition.Manual;
-
-                        System.Windows.Forms.Button b = (System.Windows.Forms.Button)sender;
-
-                        int xOffset = (this.Width - pianoKbForm.Width) / 2;
-                        Point p = this.Location + new Size(xOffset, this.Height);
-                        pianoKbForm.Location = p;
-                        EnsureVisible(pianoKbForm);
-
-                        //kb.Size = new Size(40, 20);
-                        pianoKbForm.Show(this);
-                    } else
+                        ShowMidiKeyboard(midiChannel);
+                    }
+                    else
                     {
                         MessageBox.Show("Invalid MIDI Channel in sound. Valid 1-16.");
                     }
-                } else
+                }
+                else
                 {
                     MessageBox.Show("Sound not possible to load.");
                 }
             }
+        }
+
+
+        private void spiSoundListenButton_Click(object sender, EventArgs e)
+        {
+            ShowMidiKeyboardForSelectedSpiSound();
         }
 
         internal void NotifyClosed(Form form)
@@ -2420,14 +2438,16 @@ namespace EPSSEditor
                 SpiSound snd = data.spiSounds[selected.First()];
                 if (snd != null)
                 {
+                    ShowMidiKeyboard(snd.midiChannel);
                     SetKeyAllOff();
                     ShowMidiChannel(snd.midiChannel);
                     for (int i = snd.startNote; i <= snd.endNote; i++) {
-                        ShowNote(snd.midiChannel, i, true);
+                        ShowNote(snd.midiChannel, i, true, true);
                     }
                     int centerKey = snd.CenterNote();
-                    ShowNote(snd.midiChannel, centerKey, true);
+                    ShowNote(snd.midiChannel, centerKey, true, true);
                     SetCenterKey(centerKey);
+                    playConvertedSound(centerKey);
                 }
             }
         }
@@ -2536,11 +2556,11 @@ namespace EPSSEditor
 
         }
 
-        private void ShowNote(int midiChannel, int note, bool onOff)
+        private void ShowNote(int midiChannel, int note, bool onOff, bool suppressEvent)
         {
             if (pianoKbForm != null)
             {
-                pianoKbForm.NoteOnOff(midiChannel, note, onOff);
+                pianoKbForm.NoteOnOff(midiChannel, note, onOff, suppressEvent);
             }
         }
 
@@ -2555,12 +2575,12 @@ namespace EPSSEditor
 
         private void SpiSoundInstrument_NoteOffEvent(object sender, SpiSoundInstrumentEventArgs e)
         {
-            ShowNote(e.midiChannel, e.note, false);
+            ShowNote(e.midiChannel, e.note, false, true);
         }
 
         private void SpiSoundInstrument_NoteOnEvent(object sender, SpiSoundInstrumentEventArgs e)
         {
-            ShowNote(e.midiChannel, e.note, true);
+            ShowNote(e.midiChannel, e.note, true, true);
         }
 
         private void midPlayerTimer_Tick(object sender, EventArgs e)

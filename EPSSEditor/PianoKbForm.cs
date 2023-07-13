@@ -69,7 +69,7 @@ namespace EPSSEditor
             _form1.pianoBox1_PianoKeyUp(sender, args, midiChannel);
         }
 
-        public void NoteOnOff(int midiChannel, int note, bool onOff)
+        public void NoteOnOff(int midiChannel, int note, bool onOff, bool suppressEvent)
         {
             if (IsHandleCreated)
             {
@@ -77,7 +77,7 @@ namespace EPSSEditor
                 {
                     BeginInvoke(new Action(() =>
                 {
-                    pianoBox2.SetKey(note, onOff, true);
+                    pianoBox2.SetKey(note, onOff, suppressEvent);
                 }));
                 }
             }
