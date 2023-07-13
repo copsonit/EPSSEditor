@@ -156,8 +156,8 @@ namespace EPSSEditor
             double readPos = position;
             int destOffset = offset;
 
-            try
-            {
+            //try
+            //{
                 /*
                 int read = 0;
                 while (read < count)
@@ -275,18 +275,15 @@ namespace EPSSEditor
                     samplesToCopy = count;
                 }
 
-
-
-
                 //Console.WriteLine("SamplesToCopy: {0}", samplesToCopy.ToString());
                 return (int)samplesToCopy;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"loopStart: {loopStart}, loopEnd: {loopEnd}, availableSamples: {availableSamples}, count: {count}, samplesToCopy: {samplesToCopy}, sourceSampEnd: {sourceSampleEnd}, position: {position}, readPos:{readPos}, cachedSound.Length: {cachedSound.AudioData.Length}, destOffset:{destOffset}, buffer length:{buffer.Length}");
-                Console.WriteLine("Read buffer Exception:", ex.ToString());
-            }
-            return 0;
+            //}
+            //catch (Exception ex)
+            //{
+              //  Console.WriteLine($"loopStart: {loopStart}, loopEnd: {loopEnd}, availableSamples: {availableSamples}, count: {count}, samplesToCopy: {samplesToCopy}, sourceSampEnd: {sourceSampleEnd}, position: {position}, readPos:{readPos}, cachedSound.Length: {cachedSound.AudioData.Length}, destOffset:{destOffset}, buffer length:{buffer.Length}");
+              // Console.WriteLine("Read buffer Exception:", ex.ToString());
+            // }
+            // return 0;
         }
 
         public WaveFormat WaveFormat { get { return cachedSound.WaveFormat; } }
