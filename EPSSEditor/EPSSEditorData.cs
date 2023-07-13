@@ -486,7 +486,64 @@ namespace EPSSEditor
                     bool loop = snd.loopMode == 2;
                     //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
                     // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
-                    cs = snd.cachedSound(ms, newFreq, newBits, newChannels, loop, (int)snd.loopStart, (int)snd.loopEnd, (int)snd.orgSampleCount);
+
+                    float pan = 0;
+                    if (snd.name().Contains("KAGGE"))
+                    {
+                        pan = 0;
+                    }
+                    else if (snd.name().Contains("CONGA_H"))
+                    {
+                        pan = -0.9f;
+                    }
+                    else if (snd.name().Contains("CONGA_L"))
+                    {
+                        pan = 0.9f;
+                    }
+                    else if (snd.name().Contains("SD_HIP"))
+                    {
+                        pan = 0.4f;
+                    }
+                    else if (snd.name().Contains("ACOU_SD"))
+                    {
+                        pan = -0.4f;
+                    }
+                    else if (snd.name().Contains("CHH"))
+                    {
+                        pan = 0.6f;
+                    }
+                    else if (snd.name().Contains("OHH"))
+                    {
+                        pan = -0.6f;
+                    }
+                    else if (snd.name().Contains("EXPOSE_B"))
+                    {
+                        pan = 0;
+                    }
+                    else if (snd.name().Contains("ILIKE_IT"))
+                    {
+                        pan = 0.2f;
+                    }
+                    else if (snd.name().Contains("808_RIM"))
+                    {
+                        pan = 0.2f;
+                    }
+                   else if (snd.name().Contains("PI_ACCHA"))
+                    {
+                        pan = 0.2f;
+                    }
+                    else if (snd.name().Contains("PI_ACCHG"))
+                    {
+                        pan = -0.2f;
+                    }
+                    else if (snd.name().Contains("EL_GURA"))
+                    {
+                        pan = 0; ;
+                    }
+
+
+
+                    cs = snd.cachedSound(ms, loop, (int)snd.loopStart, (int)snd.orgSampleCount, pan);
                 }
             }
 

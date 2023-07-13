@@ -197,9 +197,9 @@ namespace EPSSEditor
                 Sound sound = data.getSoundFromSoundId(soundId);
                 if (sound != null)
                 {
-                    float volume = 1.0f;
-                    float max = 1.0f;
-                    getNormalizeValues(ref sound, ref volume, ref max);
+                    //float volume = 1.0f;
+                    //float max = 1.0f;
+                    //getNormalizeValues(ref sound, ref volume, ref max);
 
                     string volTempPath = System.IO.Path.GetTempFileName();
 
@@ -208,9 +208,8 @@ namespace EPSSEditor
                         // rewind and amplify
                         reader.Position = 0;
                         //                    reader.Volume = 1.0f / max;
-                       reader.Volume = volume / max;
-
-    
+                        //reader.Volume = volume / max;
+                        reader.Volume = (float)(extVolume) / 100.0f;
 
                         var outFormat = new WaveFormat(newFreq, reader.WaveFormat.Channels);
                         // TODO use the pitch info to pitch it.
@@ -218,7 +217,7 @@ namespace EPSSEditor
                         // Need to use the varispeed converter!
                         using (var resampler = new MediaFoundationResampler(reader, outFormat))
                         {
-                            resampler.ResamplerQuality = 60;
+                            resampler.ResamplerQuality = 60; // Highest quality
                             WaveFileWriter.CreateWaveFile(volTempPath, resampler);
                         }
 
@@ -335,11 +334,11 @@ namespace EPSSEditor
         }
 
 
-        public CachedSound cachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopStart, int loopEnd, int orgSampleCount)
+        public CachedSound cachedSound(MemoryStream ms, bool loop, int loopStart, int orgSampleCount, float pan)
         {
             if (_cachedAudio == null)
             {
-                _cachedAudio = new CachedSound(ms, newFreq, bits, channels, loop, loopStart, loopEnd, orgSampleCount);
+                _cachedAudio = new CachedSound(ms, loop, loopStart, orgSampleCount, pan);
             }
             return _cachedAudio;
         }

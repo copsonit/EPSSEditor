@@ -279,7 +279,7 @@ namespace EPSSEditor
         public int loopEnd = 0;
         public double pitch = 1.0;
         public int vvfeOffset = 0;
-        public CachedSound(MemoryStream ms, int newFreq, int bits, int channels, bool loop, int loopStart, int loopEnd, int orgSampleCount)
+        public CachedSound(MemoryStream ms, bool loop, int loopStart, int orgSampleCount, float pan)
         {
             this.loop = loop;
             loopType = 0; // only forward supported in EPSS
@@ -288,12 +288,28 @@ namespace EPSSEditor
 
             //var rs = new RawSourceWaveStream(ms, new WaveFormat(newFreq, bits, channels));
             var rs = new WaveFileReader(ms);
+
+
             //uint orgLoopStart = loopStart;
             //uint orgLoopEnd = loopEnd;
             //long newSampleDataLen = rs.Length;
             var rsAsSampleProvider = rs.ToSampleProvider();
 
-            var resampler = new WdlResamplingSampleProvider(rsAsSampleProvider, 44100);
+            ISampleProvider resampler;
+            bool usePanning = false;
+
+            if (usePanning)
+            {
+                var panner = new PanningSampleProvider(rsAsSampleProvider);
+                panner.PanStrategy = new SquareRootPanStrategy();
+                panner.Pan = pan;
+                resampler = new WdlResamplingSampleProvider(panner, 44100);
+            }
+            else
+            {
+                resampler = new WdlResamplingSampleProvider(rsAsSampleProvider, 44100);
+            }
+
             WaveFormat = resampler.WaveFormat;
             long l = ms.Length;
             var wholeFile = new List<float>((int)l);
