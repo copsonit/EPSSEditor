@@ -75,6 +75,8 @@ namespace EPSSEditor
                 orgSampleCount = 0;
                 //end = (UInt32)sound.length; // TODO 16 8 bits etc
             }
+
+            extVolume = 100;
         }
         
         

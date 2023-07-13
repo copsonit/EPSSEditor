@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using NAudio.Wave;
@@ -141,56 +142,9 @@ namespace EPSSEditor
 
         public int Read(float[] buffer, int offset, int count)
         {
-
-            /*
-            int read = 0;
-            while (read < count)
-            {
-                //int bytesRead = _reader.Read(buffer, offset + read, count - read);
-                var availableSamples = cachedSound.AudioData.Length - position;
-                var samplesToCopy = Math.Min(availableSamples, count);
-                Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
-
-                if (bytesRead == 0)
-                {
-                    if (_reader.Position == 0 || !_loop)
-                    {
-                        break;
-                    }
-                    _reader.Position = 0;
-                }
-                read += bytesRead;
-            }
-
-            if (read < count)
-            {
-                Dispose();
-            }
-            return read;
-            */
-            //            Console.WriteLine(count.ToString());
-
-            if (!cachedSound.IsPlaying) {
-                return 0;
-            }
-            /*
-                isEnding = true;
-                for (int i = 0; i < count; i++)
-                {
-                    buffer[i] = 0;
-                }
-                return count; //xfade down to 0 to avoid clicks.
-            }
-            if (isEnding)
-            {
-                isEnding = false;
-                return 0;
-            }
-            */
-
             int loopEnd = cachedSound.loopEnd;
             int loopStart = cachedSound.loopStart;
-            int sourceSampleEnd = cachedSound.loop ? loopEnd : cachedSound.AudioData.Length; 
+            int sourceSampleEnd = cachedSound.loop ? loopEnd : cachedSound.AudioData.Length;
             var availableSamples = sourceSampleEnd - position;
 
 
@@ -201,67 +155,138 @@ namespace EPSSEditor
             double pitch = cachedSound.pitch;
             double readPos = position;
             int destOffset = offset;
-            while ((destOffset - offset) < samplesToCopy)
+
+            try
             {
                 /*
-                if (destOffset >= buffer.Length)
+                int read = 0;
+                while (read < count)
                 {
-                    Console.WriteLine("DestOffset overflow!");
+                    //int bytesRead = _reader.Read(buffer, offset + read, count - read);
+                    var availableSamples = cachedSound.AudioData.Length - position;
+                    var samplesToCopy = Math.Min(availableSamples, count);
+                    Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
+
+                    if (bytesRead == 0)
+                    {
+                        if (_reader.Position == 0 || !_loop)
+                        {
+                            break;
+                        }
+                        _reader.Position = 0;
+                    }
+                    read += bytesRead;
                 }
-                if ((int)readPos >= cachedSound.AudioData.Length)
+
+                if (read < count)
                 {
-                    Console.WriteLine("readPos overflow!");
+                    Dispose();
+                }
+                return read;
+                */
+                //            Console.WriteLine(count.ToString());
+
+                if (!cachedSound.IsPlaying)
+                {
+                    return 0;
+                }
+                /*
+                    isEnding = true;
+                    for (int i = 0; i < count; i++)
+                    {
+                        buffer[i] = 0;
+                    }
+                    return count; //xfade down to 0 to avoid clicks.
+                }
+                if (isEnding)
+                {
+                    isEnding = false;
+                    return 0;
                 }
                 */
-                buffer[destOffset++] = cachedSound.AudioData[(int)readPos];
-                readPos += pitch;
 
-                if (readPos >= sourceSampleEnd)
-                {
-                    //Console.WriteLine($"End found {readPos} {availableSamples}");
-                    //Array.Clear(buffer, offset, count - offset);
-                    //samplesToCopy = 0;
-                    //break;
-                    break;
-                }
-
-            }
-            position = (int)readPos;
-
-
-            /*
-            Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
-
-            position += samplesToCopy;
-            */
-
-
-            // TODO fix when we have pitch.
-            
-            
-            if (cachedSound.loop && samplesToCopy < count)
-            {
-                position = loopStart;
-                readPos = position;
-                destOffset = offset + (int)samplesToCopy ;
 
                 while ((destOffset - offset) < samplesToCopy)
                 {
+
+                    if (destOffset >= buffer.Length)
+                    {
+                        Console.WriteLine("DestOffset overflow!");
+                    }
+                    if ((int)readPos >= cachedSound.AudioData.Length)
+                    {
+                        Console.WriteLine("readPos overflow!");
+                    }
+
                     buffer[destOffset++] = cachedSound.AudioData[(int)readPos];
                     readPos += pitch;
 
                     if (readPos >= sourceSampleEnd)
                     {
+                        //Console.WriteLine($"End found {readPos} {availableSamples}");
+                        //Array.Clear(buffer, offset, count - offset);
+                        //samplesToCopy = 0;
+                        //break;
+                        readPos -= pitch;
                         break;
                     }
+
                 }
                 position = (int)readPos;
-                samplesToCopy = count;
-            }
-            
 
-            //Console.WriteLine("SamplesToCopy: {0}", samplesToCopy.ToString());
-            return (int)samplesToCopy;
+
+                /*
+                Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
+
+                position += samplesToCopy;
+                */
+
+
+                // TODO fix when we have pitch.
+
+
+                if (cachedSound.loop && samplesToCopy < count)
+                {
+                    position = loopStart;
+                    readPos = position;
+                    destOffset = offset + (int)samplesToCopy;
+
+                    //while ((destOffset - offset) < samplesToCopy)
+                    while ((destOffset - offset) < count)
+                    {
+                        if ((int)readPos >= cachedSound.AudioData.Length)
+                        {
+                            Console.WriteLine("Loop readPos overflow!");
+                        }
+                        if (destOffset >= buffer.Length)
+                        {
+                            Console.WriteLine("Loop DestOffset overflow!");
+                        }
+                        buffer[destOffset++] = cachedSound.AudioData[(int)readPos];
+                        readPos += pitch;
+
+                        if (readPos >= sourceSampleEnd)
+                        {
+                            readPos -= pitch;
+                            break;
+                        }
+                    }
+                    position = (int)readPos;
+                    samplesToCopy = count;
+                }
+
+
+
+
+                //Console.WriteLine("SamplesToCopy: {0}", samplesToCopy.ToString());
+                return (int)samplesToCopy;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"loopStart: {loopStart}, loopEnd: {loopEnd}, availableSamples: {availableSamples}, count: {count}, samplesToCopy: {samplesToCopy}, sourceSampEnd: {sourceSampleEnd}, position: {position}, readPos:{readPos}, cachedSound.Length: {cachedSound.AudioData.Length}, destOffset:{destOffset}, buffer length:{buffer.Length}");
+                Console.WriteLine("Read buffer Exception:", ex.ToString());
+            }
+            return 0;
         }
 
         public WaveFormat WaveFormat { get { return cachedSound.WaveFormat; } }
