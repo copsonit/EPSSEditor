@@ -53,8 +53,6 @@ namespace EPSSEditor
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.pianoBox2 = new M.PianoBox();
-            this.knob1 = new M.Knob();
-            this.midiVisualizer1 = new M.MidiVisualizer();
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -319,54 +317,11 @@ namespace EPSSEditor
             this.pianoBox2.PianoKeyDown += new M.PianoKeyEventHandler(this.pianoBox2_PianoKeyDown);
             this.pianoBox2.PianoKeyUp += new M.PianoKeyEventHandler(this.pianoBox2_PianoKeyUp);
             // 
-            // knob1
-            // 
-            this.knob1.BorderColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.knob1.KnobColor = System.Drawing.SystemColors.Control;
-            this.knob1.Location = new System.Drawing.Point(515, 191);
-            this.knob1.Minimum = 0;
-            this.knob1.Name = "knob1";
-            this.knob1.PointerColor = System.Drawing.SystemColors.ControlText;
-            this.knob1.Size = new System.Drawing.Size(49, 49);
-            this.knob1.TabIndex = 31;
-            this.knob1.Text = "knob1";
-            this.knob1.TickColor = System.Drawing.SystemColors.ControlDarkDark;
-            // 
-            // midiVisualizer1
-            // 
-            this.midiVisualizer1.BackColor = System.Drawing.Color.Black;
-            this.midiVisualizer1.ChannelColors = new System.Drawing.Color[] {
-        System.Drawing.Color.LightGreen,
-        System.Drawing.Color.LightGoldenrodYellow,
-        System.Drawing.Color.LightBlue,
-        System.Drawing.Color.LightCyan,
-        System.Drawing.Color.LightPink,
-        System.Drawing.Color.LightGray,
-        System.Drawing.Color.Magenta,
-        System.Drawing.Color.Orange,
-        System.Drawing.Color.DarkGreen,
-        System.Drawing.Color.Brown,
-        System.Drawing.Color.DarkBlue,
-        System.Drawing.Color.DarkCyan,
-        System.Drawing.Color.HotPink,
-        System.Drawing.Color.DarkGray,
-        System.Drawing.Color.DarkMagenta,
-        System.Drawing.Color.DarkOrange};
-            this.midiVisualizer1.CursorColor = System.Drawing.Color.DarkGoldenrod;
-            this.midiVisualizer1.Location = new System.Drawing.Point(615, 194);
-            this.midiVisualizer1.Name = "midiVisualizer1";
-            this.midiVisualizer1.Sequence = null;
-            this.midiVisualizer1.Size = new System.Drawing.Size(252, 59);
-            this.midiVisualizer1.TabIndex = 32;
-            this.midiVisualizer1.Text = "midiVisualizer1";
-            // 
             // PianoKbForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1001, 277);
-            this.Controls.Add(this.midiVisualizer1);
-            this.Controls.Add(this.knob1);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.label10);
@@ -417,7 +372,5 @@ namespace EPSSEditor
         private Label label10;
         private Label label11;
         private Label label12;
-        private M.Knob knob1;
-        private M.MidiVisualizer midiVisualizer1;
     }
 }

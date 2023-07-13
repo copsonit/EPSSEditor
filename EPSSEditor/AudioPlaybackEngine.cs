@@ -147,10 +147,8 @@ namespace EPSSEditor
             int sourceSampleEnd = cachedSound.loop ? loopEnd : cachedSound.AudioData.Length;
             var availableSamples = sourceSampleEnd - position;
 
-
             var samplesToCopy = Math.Min(availableSamples, count);
             //Console.WriteLine("AudioData:{0}, position:{1} count:{2}, available: {3}, offset: {4} samplesToCopy: {5} loopStart {6} loopEnd {7}", cachedSound.AudioData.Length, position, count.ToString(), availableSamples.ToString(), offset, samplesToCopy, loopStart, loopEnd);
-
 
             double pitch = cachedSound.pitch;
             double readPos = position;

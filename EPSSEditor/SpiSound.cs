@@ -13,7 +13,7 @@ namespace EPSSEditor
     public class SpiSound : IDisposable
     {
         public byte midiChannel; // [1-16]
-        public byte midiNote; // [0-127]
+        public byte midiNote; // [0-127] This is the midi note where the sound is played at pitch 0. center note
 
         public byte startNote; // [0-127]
         public byte endNote; // [0-127]
@@ -77,6 +77,7 @@ namespace EPSSEditor
             }
 
             extVolume = 100;
+            midiNote = 84;
         }
         
         
@@ -89,8 +90,8 @@ namespace EPSSEditor
             midiChannel = (byte)(sfz.Midich + 1);
             startNote = (byte)sfz.NoteStart;
             endNote = (byte)sfz.NoteEnd;
-            int center = sfz.NoteStart + 84 - sfz.Low;
-            midiNote = (byte)(84 - (center - sfz.NoteStart));
+            int center = sfz.Low - sfz.NoteStart;
+            midiNote = (byte)(84 - center);
             transpose = (sbyte)sfz.Transpose;
             vvfe = (byte)sfz.Vvfe;
             s_gr_frek = sfz.S_gr_frek;
@@ -348,7 +349,8 @@ namespace EPSSEditor
 
         public int CenterNote()
         {
-            return startNote + 84 - midiNote - transpose;
+            //return startNote + 84 - midiNote - transpose + 24;
+            return midiNote - transpose;
         }
 
         public string transposeString()

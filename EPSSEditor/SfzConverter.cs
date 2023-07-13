@@ -153,7 +153,7 @@ namespace EPSSEditor
                     if (sp.noSound == 0) // We have a sound defined
                     {
                         int sound = sp.sound;
-                        int pitch = EPSSNoteToMidiNote(sp.pitch);
+                        int pitch = EPSSNoteToMidiNote(sp.pitch); // converted pitch, ALWAYS 60-108!
                         sbyte toneOffset = spi.sounds.sounds[sound].s_loopmode.toneoffset;
                         byte vvfe = spi.sounds.sounds[sound].s_loopmode.vvfe;
                         byte lm = spi.sounds.sounds[sound].s_loopmode.loopmode;
@@ -229,7 +229,7 @@ namespace EPSSEditor
             }
             for (int i = 60; i <= 108; i++)
             {
-                epssMap[idx++] = i - 60 - 24 + 84;
+                epssMap[idx++] = i;
             }
             for (int i = 109; i < 128; i++)
             {
