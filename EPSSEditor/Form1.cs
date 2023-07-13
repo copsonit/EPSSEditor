@@ -2465,13 +2465,17 @@ namespace EPSSEditor
                     string s = r.GetText().Trim();
                     if (!String.IsNullOrEmpty(s))
                     {
-                        if (snd.Rename(s))
+                        string errorString;
+                        if (snd.Rename(s, out errorString))
                         {
                             updateSoundListBox();
                             data.RefreshSpiSounds();
                             updateSpiSoundListBox();
                             dataNeedsSaving = true;
                             saveProjectSettings();
+                        } else
+                        {
+                            MessageBox.Show(errorString);
                         }
                     }
                 }

@@ -169,8 +169,9 @@ namespace EPSSEditor
             return description;
         }
 
-        public bool Rename(string newName)
+        public bool Rename(string newName, out string errorString)
         {
+            errorString = "";
             if (newName != name())
             {
                 string newFullPath = Path.GetDirectoryName(path);
@@ -185,8 +186,13 @@ namespace EPSSEditor
                     }
                     catch (Exception e)
                     {
+                        errorString = e.Message;
                         return false;
                     }
+                }
+                else
+                {
+                    errorString = "File already exists."; 
                 }
             }
             return false;
