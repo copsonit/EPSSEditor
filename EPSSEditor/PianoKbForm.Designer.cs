@@ -33,6 +33,7 @@ namespace EPSSEditor
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PianoKbForm));
             this.midiChTextBox = new System.Windows.Forms.TextBox();
             this.midiChTrackBar = new System.Windows.Forms.TrackBar();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -64,6 +65,7 @@ namespace EPSSEditor
             this.midiChTrackBar.Size = new System.Drawing.Size(147, 45);
             this.midiChTrackBar.TabIndex = 14;
             this.midiChTrackBar.Value = 1;
+            this.midiChTrackBar.Scroll += new System.EventHandler(this.midiChTrackBar_Scroll);
             // 
             // groupBox1
             // 
@@ -202,8 +204,9 @@ namespace EPSSEditor
             this.Controls.Add(this.pianoBox2);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "PianoKbForm";
-            this.Text = "PianoKb";
+            this.Text = "MIDI Keyboard";
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();

@@ -114,7 +114,7 @@
             this.omniPatchCheckBox = new System.Windows.Forms.CheckBox();
             this.gen2CheckBox = new System.Windows.Forms.CheckBox();
             this.loadMidButton = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.stopMidButton = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
@@ -1069,17 +1069,17 @@
             this.loadMidButton.UseVisualStyleBackColor = true;
             this.loadMidButton.Click += new System.EventHandler(this.loadMidButton_Click);
             // 
-            // button2
+            // stopMidButton
             // 
-            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button2.Location = new System.Drawing.Point(6, 48);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(165, 22);
-            this.button2.TabIndex = 9;
-            this.button2.Text = "Stop";
-            this.infoToolTip.SetToolTip(this.button2, "You can drag sounds to the  box to add them faster!");
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.stopMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.stopMidButton.Location = new System.Drawing.Point(6, 48);
+            this.stopMidButton.Name = "stopMidButton";
+            this.stopMidButton.Size = new System.Drawing.Size(165, 22);
+            this.stopMidButton.TabIndex = 9;
+            this.stopMidButton.Text = "Stop";
+            this.infoToolTip.SetToolTip(this.stopMidButton, "You can drag sounds to the  box to add them faster!");
+            this.stopMidButton.UseVisualStyleBackColor = true;
+            this.stopMidButton.Click += new System.EventHandler(this.stopMidButton_Click);
             // 
             // groupBox4
             // 
@@ -1191,7 +1191,7 @@
             // groupBox13
             // 
             this.groupBox13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox13.Controls.Add(this.button2);
+            this.groupBox13.Controls.Add(this.stopMidButton);
             this.groupBox13.Controls.Add(this.loadMidButton);
             this.groupBox13.Location = new System.Drawing.Point(502, 492);
             this.groupBox13.Name = "groupBox13";
@@ -1377,7 +1377,7 @@
         private System.Windows.Forms.Button loadMidButton;
         private System.Windows.Forms.OpenFileDialog loadMidFileDialog;
         private System.Windows.Forms.Timer midPlayerTimer;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button stopMidButton;
     }
 }
 
