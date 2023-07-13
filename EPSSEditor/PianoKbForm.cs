@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace EPSSEditor
 {
@@ -14,6 +15,7 @@ namespace EPSSEditor
     {
         private Form1 _form1;
         private int midiChannel;
+
         public PianoKbForm(Form1 form1, int midiChannel)
         {
             _form1 = form1;
@@ -83,6 +85,23 @@ namespace EPSSEditor
             }
         }
 
+        public void ShowNotes(int midiChannel, int startNote, int endNote)
+        {
+            if (IsHandleCreated)
+            {
+                if (midiChannel == this.midiChannel)
+                {
+                    BeginInvoke(new Action(() =>
+                    {
+                        for (int note = startNote; note <= endNote; note++)
+                        {
+                            pianoBox2.SetKey(note, true, true);
+                        }
+                    }));
+                }
+            }
+        }
+
         public void SetKeyAllOff()
         {
             for (int i = 0; i < 128; i++)
@@ -101,6 +120,11 @@ namespace EPSSEditor
         {
             SetKeyAllOff();
             SetMidiChannel(midiChTrackBar.Value);
+        }
+
+        private void pianoBox2_MouseDown(object sender, MouseEventArgs e)
+        {
+            SetKeyAllOff();
         }
     }
 }

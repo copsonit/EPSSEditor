@@ -316,6 +316,7 @@ namespace EPSSEditor
             this.pianoBox2.WhiteKeyColor = System.Drawing.Color.White;
             this.pianoBox2.PianoKeyDown += new M.PianoKeyEventHandler(this.pianoBox2_PianoKeyDown);
             this.pianoBox2.PianoKeyUp += new M.PianoKeyEventHandler(this.pianoBox2_PianoKeyUp);
+            this.pianoBox2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pianoBox2_MouseDown);
             // 
             // PianoKbForm
             // 
