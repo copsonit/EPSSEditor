@@ -345,6 +345,11 @@ namespace EPSSEditor
         }
 
 
+        public int CenterNote()
+        {
+            return startNote + 84 - midiNote - transpose;
+        }
+
         public string transposeString()
         {
             if (transpose == 0) return "0";

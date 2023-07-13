@@ -35,7 +35,7 @@ namespace EPSSEditor
             InitializeComponent();
         }
 
-        private void SetMidiChannel(int ch)
+        public void SetMidiChannel(int ch)
         {
             midiChannel = ch;
             midiChTextBox.Text = ch.ToString();
@@ -83,12 +83,18 @@ namespace EPSSEditor
             }
         }
 
-        private void SetKeyAllOff()
+        public void SetKeyAllOff()
         {
             for (int i = 0; i < 128; i++)
             {
                 pianoBox2.SetKey(i, false, true);
             }
+        }
+
+
+        public void SetCenterKey(int note)
+        {
+            pianoBox2.CenterKey = note;
         }
 
         private void midiChTrackBar_Scroll(object sender, EventArgs e)

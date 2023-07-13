@@ -26,6 +26,8 @@ using System.Web;
 using System.Net.Mail;
 using NAudio.Midi;
 using System.Diagnostics.Eventing.Reader;
+using M;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace EPSSEditor
 {
@@ -2410,7 +2412,24 @@ namespace EPSSEditor
 
         private void spiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            Console.WriteLine(e.X + " " + e.Y);
+            //Console.WriteLine(e.X + " " + e.Y);
+
+            List<int> selected = SelectedSpiSounds();
+            if (selected.Count > 0)
+            {
+                SpiSound snd = data.spiSounds[selected.First()];
+                if (snd != null)
+                {
+                    SetKeyAllOff();
+                    ShowMidiChannel(snd.midiChannel);
+                    for (int i = snd.startNote; i <= snd.endNote; i++) {
+                        ShowNote(snd.midiChannel, i, true);
+                    }
+                    int centerKey = snd.CenterNote();
+                    ShowNote(snd.midiChannel, centerKey, true);
+                    SetCenterKey(centerKey);
+                }
+            }
         }
 
 
@@ -2494,25 +2513,50 @@ namespace EPSSEditor
             }
         }
 
-        private void SpiSoundInstrument_NoteOffEvent(object sender, SpiSoundInstrumentEventArgs e)
+
+        private void SetKeyAllOff()
         {
             if (pianoKbForm != null)
             {
-                int midiChannel = e.midiChannel;
-                int note = e.note;
-                pianoKbForm.NoteOnOff(midiChannel, note, false);
+                pianoKbForm.SetKeyAllOff();
             }
+        }
+
+
+        private void SetCenterKey(int note)
+        {
+            if (pianoKbForm != null)
+            {
+                pianoKbForm.SetCenterKey(note);
+            }
+
+        }
+
+        private void ShowNote(int midiChannel, int note, bool onOff)
+        {
+            if (pianoKbForm != null)
+            {
+                pianoKbForm.NoteOnOff(midiChannel, note, onOff);
+            }
+        }
+
+        private void ShowMidiChannel(int midiChannel)
+        {
+            if (pianoKbForm != null)
+            {
+                pianoKbForm.SetMidiChannel(midiChannel);
+            }
+        }
+
+
+        private void SpiSoundInstrument_NoteOffEvent(object sender, SpiSoundInstrumentEventArgs e)
+        {
+            ShowNote(e.midiChannel, e.note, false);
         }
 
         private void SpiSoundInstrument_NoteOnEvent(object sender, SpiSoundInstrumentEventArgs e)
         {
-            if (pianoKbForm != null)
-            {
-                int midiChannel = e.midiChannel;
-                int note = e.note;
-                pianoKbForm.NoteOnOff(midiChannel, note, true);
-            }
-            //throw new NotImplementedException();
+            ShowNote(e.midiChannel, e.note, true);
         }
 
         private void midPlayerTimer_Tick(object sender, EventArgs e)

@@ -490,7 +490,7 @@ namespace EPSSEditor
                 }
             }
 
-            int center = snd.startNote + 84 - snd.midiNote - snd.transpose;
+            int center = snd.CenterNote();
             int relNote = note - center;
             //sb.Append(" pitch_keycenter=");
             //sb.Append(noteStart + 84 - info.Low - info.Transpose);

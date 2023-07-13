@@ -221,7 +221,7 @@ namespace EPSSEditor
             }
             for (int i = 25; i <= 47; i++)
             {
-                epssMap[idx++] = i - 24;
+                epssMap[idx++] = i - 24 + 84;
             }
             for (int i = 48; i <= 59; i++)
             {
@@ -229,7 +229,7 @@ namespace EPSSEditor
             }
             for (int i = 60; i <= 108; i++)
             {
-                epssMap[idx++] = i - 60 - 24;
+                epssMap[idx++] = i - 60 - 24 + 84;
             }
             for (int i = 109; i < 128; i++)
             {
