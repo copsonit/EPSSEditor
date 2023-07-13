@@ -310,7 +310,7 @@ namespace EPSSEditor
             this.pianoBox2.Name = "pianoBox2";
             this.pianoBox2.NoteHighlightColor = System.Drawing.Color.Orange;
             this.pianoBox2.Octaves = 11;
-            this.pianoBox2.Size = new System.Drawing.Size(1005, 153);
+            this.pianoBox2.Size = new System.Drawing.Size(977, 153);
             this.pianoBox2.TabIndex = 18;
             this.pianoBox2.Text = "pianoBox2";
             this.pianoBox2.WhiteKeyColor = System.Drawing.Color.White;
@@ -321,7 +321,7 @@ namespace EPSSEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1032, 277);
+            this.ClientSize = new System.Drawing.Size(1001, 277);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.label10);

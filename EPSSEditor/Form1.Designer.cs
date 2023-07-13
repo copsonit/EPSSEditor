@@ -208,7 +208,7 @@
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.helpProvider1.SetShowHelp(this.groupBox2, true);
-            this.groupBox2.Size = new System.Drawing.Size(618, 460);
+            this.groupBox2.Size = new System.Drawing.Size(585, 460);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
@@ -219,7 +219,7 @@
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(402, 427);
+            this.button1.Location = new System.Drawing.Point(369, 427);
             this.button1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(71, 23);
@@ -242,7 +242,7 @@
             this.previewComboBox.Location = new System.Drawing.Point(55, 430);
             this.previewComboBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.previewComboBox.Name = "previewComboBox";
-            this.previewComboBox.Size = new System.Drawing.Size(343, 21);
+            this.previewComboBox.Size = new System.Drawing.Size(310, 21);
             this.previewComboBox.TabIndex = 17;
             this.previewComboBox.SelectedIndexChanged += new System.EventHandler(this.previewComboBox_SelectedIndexChanged);
             // 
@@ -260,7 +260,7 @@
             // spiSoundListenButton
             // 
             this.spiSoundListenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.spiSoundListenButton.Location = new System.Drawing.Point(478, 427);
+            this.spiSoundListenButton.Location = new System.Drawing.Point(445, 427);
             this.spiSoundListenButton.Name = "spiSoundListenButton";
             this.spiSoundListenButton.Size = new System.Drawing.Size(66, 23);
             this.spiSoundListenButton.TabIndex = 8;
@@ -280,7 +280,7 @@
             this.spiSoundListView.HideSelection = false;
             this.spiSoundListView.Location = new System.Drawing.Point(5, 19);
             this.spiSoundListView.Name = "spiSoundListView";
-            this.spiSoundListView.Size = new System.Drawing.Size(609, 402);
+            this.spiSoundListView.Size = new System.Drawing.Size(576, 402);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
             this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.spiSoundListView_ItemSelectionChanged);
@@ -292,7 +292,7 @@
             // 
             this.deleteSpiSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.deleteSpiSoundButton.Enabled = false;
-            this.deleteSpiSoundButton.Location = new System.Drawing.Point(553, 427);
+            this.deleteSpiSoundButton.Location = new System.Drawing.Point(520, 427);
             this.deleteSpiSoundButton.Name = "deleteSpiSoundButton";
             this.deleteSpiSoundButton.Size = new System.Drawing.Size(61, 23);
             this.deleteSpiSoundButton.TabIndex = 8;
@@ -929,7 +929,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(1131, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1098, 24);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1059,7 +1059,8 @@
             // 
             // loadMidButton
             // 
-            this.loadMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.loadMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.loadMidButton.Location = new System.Drawing.Point(5, 19);
             this.loadMidButton.Name = "loadMidButton";
             this.loadMidButton.Size = new System.Drawing.Size(165, 22);
@@ -1071,7 +1072,8 @@
             // 
             // stopMidButton
             // 
-            this.stopMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.stopMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.stopMidButton.Location = new System.Drawing.Point(6, 48);
             this.stopMidButton.Name = "stopMidButton";
             this.stopMidButton.Size = new System.Drawing.Size(165, 22);
@@ -1100,7 +1102,7 @@
             this.groupBox8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox8.Controls.Add(this.groupBox10);
             this.groupBox8.Controls.Add(this.groupBox4);
-            this.groupBox8.Location = new System.Drawing.Point(684, 492);
+            this.groupBox8.Location = new System.Drawing.Point(651, 492);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(431, 117);
             this.groupBox8.TabIndex = 11;
@@ -1190,10 +1192,11 @@
             // 
             // groupBox13
             // 
-            this.groupBox13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox13.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox13.Controls.Add(this.stopMidButton);
             this.groupBox13.Controls.Add(this.loadMidButton);
-            this.groupBox13.Location = new System.Drawing.Point(502, 492);
+            this.groupBox13.Location = new System.Drawing.Point(469, 492);
             this.groupBox13.Name = "groupBox13";
             this.groupBox13.Size = new System.Drawing.Size(176, 118);
             this.groupBox13.TabIndex = 20;
@@ -1214,7 +1217,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1131, 611);
+            this.ClientSize = new System.Drawing.Size(1098, 611);
             this.Controls.Add(this.groupBox13);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.useInSpiButton);
@@ -1230,7 +1233,7 @@
             this.Location = global::EPSSEditor.Properties.Settings.Default.WinLocation;
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.MinimumSize = new System.Drawing.Size(952, 650);
+            this.MinimumSize = new System.Drawing.Size(1000, 650);
             this.Name = "Form1";
             this.helpProvider1.SetShowHelp(this, false);
             this.Text = "EPSS Editor v1.08 - 20210116";
