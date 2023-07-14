@@ -469,6 +469,7 @@ namespace EPSSEditor
             List<EPSSSpi_extSoundInfo> extSoundInfos = new List<EPSSSpi_extSoundInfo>();
             List<EPSSSpi_sample> samples = new List<EPSSSpi_sample>();
 
+            /*
             SortedDictionary<int, SpiSound> sortedSounds = new SortedDictionary<int, SpiSound>();
             HashSet<int> usedSounds = new HashSet<int>();
             foreach (SpiSound snd in sounds)
@@ -480,7 +481,9 @@ namespace EPSSEditor
                     usedSounds.Add(soundNumber);
                 }
             }
+            */
 
+            SortedDictionary<int, SpiSound> sortedSounds = GetUsedSounds(data, sounds);
 
             foreach (KeyValuePair<int, SpiSound> entry in sortedSounds)
             {
@@ -536,12 +539,31 @@ namespace EPSSEditor
         }
 
 
+        public SortedDictionary<int, SpiSound> GetUsedSounds(EPSSEditorData data, List<SpiSound> sounds)
+        {
+            SortedDictionary<int, SpiSound> sortedSounds = new SortedDictionary<int, SpiSound>();
+            HashSet<int> usedSounds = new HashSet<int>();
+            foreach (SpiSound snd in sounds)
+            {
+                int soundNumber = data.getSoundNumberFromGuid(snd.soundId);
+                if (!usedSounds.Contains(soundNumber))
+                {
+                    sortedSounds.Add(soundNumber, snd);
+                    usedSounds.Add(soundNumber);
+                }
+            }
+            return sortedSounds;
+        }
+
         public EPSSSpi create(ref EPSSEditorData data, List<SpiSound> sounds, string name, string info, int sampFreq)
         {
-            
-            
-            //noOfSounds = sounds.Count;
-            noOfSounds = data.sounds.Count; // not number of split (i.e. SpiSounds) as it was before...
+
+
+            noOfSounds = GetUsedSounds(data, sounds).Count;
+
+            //noOfSounds = data.sounds.Count; // not number of split (i.e. SpiSounds) as it was before...
+
+
             if ((version <= 1 && noOfSounds < 256) ||
                 (version >=2 && noOfSounds < 65536))
             {
@@ -582,8 +604,9 @@ namespace EPSSEditor
 
         public long length(ref EPSSEditorData data)
         {
-            List<SpiSound> sounds = data.spiSounds;
-            int noOfSounds = sounds.Count;
+            List<SpiSound> sounds = data.spiSounds; // TODO: change to use sounds here!
+            SortedDictionary<int, SpiSound> usedSounds = GetUsedSounds(data, data.spiSounds);
+            int noOfSounds = usedSounds.Count;
 
             long mainLength = 16;
             long spiExtLength = 64;
@@ -591,18 +614,6 @@ namespace EPSSEditor
             long spiSoundsLength = 16 * noOfSounds;
             long spiExtSoundsLength = 64 * noOfSounds;
             long spiSamplesLength = 0;
-
-            HashSet<int> usedSounds = new HashSet<int>();
-
-            foreach (SpiSound snd in sounds)
-            {
-                int soundNumber = data.getSoundNumberFromGuid(snd.soundId);
-                if (!usedSounds.Contains(soundNumber))
-                {
-                    spiSamplesLength += snd.preLength(ref data);
-                    usedSounds.Add(soundNumber);
-                }
-            }
 
             return mainLength + spiExtLength + spiSplitLength + spiSoundsLength + spiExtSoundsLength + spiSamplesLength;
 

@@ -249,8 +249,7 @@ namespace EPSSEditor
                 readPos = position;
                 destOffset = offset + (int)samplesToCopy;
 
-                //while ((destOffset - offset) < samplesToCopy)
-                while ((destOffset - offset) < count)
+                 while ((destOffset - offset) < count)
                 {
                     if ((int)readPos >= cachedSound.AudioData.Length)
                     {
@@ -267,9 +266,6 @@ namespace EPSSEditor
                     {
                         position = loopStart;
                         readPos = position;
-
-                        //readPos -= pitch;
-                        //break;
                     }
                 }
                 position = (int)readPos;
