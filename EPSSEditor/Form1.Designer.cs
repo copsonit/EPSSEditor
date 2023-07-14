@@ -377,7 +377,7 @@
             this.defaultMidiMapRadioButton.Size = new System.Drawing.Size(160, 17);
             this.defaultMidiMapRadioButton.TabIndex = 16;
             this.defaultMidiMapRadioButton.TabStop = true;
-            this.defaultMidiMapRadioButton.Text = "Default MIDI mapping C2-C6";
+            this.defaultMidiMapRadioButton.Text = "Default MIDI mapping C3-C7";
             this.infoToolTip.SetToolTip(this.defaultMidiMapRadioButton, "If one sound selected, this sound is used on all keys. If multiple sounds selecte" +
         "d, it assumes the sounds have been imported from sfz.");
             this.defaultMidiMapRadioButton.UseVisualStyleBackColor = true;

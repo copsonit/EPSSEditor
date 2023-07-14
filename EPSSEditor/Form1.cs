@@ -29,6 +29,7 @@ using System.Diagnostics.Eventing.Reader;
 using M;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using System.Runtime.Remoting.Messaging;
+using System.Text.RegularExpressions;
 
 namespace EPSSEditor
 {
@@ -1016,20 +1017,34 @@ namespace EPSSEditor
             if (idxRemoved.Count > 0)
             {
                 int removed = 0;
+                int lastRemoved = -1;
                 foreach (int index in idxRemoved)
                 {
+                    lastRemoved = (index - removed);
                     data.RemoveSpiSound(index - removed);
                     removed++;
                 }
                 dataNeedsSaving = true;
+                
+
+
                 updateSpiSoundListBox();
+                if (spiSoundListView.Items.Count > 0)
+                {
+                    int select = Math.Min(lastRemoved, spiSoundListView.Items.Count - 1);
+                    select = Math.Max(0, select);
+                    spiSoundListView.Items[select].Selected = true;
+                    spiSoundListView.Items[select].Focused = true;
+                    spiSoundListView.Items[select].EnsureVisible();
+                }
+
                 saveProjectSettings();
                 updateTotalSize();
+
+
             }
 
         }
-
-
         private List<int> SelectedSpiSounds()
         {
             List<int> selectedSnds = new List<int>();
@@ -1873,6 +1888,7 @@ namespace EPSSEditor
             {
                 if (sounds.Count > 1)
                 {
+                    // Map multiple sounds
                     bool mappingOk = false;
                     byte startNote = 128;
                     if (MultiSampleRadioButton.Checked)
@@ -1907,7 +1923,8 @@ namespace EPSSEditor
                             }
                             else
                             {
-                                spiSnd.midiNote = startNote++;
+                                spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
+                                startNote++;
                             }
 
 
@@ -1948,10 +1965,10 @@ namespace EPSSEditor
                 }
                 else
                 {
+                    // Map single sound
                     Sound s = getSoundAtSelectedIndex();
                     if (s != null)
                     {
-
                         if (defaultMidiMapRadioButton.Checked || CustomSampleRadioButton.Checked)
                         {
                             bool doAdd = true;
@@ -1997,9 +2014,10 @@ namespace EPSSEditor
 
                             if (GmPercMidiMappingRadioButton.Checked) // Always channel 10 when gmperc is chosen. 
                             {
-                                spiSnd.midiNote = percussionNote(); // 1-128
+                                byte startNote = percussionNote(); // 0-127
+                                spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
 
-                                if (data.isDrumSoundOccupied(spiSnd.midiNote))
+                                if (data.isDrumSoundOccupied(startNote))
                                 {
                                     addOk = false;
                                     System.Windows.Forms.MessageBox.Show("Drum sound " + spiSnd.midiNote.ToString() + " already occupied!");
