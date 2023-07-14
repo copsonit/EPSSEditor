@@ -127,7 +127,6 @@ namespace EPSSEditor
 
                     foreach (SpiSound sndToFind in sound)
                     {
-                        byte j = 0;
                         if (sndToFind.startNote < 128 && sndToFind.endNote < 128)
                         {
                             for (int i = sndToFind.startNote; i <= sndToFind.endNote; i++)
@@ -135,9 +134,10 @@ namespace EPSSEditor
                                 EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch();
 
                                 sp.sound = (byte)data.getSoundNumberFromGuid(sndToFind.soundId);
-                                sp.pitch = (byte)(sndToFind.midiNote + j);
+                                int relativeNote = i - sndToFind.midiNote; // -24 to 24 ideally
+                                relativeNote += 84; // Use new layout, i.e. 84 is center.
+                                sp.pitch = (byte)relativeNote;
                                 sp.noSound = 0;
-                                j++;
                                 channel.data[i] = sp;
                             }
                         }
@@ -147,9 +147,8 @@ namespace EPSSEditor
                 }
                 else if (sound.Count == 1 && midiChannel != 10)
                 {
+                    // What type of map is this?
                     SpiSound snd = sound.First();
-
-
                     byte note = 60;
                     for (int i = 0; i < 128; i++)
                     {
