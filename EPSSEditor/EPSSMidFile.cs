@@ -35,7 +35,7 @@ namespace EPSSEditor
         private static IMidiInstrument _midiInstrument = null;
         //private static List<long> times = new List<long>();
         //private static int showTimesFrom = 0;
-        private static int tickMs = 20;
+        //private static int tickMs = 20;
         //private static int tickOrgStep = 16;
         //private static int tickStep = 16;
         private static long tickNum;

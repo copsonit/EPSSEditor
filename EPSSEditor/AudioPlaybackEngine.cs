@@ -128,7 +128,6 @@ namespace EPSSEditor
     {
         private readonly CachedSound cachedSound;
         private long position = 0;
-        private bool isEnding = false;
 
         public CachedSoundSampleProvider(CachedSound cachedSound, long vvfeOffset)
         {

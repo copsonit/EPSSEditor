@@ -112,8 +112,8 @@ namespace EPSSEditor
                             var numberOfLoops = BitConverter.ToInt32(chunkData, 28);
                             Console.WriteLine($"MIDI {midiNote}, {numberOfLoops} loops");
                             int offset = 36;
-                            for (int n = 0; n < numberOfLoops; n++)
-                            {
+                            //for (int n = 0; n < numberOfLoops; n++)
+                            //{
                                 var cuePointId = BitConverter.ToInt32(chunkData, offset);
                                 var type = BitConverter.ToInt32(chunkData, offset + 4); // 0 = loop forward, 1 = alternating loop, 2 = reverse
 
@@ -130,8 +130,8 @@ namespace EPSSEditor
                                 loopEnd = end;
                                 loopType = type;
 
-                                break; // only read one loop
-                            }
+                                //break; // only read one loop
+                            //}
                         }
                     }
                 }

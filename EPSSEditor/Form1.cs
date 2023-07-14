@@ -1528,8 +1528,7 @@ namespace EPSSEditor
 
         private byte parseMidiTone(string s)
         {
-            byte note = 128;
-            if (!TryToByte(s, out note))
+            if (!TryToByte(s, out byte note))
             {
                 int v = parseNoteToInt(s, 2);
                 if (v < 0 || v > 127)
@@ -2506,15 +2505,15 @@ namespace EPSSEditor
                     string s = r.GetText().Trim();
                     if (!String.IsNullOrEmpty(s))
                     {
-                        string errorString;
-                        if (snd.Rename(s, out errorString))
+                        if (snd.Rename(s, out string errorString))
                         {
                             updateSoundListBox();
                             data.RefreshSpiSounds();
                             updateSpiSoundListBox();
                             dataNeedsSaving = true;
                             saveProjectSettings();
-                        } else
+                        }
+                        else
                         {
                             MessageBox.Show(errorString);
                         }
