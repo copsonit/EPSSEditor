@@ -385,7 +385,7 @@ namespace EPSSEditor
 
             spiSoundListView.FullRowSelect = true;
             int i = 0;
-            foreach (SpiSound s in data.spiSounds)
+            foreach (SpiSound s in data.SpiSounds())
             {
                 //ListViewItem item = new ListViewItem(i++.ToString());
                 ListViewItem item = new ListViewItem(i++.ToString());
@@ -450,7 +450,7 @@ namespace EPSSEditor
                 spiSoundListView.Items.Add(item);
             }
 
-            bool spiSaveEnabled = data.spiSounds.Count > 0;
+            bool spiSaveEnabled = data.HasSpiSounds();
             var mi = menuStrip1.Items.Find("saveSPIToolStripMenuItem", true);
             foreach (var item in mi)
             {
@@ -633,6 +633,23 @@ namespace EPSSEditor
         }
 
 
+        private void BackupProjectSettings()
+        {
+            string file = Properties.Settings.Default.ProjectFile;
+            if (File.Exists(file))
+            {
+                string backupFile = Path.ChangeExtension(file, ".bak");
+                int n = 1;
+                while (File.Exists(backupFile))
+                {
+                    backupFile = Path.GetDirectoryName(backupFile) + '\\' + Path.GetFileNameWithoutExtension(file) + " (Copy " + n.ToString() + ").bak";
+                    n++;
+                }
+                File.Copy(file, backupFile, false);
+            }
+        }
+
+
         private void saveProjectSettings()
         {
             if (dataNeedsSaving)
@@ -640,7 +657,6 @@ namespace EPSSEditor
                 string file = Properties.Settings.Default.ProjectFile;
                 if (file != "")
                 {
-
                     XmlSerializer ser = new XmlSerializer(typeof(EPSSEditorData));
                     using (FileStream fs = new FileStream(file, FileMode.Create))
                     {
@@ -808,8 +824,8 @@ namespace EPSSEditor
 
         private void doSaveSpi()
         {
-            List<SpiSound> soundsToSave = data.spiSounds;
-            if (soundsToSave.Count > 0)
+            //List<SpiSound> soundsToSave = data.spiSounds;
+            if (data.HasSpiSounds())
             {
                 string startDir;
                 string startFile = Properties.Settings.Default.SpiExportFile;
@@ -835,7 +851,7 @@ namespace EPSSEditor
                     int sampFreq = AtariConstants.SampleFreq25k;
                     data.omni = omniPatchCheckBox.Checked;
 
-                    EPSSSpi spi = creator.create(ref data, soundsToSave, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
+                    EPSSSpi spi = creator.create(data, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
 
                     if (spi != null)
                     {
@@ -1096,7 +1112,7 @@ namespace EPSSEditor
                         if (saveSampleFileDialog.ShowDialog() == DialogResult.OK)
                         {
                             string outFile = saveSampleFileDialog.FileName;
-                            SpiSound snd = data.spiSounds[selected];
+                            SpiSound snd = data.SpiSoundAtIndex(selected);
                             if (snd.convertSound(data, outFile, frequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
                             {
                             }
@@ -1600,7 +1616,7 @@ namespace EPSSEditor
                 ListViewItem item = SelectedListViewItem(lwPos);
                 if (item != null)
                 {
-                    SpiSound snd = data.spiSounds[item.Index];
+                    SpiSound snd = data.SpiSoundAtIndex(item.Index);
                     if (delta > 0 && snd.transpose < 127) snd.transpose++;
                     else if (delta < 0 && snd.transpose > -128) snd.transpose--;
 
@@ -1619,7 +1635,7 @@ namespace EPSSEditor
                 ListViewItem item = SelectedListViewItem(pos);
                 if (item != null)
                 {
-                    SpiSound snd = data.spiSounds[item.Index];
+                    SpiSound snd = data.SpiSoundAtIndex(item.Index);
                     snd.transpose = 0;
                     updateListViewItemValue(snd, item, 7);
 
@@ -1812,7 +1828,7 @@ namespace EPSSEditor
 
                         if (selected >= 0)
                         {
-                            SpiSound selectedSnd = data.spiSounds[selected];
+                            SpiSound selectedSnd = data.SpiSoundAtIndex(selected);
                             foreach (var spiSnd in spiSounds)
                             {
                                 if (spiSnd == selectedSnd)
@@ -2295,7 +2311,7 @@ namespace EPSSEditor
             List<int> selectedSounds = SelectedSpiSounds();
             if (selectedSounds.Count > 0)
             {
-                SpiSound snd = data.spiSounds[selectedSounds.First()];
+                SpiSound snd = data.SpiSoundAtIndex(selectedSounds.First());
                 if (snd != null)
                 {
                     int midiChannel = snd.midiChannel;
@@ -2435,7 +2451,7 @@ namespace EPSSEditor
             List<int> selected = SelectedSpiSounds();
             if (selected.Count > 0)
             {
-                SpiSound snd = data.spiSounds[selected.First()];
+                SpiSound snd = data.SpiSoundAtIndex(selected.First());
                 if (snd != null)
                 {
                     int midiChannel = snd.midiChannel;

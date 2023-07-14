@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
 using System.Drawing;
 
+
 namespace EPSSEditor
 {
 
@@ -19,6 +20,7 @@ namespace EPSSEditor
         public DrumSettingsHelper drumMappings;
 
         public List<Sound> sounds;
+
 
         public List<SpiSound> spiSounds;
 
@@ -248,6 +250,7 @@ namespace EPSSEditor
         }
 
 
+
         public int getSoundNumberFromGuid(Guid guid)
         {
             int i = 0;
@@ -279,6 +282,24 @@ namespace EPSSEditor
             return sounds;
         }
 
+        public List<SpiSound> GetSpiSoundsForMidiChannel(int midiChannel, bool omni)
+        {
+            List<SpiSound> channelSounds = new List<SpiSound>();
+            foreach (SpiSound snd in spiSounds)
+            {
+                if (snd.midiChannel == midiChannel || omni)
+                {
+                    channelSounds.Add(snd);
+                }
+            }
+            return channelSounds;
+        }
+
+
+        public SpiSound SpiSoundAtIndex(int idx)
+        {
+            return spiSounds[idx];
+        }
 
         private bool[] getOccupiedMidiChannels()
         {
@@ -308,6 +329,32 @@ namespace EPSSEditor
         }
 
 
+        public SortedDictionary<int, SpiSound> GetUsedSounds()
+        {
+            SortedDictionary<int, SpiSound> sortedSounds = new SortedDictionary<int, SpiSound>();
+            HashSet<int> usedSounds = new HashSet<int>();
+            foreach (SpiSound snd in spiSounds)
+            {
+                int soundNumber = getSoundNumberFromGuid(snd.soundId);
+                if (!usedSounds.Contains(soundNumber))
+                {
+                    sortedSounds.Add(soundNumber, snd);
+                    usedSounds.Add(soundNumber);
+                }
+            }
+            return sortedSounds;
+        }
+
+        public List<SpiSound> SpiSounds()
+        {
+            return spiSounds;
+        }
+
+
+        public bool HasSpiSounds()
+        {
+            return spiSounds.Count > 0;
+        }
         public bool isMidiChannelOccupied(int midiChannel)
         {
             bool[] occupied = getOccupiedMidiChannels();
@@ -486,6 +533,7 @@ namespace EPSSEditor
             spiSnd.startNote = startNote;
             spiSnd.endNote = endNote;
             spiSounds.Add(spiSnd);
+            _findSpiSoundArray = null;
             return true;
         }
 
