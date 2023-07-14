@@ -60,13 +60,14 @@ namespace EPSSEditor
             int sampleRate = 25033;
             int bits = 8;
             int channels = 1;
-            var ms = new MemoryStream(soundData);
-            var s = new RawSourceWaveStream(ms, new WaveFormat(sampleRate, bits, channels));
-
-
-            WaveFileWriter.CreateWaveFile(outPath, s);
-
-            InitSound(outPath);
+            using (var ms = new MemoryStream(soundData))
+            {
+                using (var s = new RawSourceWaveStream(ms, new WaveFormat(sampleRate, bits, channels)))
+                {
+                    WaveFileWriter.CreateWaveFile(outPath, s);
+                    InitSound(outPath);
+                }
+            }
         }
 
 
@@ -83,64 +84,60 @@ namespace EPSSEditor
             loKey = hiKey = keyCenter = 128;
             loop = false;
 
-            FileStream wav = File.OpenRead(path);
-            wav.Seek(0, SeekOrigin.Begin);
-
-
-            if (Path.GetExtension(p).ToLower() == ".wav")
+            using (FileStream wav = File.OpenRead(path))
             {
-                using (var reader = new WaveFileReader(wav))
+                wav.Seek(0, SeekOrigin.Begin);
+
+                if (Path.GetExtension(p).ToLower() == ".wav")
                 {
-                    WaveFormat fmt = reader.WaveFormat;
-                    channels = fmt.Channels;
-                    bitsPerSample = fmt.BitsPerSample;
-                    samplesPerSecond = fmt.SampleRate;
-                    sampleDataLength = reader.Length;
-                    sampleCount = reader.SampleCount; // Does not take channels into account!
-
-                    var smp = reader.ExtraChunks.FirstOrDefault(ec => ec.IdentifierAsString == "smpl");
-                    if (smp != null)
+                    using (var reader = new WaveFileReader(wav))
                     {
-                        var chunkData = reader.GetChunkData(smp);
-                        // https://sites.google.com/site/musicgapi/technical-documents/wav-file-format#smpl
-                        var midiNote = BitConverter.ToInt32(chunkData, 12);
-                        keyCenter = (byte)midiNote;
-                        loKey = (byte)Math.Max(0, keyCenter - 36);
-                        hiKey = (byte)Math.Min(128, keyCenter + 36);
+                        WaveFormat fmt = reader.WaveFormat;
+                        channels = fmt.Channels;
+                        bitsPerSample = fmt.BitsPerSample;
+                        samplesPerSecond = fmt.SampleRate;
+                        sampleDataLength = reader.Length;
+                        sampleCount = reader.SampleCount; // Does not take channels into account!
 
-                        var numberOfLoops = BitConverter.ToInt32(chunkData, 28);
-                        Console.WriteLine($"MIDI {midiNote}, {numberOfLoops} loops");
-                        int offset = 36;
-                        for (int n = 0; n < numberOfLoops; n++)
+                        var smp = reader.ExtraChunks.FirstOrDefault(ec => ec.IdentifierAsString == "smpl");
+                        if (smp != null)
                         {
-                            var cuePointId = BitConverter.ToInt32(chunkData, offset);
-                            var type = BitConverter.ToInt32(chunkData, offset + 4); // 0 = loop forward, 1 = alternating loop, 2 = reverse
+                            var chunkData = reader.GetChunkData(smp);
+                            // https://sites.google.com/site/musicgapi/technical-documents/wav-file-format#smpl
+                            var midiNote = BitConverter.ToInt32(chunkData, 12);
+                            keyCenter = (byte)midiNote;
+                            loKey = (byte)Math.Max(0, keyCenter - 36);
+                            hiKey = (byte)Math.Min(128, keyCenter + 36);
 
-                            var start = BitConverter.ToInt32(chunkData, offset + 8);
-                            var end = BitConverter.ToInt32(chunkData, offset + 12);
-                            var fraction = BitConverter.ToInt32(chunkData, offset + 16);
-                            var playCount = BitConverter.ToInt32(chunkData, offset + 20);
+                            var numberOfLoops = BitConverter.ToInt32(chunkData, 28);
+                            Console.WriteLine($"MIDI {midiNote}, {numberOfLoops} loops");
+                            int offset = 36;
+                            for (int n = 0; n < numberOfLoops; n++)
+                            {
+                                var cuePointId = BitConverter.ToInt32(chunkData, offset);
+                                var type = BitConverter.ToInt32(chunkData, offset + 4); // 0 = loop forward, 1 = alternating loop, 2 = reverse
 
-                            Console.WriteLine($"Sample {cuePointId} Start {start} End {end} Type {type} Fraction {fraction} PlayCount {playCount} SampleDataLength {sampleDataLength}");
-                            offset += 24;
+                                var start = BitConverter.ToInt32(chunkData, offset + 8);
+                                var end = BitConverter.ToInt32(chunkData, offset + 12);
+                                var fraction = BitConverter.ToInt32(chunkData, offset + 16);
+                                var playCount = BitConverter.ToInt32(chunkData, offset + 20);
 
-                            loop = true;
-                            loopStart = start;
-                            loopEnd = end;
-                            loopType = type;
+                                Console.WriteLine($"Sample {cuePointId} Start {start} End {end} Type {type} Fraction {fraction} PlayCount {playCount} SampleDataLength {sampleDataLength}");
+                                offset += 24;
 
-                            break; // only read one loop
+                                loop = true;
+                                loopStart = start;
+                                loopEnd = end;
+                                loopType = type;
+
+                                break; // only read one loop
+                            }
                         }
                     }
                 }
             }
-
             //WaveStream ws = new WaveFileReader(wav);
             //WaveFormat fmt = ws.WaveFormat;
-
-
-
-
         }
 
         public Guid id() { return _id; }

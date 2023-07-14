@@ -54,6 +54,7 @@ namespace EPSSEditor
             spiDescription = "Created with EPSSEditor";
 
             previewSelected = 0;
+            _findSpiSoundArray = null;
         }
 
 
@@ -86,6 +87,7 @@ namespace EPSSEditor
 
         public bool LoadSpiFile(ref EPSSSpi spi, string soundDir, ref string errorMessage)
         {
+            _findSpiSoundArray = null;
             bool result = true;
             for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
             {
@@ -237,7 +239,10 @@ namespace EPSSEditor
         {
             foreach (Sound snd in sounds)
             {
-                if (snd.id() == id) return snd;
+                if (snd.id() == id)
+                {
+                    return snd;
+                }
             }
             return null;
         }
@@ -412,6 +417,19 @@ namespace EPSSEditor
         }
 
 
+        public void ClearSpiSounds()
+        {
+            spiSounds.Clear();
+            _findSpiSoundArray = null;
+        }
+
+
+        public void RemoveSpiSound(int index)
+        {
+            spiSounds.RemoveAt(index);
+            _findSpiSoundArray = null;
+        }
+
         public bool ExportSoundsToDir(string exportDir, ref string errorMessage)
         {
             bool result = true;
@@ -471,6 +489,12 @@ namespace EPSSEditor
             return true;
         }
 
+
+        public void AddSpiSound(SpiSound spiSnd)
+        {
+            spiSounds.Add(spiSnd);
+            _findSpiSoundArray = null;
+        }
 
         public CachedSound cachedSound(SpiSound snd, int newFreq, int note, int vel)
         {
@@ -582,7 +606,7 @@ namespace EPSSEditor
         public void InitFinder()
         {
             _findSpiSoundArray = new Dictionary<int, SpiSound[]>();
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 16; i++)
             {
                 _findSpiSoundArray.Add(i, new SpiSound[128]);
             }
@@ -604,10 +628,6 @@ namespace EPSSEditor
             SpiSound[] sounds = _findSpiSoundArray[midiChannel - 1];
             return sounds[note];
         }
-
-
-
-
     }
 
 }

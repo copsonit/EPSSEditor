@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 using NAudio.Wave;
 using System.IO;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Windows.Forms;
 
 namespace EPSSEditor
 {
@@ -271,6 +272,9 @@ namespace EPSSEditor
                     }
 
                     System.IO.File.Delete(volTempPath);
+                } else
+                {
+                    MessageBox.Show("Fatal error, not matching sound found!");
                 }
 
             }
