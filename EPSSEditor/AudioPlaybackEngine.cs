@@ -15,7 +15,7 @@ namespace EPSSEditor
         private readonly DirectSoundOut outputDevice;
         private readonly MixingSampleProvider mixer;
 
-        public AudioPlaybackEngine(IntPtr winHandle, int sampleRate = 44100, int channelCount = 2)
+        public AudioPlaybackEngine(int sampleRate = 44100, int channelCount = 2)
         {
             //outputDevice = new WaveOutEvent();
 

@@ -223,7 +223,7 @@ namespace EPSSEditor
 
         private void InitAudioSystem()
         {
-            if (audio == null) audio = new AudioPlaybackEngine(Handle);
+            if (audio == null) audio = new AudioPlaybackEngine();
             audio.Start();
         }
 
