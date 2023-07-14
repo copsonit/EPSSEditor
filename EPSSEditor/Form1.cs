@@ -1378,7 +1378,15 @@ namespace EPSSEditor
             {
                 if (System.Windows.Forms.MessageBox.Show("Directory " + name + " already exists here.\nDo you want to delete it?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    Directory.Delete(sfzDir, true);
+                    try
+                    {
+                        Directory.Delete(sfzDir, true);
+                    }
+                    catch(Exception ex)
+                    {
+                        MessageBox.Show("Cannot delete directory as another process is locking it. Aborting save.");
+                        return false;
+                    }
                 }
             }
             Directory.CreateDirectory(sfzDir);

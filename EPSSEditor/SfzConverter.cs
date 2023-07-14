@@ -291,7 +291,7 @@ namespace EPSSEditor
                         sb.Append(noteEnd);
 
                         sb.Append(" pitch_keycenter=");
-                        sb.Append(noteStart + 84 - info.Low - info.Transpose);
+                        sb.Append(info.Low - info.Transpose);
 
                         writer.WriteLine(sb.ToString());
                     }
