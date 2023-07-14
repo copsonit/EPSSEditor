@@ -37,7 +37,6 @@ namespace EPSSEditor
     {
 
         public EPSSEditorData data;
-        private bool deletePressed = false;
         private bool ctrlAPressed;
         private bool callbacks = true;
         private int initialize;
@@ -1766,12 +1765,10 @@ namespace EPSSEditor
 
         private void soundListBox_KeyDown(object sender, KeyEventArgs e)
         {
-            deletePressed = false;
             ctrlAPressed = false;
             if (e.KeyCode == Keys.Delete)
             {
                 deleteSelectedSound();
-                deletePressed = true;
                 e.Handled = true;
             }
             else if (e.KeyCode == Keys.A && e.Control)
@@ -2648,7 +2645,7 @@ namespace EPSSEditor
         private int newFreq;
         //private int testTone;
 
-        private CachedSound cachedCachedSound;
+        //private CachedSound cachedCachedSound;
 
         private GetEPSSEditorDataCallBack _getEditorDataCallBack;
 
