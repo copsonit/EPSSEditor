@@ -9,7 +9,8 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using static System.Net.Mime.MediaTypeNames;
 using System.Drawing;
-
+using System.Data.SqlTypes;
+using System.Text.RegularExpressions;
 
 namespace EPSSEditor
 {
@@ -448,10 +449,11 @@ namespace EPSSEditor
             SpiSound spiSnd = new SpiSound(sound);
             spiSnd.startNote = lo;
             spiSnd.endNote = hi;
-            spiSnd.midiNote = (byte)(84 - (center - lo));
+            spiSnd.midiNote = center;
             spiSnd.midiChannel = (byte)midiChannel;
             spiSnd.transpose = transpose;
             spiSounds.Add(spiSnd);
+            _findSpiSoundArray = null;
         }
 
 
@@ -661,7 +663,9 @@ namespace EPSSEditor
             foreach (SpiSound snd in spiSounds)
             {
                 SpiSound[] sounds = _findSpiSoundArray[snd.midiChannel - 1];
-                for (int note = snd.startNote; note <= (snd.endNote); note++) // 0 - 127
+                int startNote = Math.Min(127, Math.Max(0, (int)snd.startNote));
+                int endNote = Math.Min(127, Math.Max(0, (int)snd.endNote));
+                for (int note = startNote; note <= (endNote); note++) // 0 - 127
                 {
                     sounds[note] = snd;
                 }

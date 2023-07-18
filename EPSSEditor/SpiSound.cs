@@ -354,7 +354,7 @@ namespace EPSSEditor
         public int CenterNote()
         {
             //return startNote + 84 - midiNote - transpose + 24;
-            return midiNote - transpose;
+            return Math.Min(127, Math.Max(0, midiNote - transpose));
         }
 
         public string transposeString()

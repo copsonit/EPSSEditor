@@ -2464,6 +2464,7 @@ namespace EPSSEditor
                     SetCenterKey(centerKey);
                     int playNote = snd.startNote;
                     if (centerKey >= snd.startNote && centerKey <= snd.endNote) playNote = centerKey;
+                    playNote = Math.Min(127, Math.Max(0, playNote));
                     playConvertedSound(snd.midiChannel, playNote);
                 }
             }
