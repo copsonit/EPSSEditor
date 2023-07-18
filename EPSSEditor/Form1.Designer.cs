@@ -134,6 +134,8 @@
             this.groupBox13 = new System.Windows.Forms.GroupBox();
             this.loadMidFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.midPlayerTimer = new System.Windows.Forms.Timer(this.components);
+            this.custMidToneCentreTextBox = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
@@ -350,6 +352,8 @@
             // 
             // groupBox11
             // 
+            this.groupBox11.Controls.Add(this.label10);
+            this.groupBox11.Controls.Add(this.custMidToneCentreTextBox);
             this.groupBox11.Controls.Add(this.defaultMidiMapRadioButton);
             this.groupBox11.Controls.Add(this.midiChTextBox);
             this.groupBox11.Controls.Add(this.custMidiToneToTextBox);
@@ -392,7 +396,7 @@
             // 
             // custMidiToneToTextBox
             // 
-            this.custMidiToneToTextBox.Location = new System.Drawing.Point(129, 173);
+            this.custMidiToneToTextBox.Location = new System.Drawing.Point(116, 173);
             this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
             this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneToTextBox.TabIndex = 21;
@@ -401,7 +405,7 @@
             // custMidiToneLabel
             // 
             this.custMidiToneLabel.AutoSize = true;
-            this.custMidiToneLabel.Location = new System.Drawing.Point(110, 178);
+            this.custMidiToneLabel.Location = new System.Drawing.Point(99, 178);
             this.custMidiToneLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.custMidiToneLabel.Name = "custMidiToneLabel";
             this.custMidiToneLabel.Size = new System.Drawing.Size(16, 13);
@@ -424,7 +428,7 @@
             // 
             // custMidiToneFromTextBox
             // 
-            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(75, 173);
+            this.custMidiToneFromTextBox.Location = new System.Drawing.Point(70, 173);
             this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
             this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneFromTextBox.TabIndex = 20;
@@ -1213,6 +1217,23 @@
             // 
             this.midPlayerTimer.Tick += new System.EventHandler(this.midPlayerTimer_Tick);
             // 
+            // custMidToneCentreTextBox
+            // 
+            this.custMidToneCentreTextBox.Location = new System.Drawing.Point(163, 173);
+            this.custMidToneCentreTextBox.Name = "custMidToneCentreTextBox";
+            this.custMidToneCentreTextBox.Size = new System.Drawing.Size(30, 20);
+            this.custMidToneCentreTextBox.TabIndex = 22;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(146, 178);
+            this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(19, 13);
+            this.label10.TabIndex = 23;
+            this.label10.Text = "ctr";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1381,6 +1402,8 @@
         private System.Windows.Forms.OpenFileDialog loadMidFileDialog;
         private System.Windows.Forms.Timer midPlayerTimer;
         private System.Windows.Forms.Button stopMidButton;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox custMidToneCentreTextBox;
     }
 }
 

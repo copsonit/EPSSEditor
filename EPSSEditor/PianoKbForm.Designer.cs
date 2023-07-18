@@ -53,6 +53,7 @@ namespace EPSSEditor
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.pianoBox2 = new M.PianoBox();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.midiChTrackBar)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -318,11 +319,22 @@ namespace EPSSEditor
             this.pianoBox2.PianoKeyUp += new M.PianoKeyEventHandler(this.pianoBox2_PianoKeyUp);
             this.pianoBox2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pianoBox2_MouseDown);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(468, 191);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 31;
+            this.button1.Text = "All notes off";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // PianoKbForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1001, 277);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.label10);
@@ -339,6 +351,10 @@ namespace EPSSEditor
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(1017, 316);
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(1017, 316);
             this.Name = "PianoKbForm";
             this.Text = "MIDI Keyboard";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form2_FormClosed);
@@ -373,5 +389,6 @@ namespace EPSSEditor
         private Label label10;
         private Label label11;
         private Label label12;
+        private Button button1;
     }
 }

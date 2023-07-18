@@ -126,5 +126,10 @@ namespace EPSSEditor
         {
             SetKeyAllOff();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            _form1.NotifyAllNotesOff(this);
+        }
     }
 }

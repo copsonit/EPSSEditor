@@ -523,7 +523,7 @@ namespace EPSSEditor
         }
 
 
-        public bool AddSoundToSpiSound(ref Sound sound, int midiChannel, byte startNote, byte endNote)
+        public bool AddSoundToSpiSound(ref Sound sound, int midiChannel, byte startNote, byte endNote, byte center)
         {
             if (OverlapWithAnyExisting(midiChannel, startNote, endNote))
             {
@@ -531,7 +531,7 @@ namespace EPSSEditor
             }
             SpiSound spiSnd = new SpiSound(sound);
             spiSnd.midiChannel = (byte)midiChannel;
-            spiSnd.midiNote = 84;
+            spiSnd.midiNote = center;
             spiSnd.startNote = startNote;
             spiSnd.endNote = endNote;
             spiSounds.Add(spiSnd);

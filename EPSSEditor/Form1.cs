@@ -1937,9 +1937,9 @@ namespace EPSSEditor
 
                             if (defaultMidiMapRadioButton.Checked)
                             {
-                                spiSnd.startNote = s.loKey;
-                                spiSnd.endNote = s.hiKey;
-                                spiSnd.midiNote = (byte)(84 - (s.keyCenter - s.loKey));
+                                spiSnd.startNote = 60;
+                                spiSnd.endNote = 108;
+                                spiSnd.midiNote = 84;
                             }
                             else
                             {
@@ -1969,6 +1969,12 @@ namespace EPSSEditor
                                 data.removeSpiSound(spiSnd.midiChannel, spiSnd.midiNote);
                             }
                             data.AddSpiSound(spiSnd);
+
+                            if (defaultMidiMapRadioButton.Checked)
+                            {
+                                int ch = data.getNextFreeMidiChannel();
+                                if (ch > 0) setMidiChannel(ch);
+                            }
                         }
                         updateSpiSoundListBox();
                         dataNeedsSaving = true;
@@ -1994,16 +2000,27 @@ namespace EPSSEditor
                             bool doAdd = true;
                             byte startNote = 60;
                             byte endNote = 108;
+                            byte center = 84;
                             if (CustomSampleRadioButton.Checked)
                             {
                                 startNote = parseMidiTone(custMidiToneFromTextBox.Text);
                                 endNote = parseMidiTone(custMidiToneToTextBox.Text);
-                                doAdd = (startNote < 128 && endNote < 128 && startNote < endNote);
-                                if (!doAdd) MessageBox.Show("Incorrect from and to note values!");
+                                string centerText = custMidToneCentreTextBox.Text;
+                                if (!String.IsNullOrEmpty(centerText)) center = parseMidiTone(centerText);
+                                else center = 0;
+
+                                doAdd = (startNote < 128 && endNote < 128 && startNote <= endNote && (startNote - endNote) <= 48);
+
+                                if (center == 0) center = (byte)(startNote + (endNote - startNote) / 2);
+                                else
+                                {
+                                    if (center < startNote || center > endNote) doAdd = false;
+                                }
+                                if (!doAdd) MessageBox.Show("Incorrect from, to, center note values!");
                             }
                             if (doAdd)
                             {
-                                bool added = data.AddSoundToSpiSound(ref s, currentMidiChannel(), startNote, endNote);
+                                bool added = data.AddSoundToSpiSound(ref s, currentMidiChannel(), startNote, endNote, center);
                                 if (!added)
                                 {
                                     MessageBox.Show("Notes overlap!");
@@ -2340,6 +2357,11 @@ namespace EPSSEditor
             spiSoundInstrument.AllNotesOff();
         }
 
+
+        internal void NotifyAllNotesOff(Form form)
+        {
+            spiSoundInstrument.AllNotesOff();
+        }
 
         private void EnsureVisible(Control ctrl)
         {
