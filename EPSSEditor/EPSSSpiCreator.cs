@@ -272,7 +272,7 @@ namespace EPSSEditor
                     for (byte key = loNote; key <= hiNote; key++)
                     {
                         programChanges[snd.programNumber].data[key].noSound = 0; // Mark that sound is used
-                        programChanges[snd.programNumber].data[key].pitch = (byte)(snd.midiNote + key - loNote);
+                        programChanges[snd.programNumber].data[key].pitch = (byte)(key); // 60 - 108 normal mapping
                         programChanges[snd.programNumber].data[key].sound = (UInt16)data.getSoundNumberFromGuid(snd.soundId);
                     }
                 }

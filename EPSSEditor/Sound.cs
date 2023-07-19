@@ -106,8 +106,8 @@ namespace EPSSEditor
                             // https://sites.google.com/site/musicgapi/technical-documents/wav-file-format#smpl
                             var midiNote = BitConverter.ToInt32(chunkData, 12);
                             keyCenter = (byte)midiNote;
-                            loKey = (byte)Math.Max(0, keyCenter - 36);
-                            hiKey = (byte)Math.Min(128, keyCenter + 36);
+                            loKey = (byte)Math.Max(0, keyCenter - 24); // EPSS only supports two octaves up and two down
+                            hiKey = (byte)Math.Min(128, keyCenter + 24);
 
                             var numberOfLoops = BitConverter.ToInt32(chunkData, 28);
                             Console.WriteLine($"MIDI {midiNote}, {numberOfLoops} loops");

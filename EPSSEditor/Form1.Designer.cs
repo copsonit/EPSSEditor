@@ -45,6 +45,8 @@
             this.mappingModeProgramRadioButton = new System.Windows.Forms.RadioButton();
             this.mappingModeMidiRadioButton = new System.Windows.Forms.RadioButton();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.custMidiToneCtrLabel = new System.Windows.Forms.Label();
+            this.custMidToneCentreTextBox = new System.Windows.Forms.TextBox();
             this.defaultMidiMapRadioButton = new System.Windows.Forms.RadioButton();
             this.midiChTextBox = new System.Windows.Forms.TextBox();
             this.custMidiToneToTextBox = new System.Windows.Forms.TextBox();
@@ -134,8 +136,6 @@
             this.groupBox13 = new System.Windows.Forms.GroupBox();
             this.loadMidFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.midPlayerTimer = new System.Windows.Forms.Timer(this.components);
-            this.custMidToneCentreTextBox = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
@@ -352,7 +352,7 @@
             // 
             // groupBox11
             // 
-            this.groupBox11.Controls.Add(this.label10);
+            this.groupBox11.Controls.Add(this.custMidiToneCtrLabel);
             this.groupBox11.Controls.Add(this.custMidToneCentreTextBox);
             this.groupBox11.Controls.Add(this.defaultMidiMapRadioButton);
             this.groupBox11.Controls.Add(this.midiChTextBox);
@@ -372,6 +372,23 @@
             this.groupBox11.TabIndex = 22;
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "Mapping type";
+            // 
+            // custMidiToneCtrLabel
+            // 
+            this.custMidiToneCtrLabel.AutoSize = true;
+            this.custMidiToneCtrLabel.Location = new System.Drawing.Point(146, 178);
+            this.custMidiToneCtrLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.custMidiToneCtrLabel.Name = "custMidiToneCtrLabel";
+            this.custMidiToneCtrLabel.Size = new System.Drawing.Size(19, 13);
+            this.custMidiToneCtrLabel.TabIndex = 23;
+            this.custMidiToneCtrLabel.Text = "ctr";
+            // 
+            // custMidToneCentreTextBox
+            // 
+            this.custMidToneCentreTextBox.Location = new System.Drawing.Point(163, 173);
+            this.custMidToneCentreTextBox.Name = "custMidToneCentreTextBox";
+            this.custMidToneCentreTextBox.Size = new System.Drawing.Size(30, 20);
+            this.custMidToneCentreTextBox.TabIndex = 22;
             // 
             // defaultMidiMapRadioButton
             // 
@@ -1060,6 +1077,7 @@
             this.infoToolTip.SetToolTip(this.gen2CheckBox, "Only supported in EPSS Driver 3.7 and newer! Create a patch that contains both MI" +
         "DI Channel mapping and program change mappings.");
             this.gen2CheckBox.UseVisualStyleBackColor = true;
+            this.gen2CheckBox.CheckedChanged += new System.EventHandler(this.gen2CheckBox_CheckedChanged);
             // 
             // loadMidButton
             // 
@@ -1216,23 +1234,6 @@
             // midPlayerTimer
             // 
             this.midPlayerTimer.Tick += new System.EventHandler(this.midPlayerTimer_Tick);
-            // 
-            // custMidToneCentreTextBox
-            // 
-            this.custMidToneCentreTextBox.Location = new System.Drawing.Point(163, 173);
-            this.custMidToneCentreTextBox.Name = "custMidToneCentreTextBox";
-            this.custMidToneCentreTextBox.Size = new System.Drawing.Size(30, 20);
-            this.custMidToneCentreTextBox.TabIndex = 22;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(146, 178);
-            this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(19, 13);
-            this.label10.TabIndex = 23;
-            this.label10.Text = "ctr";
             // 
             // Form1
             // 
@@ -1402,7 +1403,7 @@
         private System.Windows.Forms.OpenFileDialog loadMidFileDialog;
         private System.Windows.Forms.Timer midPlayerTimer;
         private System.Windows.Forms.Button stopMidButton;
-        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label custMidiToneCtrLabel;
         private System.Windows.Forms.TextBox custMidToneCentreTextBox;
     }
 }

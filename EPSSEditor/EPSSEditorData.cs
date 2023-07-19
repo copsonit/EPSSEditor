@@ -11,6 +11,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Drawing;
 using System.Data.SqlTypes;
 using System.Text.RegularExpressions;
+using System.Runtime.CompilerServices;
 
 namespace EPSSEditor
 {
@@ -34,6 +35,7 @@ namespace EPSSEditor
         public int previewSelected;
 
         public bool omni;
+        public int spiVersion;
 
         private string _fileNameForListenConvertedSound = null;
 
@@ -304,12 +306,15 @@ namespace EPSSEditor
 
         private bool[] getOccupiedMidiChannels()
         {
-            bool[] occupied = new bool[16];
+            bool[] occupied = new bool[16];  // 0-15
             for (int i = 0; i < 16; i++) occupied[i] = false;
             occupied[9] = true; // mark drum channel as used.
             foreach (SpiSound snd in spiSounds)
             {
-                occupied[snd.midiChannel - 1] = true;
+                if (snd.midiChannel < 16) // midiChannel is 128 for PC mapped sounds.
+                {
+                    occupied[snd.midiChannel - 1] = true;
+                }
             }
             return occupied;
         }
@@ -317,13 +322,26 @@ namespace EPSSEditor
 
         private bool[] getOccupiedChannel10()
         {
-            bool[] occupied = new bool[128];
+            bool[] occupied = new bool[128];  // 0-127
 
             foreach (SpiSound snd in spiSounds)
             {
                 if (snd.midiChannel == 10)
                 {
-                    occupied[snd.midiNote - 1] = true;
+                    occupied[snd.midiNote] = true;
+                }
+            }
+            return occupied;
+        }
+
+        private bool[] getOccupiedProgramChange()
+        {
+            bool[] occupied = new bool[128];  // 0-127
+
+            foreach (SpiSound snd in spiSounds)
+            {
+                if (snd.programNumber < 128 && snd.midiChannel == 128) { 
+                    occupied[snd.programNumber] = true;
                 }
             }
             return occupied;
@@ -352,10 +370,38 @@ namespace EPSSEditor
         }
 
 
-        public bool HasSpiSounds()
+        private bool HasSpiSounds()
         {
             return spiSounds.Count > 0;
         }
+
+
+        public bool IsValidForSpiExport(out string errorString)
+        {
+            bool valid = false;
+            errorString = "Unknown error.";
+            bool hasPc = HasAnyProgramChange();
+
+            if (HasSpiSounds())
+            {
+                if (spiVersion >= 2 && !hasPc)
+                {
+                    errorString = "Using G2 requires at least one Program Change definition!";
+                }
+                else if (spiVersion < 2 && hasPc)
+                {
+                    errorString = "Using Program Change requires G2 to be checked!";              
+                } else if ((spiVersion < 2 && !hasPc) || (spiVersion >= 2 && hasPc))
+                {
+                    valid = true;
+                }
+            } else
+            {
+                errorString = "No SPI sounds defined!";
+            }
+            return valid;
+        }
+
         public bool isMidiChannelOccupied(int midiChannel)
         {
             bool[] occupied = getOccupiedMidiChannels();
@@ -366,7 +412,7 @@ namespace EPSSEditor
         public bool isDrumSoundOccupied(int drumNote)
         {
             bool[] occupied = getOccupiedChannel10();
-            return occupied[drumNote - 1];
+            return occupied[drumNote];
         }
 
         public int getNextFreeMidiChannel()
@@ -380,6 +426,35 @@ namespace EPSSEditor
             return 0;
         }
 
+
+        public int getNextFreeProgramChange()
+        {
+            bool[] occupied = getOccupiedProgramChange();
+
+            for (int i = 0; i < 128; i++)
+            {
+                if (!occupied[i]) return i;
+            }
+            return 0;
+        }
+
+
+        public bool isProgramChangeOccupied(byte pc)
+        {
+            bool[] occupied = getOccupiedProgramChange();
+            if (pc < 128) return occupied[pc];
+            return false;
+        }
+
+        private bool HasAnyProgramChange()
+        {
+            bool[] occupied = getOccupiedProgramChange();
+            for (int i = 0; i < 128; i++)
+            {
+                if (occupied[i]) return true;
+            }
+            return false;
+        }
 
         public bool removeSpiSound(byte midiChannel, byte midiNote)
         {

@@ -16,10 +16,10 @@ namespace EPSSEditor
         public byte midiChannel; // [1-16]
         public byte midiNote; // [0-127] This is the midi note where the sound is played at pitch 0. center note
 
-        public byte startNote; // [0-127]
-        public byte endNote; // [0-127]
+        public byte startNote; // [0-127] 128:not defined
+        public byte endNote; // [0-127] 128:not defined
         //public byte midiNoteMapped;
-        public byte programNumber;
+        public byte programNumber; // [0-127]  128:not defined
         public sbyte transpose;
         public byte vvfe;
         public UInt16 s_gr_frek;

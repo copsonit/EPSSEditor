@@ -310,6 +310,8 @@ namespace EPSSEditor
             custMidiToneFromTextBox.Enabled = midiMappingMode;
             custMidiToneLabel.Enabled = midiMappingMode;
             custMidiToneToTextBox.Enabled = midiMappingMode;
+            custMidiToneCtrLabel.Enabled = midiMappingMode;
+            custMidToneCentreTextBox.Enabled = midiMappingMode;
 
         }
 
@@ -410,7 +412,7 @@ namespace EPSSEditor
 
                 if (s.programNumber < 128)
                 {
-                    item.SubItems.Add(s.programNumber.ToString());
+                    item.SubItems.Add((s.programNumber+1).ToString());
                 }
                 else
                 {
@@ -448,8 +450,8 @@ namespace EPSSEditor
 
                 spiSoundListView.Items.Add(item);
             }
-
-            bool spiSaveEnabled = data.HasSpiSounds();
+            string errorString;
+            bool spiSaveEnabled = data.IsValidForSpiExport(out errorString);
             var mi = menuStrip1.Items.Find("saveSPIToolStripMenuItem", true);
             foreach (var item in mi)
             {
@@ -468,6 +470,7 @@ namespace EPSSEditor
             spiNameTextBox.Text = data.spiName;
             spiInfoTextBox.Text = data.spiDescription;
             omniPatchCheckBox.Checked = data.omni;
+            gen2CheckBox.Checked = data.spiVersion == 2;
         }
 
 
@@ -824,7 +827,8 @@ namespace EPSSEditor
         private void doSaveSpi()
         {
             //List<SpiSound> soundsToSave = data.spiSounds;
-            if (data.HasSpiSounds())
+            string errorString;
+            if (data.IsValidForSpiExport(out errorString))
             {
                 string startDir;
                 string startFile = Properties.Settings.Default.SpiExportFile;
@@ -874,7 +878,7 @@ namespace EPSSEditor
             }
             else
             {
-                System.Windows.Forms.MessageBox.Show("No sounds to save!");
+                System.Windows.Forms.MessageBox.Show("Can not save SPI:" + errorString);
             }
         }
 
@@ -1558,6 +1562,13 @@ namespace EPSSEditor
 
         }
 
+        private void setProgramChange(int pc) // 1-128
+        {
+            updateMappingMode();
+            midiChTextBox.Text = pc.ToString();
+            midiChTrackBar.Value = pc;
+        }
+
 
         // Events
 
@@ -2066,7 +2077,7 @@ namespace EPSSEditor
                                 byte startNote = parseMidiTone(midiToneTextBox.Text);
                                 spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
 
-                                if (data.isMidiChannelOccupied(midiChannel))
+                                if (data.isMidiChannelOccupied(midiChannel)) // 1-16
                                 {
                                     addOk = false;
                                     System.Windows.Forms.MessageBox.Show("MIDI channel " + midiChannel.ToString() + " already occupied!");
@@ -2100,46 +2111,68 @@ namespace EPSSEditor
             {
                 if (sounds.Count > 1)
                 {
-                    foreach (Sound sound in sounds)
+                    bool doAdd = true;
+                    byte pcNumber = (byte)(currentMidiChannel() - 1); // We are now in program change mode
+                    if (data.isProgramChangeOccupied(pcNumber))
                     {
-                        Sound s = sound;
-                        SpiSound spiSnd = new SpiSound(s);
-
-                        spiSnd.midiChannel = 128;
-                        spiSnd.startNote = s.loKey;
-                        spiSnd.endNote = s.hiKey;
-                        spiSnd.midiNote = (byte)(84 - (s.keyCenter - s.loKey));
-                        spiSnd.programNumber = (byte)currentMidiChannel();
-                        data.AddSpiSound(spiSnd);
+                        MessageBox.Show("Program Change number " + pcNumber.ToString() + " already occupied!");
+                        doAdd = false;
                     }
+                    if (doAdd)
+                    {
+                        foreach (Sound sound in sounds)
+                        {
+                            Sound s = sound;
+                            SpiSound spiSnd = new SpiSound(s);
 
-                    updateSpiSoundListBox();
-                    dataNeedsSaving = true;
-                    saveProjectSettings();
-                    updateTotalSize();
+                            spiSnd.midiChannel = 128;
+                            spiSnd.startNote = 60;
+                            spiSnd.endNote = 108;
+                            spiSnd.midiNote = 84;
+                            spiSnd.programNumber = pcNumber;
+                            data.AddSpiSound(spiSnd);
+
+                            pcNumber = (byte)data.getNextFreeProgramChange(); // in 0-127 range
+                            if (pcNumber > 0) setProgramChange(pcNumber + 1); // in 1-128 range
+                        }
+
+                        updateSpiSoundListBox();
+                        dataNeedsSaving = true;
+                        saveProjectSettings();
+                        updateTotalSize();
+                    }
                 }
                 else if (sounds.Count == 1)
                 {
                     Sound s = getSoundAtSelectedIndex();
                     if (s != null)
                     {
+                        bool doAdd = true;
+                        byte pcNumber = (byte)(currentMidiChannel() - 1); // We are now in program change mode
+                        if (data.isProgramChangeOccupied(pcNumber)) {
+                            MessageBox.Show("Program Change number " + pcNumber.ToString() + " already occupied!");
+                            doAdd = false;
+                        }
 
-                        // TODO Check if program have been used before, remove if it is the case
+                        if (doAdd)
+                        {
+                            SpiSound spiSnd = new SpiSound(s);
+                            spiSnd.midiChannel = 128;
+                            spiSnd.startNote = 60;
+                            spiSnd.endNote = 108;
+                            spiSnd.midiNote = 84;
+                            spiSnd.programNumber = pcNumber;
 
-                        SpiSound spiSnd = new SpiSound(s);
-                        spiSnd.midiChannel = 128;
-                        spiSnd.startNote = s.loKey;
-                        spiSnd.endNote = s.hiKey;
-                        spiSnd.midiNote = (byte)(84 - (s.keyCenter - s.loKey));
-                        spiSnd.programNumber = (byte)currentMidiChannel();
+                            data.AddSpiSound(spiSnd);
 
-                        data.AddSpiSound(spiSnd);
+                            pcNumber = (byte)data.getNextFreeProgramChange(); // in 0-127 range
+                            if (pcNumber > 0) setProgramChange(pcNumber + 1); // in 1-128 range
 
-                        updateSpiSoundListBox();
-                        dataNeedsSaving = true;
-                        saveProjectSettings();
-                        updateTotalSize();
-
+                            updateSpiSoundListBox();
+                            dataNeedsSaving = true;
+                            saveProjectSettings();
+                            updateTotalSize();
+                        }
                     }
                 }
             }
@@ -2415,6 +2448,13 @@ namespace EPSSEditor
             saveProjectSettings();
         }
 
+        private void gen2CheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            data.spiVersion = spiVersion();
+            dataNeedsSaving = true;
+            saveProjectSettings();
+        }
+
         private List<CachedSound> _playingSounds;
 
 
@@ -2654,6 +2694,7 @@ namespace EPSSEditor
             MidPlayer.StopPlaying();
             spiSoundInstrument.AllNotesOff();
         }
+
     }
 
     public delegate EPSSEditorData GetEPSSEditorDataCallBack();
