@@ -204,6 +204,7 @@ namespace EPSSEditor
                     //float volume = 1.0f;
                     //float max = 1.0f;
                     //getNormalizeValues(ref sound, ref volume, ref max);
+                    bool loop = loopMode == 2;
 
                     string volTempPath = System.IO.Path.GetTempFileName();
 
@@ -222,7 +223,7 @@ namespace EPSSEditor
                         using (var resampler = new MediaFoundationResampler(reader, outFormat))
                         {
                             resampler.ResamplerQuality = 60; // Highest quality
-                            WaveFileWriter.CreateWaveFile(volTempPath, resampler);
+                            WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, loopStart, loopEnd); 
                         }
 
 
@@ -236,10 +237,11 @@ namespace EPSSEditor
                         var newFormat = new WaveFormat(newFreq, bits, channels);
                         using (var conversionStream = new WaveFormatConversionStream(newFormat, reader))
                         {
-                            WaveFileWriter.CreateWaveFile(outFile, conversionStream);
+                            WaveLoopFileWriter.CreateWaveLoopFile(outFile, conversionStream, loop, loopStart, loopEnd);
                         }
                     }
 
+                    /*
                     bool destroyMore = false;
 
                     if (destroyMore)
@@ -265,11 +267,12 @@ namespace EPSSEditor
                          }
 
                         WaveFormat waveFormat = new WaveFormat(newFreq, bits, channels);
-                        using (WaveFileWriter writer = new WaveFileWriter(outFile, waveFormat))
+                        using (WaveLoopFileWriter writer = new WaveLoopFileWriter(outFile, waveFormat, sound.loop, sound.loopStart, sound.loopEnd))
                         {
                             writer.Write(spl.ToArray(), 0, (int)len);
                         }
                     }
+                    */
 
                     System.IO.File.Delete(volTempPath);
                 } else

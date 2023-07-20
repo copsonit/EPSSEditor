@@ -341,6 +341,7 @@ namespace EPSSEditor
 
             if (loop)
             {
+
                 this.loopEnd = AudioData.Length;
                 this.loopStart = (int)(((double)loopStart / (double)orgSampleCount) * (double)AudioData.Length);
             }
@@ -348,17 +349,20 @@ namespace EPSSEditor
             
         }
 
-        public CachedSound(string audioFileName, bool loop, int loopStart, int loopEnd)
+        public CachedSound(string audioFileName, bool lp, int ls, int le)
         {
-            this.loop = loop;
+            int newSampleRate = 44100;
+            loop = lp;
             loopType = 0; // Only forward supported in EPSS
-            this.loopStart = loopStart;
-            this.loopEnd = loopEnd;
+
 
             using (var audioFileReader = new AudioFileReader(audioFileName))
             {
-                loop = false;
-                var resampler = new WdlResamplingSampleProvider(audioFileReader, 44100);
+                double loopFactor = (double)newSampleRate / (double)audioFileReader.WaveFormat.SampleRate;
+                loopStart = (int)(ls * loopFactor);
+                loopEnd = (int)(le * loopFactor);
+
+                var resampler = new WdlResamplingSampleProvider(audioFileReader, newSampleRate);
                 WaveFormat = resampler.WaveFormat;
                 var wholeFile = new List<float>((int)(audioFileReader.Length / 4));
                 var readBuffer = new float[resampler.WaveFormat.SampleRate * resampler.WaveFormat.Channels];
@@ -368,7 +372,8 @@ namespace EPSSEditor
                     wholeFile.AddRange(readBuffer.Take(samplesRead));
                 }
                 AudioData = wholeFile.ToArray();
-             
+
+                loopEnd = Math.Min(AudioData.Length, loopEnd);
 
                 /*
                 var resampler = new MediaFoundationResampler(audioFileReader, 44100);

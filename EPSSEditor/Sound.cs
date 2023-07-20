@@ -55,8 +55,11 @@ namespace EPSSEditor
         }
 
 
-        public Sound(byte[] soundData, string outPath)
+        public Sound(byte[] soundData, string outPath, bool loop, long loopStart, long loopEnd)
         {
+            this.loop = loop;
+            this.loopStart = (int)loopStart;
+            this.loopEnd = (int)loopEnd;
             int sampleRate = 25033;
             int bits = 8;
             int channels = 1;
@@ -64,7 +67,7 @@ namespace EPSSEditor
             {
                 using (var s = new RawSourceWaveStream(ms, new WaveFormat(sampleRate, bits, channels)))
                 {
-                    WaveFileWriter.CreateWaveFile(outPath, s);
+                    WaveLoopFileWriter.CreateWaveLoopFile(outPath, s, loop, loopStart, loopEnd);
                     InitSound(outPath);
                 }
             }

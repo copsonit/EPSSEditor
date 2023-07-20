@@ -108,7 +108,12 @@ namespace EPSSEditor
                     n++;
                 }
 
-                Sound snd = new Sound(spi.samples.samples[i].data, outPath);
+                uint sampleStart = spi.sounds.sounds[i].s_sampstart;
+                bool loop = spi.sounds.sounds[i].s_loopmode.loopmode == 2;
+                long loopStart = spi.sounds.sounds[i].s_loopstart - sampleStart;
+                long loopEnd = spi.sounds.sounds[i].s_sampend - sampleStart;
+
+                Sound snd = new Sound(spi.samples.samples[i].data, outPath, loop, loopStart, loopEnd);
                 sounds.Add(snd);
             }
 
