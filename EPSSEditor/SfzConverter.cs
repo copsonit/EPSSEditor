@@ -2,6 +2,7 @@
 using NAudio.MediaFoundation;
 using NAudio.Midi;
 using NAudio.Mixer;
+using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -345,6 +346,171 @@ namespace EPSSEditor
             }
 
             return result;
+        }
+
+        public static string LoadSfzSound(EPSSEditorData data, int midiChannel, string filePath, List<string> filesAdded)
+        {
+            
+            //List<string> soundsAdded = new List<string>();
+            
+            Dictionary<string, Sound> sounds = new Dictionary<string, Sound>();
+            foreach (Sound s in data.sounds)
+            {
+                sounds.Add(s.path, s);
+            }
+            
+
+            string anyFile = "";
+            ParseSfz p = new ParseSfz();
+            List<SfzBase> bases = p.parse(filePath);
+            string basePath = Path.GetDirectoryName(filePath);
+            //int midiChannel = currentMidiChannel();
+            bool skipFirstGroup = true;
+            bool abortLoad = false;
+            foreach (SfzBase bas in bases)
+            {
+                if (abortLoad) break;
+                var gSection = bas as SfzGenericSection;
+                if (gSection != null)
+                {
+                    if (gSection.header.Contains("group"))
+                    {
+                        if (!skipFirstGroup)
+                        {
+                            midiChannel++;
+                            if (midiChannel > 16)
+                            {
+                                System.Windows.Forms.MessageBox.Show("Midi channel over 16. Will skip rest of sfz file.");
+                                break;
+                            }
+                        }
+                        skipFirstGroup = false;
+                    }
+                }
+
+
+                var tBase = bas as SfzRegionSection;
+                if (tBase != null)
+                {
+                    string fp = tBase.FilePath(basePath);
+
+                    Sound s;
+                    if (sounds.ContainsKey(fp))
+                    {
+                        s = sounds[fp];
+                    }
+                    else
+                    {
+                        if (Path.GetExtension(fp).ToLower() == ".wav")
+                        {
+                            s = new Sound(fp);
+                            s.description = Path.GetFileNameWithoutExtension(fp);
+                            data.sounds.Add(s);
+                            sounds.Add(fp, s);
+                            filesAdded.Add(fp);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Unsupported format for samples. Only supports WAV.");
+                            abortLoad = true;
+                            s = null;
+                        }
+                    }
+
+
+                    string kcS = tBase.GetValue("pitch_keycenter");
+                    byte kcByte = 0;
+                    if (!String.IsNullOrEmpty(kcS))
+                    {
+
+                        //                    string kcS = tBase.variables[""];
+                        if (!Utility.TryToByte(kcS, out kcByte))
+                        {
+                            int v = Utility.ParseNoteToInt(kcS, 0);
+                            if (v < 0 || v > 127)
+                            {
+                                kcByte = 128;
+                            }
+                            else
+                            {
+                                kcByte = (byte)v;
+                            }
+                        }
+                    }
+
+                    //Sound s = new Sound(fp);
+                    //s.description = baseName + Path.GetFileNameWithoutExtension(fp);
+                    string loKeyS = tBase.GetValue("lokey");
+                    byte loByte = 0;
+                    if (!String.IsNullOrEmpty(loKeyS))
+                    {
+
+                        if (!Utility.TryToByte(loKeyS, out loByte))
+                        {
+                            int v = Utility.ParseNoteToInt(loKeyS, 0);
+                            if (v < 0 || v > 127)
+                            {
+                                loByte = 128;
+                            }
+                            else
+                            {
+                                loByte = (byte)v;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        loByte = (byte)Math.Max(0, (int)kcByte - 24);
+                    }
+                    //s.loKey = loByte;
+
+
+
+                    string hiKeyS = tBase.GetValue("hikey");
+                    byte hiByte = 0;
+                    if (!String.IsNullOrEmpty(hiKeyS))
+                    {
+
+                        if (!Utility.TryToByte(hiKeyS, out hiByte))
+                        {
+                            int v = Utility.ParseNoteToInt(hiKeyS, 0);
+                            if (v < 0 || v > 127)
+                            {
+                                hiByte = 128;
+                            }
+                            else
+                            {
+                                hiByte = (byte)v;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        hiByte = (byte)Math.Min(127, (int)kcByte + 24);
+                    }
+                    //s.hiKey = hiByte;
+
+
+
+                    //s.keyCenter = kcByte;
+
+
+                    //if (!data.IdenticalSoundExists(s))
+                    //{
+                    //data.sounds.Add(s);
+                    //}
+                    if (s != null)
+                    {
+                        anyFile = fp;
+                        data.AddSfzSound(s, midiChannel, loByte, hiByte, kcByte, 0);
+
+                    }
+
+                }
+            }
+
+            return anyFile;
+           
         }
     }
 }

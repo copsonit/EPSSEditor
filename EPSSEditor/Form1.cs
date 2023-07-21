@@ -1158,187 +1158,22 @@ namespace EPSSEditor
                 string file = loadSfzFileDialog.FileName;
                 Properties.Settings.Default.SfzFile = file;
                 Properties.Settings.Default.Save();
-
-                string anyFile = LoadSfzSound(file);
-
-
-                data.soundFileName = anyFile;
-                result = true;
+                
+                List<string> filesAdded = new List<string>();
+                string anyFile = SfzConverter.LoadSfzSound(data, currentMidiChannel(), file, filesAdded);
+                if (!String.IsNullOrEmpty(anyFile))
+                {
+                    UpdateAfterSoundsAdded(filesAdded, anyFile, true);
+                    data.soundFileName = anyFile;
+                    result = true;
+                }
 
             }
 
             return result;
         }
 
-
-        private string LoadSfzSound(string filePath)
-        {
-            //List<string> soundsAdded = new List<string>();
-            Dictionary<string, Sound> sounds = new Dictionary<string, Sound>();
-            foreach (Sound s in data.sounds)
-            {
-                sounds.Add(s.path, s);
-            }
-
-            string anyFile = "";
-            ParseSfz p = new ParseSfz();
-            List<SfzBase> bases = p.parse(filePath);
-            string basePath = Path.GetDirectoryName(filePath);
-            int midiChannel = currentMidiChannel();
-            bool skipFirstGroup = true;
-            bool abortLoad = false;
-            foreach (SfzBase bas in bases)
-            {
-                if (abortLoad) break;
-                var gSection = bas as SfzGenericSection;
-                if (gSection != null)
-                {
-                    if (gSection.header.Contains("group"))
-                    {
-                        if (!skipFirstGroup)
-                        {
-                            midiChannel++;
-                            if (midiChannel > 16)
-                            {
-                                System.Windows.Forms.MessageBox.Show("Midi channel over 16. Will skip rest of sfz file.");
-                                break;
-                            }
-                        }
-                        skipFirstGroup = false;
-                    }
-                }
-
-
-                var tBase = bas as SfzRegionSection;
-                if (tBase != null)
-                {
-                    string fp = tBase.FilePath(basePath);
-
-                    Sound s;
-                    if (sounds.ContainsKey(fp))
-                    {
-                        s = sounds[fp];
-                    }
-                    else
-                    {
-                        if (Path.GetExtension(fp).ToLower() == ".wav")
-                        {
-                            s = new Sound(fp);
-                            s.description = Path.GetFileNameWithoutExtension(fp);
-                            data.sounds.Add(s);
-                            sounds.Add(fp, s);
-                        }
-                        else
-                        {
-                            MessageBox.Show("Unsupported format for samples. Only supports WAV.");
-                            abortLoad = true;
-                            s = null;
-                        }
-                    }
-
-
-                    string kcS = tBase.GetValue("pitch_keycenter");
-                    byte kcByte = 0;
-                    if (!String.IsNullOrEmpty(kcS))
-                    {
-
-                        //                    string kcS = tBase.variables[""];
-                        if (!TryToByte(kcS, out kcByte))
-                        {
-                            int v = parseNoteToInt(kcS, 0);
-                            if (v < 0 || v > 127)
-                            {
-                                kcByte = 128;
-                            }
-                            else
-                            {
-                                kcByte = (byte)v;
-                            }
-                        }
-                    }
-
-                    //Sound s = new Sound(fp);
-                    //s.description = baseName + Path.GetFileNameWithoutExtension(fp);
-                    string loKeyS = tBase.GetValue("lokey");
-                    byte loByte = 0;
-                    if (!String.IsNullOrEmpty(loKeyS))
-                    {
-
-                        if (!TryToByte(loKeyS, out loByte))
-                        {
-                            int v = parseNoteToInt(loKeyS, 0);
-                            if (v < 0 || v > 127)
-                            {
-                                loByte = 128;
-                            }
-                            else
-                            {
-                                loByte = (byte)v;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        loByte = (byte)Math.Max(0, (int)kcByte - 24);
-                    }
-                    //s.loKey = loByte;
-
-
-
-                    string hiKeyS = tBase.GetValue("hikey");
-                    byte hiByte = 0;
-                    if (!String.IsNullOrEmpty(hiKeyS))
-                    {
-
-                        if (!TryToByte(hiKeyS, out hiByte))
-                        {
-                            int v = parseNoteToInt(hiKeyS, 0);
-                            if (v < 0 || v > 127)
-                            {
-                                hiByte = 128;
-                            }
-                            else
-                            {
-                                hiByte = (byte)v;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        hiByte = (byte)Math.Min(127, (int)kcByte + 24);
-                    }
-                    //s.hiKey = hiByte;
-
-
-
-                    //s.keyCenter = kcByte;
-
-
-                    //if (!data.IdenticalSoundExists(s))
-                    //{
-                    //data.sounds.Add(s);
-                    //}
-                    if (s != null)
-                    {
-                        anyFile = fp;
-                        data.AddSfzSound(s, midiChannel, loByte, hiByte, kcByte, 0);
-
-                    }
-
-                }
-            }
-
-            updateDialog();
-            dataNeedsSaving = true;
-            saveProjectSettings();
-
-            int ch = data.getNextFreeMidiChannel();
-            if (ch > 0) setMidiChannel(ch);
-
-            return anyFile;
-        }
-
-
+ 
         private void DoSaveSfz()
         {
             string sfzFile = SfzExportFileName();
@@ -1481,71 +1316,10 @@ namespace EPSSEditor
         }
 
 
-        public static bool TryToByte(object value, out byte result)
-        {
-            if (value == null)
-            {
-                result = 0;
-                return false;
-            }
-
-            return byte.TryParse(value.ToString(), out result);
-        }
 
 
-        private int parseNoteToInt(string midiNote, int octaveOffset)
-        {
-            midiNote = midiNote.ToUpper();
-            int v = 0;
-            Dictionary<string, byte> notes = new Dictionary<string, byte>()
-            {
-                { "C", 0 }, { "C#", 1}, { "D", 2 }, { "D#", 3 }, { "E", 4 },  { "F", 5 }, { "F#", 6 },
-                { "G", 7 }, { "G#", 8 }, { "A", 9 }, { "A#", 10 }, { "B", 11 },
-                { "H", 11 }, { "DB", 1 }, { "EB", 3 }, { "GB", 6 }, { "AB", 8 }, {"BB", 10}
-            };
 
-
-            try
-            {
-                int i = 0;
-                foreach (var c in midiNote)
-                {
-                    if ((c >= '0' && c <= '9') || c == '-')
-                    {
-                        string n = midiNote.Substring(0, i);
-                        short oct = (short)((Convert.ToInt16(midiNote.Substring(i, midiNote.Length - i)) + octaveOffset) * 12);
-                        v = Convert.ToInt32(oct);
-                        v += notes[n];
-                        break;
-                    }
-                    i++;
-                }
-                return v;
-            }
-            catch (Exception ex)
-            {
-                return -1;
-            }
-        }
-
-
-        private byte parseMidiTone(string s)
-        {
-            if (!TryToByte(s, out byte note))
-            {
-                int v = parseNoteToInt(s, 2);
-                if (v < 0 || v > 127)
-                {
-                    System.Windows.Forms.MessageBox.Show("Unsupported MIDI Note!");
-                }
-                else
-                {
-                    note = (byte)v;
-                }
-            }
-            return note;
-        }
-
+ 
 
         private int spiVersion()
         {
@@ -1708,6 +1482,7 @@ namespace EPSSEditor
             string anyFile = "";
 
             List<string> filesAdded = new List<string>();
+            bool spiNeedsUpdate = false;
             foreach (var file in files)
             {
                 string filePath = file;
@@ -1716,7 +1491,17 @@ namespace EPSSEditor
 
                 if (ext == ".SFZ")
                 {
-                    anyFile = LoadSfzSound(filePath);
+
+                    anyFile = SfzConverter.LoadSfzSound(data, currentMidiChannel(), filePath, filesAdded);
+                    if (!String.IsNullOrEmpty(anyFile))
+                    {
+                        int ch = data.getNextFreeMidiChannel();
+                        if (ch > 0) setMidiChannel(ch);
+                        spiNeedsUpdate = true;
+
+                        Properties.Settings.Default.SfzFile = filePath;
+                        Properties.Settings.Default.Save();
+                    }
                 }
                 else if (ext == ".WAV")
                 {
@@ -1734,7 +1519,19 @@ namespace EPSSEditor
 
             if (filesAdded.Count > 0)
             {
+                UpdateAfterSoundsAdded(filesAdded, anyFile, spiNeedsUpdate);
+            }
+
+
+        }
+
+
+        private void UpdateAfterSoundsAdded(List<string> filesAdded, string anyFile, bool spiNeedsUpdate)
+        {
+            if (filesAdded.Count > 0)
+            {
                 updateSoundListBox();
+                if (spiNeedsUpdate) updateSpiSoundListBox();
 
                 soundListBox.BeginUpdate();
                 Sound[] snds = data.sounds.ToArray();
@@ -1750,9 +1547,9 @@ namespace EPSSEditor
                         }
                     }
                 }
+                soundListBox.EndUpdate();
             }
 
-            soundListBox.EndUpdate();
 
             UpdateSoundDialog();
             UpdateConversionSettings();
@@ -1924,7 +1721,7 @@ namespace EPSSEditor
                     byte startNote = 128;
                     if (MultiSampleRadioButton.Checked)
                     {
-                        startNote = parseMidiTone(midiToneTextBox.Text);
+                        startNote = Utility.ParseMidiTone(midiToneTextBox.Text);
                         mappingOk = true;
                     }
 
@@ -2014,10 +1811,10 @@ namespace EPSSEditor
                             byte center = 84;
                             if (CustomSampleRadioButton.Checked)
                             {
-                                startNote = parseMidiTone(custMidiToneFromTextBox.Text);
-                                endNote = parseMidiTone(custMidiToneToTextBox.Text);
+                                startNote = Utility.ParseMidiTone(custMidiToneFromTextBox.Text);
+                                endNote = Utility.ParseMidiTone(custMidiToneToTextBox.Text);
                                 string centerText = custMidToneCentreTextBox.Text;
-                                if (!String.IsNullOrEmpty(centerText)) center = parseMidiTone(centerText);
+                                if (!String.IsNullOrEmpty(centerText)) center = Utility.ParseMidiTone(centerText);
                                 else center = 0;
 
                                 doAdd = (startNote < 128 && endNote < 128 && startNote <= endNote && (startNote - endNote) <= 48);
@@ -2074,7 +1871,7 @@ namespace EPSSEditor
                             }
                             else // multisample
                             {
-                                byte startNote = parseMidiTone(midiToneTextBox.Text);
+                                byte startNote = Utility.ParseMidiTone(midiToneTextBox.Text);
                                 spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
 
                                 if (data.isMidiChannelOccupied(midiChannel)) // 1-16

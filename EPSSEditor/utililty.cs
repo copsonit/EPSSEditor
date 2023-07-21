@@ -23,12 +23,80 @@ namespace EPSSEditor
 
             return text;
         }
+
+
+        public static bool TryToByte(object value, out byte result)
+        {
+            if (value == null)
+            {
+                result = 0;
+                return false;
+            }
+
+            return byte.TryParse(value.ToString(), out result);
+        }
+
+
+        public static int ParseNoteToInt(string midiNote, int octaveOffset)
+        {
+            midiNote = midiNote.ToUpper();
+            int v = 0;
+            Dictionary<string, byte> notes = new Dictionary<string, byte>()
+            {
+                { "C", 0 }, { "C#", 1}, { "D", 2 }, { "D#", 3 }, { "E", 4 },  { "F", 5 }, { "F#", 6 },
+                { "G", 7 }, { "G#", 8 }, { "A", 9 }, { "A#", 10 }, { "B", 11 },
+                { "H", 11 }, { "DB", 1 }, { "EB", 3 }, { "GB", 6 }, { "AB", 8 }, {"BB", 10}
+            };
+
+
+            try
+            {
+                int i = 0;
+                foreach (var c in midiNote)
+                {
+                    if ((c >= '0' && c <= '9') || c == '-')
+                    {
+                        string n = midiNote.Substring(0, i);
+                        short oct = (short)((Convert.ToInt16(midiNote.Substring(i, midiNote.Length - i)) + octaveOffset) * 12);
+                        v = Convert.ToInt32(oct);
+                        v += notes[n];
+                        break;
+                    }
+                    i++;
+                }
+                return v;
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+        }
+
+
+        public static byte ParseMidiTone(string s)
+        {
+            if (!TryToByte(s, out byte note))
+            {
+                int v = ParseNoteToInt(s, 2);
+                if (v < 0 || v > 127)
+                {
+                    return 128;
+                    //System.Windows.Forms.MessageBox.Show("Unsupported MIDI Note!");
+                }
+                else
+                {
+                    note = (byte)v;
+                }
+            }
+            return note;
+        }
+
     }
-    
+
 
     // https://stackoverflow.com/questions/14488796/does-net-provide-an-easy-way-convert-bytes-to-kb-mb-gb-etc
     // JerKimball suggestion.
-    
+
     public static class Ext
     {
         private const long OneKb = 1024;
