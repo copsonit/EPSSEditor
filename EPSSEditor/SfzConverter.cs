@@ -253,6 +253,11 @@ namespace EPSSEditor
 
                     writer.WriteLine("<master> loprog={0} hiprog={0} master_label=Midi channel {0}", midiChannel);
                     writer.WriteLine("<group>");
+                    writer.WriteLine("volume=0");
+                    writer.WriteLine("ampeg_attack=0.001");
+                    writer.WriteLine("ampeg_decay=0.1"); // Does not matter as we use 100 as sustain
+                    writer.WriteLine("ampeg_sustain=100");
+                    writer.WriteLine("ampeg_release=0.1");
 
                     foreach (var info in splitsForChannel)
                     {
@@ -269,7 +274,7 @@ namespace EPSSEditor
 
                         if (info.Loopmode == 1)
                         {
-                            sb.Append(" loop_mode=one_shot");
+                            sb.Append(" loop_mode=no_loop");
                         }
                         else if (info.Loopmode > 1)
                         {
