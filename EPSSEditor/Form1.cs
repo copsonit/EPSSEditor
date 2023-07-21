@@ -450,14 +450,6 @@ namespace EPSSEditor
 
                 spiSoundListView.Items.Add(item);
             }
-            string errorString;
-            bool spiSaveEnabled = data.IsValidForSpiExport(out errorString);
-            var mi = menuStrip1.Items.Find("saveSPIToolStripMenuItem", true);
-            foreach (var item in mi)
-            {
-                item.Enabled = spiSaveEnabled;
-            }
-
 
             Sound snd = getSoundAtSelectedIndex();
             if (snd != null)
@@ -470,7 +462,15 @@ namespace EPSSEditor
             spiNameTextBox.Text = data.spiName;
             spiInfoTextBox.Text = data.spiDescription;
             omniPatchCheckBox.Checked = data.omni;
-            gen2CheckBox.Checked = data.spiVersion == 2;
+            gen2CheckBox.Checked = data.HasAnyProgramChange();
+
+            string errorString;
+            bool spiSaveEnabled = data.IsValidForSpiExport(out errorString);
+            var mi = menuStrip1.Items.Find("saveSPIToolStripMenuItem", true);
+            foreach (var item in mi)
+            {
+                item.Enabled = spiSaveEnabled;
+            }
         }
 
 

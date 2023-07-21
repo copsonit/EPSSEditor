@@ -1068,6 +1068,7 @@
             // gen2CheckBox
             // 
             this.gen2CheckBox.AutoSize = true;
+            this.gen2CheckBox.Enabled = false;
             this.gen2CheckBox.Location = new System.Drawing.Point(162, 58);
             this.gen2CheckBox.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.gen2CheckBox.Name = "gen2CheckBox";

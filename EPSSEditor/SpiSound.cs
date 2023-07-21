@@ -106,6 +106,8 @@ namespace EPSSEditor
 
             extVolume = sfz.ExtVolume;
             subTone = sfz.SubTone;
+
+            programNumber = (byte)sfz.ProgramChange;
         }
 
         public SpiSound(EPSSSpi_soundInfo soundInfo, EPSSSpi_extSoundInfo extSoundInfo, EPSSSpi_sample soundData)

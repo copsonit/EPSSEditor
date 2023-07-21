@@ -16,7 +16,8 @@ namespace EPSSEditor
 {
     public class SfzSplitInfo : IComparable<SfzSplitInfo>
     {
-        public int Midich; // [0-15]
+        public int Midich; // [0-15], 128 not used, using ProgramChange
+        public int ProgramChange; // 0-127, 128: not used
         public int Low;
         public int High;
         public int NoteStart;
@@ -46,6 +47,7 @@ namespace EPSSEditor
             S_gr_frek = 0;
             ExtVolume = 0;
             SubTone = 0;
+            ProgramChange = 128;
         }
 
 
@@ -130,7 +132,7 @@ namespace EPSSEditor
 
         public SfzConverter() { }
 
-        public Dictionary<int, List<SfzSplitInfo>> Convert(ref EPSSSpi spi/*, ref Sound[] sounds, string outPath*/)
+        public Dictionary<int, List<SfzSplitInfo>> Convert(ref EPSSSpi spi)
         {
 
             Dictionary<int, List<SfzSplitInfo>> dict = new Dictionary<int, List<SfzSplitInfo>>();

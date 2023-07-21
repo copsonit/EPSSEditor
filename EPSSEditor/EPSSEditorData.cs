@@ -451,7 +451,7 @@ namespace EPSSEditor
             return false;
         }
 
-        private bool HasAnyProgramChange()
+        public bool HasAnyProgramChange()
         {
             bool[] occupied = getOccupiedProgramChange();
             for (int i = 0; i < 128; i++)
