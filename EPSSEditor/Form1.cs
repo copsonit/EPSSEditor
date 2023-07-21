@@ -275,6 +275,8 @@ namespace EPSSEditor
         private void UpdateSoundDialog()
         {
             groupBox5.Enabled = soundListBox.SelectedItems.Count == 1;
+
+            deleteSoundButton.Enabled = soundListBox.SelectedItems.Count > 0;
         }
 
 
@@ -342,6 +344,8 @@ namespace EPSSEditor
             {
                 soundListBox.Items.Add(s.name());
             }
+
+            deleteSoundButton.Enabled = soundListBox.SelectedItems.Count > 0;
         }
 
 
@@ -956,6 +960,8 @@ namespace EPSSEditor
                 }
                 dataNeedsSaving = true;
                 saveProjectSettings();
+
+                deleteSoundButton.Enabled = soundListBox.SelectedItems.Count > 0;
             }
         }
 
@@ -1139,9 +1145,10 @@ namespace EPSSEditor
 
         // SFZ
 
-        private bool doLoadSfzFileDialog(ref string errorMessage)
+        private bool DoLoadSfzFileDialog(out string errorMessage)
         {
             bool result = false;
+            errorMessage = "";
             string s = Properties.Settings.Default.SfzFile;
             if (s == null || s == "")
             {
@@ -1162,7 +1169,7 @@ namespace EPSSEditor
                 string file = loadSfzFileDialog.FileName;
                 Properties.Settings.Default.SfzFile = file;
                 Properties.Settings.Default.Save();
-                
+
                 List<string> filesAdded = new List<string>();
 
                 int cm = currentMidiChannel();
@@ -1170,7 +1177,7 @@ namespace EPSSEditor
                 int programChange = mappingModeProgramRadioButton.Checked ? cm - 1 : 128;
 
                 string anyFile = SfzConverter.LoadSfzSound(data, midiChannel, programChange, file, filesAdded);
-                if (!String.IsNullOrEmpty(anyFile))
+                if (filesAdded.Count > 0)
                 {
                     int ch = midiChannel < 128 ? data.getNextFreeMidiChannel() : data.getNextFreeProgramChange() + 1;
                     if (ch > 0) setMidiChannel(ch);
@@ -1178,9 +1185,11 @@ namespace EPSSEditor
                     data.soundFileName = anyFile;
                     result = true;
                 }
-
+                else
+                {
+                    errorMessage = "Nothing was loaded. Files already exists.";
+                }
             }
-
             return result;
         }
 
@@ -1506,7 +1515,7 @@ namespace EPSSEditor
                     int midiChannel = mappingModeMidiRadioButton.Checked ? cm : 128;
                     int programChange = mappingModeProgramRadioButton.Checked ? cm -1  : 128;
                     anyFile = SfzConverter.LoadSfzSound(data, midiChannel, programChange, filePath, filesAdded);
-                    if (!String.IsNullOrEmpty(anyFile))
+                    if (filesAdded.Count > 0)
                     {
                         int ch = midiChannel < 128 ? data.getNextFreeMidiChannel() : data.getNextFreeProgramChange() + 1;
                         if (ch > 0) setMidiChannel(ch);
@@ -1533,6 +1542,9 @@ namespace EPSSEditor
             if (filesAdded.Count > 0)
             {
                 UpdateAfterSoundsAdded(filesAdded, anyFile, spiNeedsUpdate);
+            } else
+            {
+                MessageBox.Show("Nothing was loaded. Files already exists.");
             }
 
 
@@ -1629,7 +1641,7 @@ namespace EPSSEditor
                 useInSpiButton.Enabled = true;
 
                 List<SpiSound> spiSounds = data.getSpiSoundsFromSound(ref snd);
-                deleteSoundButton.Enabled = spiSounds.Count == 0;
+
 
                 if ((Control.ModifierKeys & Keys.Alt) != Keys.None)
                 {
@@ -2063,8 +2075,8 @@ namespace EPSSEditor
 
         private void importSFZToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string errorMessage = "";
-            bool result = doLoadSfzFileDialog(ref errorMessage);
+            string errorMessage;
+            bool result = DoLoadSfzFileDialog(out errorMessage);
             if (!result && !String.IsNullOrEmpty(errorMessage))
             {
                 MessageBox.Show("SFZ file cannot be loaded:\n" + errorMessage);
