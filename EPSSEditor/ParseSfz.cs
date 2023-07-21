@@ -122,15 +122,22 @@ namespace EPSSEditor
                     List<string> stringPairsToParse =   new List<string>();
 
                     string afterRegion = line.Substring(i + 1).Trim();
-                    if (OccurenceOf(afterRegion, ' ') == 0)
+
+                    if (OccurenceOf(afterRegion, '=') == 1) // Special case to allow space in sample if placed directly after region
                     {
                         stringPairsToParse.Add(afterRegion);
-
-                        
-                    } else
+                    }
+                    else
                     {
-                        string[] words = afterRegion.Split(' ');
-                        stringPairsToParse = words.ToList();
+                        if (OccurenceOf(afterRegion, ' ') == 0)
+                        {
+                            stringPairsToParse.Add(afterRegion);
+                        }
+                        else
+                        {
+                            string[] words = afterRegion.Split(' ');
+                            stringPairsToParse = words.ToList();
+                        }
                     }
 
 
@@ -141,12 +148,8 @@ namespace EPSSEditor
                         if (words.Length == 2)
                         {
                             string key = words[0].TrimEnd().TrimStart().ToLower();
-                            //if (key == "sample")
-                            //{
-                                string value = words[1].TrimEnd().TrimStart().ToLower();
-                                variables.Add(key, value);
-
-                            //}
+                            string value = words[1].TrimEnd().TrimStart().ToLower();
+                            variables.Add(key, value);
                         }
                         else
                         {

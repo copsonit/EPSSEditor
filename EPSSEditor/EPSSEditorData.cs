@@ -39,7 +39,9 @@ namespace EPSSEditor
 
         private string _fileNameForListenConvertedSound = null;
 
-        private Dictionary<int, SpiSound[]> _findSpiSoundArray;
+        private Dictionary<int, SpiSound[]> _findSpiSoundArray; // midiChannel -> Sound[128]
+
+        private Dictionary<int, SpiSound[]> _programArray;  // program -> Sound[128]
 
         public EPSSEditorData() { }
 
@@ -60,6 +62,7 @@ namespace EPSSEditor
 
             previewSelected = 0;
             _findSpiSoundArray = null;
+            _programArray = null;
         }
 
 
@@ -524,13 +527,22 @@ namespace EPSSEditor
         }
         
         // Used when loading sound from sfz file
-        public void AddSfzSound(Sound sound, int midiChannel, byte lo, byte hi, byte center, sbyte transpose)
+        public void AddSfzSound(Sound sound, int midiChannel, int programChange, byte lo, byte hi, byte center, sbyte transpose)
         {
             SpiSound spiSnd = new SpiSound(sound);
             spiSnd.startNote = lo;
             spiSnd.endNote = hi;
             spiSnd.midiNote = center;
-            spiSnd.midiChannel = (byte)midiChannel;
+            if (midiChannel == 128)
+            {
+                spiSnd.midiChannel = 128;
+                spiSnd.programNumber = (byte)programChange;
+            } else
+            {
+                spiSnd.midiChannel = (byte)midiChannel;
+                spiSnd.programNumber = 128;
+            }
+
             spiSnd.transpose = transpose;
             spiSounds.Add(spiSnd);
             _findSpiSoundArray = null;
@@ -735,29 +747,50 @@ namespace EPSSEditor
 
         public void InitFinder()
         {
+            _programArray = new Dictionary<int, SpiSound[]>();
             _findSpiSoundArray = new Dictionary<int, SpiSound[]>();
             for (int i = 0; i < 16; i++)
             {
                 _findSpiSoundArray.Add(i, new SpiSound[128]);
             }
+            for (int i = 0; i < 128; i++)
+            {
+                _programArray.Add(i, new SpiSound[128]);
+            }
             foreach (SpiSound snd in spiSounds)
             {
-                SpiSound[] sounds = _findSpiSoundArray[snd.midiChannel - 1];
+                int idx = snd.midiChannel < 128 ? snd.midiChannel - 1 : snd.programNumber;
+                Dictionary<int, SpiSound[]> useArray = snd.midiChannel < 128 ? _findSpiSoundArray : _programArray;                              
+                SpiSound[] sounds = useArray[idx];
                 int startNote = Math.Min(127, Math.Max(0, (int)snd.startNote));
                 int endNote = Math.Min(127, Math.Max(0, (int)snd.endNote));
                 for (int note = startNote; note <= (endNote); note++) // 0 - 127
                 {
                     sounds[note] = snd;
                 }
-                _findSpiSoundArray[snd.midiChannel - 1] = sounds;
+                useArray[idx] = sounds;
+
+                /*
+                if (snd.midiChannel < 128) // skip program change sounds here!
+                {
+                    SpiSound[] sounds = _findSpiSoundArray[snd.midiChannel - 1];
+                    int startNote = Math.Min(127, Math.Max(0, (int)snd.startNote));
+                    int endNote = Math.Min(127, Math.Max(0, (int)snd.endNote));
+                    for (int note = startNote; note <= (endNote); note++) // 0 - 127
+                    {
+                        sounds[note] = snd;
+                    }
+                    _findSpiSoundArray[snd.midiChannel - 1] = sounds;
+                }
+                */
             }
         }
 
 
-        public SpiSound FindSpiSound(int midiChannel, int note)
+        public SpiSound FindSpiSound(int midiChannel, int programChange, int note)
         {
             if (_findSpiSoundArray == null) { InitFinder(); }
-            SpiSound[] sounds = _findSpiSoundArray[midiChannel - 1];
+            SpiSound[] sounds = midiChannel == 128 ? _programArray[programChange] : _findSpiSoundArray[midiChannel - 1];
             return sounds[note];
         }
     }

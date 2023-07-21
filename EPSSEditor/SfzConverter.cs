@@ -348,7 +348,7 @@ namespace EPSSEditor
             return result;
         }
 
-        public static string LoadSfzSound(EPSSEditorData data, int midiChannel, string filePath, List<string> filesAdded)
+        public static string LoadSfzSound(EPSSEditorData data, int midiChannel, int programChange, string filePath, List<string> filesAdded)
         {
             
             //List<string> soundsAdded = new List<string>();
@@ -364,7 +364,6 @@ namespace EPSSEditor
             ParseSfz p = new ParseSfz();
             List<SfzBase> bases = p.parse(filePath);
             string basePath = Path.GetDirectoryName(filePath);
-            //int midiChannel = currentMidiChannel();
             bool skipFirstGroup = true;
             bool abortLoad = false;
             foreach (SfzBase bas in bases)
@@ -502,7 +501,7 @@ namespace EPSSEditor
                     if (s != null)
                     {
                         anyFile = fp;
-                        data.AddSfzSound(s, midiChannel, loByte, hiByte, kcByte, 0);
+                        data.AddSfzSound(s, midiChannel, programChange, loByte, hiByte, kcByte, 0);
 
                     }
 

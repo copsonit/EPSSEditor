@@ -42,5 +42,10 @@ namespace EPSSEditor
         {
 
         }
+
+        virtual public void ProgramChange(int channel, int programChange)
+        {
+
+        }
     }
 }

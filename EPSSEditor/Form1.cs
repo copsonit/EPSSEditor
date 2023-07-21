@@ -1075,8 +1075,12 @@ namespace EPSSEditor
         }
 
 
-        private void playConvertedSound(int midiChannel, int note)
+        private void playConvertedSound(int midiChannel, int programChange, int note)
         {
+            if (programChange < 128)
+            {
+                spiSoundInstrument.ProgramChange(midiChannel, programChange);
+            }
             spiSoundInstrument.NoteOn(midiChannel, note, 127);
 
             /*
@@ -1160,9 +1164,16 @@ namespace EPSSEditor
                 Properties.Settings.Default.Save();
                 
                 List<string> filesAdded = new List<string>();
-                string anyFile = SfzConverter.LoadSfzSound(data, currentMidiChannel(), file, filesAdded);
+
+                int cm = currentMidiChannel();
+                int midiChannel = mappingModeMidiRadioButton.Checked ? cm : 128;
+                int programChange = mappingModeProgramRadioButton.Checked ? cm - 1 : 128;
+
+                string anyFile = SfzConverter.LoadSfzSound(data, midiChannel, programChange, file, filesAdded);
                 if (!String.IsNullOrEmpty(anyFile))
                 {
+                    int ch = midiChannel < 128 ? data.getNextFreeMidiChannel() : data.getNextFreeProgramChange() + 1;
+                    if (ch > 0) setMidiChannel(ch);
                     UpdateAfterSoundsAdded(filesAdded, anyFile, true);
                     data.soundFileName = anyFile;
                     result = true;
@@ -1491,11 +1502,13 @@ namespace EPSSEditor
 
                 if (ext == ".SFZ")
                 {
-
-                    anyFile = SfzConverter.LoadSfzSound(data, currentMidiChannel(), filePath, filesAdded);
+                    int cm = currentMidiChannel();
+                    int midiChannel = mappingModeMidiRadioButton.Checked ? cm : 128;
+                    int programChange = mappingModeProgramRadioButton.Checked ? cm -1  : 128;
+                    anyFile = SfzConverter.LoadSfzSound(data, midiChannel, programChange, filePath, filesAdded);
                     if (!String.IsNullOrEmpty(anyFile))
                     {
-                        int ch = data.getNextFreeMidiChannel();
+                        int ch = midiChannel < 128 ? data.getNextFreeMidiChannel() : data.getNextFreeProgramChange() + 1;
                         if (ch > 0) setMidiChannel(ch);
                         spiNeedsUpdate = true;
 
@@ -2310,6 +2323,12 @@ namespace EPSSEditor
                 if (snd != null)
                 {
                     int midiChannel = snd.midiChannel;
+                    int programChange = 128;
+                    if (midiChannel == 128)
+                    {
+                        midiChannel = 1; // Program Change sounds
+                        programChange = snd.programNumber;
+                    }
                     ShowMidiKeyboard(midiChannel);
                     SetKeyAllOff();
 
@@ -2319,12 +2338,12 @@ namespace EPSSEditor
                       //  ShowNote(snd.midiChannel, i, true, true);
                     //}
                     int centerKey = snd.CenterNote();
-                    ShowNote(snd.midiChannel, centerKey, true, true);
+                    ShowNote(midiChannel, centerKey, true, true);
                     SetCenterKey(centerKey);
                     int playNote = snd.startNote;
                     if (centerKey >= snd.startNote && centerKey <= snd.endNote) playNote = centerKey;
                     playNote = Math.Min(127, Math.Max(0, playNote));
-                    playConvertedSound(snd.midiChannel, playNote);
+                    playConvertedSound(midiChannel, programChange, playNote);
                 }
             }
         }
@@ -2500,6 +2519,7 @@ namespace EPSSEditor
         //public EPSSEditorData data;
 
         private Dictionary<int, CachedSound[]> playingContext;
+        private byte[] currentProgram;
 
         private readonly AudioPlaybackEngine audio;
 
@@ -2528,6 +2548,8 @@ namespace EPSSEditor
             this.audio = audio;
             this.newFreq = newFreq;
             _getEditorDataCallBack = callback;
+            currentProgram = new byte[16];
+            for (int channel = 0; channel < 16; channel++) currentProgram[channel] = 128;
 
             /*
             SpiSound snd = data.FindSpiSound(1, 1);
@@ -2554,19 +2576,28 @@ namespace EPSSEditor
             {
                 EPSSEditorData data = _getEditorDataCallBack();
 
-                SpiSound snd = data.FindSpiSound(midiChannel, note);
-                if (snd != null)
-                {
-                    //Console.WriteLine($"Found sound: {snd.name()}");
-                    CachedSound cs = data.cachedSound(snd, newFreq, note, vel);
+                byte program = currentProgram[midiChannel - 1];
+                SpiSound snd = program < 128 ? data.FindSpiSound(128, program, note) : data.FindSpiSound(midiChannel, program, note);
+//                if (program < 128)
+                //{
 
-                    PlaySound(cs, midiChannel, note);
-                    DoNoteOnEvent(midiChannel, note);
-                }
-                else
-                {
-                    Console.WriteLine($"!!!! No sound found for Midi:{midiChannel} Note: {note}");
-                }
+                    //SpiSound snd = data.FindSpiSound(midiChannel, program, note);
+                    if (snd != null)
+                    {
+                        //Console.WriteLine($"Found sound: {snd.name()}");
+                        CachedSound cs = data.cachedSound(snd, newFreq, note, vel);
+
+                        PlaySound(cs, midiChannel, note);
+                        DoNoteOnEvent(midiChannel, note);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"!!!! No sound found for Midi:{midiChannel} Note: {note}");
+                    }
+//                } else
+                //{
+                  //Console.WriteLine($"Need to find sound for ProgramChange {program} on channel {midiChannel} and note {note}.");
+                //
             }
         }
 
@@ -2602,6 +2633,13 @@ namespace EPSSEditor
                 NoteOffEvent(this, new SpiSoundInstrumentEventArgs(midiChannel, note));
             }
         }
+
+
+        public override void ProgramChange(int channel, int programChange)
+        {
+            currentProgram[channel - 1] = (byte)programChange;
+        }
+
 
         private void PlaySound(CachedSound snd, int midiChannel, int note)
         {
