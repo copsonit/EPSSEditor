@@ -2,7 +2,7 @@
 using NAudio.Midi;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+//using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -27,75 +27,60 @@ namespace EPSSEditor
     static class MidPlayer
     {
         private static EPSSMidFile _midReader = new EPSSMidFile();
-        //private static System.Timers.Timer midPlayerTimer = null;
-        //private static System.Threading.Timer midPlayerTimer = null;
-        //private static HPTimer midPlayerTimer = null;
-        //private static AccurateTimer mTimer1;
         private static MidiTimer midiTimer = null;
         private static IMidiInstrument _midiInstrument = null;
-        //private static List<long> times = new List<long>();
-        //private static int showTimesFrom = 0;
-        //private static int tickMs = 20;
-        //private static int tickOrgStep = 16;
-        //private static int tickStep = 16;
+
         private static long tickNum;
         private static long tickLen;
         private static long tickTime;
+        private static long midiTicksPerThreadTick;
 
         private static long startTimeTick;
+        private static bool isPlaying = false;
+        private static TimeBarrier _time;
+        private static Thread _thread;
 
-        //private static object updateLock = new object();
-
-        //public static void StartPlaying(ref Timer timer)
-        //{
-            /*
-            midPlayerTimer = timer;
-            midPlayerTimer.Interval = 1; //ms
-            midPlayerTimer.Start();
-            */
-        //}
-    
-
-
-        public static void StartPlaying(Form form)
+        public static void StartPlaying()
         {
-            //midPlayerTimer = new HPTimer(tickMs);
-            //midPlayerTimer.Tick += doHpTick;
-            startTimeTick = DateTime.Now.Ticks;
-
-            midiTimer = new MidiTimer();
-            midiTimer.Timer += new EventHandler(OnPulse);
-
             tickNum = 0;
             //long rate = 250000; // Number of us per tick
             long rate = 500000; // 500000 should be 120bpm.... 
             if (_midReader.timeSignature == null) rate *= 4;
             long ticksPerQuarter = _midReader.mf.DeltaTicksPerQuarterNote;
             double playbackSpeed = 1;
+
             tickLen = (long)((rate / (ticksPerQuarter * playbackSpeed)) * 10.0f);     //len of each tick in 0.1 usecs (or 100 nanosecs)
+            double tickLenInS = (double)tickLen / 10000000;
+            double fps = 60; // wanted fps around this.
+            // Calculate best value of FPS when tickIncrement is even.
+            double tickIncrement = (1 / tickLenInS) / fps;
+            double timeBarrierFps = (tickIncrement * fps) / (int)tickIncrement;
+            midiTicksPerThreadTick = (int)tickIncrement;
+
             tickTime = 0; // Cumulative tick time in 0.1usec.
 
-            //midPlayerTimer = new System.Threading.Timer(UpdateCallback, null, tickMs, tickMs);
 
-            //midPlayerTimer = new System.Timers.Timer();
-            //midPlayerTimer.Interval = 20;
-            //midPlayerTimer.Elapsed += Elapsed;
-            //midPlayerTimer.AutoReset = true;
-            //midPlayerTimer.Enabled = true;
+            isPlaying = true;
+            _time = new TimeBarrier(timeBarrierFps); // In FPS
+            CreateThread();
 
-            //midPlayerTimer.Tick += n
-            //midPlayerTimer.Interval = 20;
-            //midPlayerTimer.Start();
-
-            //int delay = 20;
-            //mTimer1 = new AccurateTimer(form, new Action(TimerTick1), delay);
-            midiTimer.start(1);
         }
 
-        private static void MidPlayerTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+
+        private static void CreateThread()
         {
-            throw new NotImplementedException();
+            _thread = new Thread(Tick) { Name = "EPSS Editor Midi Player Tick" };
+            _thread.Start();
         }
+
+        private static void WaitThread()
+        {
+            if (_thread != null && (_thread.ThreadState == ThreadState.Running || _thread.ThreadState == ThreadState.WaitSleepJoin))
+            {
+                _thread.Join();
+            }
+        }
+
 
         public static void LoadMidFile(string path)
         {
@@ -112,122 +97,55 @@ namespace EPSSEditor
 
         public static void StopPlaying()
         {
-            //if (midPlayerTimer != null) midPlayerTimer.Stop();
-            //if (midPlayerTimer != null) { midPlayerTimer.Dispose(); }
-            if (midiTimer != null) midiTimer.stop();
-
-        }
-
-        private static void TimerTick1()
-        {
-            //Tick();
-        }
-
-        private static void Elapsed(Object source, System.Timers.ElapsedEventArgs e)
-        {
-            //Tick();
-        }
-
-
-        private static void dotNetTick(object sender, EventArgs e) {
-            //Tick();
-        }
-
-        public static void doHpTick(Object sender, TickEventArgs args) {
-            //Tick();
-            //TickStatic();
-        }
-
-        public static void UpdateCallback(object state)
-        {
-            //Tick();
-        }
-
-
-        private static void OnPulse(object sender, EventArgs e)
-        {
-            Tick();
-        }
-
-        public static void TickStatic()
-        {
-            int tickStep = 2;
-            int n = 0;
-            int trackTicks = _midReader.trackTicks[n];
-
-
-            if (trackTicks <= 0)
+            if (isPlaying)
             {
-                long absTime = 0;
-                int channel = 1;
-                int note = 36;
-                int duration = 96;
-                MidiEvent midiEvent = new NoteOnEvent(absTime, channel, note, 127, duration);
-                if (_midiInstrument != null) _midiInstrument.DoMidiEvent(midiEvent);
-                trackTicks = 48;
-            } else
-            {
-                trackTicks -= tickStep;
+                isPlaying = false;
+                WaitThread();
             }
-            _midReader.trackTicks[n] = trackTicks;
-
         }
 
-       
 
         public static void Tick()
         {
+            _time.Start();
+
+            bool midiFinished = false;
+            while (true)
             {
-                //int tickStep = 16;
-                //long now = DateTime.Now.Ticks;
-                //var watch = System.Diagnostics.Stopwatch.StartNew();
-
-
-
-                long now = DateTime.Now.Ticks;
-                long runningTime = (now - startTimeTick);
-                //long absTimeTick = (DateTime.Now.Ticks - startTimeTick) / 10000; // ms
-
-                bool midiFinished = false;
-                while (runningTime > tickTime)
+                for (int n = 0; n < _midReader.mf.Tracks; n++)
                 {
-
-                    for (int n = 0; n < _midReader.mf.Tracks; n++)
+                    //int trackTicks = _midReader.trackTicks[n];
+                    //if (trackTicks <= 0)
+                    //{
+                    int eventPointer = _midReader.eventPointers[n];
+                    IList<MidiEvent> events = _midReader.mf.Events[n];
+                    MidiEvent midiEvent = events[eventPointer];
+                    while (tickNum >= midiEvent.AbsoluteTime)
                     {
-                        //int trackTicks = _midReader.trackTicks[n];
-                        //if (trackTicks <= 0)
-                        //{
-                        int eventPointer = _midReader.eventPointers[n];
-                        IList<MidiEvent> events = _midReader.mf.Events[n];
+                        if (_midiInstrument != null) _midiInstrument.DoMidiEvent(midiEvent);
 
-                        while (tickNum >= events[eventPointer].AbsoluteTime)
+                        eventPointer++;
+                        _midReader.eventPointers[n] = eventPointer;
+                        if (eventPointer >= events.Count)
                         {
-                            MidiEvent midiEvent = events[eventPointer];
-                            if (_midiInstrument != null) _midiInstrument.DoMidiEvent(midiEvent);
-
-                            eventPointer++;
-                            _midReader.eventPointers[n] = eventPointer;
-                            if (eventPointer >= events.Count)
-                            {
-                                midiFinished = true;
-                                break;
-                            }
+                            midiFinished = true;
+                            break;
                         }
-                        if (midiFinished) { break; }
-
+                        midiEvent = events[eventPointer];
                     }
-                    tickNum++;
-                    tickTime = tickTime + tickLen;
                     if (midiFinished) { break; }
-                }
 
-                if (midiFinished) StopPlaying();
+                }
+                tickNum += midiTicksPerThreadTick;
+                if (midiFinished) { break; }
+                if (!isPlaying) { break; }
+                _time.Wait();
             }
 
+            _time.Stop();
+            isPlaying = false;
         }
-
-
-    }
+     }
 
 
 

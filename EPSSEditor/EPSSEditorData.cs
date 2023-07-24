@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Data.SqlTypes;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace EPSSEditor
 {
@@ -638,6 +639,86 @@ namespace EPSSEditor
             _findSpiSoundArray = null;
         }
 
+
+        public void EnsureCachedSound(SpiSound snd, int newFreq)
+        {
+            CachedSound cs = snd.cachedSound();
+            if (cs == null)
+            {
+                int newBits = AtariConstants.SampleBits;
+                int newChannels = AtariConstants.SampleChannels;
+
+                MemoryStream ms = snd.getWaveStream(this, newFreq, newBits, newChannels);
+                ms.Seek(0, SeekOrigin.Begin);
+                cs = snd.cachedSound(ms, false, (int)snd.loopStart, (int)snd.orgSampleCount, dynamitePan(snd));
+                cs.pitch = 1;
+                cs.vvfeOffset = 0;
+
+            }
+        }
+
+
+        private float dynamitePan(SpiSound snd)
+        {
+            return 0;
+
+            // only experimental with fixed pans depending on name, as SPI normally dont have this information stored
+            float pan = 0;
+            if (snd.name().Contains("KAGGE"))
+            {
+                pan = 0;
+            }
+            else if (snd.name().Contains("CONGA_H"))
+            {
+                pan = -0.9f;
+            }
+            else if (snd.name().Contains("CONGA_L"))
+            {
+                pan = 0.9f;
+            }
+            else if (snd.name().Contains("SD_HIP"))
+            {
+                pan = 0.4f;
+            }
+            else if (snd.name().Contains("ACOU_SD"))
+            {
+                pan = -0.4f;
+            }
+            else if (snd.name().Contains("CHH"))
+            {
+                pan = 0.6f;
+            }
+            else if (snd.name().Contains("OHH"))
+            {
+                pan = -0.6f;
+            }
+            else if (snd.name().Contains("EXPOSE_B"))
+            {
+                pan = 0;
+            }
+            else if (snd.name().Contains("ILIKE_IT"))
+            {
+                pan = 0.2f;
+            }
+            else if (snd.name().Contains("808_RIM"))
+            {
+                pan = 0.2f;
+            }
+            else if (snd.name().Contains("PI_ACCHA"))
+            {
+                pan = 0.2f;
+            }
+            else if (snd.name().Contains("PI_ACCHG"))
+            {
+                pan = -0.2f;
+            }
+            else if (snd.name().Contains("EL_GURA"))
+            {
+                pan = 0; ;
+            }
+            return pan;
+        }
+
         public CachedSound cachedSound(SpiSound snd, int newFreq, int note, int vel)
         {
             CachedSound cs = snd.cachedSound();
@@ -652,64 +733,8 @@ namespace EPSSEditor
                     bool loop = snd.loopMode == 2;
                     //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
                     // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
-
-                    float pan = 0;
-                    if (snd.name().Contains("KAGGE"))
-                    {
-                        pan = 0;
-                    }
-                    else if (snd.name().Contains("CONGA_H"))
-                    {
-                        pan = -0.9f;
-                    }
-                    else if (snd.name().Contains("CONGA_L"))
-                    {
-                        pan = 0.9f;
-                    }
-                    else if (snd.name().Contains("SD_HIP"))
-                    {
-                        pan = 0.4f;
-                    }
-                    else if (snd.name().Contains("ACOU_SD"))
-                    {
-                        pan = -0.4f;
-                    }
-                    else if (snd.name().Contains("CHH"))
-                    {
-                        pan = 0.6f;
-                    }
-                    else if (snd.name().Contains("OHH"))
-                    {
-                        pan = -0.6f;
-                    }
-                    else if (snd.name().Contains("EXPOSE_B"))
-                    {
-                        pan = 0;
-                    }
-                    else if (snd.name().Contains("ILIKE_IT"))
-                    {
-                        pan = 0.2f;
-                    }
-                    else if (snd.name().Contains("808_RIM"))
-                    {
-                        pan = 0.2f;
-                    }
-                   else if (snd.name().Contains("PI_ACCHA"))
-                    {
-                        pan = 0.2f;
-                    }
-                    else if (snd.name().Contains("PI_ACCHG"))
-                    {
-                        pan = -0.2f;
-                    }
-                    else if (snd.name().Contains("EL_GURA"))
-                    {
-                        pan = 0; ;
-                    }
-
-
-
-                    cs = snd.cachedSound(ms, loop, (int)snd.loopStart, (int)snd.orgSampleCount, pan);
+               
+                    cs = snd.cachedSound(ms, loop, (int)snd.loopStart, (int)snd.orgSampleCount, dynamitePan(snd));
                 }
             }
 

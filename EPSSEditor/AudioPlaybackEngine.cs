@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 
@@ -12,42 +13,22 @@ namespace EPSSEditor
 {
     public class AudioPlaybackEngine : IDisposable
     {
-        private readonly DirectSoundOut outputDevice;
+        private readonly WasapiOut outputDevice;
         private readonly MixingSampleProvider mixer;
 
         public AudioPlaybackEngine(int sampleRate = 44100, int channelCount = 2)
         {
-            //outputDevice = new WaveOutEvent();
-
-            //outputDevice = new WaveOut();
-            //outputDevice.DesiredLatency = 60;
-
-            outputDevice = new DirectSoundOut(40);
-
-            //outputDevice.DesiredLatency = 50;
-
+            outputDevice = new WasapiOut(AudioClientShareMode.Shared, true, 20);
             mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channelCount));
-
-            //outputDevice.PlaybackStopped += this.PlaybackLoopCallback;
-           
         }
 
 
         public void Start()
         {
-
             mixer.ReadFully = true;
             outputDevice.Init(mixer);
             outputDevice.Play();
         }
-
-
-        /*public void PlaySound(string fileName)
-        {
-            var input = new AudioFileReader(fileName);
-            AddMixerInput(new AutoDisposeFileReader(input));
-        }
-        */
 
 
         public void PlaySound(CachedSound sound)
@@ -55,8 +36,8 @@ namespace EPSSEditor
             ISampleProvider addedProvider = new CachedSoundSampleProvider(sound, sound.vvfeOffset);
             AddMixerInput(addedProvider);
             sound.IsPlaying = true;
-//            return addedProvider;
         }
+
 
         public void StopSound(CachedSound sound)
         {
@@ -64,6 +45,7 @@ namespace EPSSEditor
             //mixer.RemoveMixerInput(provider);
             //mixer.RemoveAllMixerInputs();
         }
+
 
         private void AddMixerInput(ISampleProvider input)
         {
@@ -94,34 +76,6 @@ namespace EPSSEditor
             outputDevice.Dispose();
         }
     }
-
-    /*
-    public class AutoDisposeFileReader : ISampleProvider
-    {
-        private readonly AudioFileReader reader;
-        private bool isDisposed;
-        public AutoDisposeFileReader(AudioFileReader reader)
-        {
-            this.reader = reader;
-            this.WaveFormat = reader.WaveFormat;
-        }
-
-        public int Read(float[] buffer, int offset, int count)
-        {
-            if (isDisposed)
-                return 0;
-            int read = reader.Read(buffer, offset, count);
-            if (read == 0)
-            {
-                reader.Dispose();
-                isDisposed = true;
-            }
-            return read;
-        }
-
-        public WaveFormat WaveFormat { get; private set; }
-    }
-    */
 
 
     public class CachedSoundSampleProvider : ISampleProvider
@@ -238,10 +192,6 @@ namespace EPSSEditor
             position += samplesToCopy;
             */
 
-
-            // TODO fix when we have pitch.
-
-
             if (cachedSound.loop && samplesToCopy < count)
             {
                 position = loopStart;
@@ -314,9 +264,8 @@ namespace EPSSEditor
             var rsAsSampleProvider = rs.ToSampleProvider();
 
             ISampleProvider resampler;
-            bool usePanning = false;
 
-            if (usePanning)
+            if (Math.Abs(pan) > 0.01)
             {
                 var panner = new PanningSampleProvider(rsAsSampleProvider);
                 panner.PanStrategy = new SquareRootPanStrategy();

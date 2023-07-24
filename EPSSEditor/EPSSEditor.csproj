@@ -115,6 +115,7 @@
     <Compile Include="PianoKbForm.Designer.cs">
       <DependentUpon>PianoKbForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="TimeBarrier.cs" />
     <Compile Include="utililty.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

@@ -2431,13 +2431,10 @@ namespace EPSSEditor
             {
                 midFile = loadMidFileDialog.FileName;
                 MidPlayer.LoadMidFile(midFile);
-                //int newFreq = frequencyFromCompressionTrackBar(compressionTrackBar.Value);
-                //CachedSound cs = data.cachedSound(selected, newFreq);
-                //SpiSoundInstrument spiSoundInstrument = new SpiSoundInstrument(data, audio, newFreq);
-
+                spiSoundInstrument.Init();
                 MidPlayer.RegisterInstrument(spiSoundInstrument);
-                //MidPlayer.StartPlaying(ref midPlayerTimer);
-                MidPlayer.StartPlaying(this);
+
+                MidPlayer.StartPlaying();
 
                 Properties.Settings.Default.MidFile = midFile;
                 Properties.Settings.Default.Save();
@@ -2510,12 +2507,9 @@ namespace EPSSEditor
             ShowNote(e.midiChannel, e.note, true, true);
         }
 
-
         private void midPlayerTimer_Tick(object sender, EventArgs e)
         {
-            MidPlayer.Tick();        
         }
-
 
         private void stopMidButton_Click(object sender, EventArgs e)
         {
@@ -2548,6 +2542,18 @@ namespace EPSSEditor
 
         public SpiSoundInstrument() { }
 
+
+        public void Init()
+        {
+            if (_getEditorDataCallBack != null)
+            {
+                EPSSEditorData data = _getEditorDataCallBack();
+                foreach (SpiSound spi in data.spiSounds)
+                {
+                    data.EnsureCachedSound(spi, newFreq);
+                }
+            }
+        }
 
         public SpiSoundInstrument(GetEPSSEditorDataCallBack callback, AudioPlaybackEngine audio, int newFreq)
         {
