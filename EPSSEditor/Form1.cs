@@ -30,6 +30,7 @@ using M;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
+using axcsCheck4Update;
 
 namespace EPSSEditor
 {
@@ -172,9 +173,62 @@ namespace EPSSEditor
             mappingModeMidiRadioButton.Checked = true;
             setMidiChannel(1);
             updateTotalSize();
-
+            CheckForUpdate();
         }
 
+
+        private void CheckForUpdate(bool inStart=true)
+        {
+            axcsCheck4Update.axMain ax = new axcsCheck4Update.axMain(@"https://copson.se/epss/wp-content/uploads/EPSSEditorCurrentVersionInfo.xml");
+
+            int nMajor = ax.GetVersion(axcsCheck4Update.enVerion.EMajor);
+            int nMinor = ax.GetVersion(axcsCheck4Update.enVerion.EMinor);
+            int nBuild = ax.GetVersion(axcsCheck4Update.enVerion.EBuild);
+            string version = nMajor + "." + nMinor + "." + nBuild;
+
+            if (inStart)
+            {
+                string ignore = Properties.Settings.Default.IgnoreVersion;
+                if (!String.IsNullOrEmpty(ignore))
+                {
+
+                    if (version == ignore)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            string strPath = ax.GetNewVersionPath();
+
+            // Get my own version's numbers
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+
+            int nAppMajor = fileVersionInfo.FileMajorPart;
+            int nAppMinor = fileVersionInfo.FileMinorPart;
+            int nAppBuild = fileVersionInfo.FileBuildPart;
+
+            if (nMajor > nAppMajor || (nMajor == nAppMajor && nMinor > nAppMinor) || (nMajor == nAppMajor && nMinor == nAppMinor && nBuild > nAppBuild))
+            {
+                string link = strPath;
+                string updateMsg = "EPSS Editor version " + version + " released.";
+                UpdateAvailable form = new UpdateAvailable(this, updateMsg, link, version, inStart);
+                
+                form.ShowDialog();
+            } else if (!inStart)
+            {
+                MessageBox.Show("You are already running latest version.");
+            }
+        }
+
+
+        public void IgnoreThisUpdate(string version) 
+        {
+            Console.WriteLine($"Ignore {version}");
+            Properties.Settings.Default.IgnoreVersion = version;
+            Properties.Settings.Default.Save();
+        }
 
         private EPSSEditorData GetEPSSEditorDataCallBack()
         {
@@ -2518,6 +2572,10 @@ namespace EPSSEditor
             spiSoundInstrument.AllNotesOff();
         }
 
+        private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CheckForUpdate(inStart: false);
+        }
     }
 
     public delegate EPSSEditorData GetEPSSEditorDataCallBack();
