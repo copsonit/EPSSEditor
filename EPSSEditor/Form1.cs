@@ -993,7 +993,7 @@ namespace EPSSEditor
         }
 
 
-        private List<CachedSound> playSelectedSound()
+        private List<CachedSound> playSelectedSound(bool forceLoopOff=false)
         {
             List<CachedSound> soundsPlaying = new List<CachedSound>();
             try
@@ -1002,6 +1002,7 @@ namespace EPSSEditor
                 foreach (var snd in sounds)
                 {
                     CachedSound cs = snd.cachedSound();
+                    if (forceLoopOff) cs.loop = false;
                     audio.PlaySound(cs);
                     soundsPlaying.Add(cs);
                 }
@@ -1589,7 +1590,7 @@ namespace EPSSEditor
 
             if (e.KeyChar == ' ')
             {
-                playSelectedSound();
+                playSelectedSound(forceLoopOff:true);
                 e.Handled = true;
             }
             if (ctrlAPressed) e.Handled = true;
