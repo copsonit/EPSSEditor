@@ -2594,7 +2594,6 @@ namespace EPSSEditor
 
         private void StopPlayingMid()
         {
-            Console.WriteLine($"Stopping playing mid...");
             timer1.Stop();
             MidPlayer.StopPlaying();
             spiSoundInstrument.AllNotesOff();
@@ -2602,7 +2601,6 @@ namespace EPSSEditor
 
         private void StartPlayingMid()
         {
-            Console.WriteLine($"Start playing mid...");
             spiSoundInstrument.Init();
             MidPlayer.RegisterInstrument(spiSoundInstrument);
 
