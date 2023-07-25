@@ -111,6 +111,8 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.clearSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadSoundFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.infoToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.omniPatchCheckBox = new System.Windows.Forms.CheckBox();
@@ -134,10 +136,10 @@
             this.helpProvider1 = new System.Windows.Forms.HelpProvider();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.groupBox13 = new System.Windows.Forms.GroupBox();
+            this.midFileBarTextBox = new System.Windows.Forms.TextBox();
             this.loadMidFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.midPlayerTimer = new System.Windows.Forms.Timer(this.components);
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.playMidButton = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
@@ -978,75 +980,90 @@
             // newProjectToolStripMenuItem
             // 
             this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.newProjectToolStripMenuItem.Text = "New Project...";
             this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.newProjectToolStripMenuItem_Click_1);
             // 
             // loadProjectToolStripMenuItem
             // 
             this.loadProjectToolStripMenuItem.Name = "loadProjectToolStripMenuItem";
-            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.loadProjectToolStripMenuItem.Text = "Load Project...";
             this.loadProjectToolStripMenuItem.Click += new System.EventHandler(this.loadProjectToolStripMenuItem_Click);
             // 
             // saveProjectToolStripMenuItem
             // 
             this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
-            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.saveProjectToolStripMenuItem.Text = "Save Project...";
             this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.saveProjectToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(151, 6);
             // 
             // loadSPIToolStripMenuItem
             // 
             this.loadSPIToolStripMenuItem.Name = "loadSPIToolStripMenuItem";
-            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.loadSPIToolStripMenuItem.Text = "Import SPI...";
             this.loadSPIToolStripMenuItem.Click += new System.EventHandler(this.loadSPIToolStripMenuItem_Click);
             // 
             // importSFZToolStripMenuItem
             // 
             this.importSFZToolStripMenuItem.Name = "importSFZToolStripMenuItem";
-            this.importSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.importSFZToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.importSFZToolStripMenuItem.Text = "Import SFZ...";
             this.importSFZToolStripMenuItem.Click += new System.EventHandler(this.importSFZToolStripMenuItem_Click);
             // 
             // saveSPIToolStripMenuItem
             // 
             this.saveSPIToolStripMenuItem.Name = "saveSPIToolStripMenuItem";
-            this.saveSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSPIToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.saveSPIToolStripMenuItem.Text = "Export SPI...";
             this.saveSPIToolStripMenuItem.Click += new System.EventHandler(this.saveSPIToolStripMenuItem_Click);
             // 
             // saveSFZToolStripMenuItem
             // 
             this.saveSFZToolStripMenuItem.Name = "saveSFZToolStripMenuItem";
-            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.saveSFZToolStripMenuItem.Text = "Export SFZ...";
             this.saveSFZToolStripMenuItem.Click += new System.EventHandler(this.saveSFZToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(151, 6);
             // 
             // clearSettingsToolStripMenuItem
             // 
             this.clearSettingsToolStripMenuItem.Name = "clearSettingsToolStripMenuItem";
-            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.clearSettingsToolStripMenuItem.Text = "Clear settings...";
             this.clearSettingsToolStripMenuItem.Click += new System.EventHandler(this.clearSettingsToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.checkForUpdatesToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 22);
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // checkForUpdatesToolStripMenuItem
+            // 
+            this.checkForUpdatesToolStripMenuItem.Name = "checkForUpdatesToolStripMenuItem";
+            this.checkForUpdatesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.checkForUpdatesToolStripMenuItem.Text = "Check for Updates...";
+            this.checkForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.checkForUpdatesToolStripMenuItem_Click);
             // 
             // loadSoundFileDialog
             // 
@@ -1098,11 +1115,10 @@
             // 
             // stopMidButton
             // 
-            this.stopMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.stopMidButton.Location = new System.Drawing.Point(6, 48);
+            this.stopMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.stopMidButton.Location = new System.Drawing.Point(91, 71);
             this.stopMidButton.Name = "stopMidButton";
-            this.stopMidButton.Size = new System.Drawing.Size(165, 22);
+            this.stopMidButton.Size = new System.Drawing.Size(79, 22);
             this.stopMidButton.TabIndex = 9;
             this.stopMidButton.Text = "Stop";
             this.infoToolTip.SetToolTip(this.stopMidButton, "You can drag sounds to the  box to add them faster!");
@@ -1220,6 +1236,8 @@
             // 
             this.groupBox13.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox13.Controls.Add(this.playMidButton);
+            this.groupBox13.Controls.Add(this.midFileBarTextBox);
             this.groupBox13.Controls.Add(this.stopMidButton);
             this.groupBox13.Controls.Add(this.loadMidButton);
             this.groupBox13.Location = new System.Drawing.Point(469, 492);
@@ -1229,30 +1247,39 @@
             this.groupBox13.TabStop = false;
             this.groupBox13.Text = "MIDI";
             // 
+            // midFileBarTextBox
+            // 
+            this.midFileBarTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.midFileBarTextBox.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.midFileBarTextBox.Location = new System.Drawing.Point(8, 47);
+            this.midFileBarTextBox.Name = "midFileBarTextBox";
+            this.midFileBarTextBox.Size = new System.Drawing.Size(162, 20);
+            this.midFileBarTextBox.TabIndex = 24;
+            this.midFileBarTextBox.Text = "1";
+            this.midFileBarTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // loadMidFileDialog
             // 
             this.loadMidFileDialog.FileName = "loadMidFileDialog";
             this.loadMidFileDialog.Filter = "MID files (*.mid)|*.mid|All files (*.*)|*.*";
             this.loadMidFileDialog.Title = "Import EPSS SPI file";
             // 
-            // midPlayerTimer
+            // timer1
             // 
-            this.midPlayerTimer.Tick += new System.EventHandler(this.midPlayerTimer_Tick);
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // helpToolStripMenuItem
+            // playMidButton
             // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.checkForUpdatesToolStripMenuItem});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 22);
-            this.helpToolStripMenuItem.Text = "Help";
-            // 
-            // checkForUpdatesToolStripMenuItem
-            // 
-            this.checkForUpdatesToolStripMenuItem.Name = "checkForUpdatesToolStripMenuItem";
-            this.checkForUpdatesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.checkForUpdatesToolStripMenuItem.Text = "Check for Updates...";
-            this.checkForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.checkForUpdatesToolStripMenuItem_Click);
+            this.playMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.playMidButton.Location = new System.Drawing.Point(8, 71);
+            this.playMidButton.Name = "playMidButton";
+            this.playMidButton.Size = new System.Drawing.Size(77, 22);
+            this.playMidButton.TabIndex = 25;
+            this.playMidButton.Text = "Play";
+            this.infoToolTip.SetToolTip(this.playMidButton, "You can drag sounds to the  box to add them faster!");
+            this.playMidButton.UseVisualStyleBackColor = true;
+            this.playMidButton.Click += new System.EventHandler(this.playMidButton_Click);
             // 
             // Form1
             // 
@@ -1312,6 +1339,7 @@
             this.groupBox10.ResumeLayout(false);
             this.groupBox10.PerformLayout();
             this.groupBox13.ResumeLayout(false);
+            this.groupBox13.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1420,12 +1448,14 @@
         private System.Windows.Forms.GroupBox groupBox13;
         private System.Windows.Forms.Button loadMidButton;
         private System.Windows.Forms.OpenFileDialog loadMidFileDialog;
-        private System.Windows.Forms.Timer midPlayerTimer;
         private System.Windows.Forms.Button stopMidButton;
         private System.Windows.Forms.Label custMidiToneCtrLabel;
         private System.Windows.Forms.TextBox custMidToneCentreTextBox;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem checkForUpdatesToolStripMenuItem;
+        private System.Windows.Forms.TextBox midFileBarTextBox;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Button playMidButton;
     }
 }
 

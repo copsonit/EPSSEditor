@@ -2,7 +2,7 @@
 using NAudio.Midi;
 using System;
 using System.Collections.Generic;
-//using System.Diagnostics;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -30,17 +30,18 @@ namespace EPSSEditor
         private static MidiTimer midiTimer = null;
         private static IMidiInstrument _midiInstrument = null;
 
-        private static long tickNum;
-        private static long tickLen;
-        private static long tickTime;
+        public static long tickNum;
         private static long midiTicksPerThreadTick;
+        private static double timeBarrierFps;
 
-        private static long startTimeTick;
-        private static bool isPlaying = false;
+        public static bool isPlaying = false;
         private static TimeBarrier _time;
         private static Thread _thread;
 
-        public static void StartPlaying()
+        //public static event EventHandler<MidFileEventArgs> MidiTickEvent;
+
+
+        public static void InitPlaying()
         {
             tickNum = 0;
             //long rate = 250000; // Number of us per tick
@@ -49,21 +50,20 @@ namespace EPSSEditor
             long ticksPerQuarter = _midReader.mf.DeltaTicksPerQuarterNote;
             double playbackSpeed = 1;
 
-            tickLen = (long)((rate / (ticksPerQuarter * playbackSpeed)) * 10.0f);     //len of each tick in 0.1 usecs (or 100 nanosecs)
+            long tickLen = (long)((rate / (ticksPerQuarter * playbackSpeed)) * 10.0f);     //len of each tick in 0.1 usecs (or 100 nanosecs)
             double tickLenInS = (double)tickLen / 10000000;
             double fps = 60; // wanted fps around this.
             // Calculate best value of FPS when tickIncrement is even.
             double tickIncrement = (1 / tickLenInS) / fps;
-            double timeBarrierFps = (tickIncrement * fps) / (int)tickIncrement;
+            timeBarrierFps = (tickIncrement * fps) / (int)tickIncrement;
             midiTicksPerThreadTick = (int)tickIncrement;
+        }
 
-            tickTime = 0; // Cumulative tick time in 0.1usec.
-
-
+        public static void StartPlaying()
+        {
             isPlaying = true;
             _time = new TimeBarrier(timeBarrierFps); // In FPS
             CreateThread();
-
         }
 
 
@@ -75,7 +75,7 @@ namespace EPSSEditor
 
         private static void WaitThread()
         {
-            if (_thread != null && (_thread.ThreadState == ThreadState.Running || _thread.ThreadState == ThreadState.WaitSleepJoin))
+            if (_thread != null && (_thread.ThreadState == System.Threading.ThreadState.Running || _thread.ThreadState == System.Threading.ThreadState.WaitSleepJoin))
             {
                 _thread.Join();
             }
@@ -86,8 +86,78 @@ namespace EPSSEditor
         {
             StopPlaying();
             _midReader.Load(path);
+            InitPlaying();
         }
 
+
+        public static int Denominator()
+        {
+            if (_midReader != null)
+            {
+
+                if (_midReader.timeSignature != null)
+                {
+                    return _midReader.timeSignature.Denominator;
+                }
+
+            }
+            return 2;
+        }
+
+
+        public static int Numerator()
+        {
+            if (_midReader != null)
+            {
+                if (_midReader.timeSignature != null)
+                {
+                    return _midReader.timeSignature.Numerator;
+                }
+
+            }
+            return 4;
+        }
+
+
+        public static long Clocks()
+        {
+            if (_midReader != null)
+            {
+
+                if (_midReader.timeSignature != null)
+                {
+                    return _midReader.timeSignature.TicksInMetronomeClick;
+                }
+
+            }
+            return 24;
+        }
+
+
+
+        public static long NumberOf32()
+        {
+            if (_midReader != null)
+            {
+
+                if (_midReader.timeSignature != null)
+                {
+                    return _midReader.timeSignature.No32ndNotesInQuarterNote;
+                }
+
+            }
+            return 8;
+        }
+
+
+        public static long TicksPerQuarter()
+        {
+            if (_midReader != null)
+            {
+                return _midReader.mf.DeltaTicksPerQuarterNote;
+            }
+            return 192;
+        }
 
         public static void RegisterInstrument(IMidiInstrument i)
         {
@@ -110,6 +180,7 @@ namespace EPSSEditor
             _time.Start();
 
             bool midiFinished = false;
+
             while (true)
             {
                 for (int n = 0; n < _midReader.mf.Tracks; n++)
@@ -137,8 +208,10 @@ namespace EPSSEditor
 
                 }
                 tickNum += midiTicksPerThreadTick;
+
                 if (midiFinished) { break; }
                 if (!isPlaying) { break; }
+
                 _time.Wait();
             }
 
@@ -148,7 +221,18 @@ namespace EPSSEditor
      }
 
 
+    public class MidFileEventArgs : EventArgs
+    {
+        public long tick { get; private set; }
 
+        public MidFileEventArgs(long tick)
+        {
+            this.tick = tick;
+        }
+    }
+
+
+    /*
     class AccurateTimer
     {
         private delegate void TimerEventDel(int id, int msg, IntPtr user, int dw1, int dw2);
@@ -189,7 +273,9 @@ namespace EPSSEditor
             if (mTimerId != 0)
                 mForm.BeginInvoke(mAction);
         }
+    
     }
+    */
 
 
     public class EPSSMidFile
@@ -239,7 +325,7 @@ namespace EPSSEditor
         }
 
     }
-
+    
 
 
 

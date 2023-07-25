@@ -253,6 +253,7 @@ namespace EPSSEditor
 
         private void exit()
         {
+            timer1.Stop();
             MidPlayer.StopPlaying();
             Properties.Settings.Default.WinState = this.WindowState;
             if (this.WindowState == FormWindowState.Normal)
@@ -2478,24 +2479,12 @@ namespace EPSSEditor
             CustomSampleRadioButton.Checked = true;
         }
 
-        private void loadMidButton_Click(object sender, EventArgs e)
+
+
+        private void MidPlayer_MidiTickEvent(object sender, MidFileEventArgs e)
         {
-            string midFile = Properties.Settings.Default.MidFile;
-            loadMidFileDialog.FileName = midFile;
-            if (loadMidFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                midFile = loadMidFileDialog.FileName;
-                MidPlayer.LoadMidFile(midFile);
-                spiSoundInstrument.Init();
-                MidPlayer.RegisterInstrument(spiSoundInstrument);
 
-                MidPlayer.StartPlaying();
-
-                Properties.Settings.Default.MidFile = midFile;
-                Properties.Settings.Default.Save();
-            }
         }
-
 
         private void SetKeyAllOff()
         {
@@ -2562,20 +2551,75 @@ namespace EPSSEditor
             ShowNote(e.midiChannel, e.note, true, true);
         }
 
-        private void midPlayerTimer_Tick(object sender, EventArgs e)
+        private void loadMidButton_Click(object sender, EventArgs e)
         {
+            string midFile = Properties.Settings.Default.MidFile;
+            loadMidFileDialog.FileName = midFile;
+            if (loadMidFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                midFile = loadMidFileDialog.FileName;
+                MidPlayer.LoadMidFile(midFile);
+
+                Properties.Settings.Default.MidFile = midFile;
+                Properties.Settings.Default.Save();
+
+                StartPlayingMid();
+            }
         }
 
         private void stopMidButton_Click(object sender, EventArgs e)
         {
+            timer1.Stop();
             MidPlayer.StopPlaying();
             spiSoundInstrument.AllNotesOff();
+        }
+
+        private void playMidButton_Click(object sender, EventArgs e)
+        {
+            StartPlayingMid();
+        }
+
+        private void StartPlayingMid()
+        {
+            spiSoundInstrument.Init();
+            MidPlayer.RegisterInstrument(spiSoundInstrument);
+
+            if (!MidPlayer.isPlaying)
+            {
+                MidPlayer.StartPlaying();
+                timer1.Start();
+            }
         }
 
         private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             CheckForUpdate(inStart: false);
         }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            long tick = MidPlayer.tickNum;
+            int denominator = MidPlayer.Denominator();
+
+            long num = (long)(tick * Math.Pow(2, denominator)) / (long)(4 * MidPlayer.TicksPerQuarter() * MidPlayer.Numerator());
+            long mod = (long)(tick * Math.Pow(2, denominator)) % (long)(4 * MidPlayer.TicksPerQuarter() * MidPlayer.Numerator());
+
+            long bar = num + 1;
+            long beat = mod / (4 * MidPlayer.TicksPerQuarter()) + 1;
+            long pos = mod % (MidPlayer.TicksPerQuarter());
+
+            //double position = (double)(tick * Math.Pow(2, denominator)) / (double)(4 * MidPlayer.TicksPerQuarter() * MidPlayer.Numerator());
+            //Console.WriteLine($"{bar}.{beat}.{pos}");
+            StringBuilder sb = new StringBuilder();
+            sb.Append(bar.ToString().PadLeft(3, ' '));
+            sb.Append(".");
+            sb.Append(beat);
+            sb.Append(".");
+            sb.Append(pos.ToString().PadLeft(3, ' '));
+            midFileBarTextBox.Text = sb.ToString();
+        }
+
+
     }
 
     public delegate EPSSEditorData GetEPSSEditorDataCallBack();
