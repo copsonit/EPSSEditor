@@ -2685,6 +2685,7 @@ namespace EPSSEditor
             StopPlayingMid();
         }
 
+
         private void ffwMidButton_MouseUp(object sender, MouseEventArgs e)
         {
             revMidTimer.Stop();
@@ -2738,7 +2739,6 @@ namespace EPSSEditor
                     spoolStep = 32;
                     revMidTimer.Start();
                     wasPlayingBeforeSpool = MidPlayer.isPlaying;
-                    Console.WriteLine($"Key down: {wasPlayingBeforeSpool}");
                     StopPlayingMid();
                     handled = true;
                     ffwMidButton.Focus();
@@ -2753,7 +2753,6 @@ namespace EPSSEditor
             bool handled = false;
             if (revMidTimer.Enabled)
             {
-                Console.WriteLine($"Key up: {wasPlayingBeforeSpool}");
                 revMidTimer.Stop();
                 if (wasPlayingBeforeSpool)
                 {
@@ -2773,7 +2772,6 @@ namespace EPSSEditor
         {
             if (HandleTransportKeyDown(e.KeyCode)) e.Handled = true;
         }
-
 
         private void stopMidButton_KeyDown(object sender, KeyEventArgs e)
         {
