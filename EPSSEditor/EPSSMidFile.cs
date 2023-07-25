@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -43,6 +44,7 @@ namespace EPSSEditor
 
         public static void InitPlaying()
         {
+            _midReader.Init();
             tickNum = 0;
             //long rate = 250000; // Number of us per tick
             long rate = 500000; // 500000 should be 120bpm.... 
@@ -82,11 +84,12 @@ namespace EPSSEditor
         }
 
 
-        public static void LoadMidFile(string path)
+        public static bool LoadMidFile(string path)
         {
             StopPlaying();
-            _midReader.Load(path);
+            bool result = _midReader.Load(path);
             InitPlaying();
+            return result;
         }
 
 
@@ -175,6 +178,38 @@ namespace EPSSEditor
         }
 
 
+        public static void SpoolTick(int step)
+        {
+            tickNum = Math.Max(0, tickNum + midiTicksPerThreadTick * step);
+            tickNum = Math.Min(_midReader.lastMidiTick, tickNum);
+
+            for (int n = 0; n < _midReader.mf.Tracks; n++)
+            {
+                int eventPointer = _midReader.eventPointers[n];
+                IList<MidiEvent> events = _midReader.mf.Events[n];
+
+                if (step < 0)
+                {
+                    while (eventPointer >= 0)
+                    {
+                        MidiEvent midiEvent = events[eventPointer];
+                        if (midiEvent.AbsoluteTime <= tickNum) break;
+                        eventPointer--;
+                    }
+                } else
+                {
+                    while (eventPointer < (events.Count - 1))
+                    {
+                        MidiEvent midiEvent = events[eventPointer];
+                        if (tickNum < midiEvent.AbsoluteTime) break;
+                        if (eventPointer < (events.Count-1)) eventPointer++;
+                    }
+                }
+                _midReader.eventPointers[n] = eventPointer;
+            }
+        }
+
+
         public static void Tick()
         {
             _time.Start();
@@ -191,17 +226,18 @@ namespace EPSSEditor
                     int eventPointer = _midReader.eventPointers[n];
                     IList<MidiEvent> events = _midReader.mf.Events[n];
                     MidiEvent midiEvent = events[eventPointer];
-                    while (tickNum >= midiEvent.AbsoluteTime)
+                    while (tickNum >= midiEvent.AbsoluteTime && eventPointer < (events.Count-1))
                     {
                         if (_midiInstrument != null) _midiInstrument.DoMidiEvent(midiEvent);
 
-                        eventPointer++;
-                        _midReader.eventPointers[n] = eventPointer;
-                        if (eventPointer >= events.Count)
-                        {
+                        if (eventPointer < (events.Count - 1)) eventPointer++;
+                        //if (eventPointer >= events.Count)
+                        if (tickNum >= _midReader.lastMidiTick)
+                        {                          
                             midiFinished = true;
                             break;
                         }
+                        _midReader.eventPointers[n] = eventPointer;
                         midiEvent = events[eventPointer];
                     }
                     if (midiFinished) { break; }
@@ -232,67 +268,28 @@ namespace EPSSEditor
     }
 
 
-    /*
-    class AccurateTimer
-    {
-        private delegate void TimerEventDel(int id, int msg, IntPtr user, int dw1, int dw2);
-        private const int TIME_PERIODIC = 1;
-        private const int EVENT_TYPE = TIME_PERIODIC;// + 0x100;  // TIME_KILL_SYNCHRONOUS causes a hang ?!
-        [DllImport("winmm.dll")]
-        private static extern int timeBeginPeriod(int msec);
-        [DllImport("winmm.dll")]
-        private static extern int timeEndPeriod(int msec);
-        [DllImport("winmm.dll")]
-        private static extern int timeSetEvent(int delay, int resolution, TimerEventDel handler, IntPtr user, int eventType);
-        [DllImport("winmm.dll")]
-        private static extern int timeKillEvent(int id);
-
-        Action mAction;
-        Form mForm;
-        private int mTimerId;
-        private TimerEventDel mHandler;  // NOTE: declare at class scope so garbage collector doesn't release it!!!
-
-        public AccurateTimer(Form form, Action action, int delay)
-        {
-            mAction = action;
-            mForm = form;
-            timeBeginPeriod(1);
-            mHandler = new TimerEventDel(TimerCallback);
-            mTimerId = timeSetEvent(delay, 0, mHandler, IntPtr.Zero, EVENT_TYPE);
-        }
-
-        public void Stop()
-        {
-            int err = timeKillEvent(mTimerId);
-            timeEndPeriod(1);
-            System.Threading.Thread.Sleep(100);// Ensure callbacks are drained
-        }
-
-        private void TimerCallback(int id, int msg, IntPtr user, int dw1, int dw2)
-        {
-            if (mTimerId != 0)
-                mForm.BeginInvoke(mAction);
-        }
-    
-    }
-    */
-
-
-    public class EPSSMidFile
+     public class EPSSMidFile
     {
         public MidiFile mf;
         public string path;
         public TimeSignatureEvent timeSignature;
+        public long lastMidiTick;
 
         public Dictionary<int, int> eventPointers;
         public Dictionary<int, int> trackTicks;
         public Dictionary<int, int> absoluteTicks;
 
-        public void Load(string fileName)
+        public bool Load(string fileName)
         {
             path = fileName;
-            var strictMode = false;
-            mf = new MidiFile(path, strictMode);
+            try
+            {
+                var strictMode = false;
+                mf = new MidiFile(path, strictMode);
+            }catch (Exception e)
+            {
+                return false;
+            }
             timeSignature = mf.Events[0].OfType<TimeSignatureEvent>().FirstOrDefault();
             if (timeSignature != null)
             {
@@ -302,6 +299,20 @@ namespace EPSSEditor
                 Console.WriteLine("No TimeSignatureEvent found in MID file.");
             }
 
+            lastMidiTick = 0;
+            for (int n = 0; n < mf.Tracks; n++)
+            {
+                IList<MidiEvent> events = mf.Events[n];
+                MidiEvent lastEvent = events[events.Count - 1];
+                lastMidiTick = Math.Max(lastEvent.AbsoluteTime, lastMidiTick);
+            }
+
+            return true;
+        }
+
+
+        public void Init()
+        {
             eventPointers = new Dictionary<int, int>();
             trackTicks = new Dictionary<int, int>();
             absoluteTicks = new Dictionary<int, int>();

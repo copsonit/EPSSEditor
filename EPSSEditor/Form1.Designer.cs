@@ -119,6 +119,9 @@
             this.gen2CheckBox = new System.Windows.Forms.CheckBox();
             this.loadMidButton = new System.Windows.Forms.Button();
             this.stopMidButton = new System.Windows.Forms.Button();
+            this.playMidButton = new System.Windows.Forms.Button();
+            this.revMidButton = new System.Windows.Forms.Button();
+            this.ffwMidButton = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
@@ -139,7 +142,7 @@
             this.midFileBarTextBox = new System.Windows.Forms.TextBox();
             this.loadMidFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.playMidButton = new System.Windows.Forms.Button();
+            this.revMidTimer = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
@@ -214,7 +217,7 @@
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.helpProvider1.SetShowHelp(this.groupBox2, true);
-            this.groupBox2.Size = new System.Drawing.Size(585, 460);
+            this.groupBox2.Size = new System.Drawing.Size(565, 460);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
@@ -225,7 +228,7 @@
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(369, 427);
+            this.button1.Location = new System.Drawing.Point(349, 427);
             this.button1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(71, 23);
@@ -248,7 +251,7 @@
             this.previewComboBox.Location = new System.Drawing.Point(55, 430);
             this.previewComboBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.previewComboBox.Name = "previewComboBox";
-            this.previewComboBox.Size = new System.Drawing.Size(310, 21);
+            this.previewComboBox.Size = new System.Drawing.Size(290, 21);
             this.previewComboBox.TabIndex = 17;
             this.previewComboBox.SelectedIndexChanged += new System.EventHandler(this.previewComboBox_SelectedIndexChanged);
             // 
@@ -266,7 +269,7 @@
             // spiSoundListenButton
             // 
             this.spiSoundListenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.spiSoundListenButton.Location = new System.Drawing.Point(445, 427);
+            this.spiSoundListenButton.Location = new System.Drawing.Point(425, 427);
             this.spiSoundListenButton.Name = "spiSoundListenButton";
             this.spiSoundListenButton.Size = new System.Drawing.Size(66, 23);
             this.spiSoundListenButton.TabIndex = 8;
@@ -286,7 +289,7 @@
             this.spiSoundListView.HideSelection = false;
             this.spiSoundListView.Location = new System.Drawing.Point(5, 19);
             this.spiSoundListView.Name = "spiSoundListView";
-            this.spiSoundListView.Size = new System.Drawing.Size(576, 402);
+            this.spiSoundListView.Size = new System.Drawing.Size(556, 402);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
             this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.spiSoundListView_ItemSelectionChanged);
@@ -298,7 +301,7 @@
             // 
             this.deleteSpiSoundButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.deleteSpiSoundButton.Enabled = false;
-            this.deleteSpiSoundButton.Location = new System.Drawing.Point(520, 427);
+            this.deleteSpiSoundButton.Location = new System.Drawing.Point(500, 427);
             this.deleteSpiSoundButton.Name = "deleteSpiSoundButton";
             this.deleteSpiSoundButton.Size = new System.Drawing.Size(61, 23);
             this.deleteSpiSoundButton.TabIndex = 8;
@@ -955,7 +958,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(1098, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1078, 24);
             this.menuStrip1.TabIndex = 8;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1106,7 +1109,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.loadMidButton.Location = new System.Drawing.Point(5, 19);
             this.loadMidButton.Name = "loadMidButton";
-            this.loadMidButton.Size = new System.Drawing.Size(165, 22);
+            this.loadMidButton.Size = new System.Drawing.Size(145, 22);
             this.loadMidButton.TabIndex = 8;
             this.loadMidButton.Text = "Load and Play MID...";
             this.infoToolTip.SetToolTip(this.loadMidButton, "You can drag sounds to the  box to add them faster!");
@@ -1115,15 +1118,59 @@
             // 
             // stopMidButton
             // 
-            this.stopMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.stopMidButton.Location = new System.Drawing.Point(91, 71);
+            this.stopMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.stopMidButton.Location = new System.Drawing.Point(39, 71);
             this.stopMidButton.Name = "stopMidButton";
-            this.stopMidButton.Size = new System.Drawing.Size(79, 22);
+            this.stopMidButton.Size = new System.Drawing.Size(37, 22);
             this.stopMidButton.TabIndex = 9;
             this.stopMidButton.Text = "Stop";
             this.infoToolTip.SetToolTip(this.stopMidButton, "You can drag sounds to the  box to add them faster!");
             this.stopMidButton.UseVisualStyleBackColor = true;
             this.stopMidButton.Click += new System.EventHandler(this.stopMidButton_Click);
+            this.stopMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.stopMidButton_KeyDown);
+            // 
+            // playMidButton
+            // 
+            this.playMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.playMidButton.Location = new System.Drawing.Point(82, 71);
+            this.playMidButton.Name = "playMidButton";
+            this.playMidButton.Size = new System.Drawing.Size(35, 22);
+            this.playMidButton.TabIndex = 25;
+            this.playMidButton.Text = "Play";
+            this.infoToolTip.SetToolTip(this.playMidButton, "You can drag sounds to the  box to add them faster!");
+            this.playMidButton.UseVisualStyleBackColor = true;
+            this.playMidButton.Click += new System.EventHandler(this.playMidButton_Click);
+            this.playMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.playMidButton_KeyDown);
+            // 
+            // revMidButton
+            // 
+            this.revMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.revMidButton.Location = new System.Drawing.Point(6, 71);
+            this.revMidButton.Name = "revMidButton";
+            this.revMidButton.Size = new System.Drawing.Size(27, 22);
+            this.revMidButton.TabIndex = 26;
+            this.revMidButton.Text = "<<";
+            this.infoToolTip.SetToolTip(this.revMidButton, "You can drag sounds to the  box to add them faster!");
+            this.revMidButton.UseVisualStyleBackColor = true;
+            this.revMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.revMidButton_KeyDown);
+            this.revMidButton.KeyUp += new System.Windows.Forms.KeyEventHandler(this.revMidButton_KeyUp);
+            this.revMidButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.revMidButton_MouseDown);
+            this.revMidButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.revMidButton_MouseUp);
+            // 
+            // ffwMidButton
+            // 
+            this.ffwMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.ffwMidButton.Location = new System.Drawing.Point(123, 71);
+            this.ffwMidButton.Name = "ffwMidButton";
+            this.ffwMidButton.Size = new System.Drawing.Size(27, 22);
+            this.ffwMidButton.TabIndex = 27;
+            this.ffwMidButton.Text = ">>";
+            this.infoToolTip.SetToolTip(this.ffwMidButton, "You can drag sounds to the  box to add them faster!");
+            this.ffwMidButton.UseVisualStyleBackColor = true;
+            this.ffwMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ffwMidButton_KeyDown);
+            this.ffwMidButton.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ffwMidButton_KeyUp);
+            this.ffwMidButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ffwMidButton_MouseDown);
+            this.ffwMidButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ffwMidButton_MouseUp);
             // 
             // groupBox4
             // 
@@ -1144,7 +1191,7 @@
             this.groupBox8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox8.Controls.Add(this.groupBox10);
             this.groupBox8.Controls.Add(this.groupBox4);
-            this.groupBox8.Location = new System.Drawing.Point(651, 492);
+            this.groupBox8.Location = new System.Drawing.Point(631, 492);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(431, 117);
             this.groupBox8.TabIndex = 11;
@@ -1236,13 +1283,15 @@
             // 
             this.groupBox13.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox13.Controls.Add(this.ffwMidButton);
+            this.groupBox13.Controls.Add(this.revMidButton);
             this.groupBox13.Controls.Add(this.playMidButton);
             this.groupBox13.Controls.Add(this.midFileBarTextBox);
             this.groupBox13.Controls.Add(this.stopMidButton);
             this.groupBox13.Controls.Add(this.loadMidButton);
             this.groupBox13.Location = new System.Drawing.Point(469, 492);
             this.groupBox13.Name = "groupBox13";
-            this.groupBox13.Size = new System.Drawing.Size(176, 118);
+            this.groupBox13.Size = new System.Drawing.Size(156, 118);
             this.groupBox13.TabIndex = 20;
             this.groupBox13.TabStop = false;
             this.groupBox13.Text = "MIDI";
@@ -1254,7 +1303,7 @@
             this.midFileBarTextBox.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.midFileBarTextBox.Location = new System.Drawing.Point(8, 47);
             this.midFileBarTextBox.Name = "midFileBarTextBox";
-            this.midFileBarTextBox.Size = new System.Drawing.Size(162, 20);
+            this.midFileBarTextBox.Size = new System.Drawing.Size(142, 20);
             this.midFileBarTextBox.TabIndex = 24;
             this.midFileBarTextBox.Text = "1";
             this.midFileBarTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -1269,23 +1318,16 @@
             // 
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // playMidButton
+            // revMidTimer
             // 
-            this.playMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.playMidButton.Location = new System.Drawing.Point(8, 71);
-            this.playMidButton.Name = "playMidButton";
-            this.playMidButton.Size = new System.Drawing.Size(77, 22);
-            this.playMidButton.TabIndex = 25;
-            this.playMidButton.Text = "Play";
-            this.infoToolTip.SetToolTip(this.playMidButton, "You can drag sounds to the  box to add them faster!");
-            this.playMidButton.UseVisualStyleBackColor = true;
-            this.playMidButton.Click += new System.EventHandler(this.playMidButton_Click);
+            this.revMidTimer.Interval = 20;
+            this.revMidTimer.Tick += new System.EventHandler(this.revMidTimer_Tick);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1098, 611);
+            this.ClientSize = new System.Drawing.Size(1078, 611);
             this.Controls.Add(this.groupBox13);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.useInSpiButton);
@@ -1301,7 +1343,7 @@
             this.Location = global::EPSSEditor.Properties.Settings.Default.WinLocation;
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.MinimumSize = new System.Drawing.Size(1000, 650);
+            this.MinimumSize = new System.Drawing.Size(1094, 650);
             this.Name = "Form1";
             this.helpProvider1.SetShowHelp(this, false);
             this.Text = "EPSS Editor v1.08 - 20210116";
@@ -1456,6 +1498,9 @@
         private System.Windows.Forms.TextBox midFileBarTextBox;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Button playMidButton;
+        private System.Windows.Forms.Button ffwMidButton;
+        private System.Windows.Forms.Button revMidButton;
+        private System.Windows.Forms.Timer revMidTimer;
     }
 }
 

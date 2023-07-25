@@ -2557,21 +2557,34 @@ namespace EPSSEditor
             loadMidFileDialog.FileName = midFile;
             if (loadMidFileDialog.ShowDialog() == DialogResult.OK)
             {
+                MidPlayer.tickNum = -1;
+                UpdateSongPosition();
                 midFile = loadMidFileDialog.FileName;
-                MidPlayer.LoadMidFile(midFile);
-
-                Properties.Settings.Default.MidFile = midFile;
-                Properties.Settings.Default.Save();
-
-                StartPlayingMid();
+                if (MidPlayer.LoadMidFile(midFile))
+                {
+                    StopPlayingMid();
+                    Properties.Settings.Default.MidFile = midFile;
+                    Properties.Settings.Default.Save();
+                    playMidButton.Focus();
+                    StartPlayingMid();
+                } else
+                {
+                    MessageBox.Show("Mid file cannot be loaded.");
+                }
             }
         }
 
         private void stopMidButton_Click(object sender, EventArgs e)
         {
-            timer1.Stop();
-            MidPlayer.StopPlaying();
-            spiSoundInstrument.AllNotesOff();
+            if (!MidPlayer.isPlaying)
+            {
+                MidPlayer.InitPlaying();
+                UpdateSongPosition();
+            }
+            else
+            {
+                StopPlayingMid();
+            }
         }
 
         private void playMidButton_Click(object sender, EventArgs e)
@@ -2579,8 +2592,17 @@ namespace EPSSEditor
             StartPlayingMid();
         }
 
+        private void StopPlayingMid()
+        {
+            Console.WriteLine($"Stopping playing mid...");
+            timer1.Stop();
+            MidPlayer.StopPlaying();
+            spiSoundInstrument.AllNotesOff();
+        }
+
         private void StartPlayingMid()
         {
+            Console.WriteLine($"Start playing mid...");
             spiSoundInstrument.Init();
             MidPlayer.RegisterInstrument(spiSoundInstrument);
 
@@ -2598,28 +2620,185 @@ namespace EPSSEditor
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            long tick = MidPlayer.tickNum;
-            int denominator = MidPlayer.Denominator();
-
-            long num = (long)(tick * Math.Pow(2, denominator)) / (long)(4 * MidPlayer.TicksPerQuarter() * MidPlayer.Numerator());
-            long mod = (long)(tick * Math.Pow(2, denominator)) % (long)(4 * MidPlayer.TicksPerQuarter() * MidPlayer.Numerator());
-
-            long bar = num + 1;
-            long beat = mod / (4 * MidPlayer.TicksPerQuarter()) + 1;
-            long pos = mod % (MidPlayer.TicksPerQuarter());
-
-            //double position = (double)(tick * Math.Pow(2, denominator)) / (double)(4 * MidPlayer.TicksPerQuarter() * MidPlayer.Numerator());
-            //Console.WriteLine($"{bar}.{beat}.{pos}");
-            StringBuilder sb = new StringBuilder();
-            sb.Append(bar.ToString().PadLeft(3, ' '));
-            sb.Append(".");
-            sb.Append(beat);
-            sb.Append(".");
-            sb.Append(pos.ToString().PadLeft(3, ' '));
-            midFileBarTextBox.Text = sb.ToString();
+            UpdateSongPosition();
         }
 
 
+        private void UpdateSongPosition()
+        {
+            StringBuilder sb = new StringBuilder();
+            long tick = MidPlayer.tickNum;
+            if (tick >= 0)
+            {
+                int denominator = MidPlayer.Denominator();
+
+                long num = (long)(tick * Math.Pow(2, denominator)) / (long)(4 * MidPlayer.TicksPerQuarter() * MidPlayer.Numerator());
+                long mod = (long)(tick * Math.Pow(2, denominator)) % (long)(4 * MidPlayer.TicksPerQuarter() * MidPlayer.Numerator());
+
+                long bar = num + 1;
+                long beat = mod / (4 * MidPlayer.TicksPerQuarter()) + 1;
+                long pos = mod % (MidPlayer.TicksPerQuarter());
+
+                //double position = (double)(tick * Math.Pow(2, denominator)) / (double)(4 * MidPlayer.TicksPerQuarter() * MidPlayer.Numerator());
+                //Console.WriteLine($"{bar}.{beat}.{pos}");
+
+                sb.Append(bar.ToString().PadLeft(3, ' '));
+                sb.Append(".");
+                sb.Append(beat);
+                sb.Append(".");
+                sb.Append(pos.ToString().PadLeft(3, ' '));
+            } else
+            {
+                sb.Append("-.-.-");
+            }
+            midFileBarTextBox.Text = sb.ToString();
+        }
+
+        private int spoolStep;
+        private bool wasPlayingBeforeSpool;
+
+        private void revMidButton_MouseDown(object sender, MouseEventArgs e)
+        {
+            spoolStep = -32;
+            revMidTimer.Start();
+            wasPlayingBeforeSpool = MidPlayer.isPlaying;
+            StopPlayingMid();
+        }
+
+        private void revMidTimer_Tick(object sender, EventArgs e)
+        {
+            MidPlayer.SpoolTick(spoolStep);
+            UpdateSongPosition();
+        }
+
+        private void revMidButton_MouseUp(object sender, MouseEventArgs e)
+        {
+            revMidTimer.Stop();
+            if (wasPlayingBeforeSpool) StartPlayingMid();
+        }
+
+        private void ffwMidButton_MouseDown(object sender, MouseEventArgs e)
+        {
+            spoolStep = 32;
+            revMidTimer.Start();
+            wasPlayingBeforeSpool = MidPlayer.isPlaying;
+            StopPlayingMid();
+        }
+
+        private void ffwMidButton_MouseUp(object sender, MouseEventArgs e)
+        {
+            revMidTimer.Stop();
+            if (wasPlayingBeforeSpool) StartPlayingMid();
+        }
+
+
+        private bool HandleTransportKeyDown(Keys key)
+        {
+            bool handled = false;
+            if (key == Keys.NumPad0 || key == Keys.Insert)
+            { // Numeric 0
+                StopPlayingMid();
+                stopMidButton.Focus();
+                handled = true;
+            }
+            else if (key == Keys.Space)
+            {
+                if (MidPlayer.isPlaying)
+                {
+                    StopPlayingMid();
+                    stopMidButton.Focus();
+                    handled = true;
+                } else
+                {
+                    StartPlayingMid();
+                    playMidButton.Focus();
+                }
+            }
+            else if (key == Keys.Enter)
+            { // Enter
+                StartPlayingMid();
+                playMidButton.Focus();
+            }
+            else if (key == Keys.Subtract)
+            {
+                if (!revMidTimer.Enabled)
+                {
+                    spoolStep = -32;
+                    revMidTimer.Start();
+                    wasPlayingBeforeSpool = MidPlayer.isPlaying;
+                    StopPlayingMid();
+                    handled = true;
+                    revMidButton.Focus();
+                }
+            }
+            else if (key == Keys.Add)
+            {
+                if (!revMidTimer.Enabled)
+                {
+                    spoolStep = 32;
+                    revMidTimer.Start();
+                    wasPlayingBeforeSpool = MidPlayer.isPlaying;
+                    Console.WriteLine($"Key down: {wasPlayingBeforeSpool}");
+                    StopPlayingMid();
+                    handled = true;
+                    ffwMidButton.Focus();
+                }
+            }
+            return handled;
+        }
+
+
+        private bool HandleTransportKeyUp(Keys key)
+        {
+            bool handled = false;
+            if (revMidTimer.Enabled)
+            {
+                Console.WriteLine($"Key up: {wasPlayingBeforeSpool}");
+                revMidTimer.Stop();
+                if (wasPlayingBeforeSpool)
+                {
+                    StartPlayingMid();
+                    playMidButton.Focus();
+                } else
+                {
+                    stopMidButton.Focus();
+                }
+                handled = true;
+            }
+            return handled;
+        }
+
+
+        private void playMidButton_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (HandleTransportKeyDown(e.KeyCode)) e.Handled = true;
+        }
+
+
+        private void stopMidButton_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (HandleTransportKeyDown(e.KeyCode)) e.Handled = true;
+        }
+
+        private void revMidButton_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (HandleTransportKeyDown(e.KeyCode)) e.Handled = true;
+        }
+
+        private void ffwMidButton_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (HandleTransportKeyDown(e.KeyCode)) e.Handled = true;
+        }
+
+        private void revMidButton_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (HandleTransportKeyUp(e.KeyCode)) e.Handled = true;
+        }
+
+        private void ffwMidButton_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (HandleTransportKeyUp(e.KeyCode)) e.Handled = true;
+        }
     }
 
     public delegate EPSSEditorData GetEPSSEditorDataCallBack();
