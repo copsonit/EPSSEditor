@@ -5,7 +5,7 @@
  
 [Setup]
 AppName=EPSS Editor
-AppVersion=1.16
+AppVersion=1.17
 WizardStyle=modern
 DefaultDirName={autopf}\EPSS Editor
 DefaultGroupName=EPSS Editor
@@ -29,17 +29,15 @@ Source: "..\EPSSEditor\bin\Debug\EPSSEditor.exe"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\EPSSEditor.pdb"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\EPSSEditor.exe.config"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\EPSSEditor.exe.manifest"; DestDir: "{app}"
-Source: "..\EPSSEditor\bin\Debug\NAudio.Asio.dll"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\NAudio.Core.dll"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\NAudio.dll"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\NAudio.Midi.dll"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\NAudio.Wasapi.dll"; DestDir: "{app}"
-Source: "..\EPSSEditor\bin\Debug\NAudio.WinForms.dll"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\NAudio.WinMM.dll"; DestDir: "{app}"
-Source: "..\EPSSEditor\bin\Debug\NAudio.xml"; DestDir: "{app}"
+Source: "..\EPSSEditor\bin\Debug\Midi.dll"; DestDir: "{app}"
+Source: "..\EPSSEditor\bin\Debug\Midi.pdb"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\MidiUI.dll"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\MidiUI.pdb"; DestDir: "{app}"
-Source: "..\EPSSEditor\bin\Debug\MidiUI.xml"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Debug\drumMappings.xml"; DestDir: "{app}"
  
 [Icons]
