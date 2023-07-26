@@ -277,8 +277,6 @@
             this.infoToolTip.SetToolTip(this.spiSoundListenButton, "Listen to SPI Sound sample. Only first selected is played.");
             this.spiSoundListenButton.UseVisualStyleBackColor = true;
             this.spiSoundListenButton.Click += new System.EventHandler(this.spiSoundListenButton_Click);
-            this.spiSoundListenButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.spiSoundListenButton_MouseDown);
-            this.spiSoundListenButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.spiSoundListenButton_MouseUp);
             // 
             // spiSoundListView
             // 

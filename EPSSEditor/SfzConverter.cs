@@ -242,9 +242,10 @@ namespace EPSSEditor
             return epssMap[note];
         }
 
-        public bool SaveOneSFZ(int midiChannel, string patchName, string fileName, string sampleSubDir, ref List<SfzSplitInfo> splitsForChannel, ref List<Sound> sounds, ref string errorMessage)
+        public bool SaveOneSFZ(int midiChannel, string patchName, string fileName, string sampleSubDir, List<SfzSplitInfo> splitsForChannel, List<Sound> sounds, out string errorMessage)
         {
             bool result = true;
+            errorMessage = "";
 
             try
             {
@@ -315,9 +316,10 @@ namespace EPSSEditor
         }
 
 
-        public bool SaveSFZ(ref Dictionary<int, List<SfzSplitInfo>> dict, ref List<Sound> sounds, string outPath, string sampleSubDir, string patchName, ref string errorMessage)
+        public bool SaveSFZ(ref Dictionary<int, List<SfzSplitInfo>> dict, ref List<Sound> sounds, string outPath, string sampleSubDir, string patchName, out string errorMessage)
         {
             bool result = true;
+            errorMessage = "";
 
             for (int midich = 0; midich < 15; midich++)
             {
@@ -336,11 +338,10 @@ namespace EPSSEditor
 
                 if (splitsForChannel.Count > 0)
                 {
-
                     splitsForChannel.Sort();
                     int midiChannel = midich + 1;
                     string fileName = outPath + "\\" + "Channel " + midiChannel.ToString() + ".sfz";
-                    bool saveOneSfzResult = SaveOneSFZ(midiChannel, patchName, fileName, sampleSubDir, ref splitsForChannel, ref sounds, ref errorMessage);
+                    bool saveOneSfzResult = SaveOneSFZ(midiChannel, patchName, fileName, sampleSubDir, splitsForChannel, sounds, out errorMessage);
                     if (!saveOneSfzResult) break;
                 }
             }

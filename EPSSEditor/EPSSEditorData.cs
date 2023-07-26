@@ -278,7 +278,7 @@ namespace EPSSEditor
         }
 
 
-        public List<SpiSound> getSpiSoundsFromSound(ref Sound sound)
+        public List<SpiSound> getSpiSoundsFromSound(Sound sound)
         {
             List<SpiSound> sounds = new List<SpiSound>();
             if (sound != null)
@@ -616,7 +616,7 @@ namespace EPSSEditor
         }
 
 
-        public bool AddSoundToSpiSound(ref Sound sound, int midiChannel, byte startNote, byte endNote, byte center)
+        public bool AddSoundToSpiSound(Sound sound, int midiChannel, byte startNote, byte endNote, byte center)
         {
             if (OverlapWithAnyExisting(midiChannel, startNote, endNote))
             {

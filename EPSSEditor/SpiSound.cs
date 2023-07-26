@@ -164,6 +164,7 @@ namespace EPSSEditor
             return 0;
         }
        
+        /* TODO?
         private void getNormalizeValues(ref Sound sound, ref float volume, ref float max)
         {
             volume = 1.0f;
@@ -190,8 +191,8 @@ namespace EPSSEditor
                 }
             
             }
-
         }
+        */
 
 
         public bool convertSound(EPSSEditorData data, string outFile, int newFreq, int bits, int channels)

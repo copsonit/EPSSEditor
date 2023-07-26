@@ -101,6 +101,7 @@
     <Compile Include="AtariConstants.cs" />
     <Compile Include="AudioPlaybackEngine.cs" />
     <Compile Include="CheckUpdates.cs" />
+    <Compile Include="ControlScrollListener.cs" />
     <Compile Include="ConversionParameters.cs" />
     <Compile Include="EPSSData.cs" />
     <Compile Include="EPSSEditorData.cs" />
@@ -109,13 +110,13 @@
     <Compile Include="EPSSMidFile.cs" />
     <Compile Include="HPTimer.cs" />
     <Compile Include="IMidiInstrument.cs" />
-    <Compile Include="MidiTimer.cs" />
     <Compile Include="PianoKbForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="PianoKbForm.Designer.cs">
       <DependentUpon>PianoKbForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SpiSoundInstrument.cs" />
     <Compile Include="TimeBarrier.cs" />
     <Compile Include="UpdateAvailable.cs">
       <SubType>Form</SubType>

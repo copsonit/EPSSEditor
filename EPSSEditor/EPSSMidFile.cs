@@ -27,8 +27,7 @@ namespace EPSSEditor
 
     static class MidPlayer
     {
-        private static EPSSMidFile _midReader = new EPSSMidFile();
-        //private static MidiTimer midiTimer = null;
+        private static readonly EPSSMidFile _midReader = new EPSSMidFile();
         private static IMidiInstrument _midiInstrument = null;
 
         public static long tickNum;
@@ -228,7 +227,7 @@ namespace EPSSEditor
                     MidiEvent midiEvent = events[eventPointer];
                     while (tickNum >= midiEvent.AbsoluteTime && eventPointer < (events.Count-1))
                     {
-                        if (_midiInstrument != null) _midiInstrument.DoMidiEvent(midiEvent);
+                        _midiInstrument?.DoMidiEvent(midiEvent);
 
                         if (eventPointer < (events.Count - 1)) eventPointer++;
                         //if (eventPointer >= events.Count)
@@ -259,11 +258,11 @@ namespace EPSSEditor
 
     public class MidFileEventArgs : EventArgs
     {
-        public long tick { get; private set; }
+        public long Tick { get; private set; }
 
         public MidFileEventArgs(long tick)
         {
-            this.tick = tick;
+            Tick = tick;
         }
     }
 
