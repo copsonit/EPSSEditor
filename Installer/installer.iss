@@ -5,7 +5,7 @@
  
 [Setup]
 AppName=EPSS Editor
-AppVersion=1.17
+AppVersion=1.18
 WizardStyle=modern
 DefaultDirName={autopf}\EPSS Editor
 DefaultGroupName=EPSS Editor
