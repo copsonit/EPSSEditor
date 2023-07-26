@@ -14,13 +14,14 @@ namespace EPSSEditor
 
         public EPSSSpiLoader() { }
 
-        public EPSSSpi Load(Uri path, ref string errorMessage)
+        public EPSSSpi Load(Uri path, out string errorMessage)
         {
+            errorMessage = null;
             if (path.IsFile)
             {
 			    EPSSSpiG0G1 spi = new EPSSSpiG0G1();
                 spi.initialize();
-                if (spi.Load(path, ref errorMessage) == 0) return spi;
+                if (spi.Load(path, out errorMessage) == 0) return spi;
             }
             return null;
         }

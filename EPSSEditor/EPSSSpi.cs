@@ -9,6 +9,7 @@ using NAudio.MediaFoundation;
 using System.Security.Policy;
 using System.Security.Cryptography;
 using System.Windows.Forms.VisualStyles;
+using System.IO.Ports;
 
 /*
  * Example https://stackoverflow.com/questions/14464/bit-fields-in-c-sharp
@@ -91,8 +92,8 @@ namespace EPSSEditor
         public int prePadding = 0;
         public abstract int length();
 
-        public abstract int write(ref BinaryWriter writer);
-        public abstract int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage);
+        public abstract int write(BinaryWriter writer);
+        public abstract int Read(BinaryReader reader, EPSSSpi spi, out  string errorMessage);
         public virtual bool isValidBlock() { return true; }
     }
 
@@ -123,22 +124,22 @@ namespace EPSSEditor
                 if (main.isValidBlock())
                 {
 
-                    result = main.write(ref writer);
+                    result = main.write(writer);
 
-                    result = ext.write(ref writer);
+                    result = ext.write(writer);
                 }
                 else
                 {
                     throw (new Exception("Old version of SPI not supported!"));
                 }
 
-                result = split.write(ref writer);
+                result = split.write(writer);
 
-                result = sounds.write(ref writer);
+                result = sounds.write(writer);
 
-                result = extSounds.write(ref writer);
+                result = extSounds.write(writer);
 
-                result = samples.write(ref writer);
+                result = samples.write(writer);
 
                 writer.Close();
                 //                fs.Close();
@@ -152,9 +153,10 @@ namespace EPSSEditor
         }
 
         
-        public virtual int Load(Uri src, ref string errorMessage)
+        public virtual int Load(Uri src, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
 
             try
             {
@@ -162,7 +164,7 @@ namespace EPSSEditor
                 BinaryReader reader = new BinaryReader(fs);
                 bool isG0 = false;
 
-                result = main.Read(ref reader, this, ref errorMessage);
+                result = main.Read(reader, this, out errorMessage);
                 if (result == 0)
                 {
                     byte low = main.i_fileID.versionLow;
@@ -175,11 +177,11 @@ namespace EPSSEditor
                     }
                     else
                     {
-                        result = ext.Read(ref reader, this, ref errorMessage);
+                        result = ext.Read(reader, this, out errorMessage);
                     }
                 }
-                if (result == 0) result = split.Read(ref reader, this, ref errorMessage);
-                if (result == 0) result = sounds.Read(ref reader, this, ref errorMessage);
+                if (result == 0) result = split.Read(reader, this, out errorMessage);
+                if (result == 0) result = sounds.Read(reader, this, out errorMessage);
                 if (result == 0)
                 {
                     if (isG0)
@@ -188,10 +190,10 @@ namespace EPSSEditor
                     }
                     else
                     {
-                        result = extSounds.Read(ref reader, this, ref errorMessage);
+                        result = extSounds.Read(reader, this, out errorMessage);
                     }
                 }
-                if (result == 0) result = samples.Read(ref reader, this, ref errorMessage);
+                if (result == 0) result = samples.Read(reader, this, out errorMessage);
             
                 reader.Close();
             }
@@ -253,7 +255,7 @@ namespace EPSSEditor
         public EPSSSpi_fileId i_fileID; // 0E 
 
         
-        public override int write(ref BinaryWriter writer)
+        public override int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -278,9 +280,10 @@ namespace EPSSEditor
         }
 
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
+        public override int Read(BinaryReader reader, EPSSSpi spi, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
             try
             {
                 i_no_of_MIDIch.data = reader.ReadBigEndianUInt16();
@@ -400,18 +403,18 @@ namespace EPSSEditor
             i_patchinfo = filename + " conv from v0";
         }
 
-        public virtual void writeExpansionBytes(ref BinaryWriter writer)
+        public virtual void writeExpansionBytes(BinaryWriter writer)
         {
             writer.Write("".ToFixedByteStream(6));
         }
 
-        public virtual void writeAdditionalBytes(ref BinaryWriter writer)
+        public virtual void writeAdditionalBytes(BinaryWriter writer)
         {
             // None
         }
 
 
-        public override int write(ref BinaryWriter writer)
+        public override int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -430,11 +433,11 @@ namespace EPSSEditor
                 writer.WriteBigEndian(i_xsinflen);
                 writer.WriteBigEndian(i_sinflen);
 
-                writeExpansionBytes(ref writer);
+                writeExpansionBytes(writer);
                 
                 writer.Write(i_patchinfo.ToFixedByteStream(32));
 
-                writeAdditionalBytes(ref writer);
+                writeAdditionalBytes(writer);
      
             }
 
@@ -447,9 +450,10 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
+        public override int Read(BinaryReader reader, EPSSSpi spi, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
 
             try
             {
@@ -506,13 +510,13 @@ namespace EPSSEditor
         public UInt32 i_sinfo_offset_g2; // $50
         public UInt32 i_sdata_offset_g2; // $54
 
-        public override void writeExpansionBytes(ref BinaryWriter writer)
+        public override void writeExpansionBytes(BinaryWriter writer)
         {
             writer.WriteBigEndian(i_pchg_offset);
             writer.Write("".ToFixedByteStream(2));
         }
 
-        public override void writeAdditionalBytes(ref BinaryWriter writer)
+        public override void writeAdditionalBytes(BinaryWriter writer)
         {
             writer.WriteBigEndian(i_sinfo_offset_g2);
             writer.WriteBigEndian(i_sdata_offset_g2);
@@ -532,7 +536,7 @@ namespace EPSSEditor
         public EPSSSpi_midiChannelSplit[] channels;
 
         
-        public override int write(ref BinaryWriter writer)
+        public override int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -543,7 +547,7 @@ namespace EPSSEditor
 
                 foreach (EPSSSpi_midiChannelSplit channel in channels) 
                 {
-                    channel.write(ref writer);
+                    channel.write(writer);
                 }
             }
             catch (Exception ex)
@@ -555,9 +559,10 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
+        public override int Read(BinaryReader reader, EPSSSpi spi, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
 
             try
             {
@@ -616,9 +621,9 @@ namespace EPSSEditor
         public EPSSSpi_programChangeSplit[] programs;
 
 
-        public override int write(ref BinaryWriter writer)
+        public override int write(BinaryWriter writer)
         {
-            int result = base.write(ref writer);
+            int result = base.write(writer);
             if (result == 0)
             {
                 try
@@ -626,7 +631,7 @@ namespace EPSSEditor
                     int i = 0;
                     foreach (EPSSSpi_programChangeSplit program in programs)
                     {
-                        program.write(ref writer);
+                        program.write(writer);
                         i++;
                     }
                     if (i != 128)
@@ -663,7 +668,7 @@ namespace EPSSEditor
         public EPSSSpi_soundAndPitchGen2[] data;
 
 
-        public int write(ref BinaryWriter writer)
+        public int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -727,7 +732,7 @@ namespace EPSSEditor
     {
         public EPSSSpi_soundAndPitch[] data;
 
-        public int write(ref BinaryWriter writer)
+        public int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -798,7 +803,7 @@ namespace EPSSEditor
     {
         public EPSSSpi_soundInfo[] sounds;
 
-        public override int write(ref BinaryWriter writer)
+        public override int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -808,7 +813,7 @@ namespace EPSSEditor
                 long k = writer.BaseStream.Position;
                 foreach (EPSSSpi_soundInfo sound in sounds)
                 {
-                    sound.write(ref writer);
+                    sound.write(writer);
                     j++;
                 }
                 long diff = writer.BaseStream.Position - k;
@@ -823,9 +828,10 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
+        public override int Read(BinaryReader reader, EPSSSpi spi, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
 
             try
             {
@@ -836,7 +842,7 @@ namespace EPSSEditor
                 for (int i =0; i < maxSoundNo; i++)
                 {
                     EPSSSpi_soundInfo s = new EPSSSpi_soundInfo();
-                    s.Read(ref reader, ref errorMessage);
+                    s.Read(reader, out errorMessage);
                     soundList.Add(s);
                 }
                 sounds = soundList.ToArray();
@@ -874,7 +880,7 @@ namespace EPSSEditor
 
         public int length() { return 16; }
 
-        public int write(ref BinaryWriter writer)
+        public int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -896,9 +902,10 @@ namespace EPSSEditor
         }
 
 
-        public int Read(ref BinaryReader reader, ref string errorMessage)
+        public int Read(BinaryReader reader, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
 
             try
             {
@@ -942,7 +949,7 @@ namespace EPSSEditor
             sounds = soundList.ToArray();
         }
         
-        public override int write(ref BinaryWriter writer)
+        public override int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -951,7 +958,7 @@ namespace EPSSEditor
                 int j = 0;
                 foreach (EPSSSpi_extSoundInfo sound in sounds)
                 {
-                    sound.write(ref writer);
+                    sound.write(writer);
                     j++;
                 }
 
@@ -966,9 +973,10 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
+        public override int Read(BinaryReader reader, EPSSSpi spi, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
 
             try
             {
@@ -979,7 +987,7 @@ namespace EPSSEditor
                 for (int i = 0; i < maxSoundNo; i++)
                 {
                     EPSSSpi_extSoundInfo s = new EPSSSpi_extSoundInfo();
-                    s.Read(ref reader, ref errorMessage);
+                    s.Read(reader, out errorMessage);
                     soundList.Add(s);
                 }
                 sounds = soundList.ToArray();
@@ -1026,7 +1034,7 @@ namespace EPSSEditor
 
         public int length() { return 64; }
 
-        public int write(ref BinaryWriter writer)
+        public int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -1047,9 +1055,10 @@ namespace EPSSEditor
             return result;
         }
 
-        public int Read(ref BinaryReader reader, ref string errorMessage)
+        public int Read(BinaryReader reader, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
 
             try
             {
@@ -1196,7 +1205,7 @@ namespace EPSSEditor
         public EPSSSpi_sample[] samples;
 
 
-        public override int write(ref BinaryWriter writer)
+        public override int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -1204,7 +1213,7 @@ namespace EPSSEditor
             {
                 foreach (EPSSSpi_sample smp in samples)
                 {
-                    smp.write(ref writer);
+                    smp.write(writer);
                 }
             }
             catch (Exception ex)
@@ -1216,9 +1225,10 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int Read(ref BinaryReader reader, EPSSSpi spi, ref string errorMessage)
+        public override int Read(BinaryReader reader, EPSSSpi spi, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
 
             try
             {                
@@ -1229,7 +1239,7 @@ namespace EPSSEditor
                 {
                     EPSSSpi_soundInfo sndInfo = spi.sounds.sounds[i];
                     EPSSSpi_sample sample = new EPSSSpi_sample();
-                    sample.Read(ref reader, sndInfo.s_sampstart, sndInfo.s_sampend - sndInfo.s_sampstart, ref errorMessage);
+                    sample.Read(reader, sndInfo.s_sampstart, sndInfo.s_sampend - sndInfo.s_sampstart, out errorMessage);
                     sampleList.Add(sample);
     
                 }
@@ -1266,7 +1276,7 @@ namespace EPSSEditor
 
         public int length() { return data.Length; }
 
-        public int write(ref BinaryWriter writer)
+        public int write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -1302,9 +1312,10 @@ namespace EPSSEditor
         }
 
 
-        public int Read(ref BinaryReader reader, UInt32 start, UInt32 length, ref string errorMessage)
+        public int Read(BinaryReader reader, UInt32 start, UInt32 length, out string errorMessage)
         {
             int result = 0;
+            errorMessage = null;
 
             try
             {

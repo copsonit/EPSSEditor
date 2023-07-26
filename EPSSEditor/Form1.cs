@@ -473,7 +473,7 @@ namespace EPSSEditor
                 int nr = data.getSoundNumberFromGuid(s.soundId);
                 item.SubItems.Add(nr.ToString());
 
-                item.SubItems.Add(Ext.ToPrettySize(s.preLength(ref data), 2));
+                item.SubItems.Add(Ext.ToPrettySize(s.preLength(data), 2));
                 item.SubItems.Add(s.transposeString());
                 item.SubItems.Add(s.VvfeString());
 
@@ -528,7 +528,7 @@ namespace EPSSEditor
             if (data != null)
             {
                 EPSSSpiCreator creator = new EPSSSpiCreator(spiVersion());
-                long sz = creator.length(ref data);
+                long sz = creator.length(data);
                 totalSizeTextBox.Text = Ext.ToPrettySize(sz, 2);
 
                 int v = (int)(sz / 1024);
@@ -603,7 +603,7 @@ namespace EPSSEditor
                 bool clearAllSamples = false;
                 while (true)
                 {
-                    bool vf = data.VerifyFiles(newDir, ref sampleNotFound);
+                    bool vf = data.VerifyFiles(newDir, out sampleNotFound);
 
                     if (!vf)
                     {
@@ -788,12 +788,12 @@ namespace EPSSEditor
         }
 
 
-        private bool loadSpiFile(string file, ref string errorMessage)
+        private bool loadSpiFile(string file, out string errorMessage)
         {
             bool result = false;
             EPSSSpiLoader loader = new EPSSSpiLoader();
             Uri url = new Uri(file);
-            EPSSSpi spi = loader.Load(url, ref errorMessage);
+            EPSSSpi spi = loader.Load(url, out errorMessage);
             if (spi != null)
             {
                 // warn user, if we have spi sounds, these will be cleared
@@ -811,7 +811,7 @@ namespace EPSSEditor
                     data = new EPSSEditorData();
                     data.initialize(DrumMappingsFileName());
 
-                    result = data.LoadSpiFile(ref spi, path, ref errorMessage);
+                    result = data.LoadSpiFile(spi, path, out errorMessage);
                     if (result)
                     {
                         updateDialog();
@@ -825,9 +825,10 @@ namespace EPSSEditor
         }
 
 
-        private bool doLoadSpiFileDialog(ref string errorMessage)
+        private bool doLoadSpiFileDialog(out string errorMessage)
         {
             bool result = false;
+            errorMessage = null;
             string s = Properties.Settings.Default.SpiFile;
             if (String.IsNullOrEmpty(s))
             {
@@ -848,7 +849,7 @@ namespace EPSSEditor
                 string file = loadSpiFileDialog.FileName;
                 Properties.Settings.Default.SpiFile = file;
                 Properties.Settings.Default.Save();
-                result = loadSpiFile(file, ref errorMessage);
+                result = loadSpiFile(file, out errorMessage);
             }
 
             return result;
@@ -1186,16 +1187,14 @@ namespace EPSSEditor
         {
             string sfzFile = SfzExportFileName();
             string sampleSubDir = "samples";
-            string sfzDir = "";
-            string sampleDir = "";
-            string name = "";
-            if (CheckSfzDirectories(sfzFile, sampleSubDir, ref name, ref sfzDir, ref sampleDir))
+            string sfzDir, sampleDir, name;
+            if (CheckSfzDirectories(sfzFile, sampleSubDir, out name, out sfzDir, out sampleDir))
             {
                 Dictionary<int, List<SfzSplitInfo>> dict = data.ConvertToSfzSplitInfoForSfzExport();
                 SfzConverter c = new SfzConverter();
                 string errorMessage = "";
-                bool result = c.SaveSFZ(ref dict, ref data.sounds, sfzDir, sampleSubDir, name, out errorMessage);
-                if (result) result = data.ExportSoundsToDir(sampleDir, ref errorMessage);
+                bool result = c.SaveSFZ(dict, data.sounds, sfzDir, sampleSubDir, name, out errorMessage);
+                if (result) result = data.ExportSoundsToDir(sampleDir, out errorMessage);
                 if (result) MessageBox.Show("Exported successfully!", "EPSS Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 else MessageBox.Show("Save sfz failed:\n" + errorMessage);
             }
@@ -1229,9 +1228,13 @@ namespace EPSSEditor
         }
 
 
-        private bool CheckSfzDirectories(string sfzFile, string sampleSubDir, ref string name, ref string sfzDir, ref string sampleDir)
+        private bool CheckSfzDirectories(string sfzFile, string sampleSubDir, out string name, out string sfzDir, out string sampleDir)
         {
-            if (String.IsNullOrEmpty(sfzFile)) return false;
+            name = sfzDir = sampleDir = "";
+            if (String.IsNullOrEmpty(sfzFile))
+            {
+                return false;
+            }
 
             name = Path.GetFileNameWithoutExtension(sfzFile);
             sfzDir = Path.GetDirectoryName(sfzFile) + "\\" + name;
@@ -1988,7 +1991,7 @@ namespace EPSSEditor
             if (doLoad)
             {
                 string errorMessage = "";
-                bool result = doLoadSpiFileDialog(ref errorMessage);
+                bool result = doLoadSpiFileDialog(out errorMessage);
                 if (!result && !String.IsNullOrEmpty(errorMessage))
                 {
                     MessageBox.Show("SPI file cannot be loaded:\n" + errorMessage);

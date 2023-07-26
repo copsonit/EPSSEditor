@@ -137,7 +137,7 @@ namespace EPSSEditor
         public string extName() { return _extName; }
 
 
-        public string description(ref EPSSEditorData data)
+        public string description(EPSSEditorData data)
         {
             StringBuilder s = new StringBuilder();
             s.Append(midiChannel);
@@ -153,7 +153,7 @@ namespace EPSSEditor
           
         }
 
-        public long preLength(ref EPSSEditorData data)
+        public long preLength(EPSSEditorData data)
         {
             Sound sound = data.getSoundFromSoundId(soundId);
 

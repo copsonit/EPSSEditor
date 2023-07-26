@@ -133,7 +133,7 @@ namespace EPSSEditor
 
         public SfzConverter() { }
 
-        public Dictionary<int, List<SfzSplitInfo>> Convert(ref EPSSSpi spi)
+        public Dictionary<int, List<SfzSplitInfo>> Convert(EPSSSpi spi)
         {
 
             Dictionary<int, List<SfzSplitInfo>> dict = new Dictionary<int, List<SfzSplitInfo>>();
@@ -316,7 +316,7 @@ namespace EPSSEditor
         }
 
 
-        public bool SaveSFZ(ref Dictionary<int, List<SfzSplitInfo>> dict, ref List<Sound> sounds, string outPath, string sampleSubDir, string patchName, out string errorMessage)
+        public bool SaveSFZ(Dictionary<int, List<SfzSplitInfo>> dict, List<Sound> sounds, string outPath, string sampleSubDir, string patchName, out string errorMessage)
         {
             bool result = true;
             errorMessage = "";

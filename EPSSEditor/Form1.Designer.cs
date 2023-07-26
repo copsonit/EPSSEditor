@@ -605,6 +605,7 @@
             this.playButton.Size = new System.Drawing.Size(46, 23);
             this.playButton.TabIndex = 0;
             this.playButton.Text = "Listen";
+            this.infoToolTip.SetToolTip(this.playButton, "Listen to sound");
             this.playButton.UseVisualStyleBackColor = true;
             this.playButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.playButton_MouseDown);
             this.playButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.playButton_MouseUp);
@@ -1110,7 +1111,7 @@
             this.loadMidButton.Size = new System.Drawing.Size(145, 22);
             this.loadMidButton.TabIndex = 8;
             this.loadMidButton.Text = "Load and Play MID...";
-            this.infoToolTip.SetToolTip(this.loadMidButton, "You can drag sounds to the  box to add them faster!");
+            this.infoToolTip.SetToolTip(this.loadMidButton, "Load and play MID file");
             this.loadMidButton.UseVisualStyleBackColor = true;
             this.loadMidButton.Click += new System.EventHandler(this.loadMidButton_Click);
             // 
@@ -1122,7 +1123,7 @@
             this.stopMidButton.Size = new System.Drawing.Size(37, 22);
             this.stopMidButton.TabIndex = 9;
             this.stopMidButton.Text = "Stop";
-            this.infoToolTip.SetToolTip(this.stopMidButton, "You can drag sounds to the  box to add them faster!");
+            this.infoToolTip.SetToolTip(this.stopMidButton, "Stop playing MID file");
             this.stopMidButton.UseVisualStyleBackColor = true;
             this.stopMidButton.Click += new System.EventHandler(this.stopMidButton_Click);
             this.stopMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.stopMidButton_KeyDown);
@@ -1135,7 +1136,7 @@
             this.playMidButton.Size = new System.Drawing.Size(35, 22);
             this.playMidButton.TabIndex = 25;
             this.playMidButton.Text = "Play";
-            this.infoToolTip.SetToolTip(this.playMidButton, "You can drag sounds to the  box to add them faster!");
+            this.infoToolTip.SetToolTip(this.playMidButton, "Start playing MID file");
             this.playMidButton.UseVisualStyleBackColor = true;
             this.playMidButton.Click += new System.EventHandler(this.playMidButton_Click);
             this.playMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.playMidButton_KeyDown);
@@ -1148,7 +1149,7 @@
             this.revMidButton.Size = new System.Drawing.Size(27, 22);
             this.revMidButton.TabIndex = 26;
             this.revMidButton.Text = "<<";
-            this.infoToolTip.SetToolTip(this.revMidButton, "You can drag sounds to the  box to add them faster!");
+            this.infoToolTip.SetToolTip(this.revMidButton, "Fast Rewind in MID file");
             this.revMidButton.UseVisualStyleBackColor = true;
             this.revMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.revMidButton_KeyDown);
             this.revMidButton.KeyUp += new System.Windows.Forms.KeyEventHandler(this.revMidButton_KeyUp);
@@ -1163,7 +1164,7 @@
             this.ffwMidButton.Size = new System.Drawing.Size(27, 22);
             this.ffwMidButton.TabIndex = 27;
             this.ffwMidButton.Text = ">>";
-            this.infoToolTip.SetToolTip(this.ffwMidButton, "You can drag sounds to the  box to add them faster!");
+            this.infoToolTip.SetToolTip(this.ffwMidButton, "Fast forward MID file");
             this.ffwMidButton.UseVisualStyleBackColor = true;
             this.ffwMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ffwMidButton_KeyDown);
             this.ffwMidButton.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ffwMidButton_KeyUp);

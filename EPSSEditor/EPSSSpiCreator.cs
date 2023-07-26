@@ -20,14 +20,14 @@ namespace EPSSEditor
             this.version = version;
         }
 
-        public void initialize(ref EPSSSpi spi)
+        public void initialize(EPSSSpi spi)
         {
             spi.initialize();
 
         }
 
 
-        public void fillInMain(ref EPSSSpi spi)
+        public void fillInMain(EPSSSpi spi)
         {
             spi.main.i_no_of_MIDIch.no_of_MIDICh = (byte)noOfMidiCh;
 
@@ -48,7 +48,7 @@ namespace EPSSEditor
         }
 
 
-        public void fillInExt(ref EPSSSpi spi, string name, string info)
+        public void fillInExt(EPSSSpi spi, string name, string info)
         {
             DateTime dr = DateTime.Now;
             spi.ext.i_crtime = dr.ToDosDateTime();
@@ -282,7 +282,7 @@ namespace EPSSEditor
         }
 
 
-        public void fillInSplit(ref EPSSEditorData data, ref EPSSSpi spi)
+        public void fillInSplit(EPSSEditorData data, EPSSSpi spi)
         {
             List<EPSSSpi_midiChannelSplit> channels = fillInMidiSplits(data);
 
@@ -452,7 +452,7 @@ namespace EPSSEditor
         }
 
 
-        public void fillInSamples(ref EPSSEditorData data, ref EPSSSpi spi, int sampFreq)
+        public void fillInSamples(EPSSEditorData data, EPSSSpi spi, int sampFreq)
         {
             List<EPSSSpi_soundInfo> soundInfos = new List<EPSSSpi_soundInfo>();
             List<EPSSSpi_extSoundInfo> extSoundInfos = new List<EPSSSpi_extSoundInfo>();
@@ -496,7 +496,7 @@ namespace EPSSEditor
         }
 
 
-        public void fillInOffsets(ref EPSSSpi spi)
+        public void fillInOffsets(EPSSSpi spi)
         {
             // Fill in the offsets
             spi.ext.i_sx_offset = (UInt16)(spi.main.length() + spi.ext.length() + spi.split.length() + spi.sounds.length());
@@ -554,17 +554,17 @@ namespace EPSSEditor
                 }
 
 
-                initialize(ref spi);
+                initialize(spi);
 
-                fillInMain(ref spi);
+                fillInMain(spi);
 
-                fillInExt(ref spi, name, info);
+                fillInExt(spi, name, info);
 
-                fillInSplit(ref data, ref spi);
+                fillInSplit(data, spi);
 
-                fillInSamples(ref data, ref spi, sampFreq);
+                fillInSamples(data, spi, sampFreq);
 
-                fillInOffsets(ref spi);
+                fillInOffsets(spi);
 
                 return spi;
             }
@@ -577,7 +577,7 @@ namespace EPSSEditor
         }
 
 
-        public long length(ref EPSSEditorData data)
+        public long length(EPSSEditorData data)
         {
             SortedDictionary<int, SpiSound> usedSounds = data.GetUsedSounds();
             int noOfSounds = usedSounds.Count;
@@ -603,7 +603,7 @@ namespace EPSSEditor
 
             EPSSSpi spi = new EPSSSpiG0G1();
 
-            initialize(ref spi);
+            initialize(spi);
             /*            spi.main= new EPSSSpi_main();
                         spi.ext = new EPSSSpi_extended();
                         spi.split = new EPSSSpi_splitInfo();
@@ -613,7 +613,7 @@ namespace EPSSEditor
 
 
             /* Fill in main */
-            fillInMain(ref spi);
+            fillInMain(spi);
             /*            spi.main.i_no_of_MIDIch.no_of_MIDICh = (byte)noOfMidiCh;
 
                         spi.main.i_no_of_sounds.no_of_sounds = (byte)(noOfSounds);
@@ -625,7 +625,7 @@ namespace EPSSEditor
 
 
             /* Fill in ext */
-            fillInExt(ref spi, "SpiPc", "Spi created by EPSSSpi for Windows");
+            fillInExt(spi, "SpiPc", "Spi created by EPSSSpi for Windows");
             /* //calculate spi.ext.i_sx_offset
              DateTime dr = DateTime.Now;
             spi.ext.i_crtime = dr.ToDosDateTime();

@@ -67,7 +67,7 @@ namespace EPSSEditor
         }
 
 
-        public bool VerifyFiles(string remapDir, ref string sampleNotFound)
+        public bool VerifyFiles(string remapDir, out string sampleNotFound)
         {
             foreach(Sound sound in sounds)
             {
@@ -94,8 +94,9 @@ namespace EPSSEditor
         }
 
 
-        public bool LoadSpiFile(ref EPSSSpi spi, string soundDir, ref string errorMessage)
+        public bool LoadSpiFile(EPSSSpi spi, string soundDir, out string errorMessage)
         {
+            errorMessage = null;
             _findSpiSoundArray = null;
             bool result = true;
             for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
@@ -126,7 +127,7 @@ namespace EPSSEditor
             spiDescription = spi.ext.i_patchinfo.Trim();
 
             SfzConverter c = new SfzConverter();
-            Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(ref spi);
+            Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(spi);
 
             for (int midich = 0; midich < spi.main.i_no_of_MIDIch.no_of_MIDICh; midich++)
             {
@@ -185,8 +186,6 @@ namespace EPSSEditor
 
                             SpiSound spiSnd = new SpiSound(s, info);
                             spiSounds.Add(spiSnd);
-
-                            //AddSfzSound(ref s, midich, (byte)noteStart, (byte)noteEnd, (byte)center, (sbyte)transpose);
                         }
                     }
                 }
@@ -572,9 +571,10 @@ namespace EPSSEditor
             _findSpiSoundArray = null;
         }
 
-        public bool ExportSoundsToDir(string exportDir, ref string errorMessage)
+        public bool ExportSoundsToDir(string exportDir, out string errorMessage)
         {
             bool result = true;
+            errorMessage = null;
 
             try
             {
