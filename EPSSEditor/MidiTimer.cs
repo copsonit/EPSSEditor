@@ -44,7 +44,7 @@ namespace EPSSEditor
             id = timeSetEvent(msec, 0, timerProc, UIntPtr.Zero, (uint)(TIME_CALLBACK_FUNCTION | TIME_PERIODIC));
             if (id == 0)
                 throw new Exception("timeSetEvent error");
-            Console.WriteLine("started timer " + id.ToString());
+            Console.WriteLine("started timer: {0} ", id.ToString());
         }
 
         public void stop()
@@ -52,7 +52,7 @@ namespace EPSSEditor
             if (id != 0)
             {
                 timeKillEvent(id);
-                Console.WriteLine("stopped timer " + id.ToString());
+                Console.WriteLine("stopped timer: {0}", id.ToString());
                 id = 0;
             }
         }

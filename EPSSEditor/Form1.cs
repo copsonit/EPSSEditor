@@ -30,7 +30,7 @@ using M;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
-using axcsCheck4Update;
+//using axcsCheck4Update;
 
 namespace EPSSEditor
 {
@@ -173,18 +173,24 @@ namespace EPSSEditor
             mappingModeMidiRadioButton.Checked = true;
             setMidiChannel(1);
             updateTotalSize();
-            CheckForUpdate();
+            KollaEfterNy();
         }
 
 
-        private void CheckForUpdate(bool inStart=true)
+        private void KollaEfterNy(bool inStart=true)
         {
-            axcsCheck4Update.axMain ax = new axcsCheck4Update.axMain(@"https://copson.se/epss/wp-content/uploads/EPSSEditorCurrentVersionInfo.xml");
+            
+            //CheckUpdates ax = new CheckUpdates(@"https://copson.se/epss/wp-content/uploads/EPSSEditorCurrentVersionInfo.xml");
+            //EPSSEditorAktuell akt = KollaEfterNyVersion.KollaEfterNy(@"https://copson.se/epss/wp-content/uploads/EPSSEditorCurrentVersionInfo.xml");
+            //EPSSEditorAktuell akt = KollaEfterNyVersion.KollaEfterNy(@"C:\Users\conny\source\repos\copsonit\EPSSEditor\EPSSEditor\EPSSEditorCurrentVersionInfo.xml");
+            string s = @"https://copson.se/epss/wp-content/uploads/EPSSEditorCurrentVersionInfo2.xml";
+            EPSSEditorAktuell akt = KollaEfterNyVersion.KollaEfterNy(s);
 
-            int nMajor = ax.GetVersion(axcsCheck4Update.enVerion.EMajor);
-            int nMinor = ax.GetVersion(axcsCheck4Update.enVerion.EMinor);
-            int nBuild = ax.GetVersion(axcsCheck4Update.enVerion.EBuild);
+            int nMajor = akt.aktuell.maj;
+            int nMinor = akt.aktuell.min;
+            int nBuild = akt.aktuell.bld;
             string version = nMajor + "." + nMinor + "." + nBuild;
+            
 
             if (inStart)
             {
@@ -199,7 +205,10 @@ namespace EPSSEditor
                 }
             }
 
-            string strPath = ax.GetNewVersionPath();
+
+            //string strPath = ax.GetNewVersionPath();
+            string strPath = "";
+
 
             // Get my own version's numbers
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -209,17 +218,20 @@ namespace EPSSEditor
             int nAppMinor = fileVersionInfo.FileMinorPart;
             int nAppBuild = fileVersionInfo.FileBuildPart;
 
+            
+
             if (nMajor > nAppMajor || (nMajor == nAppMajor && nMinor > nAppMinor) || (nMajor == nAppMajor && nMinor == nAppMinor && nBuild > nAppBuild))
             {
                 string link = strPath;
-                string updateMsg = "EPSS Editor version " + version + " released.";
+                string updateMsg = "EPSS Editor v" + version + " released.";
                 UpdateAvailable form = new UpdateAvailable(this, updateMsg, link, version, inStart);
                 
                 form.ShowDialog();
             } else if (!inStart)
             {
-                MessageBox.Show("You are already running latest version.");
+                MessageBox.Show("You are already running latest.");
             }
+            
         }
 
 
@@ -1315,6 +1327,7 @@ namespace EPSSEditor
                     catch(Exception ex)
                     {
                         MessageBox.Show("Cannot delete directory as another process is locking it. Aborting save.");
+                        Console.WriteLine("CheckSfzDirectories: {0}", ex.ToString());
                         return false;
                     }
                 }
@@ -2613,7 +2626,7 @@ namespace EPSSEditor
 
         private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            CheckForUpdate(inStart: false);
+            KollaEfterNy(inStart: false);
         }
 
         private void timer1_Tick(object sender, EventArgs e)

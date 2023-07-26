@@ -68,10 +68,11 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
+                Console.WriteLine("ParseNoteToInt:", ex.ToString());
                 return -1;
             }
         }
-
+        
 
         public static byte ParseMidiTone(string s)
         {

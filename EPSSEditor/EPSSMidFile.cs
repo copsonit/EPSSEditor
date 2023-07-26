@@ -28,7 +28,7 @@ namespace EPSSEditor
     static class MidPlayer
     {
         private static EPSSMidFile _midReader = new EPSSMidFile();
-        private static MidiTimer midiTimer = null;
+        //private static MidiTimer midiTimer = null;
         private static IMidiInstrument _midiInstrument = null;
 
         public static long tickNum;
@@ -288,6 +288,7 @@ namespace EPSSEditor
                 mf = new MidiFile(path, strictMode);
             }catch (Exception e)
             {
+                Console.WriteLine("Error in loading MID file:{0}", e.ToString());
                 return false;
             }
             timeSignature = mf.Events[0].OfType<TimeSignatureEvent>().FirstOrDefault();

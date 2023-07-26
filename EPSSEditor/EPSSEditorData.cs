@@ -661,7 +661,7 @@ namespace EPSSEditor
         private float dynamitePan(SpiSound snd)
         {
             return 0;
-
+            /*
             // only experimental with fixed pans depending on name, as SPI normally dont have this information stored
             float pan = 0;
             if (snd.name().Contains("KAGGE"))
@@ -717,6 +717,7 @@ namespace EPSSEditor
                 pan = 0; ;
             }
             return pan;
+            */
         }
 
         public CachedSound cachedSound(SpiSound snd, int newFreq, int note, int vel)

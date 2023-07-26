@@ -25,7 +25,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <WebPage>publish.htm</WebPage>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>18</ApplicationRevision>
+    <ApplicationRevision>19</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -100,7 +100,7 @@
   <ItemGroup>
     <Compile Include="AtariConstants.cs" />
     <Compile Include="AudioPlaybackEngine.cs" />
-    <Compile Include="axMain.cs" />
+    <Compile Include="CheckUpdates.cs" />
     <Compile Include="ConversionParameters.cs" />
     <Compile Include="EPSSData.cs" />
     <Compile Include="EPSSEditorData.cs" />
@@ -182,7 +182,7 @@
     <Compile Include="EPSSSpiLoader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="EPSSEditorCurrentVersionInfo.xml" />
+    <Content Include="EPSSEditorCurrentVersionInfo2.xml" />
     <Content Include="drumMappings.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

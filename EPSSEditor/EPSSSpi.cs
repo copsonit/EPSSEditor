@@ -145,7 +145,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during save: ", ex.ToString());
+                Console.WriteLine("Exception during save: {0}", ex.ToString());
                 result = 1;
             }
             return result;
@@ -197,7 +197,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during load: ", ex.ToString());
+                Console.WriteLine("Exception during load: {0}", ex.ToString());
                 result = 1;
             }
             return result;
@@ -270,7 +270,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_main.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_main.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -294,7 +294,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_main.Read: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_main.Read: {0}", ex.ToString());
                 errorMessage = ex.ToString();
                 result = 1;
             }
@@ -440,7 +440,7 @@ namespace EPSSEditor
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_extended.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_extended.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -484,7 +484,7 @@ namespace EPSSEditor
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_extended.Rrite: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_extended.Rrite: {0}", ex.ToString());
                 errorMessage = ex.ToString();
                 result = 1;
             }
@@ -548,7 +548,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_splitInfo.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -591,7 +591,7 @@ namespace EPSSEditor
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: {0}", ex.ToString());
                 errorMessage = ex.ToString();
                 result = 1;
             }
@@ -636,7 +636,7 @@ namespace EPSSEditor
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Exception during EPSSSpi_splitInfoGen3.write: ", ex.ToString());
+                    Console.WriteLine("Exception during EPSSSpi_splitInfoGen3.write: {0}", ex.ToString());
                     result = 1;
                 }
             }
@@ -682,7 +682,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_splitInfoGen3.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_splitInfoGen3.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -747,7 +747,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_splitInfo.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -816,7 +816,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_sounds.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_sounds.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -844,7 +844,7 @@ namespace EPSSEditor
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: {0}", ex.ToString());
                 errorMessage = ex.ToString();
                 result = 1;
             }
@@ -888,7 +888,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_soundInfo.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_soundInfo.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -913,7 +913,7 @@ namespace EPSSEditor
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_sountInfo.Read: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_sountInfo.Read: {0}", ex.ToString());
                 errorMessage = ex.ToString();
                 result = 1;
             }
@@ -959,7 +959,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_extSounds.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_extSounds.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -987,7 +987,7 @@ namespace EPSSEditor
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: {0}", ex.ToString());
                 errorMessage =  ex.ToString();
                 result = 1;
             }
@@ -1040,7 +1040,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_extSoundInfo.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_extSoundInfo.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -1068,7 +1068,7 @@ namespace EPSSEditor
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: {0}", ex.ToString());
                 errorMessage = ex.ToString();
                 result = 1;
             }
@@ -1209,7 +1209,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_samples.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_samples.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -1239,7 +1239,7 @@ namespace EPSSEditor
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_samples.Read: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_samples.Read: {0}", ex.ToString());
                 errorMessage = ex.ToString();
                 result = 1;
             }
@@ -1276,7 +1276,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_sample.write: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_sample.write: {0}", ex.ToString());
                 result = 1;
             }
 
@@ -1296,7 +1296,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_sample.loadSpl: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_sample.loadSpl: {0}", ex.ToString());
 
             }
         }
@@ -1314,7 +1314,7 @@ namespace EPSSEditor
 
             catch (Exception ex)
             {
-                Console.WriteLine("Exception during EPSSSpi_sample.Read: ", ex.ToString());
+                Console.WriteLine("Exception during EPSSSpi_sample.Read: {0}", ex.ToString());
                 errorMessage = ex.ToString();
                 result = 1;
             }

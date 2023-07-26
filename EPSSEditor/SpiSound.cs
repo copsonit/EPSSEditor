@@ -285,7 +285,7 @@ namespace EPSSEditor
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine("convertSound exception: {0}", ex.ToString());
                 result = false;
             }
 
