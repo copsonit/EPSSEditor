@@ -185,6 +185,7 @@ namespace EPSSEditor
             //EPSSEditorAktuell akt = KollaEfterNyVersion.KollaEfterNy(@"C:\Users\conny\source\repos\copsonit\EPSSEditor\EPSSEditor\EPSSEditorCurrentVersionInfo.xml");
             string s = @"https://copson.se/epss/wp-content/uploads/EPSSEditorCurrentVersionInfo2.xml";
             EPSSEditorAktuell akt = KollaEfterNyVersion.KollaEfterNy(s);
+            if (akt == null) return;
 
             int nMajor = akt.aktuell.maj;
             int nMinor = akt.aktuell.min;
@@ -207,7 +208,7 @@ namespace EPSSEditor
 
 
             //string strPath = ax.GetNewVersionPath();
-            string strPath = "";
+            string strPath = akt.folder;
 
 
             // Get my own version's numbers
