@@ -370,8 +370,7 @@ namespace EPSSEditor
             foreach (SfzBase bas in bases)
             {
                 if (abortLoad) break;
-                var gSection = bas as SfzGenericSection;
-                if (gSection != null)
+                if (bas is SfzGenericSection gSection)
                 {
                     if (gSection.header.Contains("group"))
                     {
@@ -388,9 +387,7 @@ namespace EPSSEditor
                     }
                 }
 
-
-                var tBase = bas as SfzRegionSection;
-                if (tBase != null)
+                if (bas is SfzRegionSection tBase)
                 {
                     string fp = tBase.FilePath(basePath);
 
@@ -403,8 +400,10 @@ namespace EPSSEditor
                     {
                         if (Path.GetExtension(fp).ToLower() == ".wav")
                         {
-                            s = new Sound(fp);
-                            s.description = Path.GetFileNameWithoutExtension(fp);
+                            s = new Sound(fp)
+                            {
+                                description = Path.GetFileNameWithoutExtension(fp)
+                            };
                             data.sounds.Add(s);
                             sounds.Add(fp, s);
                             filesAdded.Add(fp);
