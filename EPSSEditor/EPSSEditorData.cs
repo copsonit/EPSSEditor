@@ -20,47 +20,34 @@ namespace EPSSEditor
 
     public class EPSSEditorData
     {
+        // All public fields are saved in ProjectSettings.
         public DrumSettingsHelper drumMappings;
-
         public List<Sound> sounds;
-
-
         public List<SpiSound> spiSounds;
-
         public string soundFileName;
-        //public string spiFileName;
-
         public string spiName;
         public string spiDescription;
-
         public int previewSelected;
-
         public bool omni;
         public int spiVersion;
 
         private string _fileNameForListenConvertedSound = null;
-
         private Dictionary<int, SpiSound[]> _findSpiSoundArray; // midiChannel -> Sound[128]
-
         private Dictionary<int, SpiSound[]> _programArray;  // program -> Sound[128]
+
 
         public EPSSEditorData() { }
 
 
-        public void initialize(string drumSettingsFileName)
+        public void Initialize(string drumSettingsFileName)
         {
             sounds = new List<Sound>();
             spiSounds = new List<SpiSound>();
             drumMappings = new DrumSettingsHelper();
-
             drumMappings.initialize(drumSettingsFileName);
-
             soundFileName = null;
-            //spiFileName = null;
-
             spiName = "EPSSEDIT";
             spiDescription = "Created with EPSSEditor";
-
             previewSelected = 0;
             _findSpiSoundArray = null;
             _programArray = null;
@@ -72,6 +59,7 @@ namespace EPSSEditor
             ClearSounds();
             ClearSpiSounds();
         }
+
 
         public bool VerifyFiles(string remapDir, out string sampleNotFound)
         {
@@ -206,7 +194,7 @@ namespace EPSSEditor
 
             foreach (var s in spiSounds)
             {
-                int sound = getSoundNumberFromGuid(s.soundId);
+                int sound = GetSoundNumberFromGuid(s.soundId);
                 List<SfzSplitInfo> splits;
 
                 if (soundNoToSplit.ContainsKey(sound))
@@ -230,7 +218,7 @@ namespace EPSSEditor
         }
 
              
-        public string convertSoundFileName()
+        public string ConvertSoundFileName()
         {
             if (_fileNameForListenConvertedSound == null)
                 _fileNameForListenConvertedSound = Path.GetTempFileName();
@@ -238,7 +226,7 @@ namespace EPSSEditor
         }
 
 
-        public void fixOldVersions()
+        public void FixOldVersions()
         {
             foreach (Sound snd in sounds)
             {
@@ -254,7 +242,7 @@ namespace EPSSEditor
         }
 
 
-        public Sound getSoundFromSoundId(Guid id)
+        public Sound GetSoundFromSoundId(Guid id)
         {
             foreach (Sound snd in sounds)
             {
@@ -267,8 +255,7 @@ namespace EPSSEditor
         }
 
 
-
-        public int getSoundNumberFromGuid(Guid guid)
+        public int GetSoundNumberFromGuid(Guid guid)
         {
             int i = 0;
             foreach (Sound snd in sounds)
@@ -283,7 +270,7 @@ namespace EPSSEditor
         }
 
 
-        public List<SpiSound> getSpiSoundsFromSound(Sound sound)
+        public List<SpiSound> GetSpiSoundsFromSound(Sound sound)
         {
             List<SpiSound> sounds = new List<SpiSound>();
             if (sound != null)
@@ -298,6 +285,7 @@ namespace EPSSEditor
             }
             return sounds;
         }
+
 
         public List<SpiSound> GetSpiSoundsForMidiChannel(int midiChannel, bool omni)
         {
@@ -318,7 +306,8 @@ namespace EPSSEditor
             return spiSounds[idx];
         }
 
-        private bool[] getOccupiedMidiChannels()
+
+        private bool[] GetOccupiedMidiChannels()
         {
             bool[] occupied = new bool[16];  // 0-15
             for (int i = 0; i < 16; i++) occupied[i] = false;
@@ -334,7 +323,7 @@ namespace EPSSEditor
         }
 
 
-        private bool[] getOccupiedChannel10()
+        private bool[] GetOccupiedChannel10()
         {
             bool[] occupied = new bool[128];  // 0-127
 
@@ -348,7 +337,8 @@ namespace EPSSEditor
             return occupied;
         }
 
-        private bool[] getOccupiedProgramChange()
+
+        private bool[] GetOccupiedProgramChange()
         {
             bool[] occupied = new bool[128];  // 0-127
 
@@ -368,7 +358,7 @@ namespace EPSSEditor
             HashSet<int> usedSounds = new HashSet<int>();
             foreach (SpiSound snd in spiSounds)
             {
-                int soundNumber = getSoundNumberFromGuid(snd.soundId);
+                int soundNumber = GetSoundNumberFromGuid(snd.soundId);
                 if (!usedSounds.Contains(soundNumber))
                 {
                     sortedSounds.Add(soundNumber, snd);
@@ -377,6 +367,7 @@ namespace EPSSEditor
             }
             return sortedSounds;
         }
+
 
         public List<SpiSound> SpiSounds()
         {
@@ -423,22 +414,23 @@ namespace EPSSEditor
         }
 
 
-        public bool isMidiChannelOccupied(int midiChannel)
+        public bool IsMidiChannelOccupied(int midiChannel)
         {
-            bool[] occupied = getOccupiedMidiChannels();
+            bool[] occupied = GetOccupiedMidiChannels();
             return occupied[midiChannel - 1];
         }
 
 
-        public bool isDrumSoundOccupied(int drumNote)
+        public bool IsDrumSoundOccupied(int drumNote)
         {
-            bool[] occupied = getOccupiedChannel10();
+            bool[] occupied = GetOccupiedChannel10();
             return occupied[drumNote];
         }
 
-        public int getNextFreeMidiChannel()
+
+        public int GetNextFreeMidiChannel()
         {
-            bool[] occupied = getOccupiedMidiChannels();
+            bool[] occupied = GetOccupiedMidiChannels();
 
             for (int i = 0; i < 16; i++)
             {
@@ -448,9 +440,9 @@ namespace EPSSEditor
         }
 
 
-        public int getNextFreeProgramChange()
+        public int GetNextFreeProgramChange()
         {
-            bool[] occupied = getOccupiedProgramChange();
+            bool[] occupied = GetOccupiedProgramChange();
 
             for (int i = 0; i < 128; i++)
             {
@@ -460,16 +452,17 @@ namespace EPSSEditor
         }
 
 
-        public bool isProgramChangeOccupied(byte pc)
+        public bool IsProgramChangeOccupied(byte pc)
         {
-            bool[] occupied = getOccupiedProgramChange();
+            bool[] occupied = GetOccupiedProgramChange();
             if (pc < 128) return occupied[pc];
             return false;
         }
 
+
         public bool HasAnyProgramChange()
         {
-            bool[] occupied = getOccupiedProgramChange();
+            bool[] occupied = GetOccupiedProgramChange();
             for (int i = 0; i < 128; i++)
             {
                 if (occupied[i]) return true;
@@ -477,7 +470,8 @@ namespace EPSSEditor
             return false;
         }
 
-        public bool removeSpiSound(byte midiChannel, byte midiNote)
+
+        public bool RemoveSpiSound(byte midiChannel, byte midiNote)
         {
             bool result = false;
 
@@ -539,13 +533,17 @@ namespace EPSSEditor
             return overlapping;
         }
         
+
         // Used when loading sound from sfz file
         public void AddSfzSound(Sound sound, int midiChannel, int programChange, byte lo, byte hi, byte center, sbyte transpose)
         {
-            SpiSound spiSnd = new SpiSound(sound);
-            spiSnd.startNote = lo;
-            spiSnd.endNote = hi;
-            spiSnd.midiNote = center;
+            SpiSound spiSnd = new SpiSound(sound)
+            {
+                startNote = lo,
+                endNote = hi,
+                midiNote = center
+            };
+
             if (midiChannel == 128)
             {
                 spiSnd.midiChannel = 128;
@@ -566,7 +564,7 @@ namespace EPSSEditor
         {
             foreach (var spiSnd in spiSounds)
             {
-                spiSnd.SetNameFromSound(getSoundFromSoundId(spiSnd.soundId));
+                spiSnd.SetNameFromSound(GetSoundFromSoundId(spiSnd.soundId));
             }
         }
 
@@ -584,11 +582,11 @@ namespace EPSSEditor
             _findSpiSoundArray = null;
         }
 
+
         public bool ExportSoundsToDir(string exportDir, out string errorMessage)
         {
             bool result = true;
             errorMessage = null;
-
             try
             {
                 foreach (var sound in sounds)
@@ -651,7 +649,7 @@ namespace EPSSEditor
         public bool SoundRefersToSPISound(int idx)
         {
             Sound snd = sounds[idx];
-            List<SpiSound> spiSounds = getSpiSoundsFromSound(snd);
+            List<SpiSound> spiSounds = GetSpiSoundsFromSound(snd);
             return spiSounds.Count > 0;
         }
 
@@ -662,11 +660,14 @@ namespace EPSSEditor
             {
                 return false;
             }
-            SpiSound spiSnd = new SpiSound(sound);
-            spiSnd.midiChannel = (byte)midiChannel;
-            spiSnd.midiNote = center;
-            spiSnd.startNote = startNote;
-            spiSnd.endNote = endNote;
+            SpiSound spiSnd = new SpiSound(sound)
+            {
+                midiChannel = (byte)midiChannel,
+                midiNote = center,
+                startNote = startNote,
+                endNote = endNote
+            };
+
             spiSounds.Add(spiSnd);
             _findSpiSoundArray = null;
             return true;
@@ -690,7 +691,7 @@ namespace EPSSEditor
 
                 MemoryStream ms = snd.getWaveStream(this, newFreq, newBits, newChannels);
                 ms.Seek(0, SeekOrigin.Begin);
-                cs = snd.cachedSound(ms, false, (int)snd.loopStart, (int)snd.orgSampleCount, dynamitePan(snd));
+                cs = snd.cachedSound(ms, false, (int)snd.loopStart, (int)snd.orgSampleCount, DynamitePan(snd));
                 cs.pitch = 1;
                 cs.vvfeOffset = 0;
 
@@ -698,7 +699,7 @@ namespace EPSSEditor
         }
 
 
-        private float dynamitePan(SpiSound snd)
+        private float DynamitePan(SpiSound snd)
         {
             return 0;
             /*
@@ -760,7 +761,7 @@ namespace EPSSEditor
             */
         }
 
-        public CachedSound cachedSound(SpiSound snd, int newFreq, int note, int vel)
+        public CachedSound CachedSound(SpiSound snd, int newFreq, int note, int vel)
         {
             CachedSound cs = snd.cachedSound();
             if (cs == null) { 
@@ -775,7 +776,7 @@ namespace EPSSEditor
                     //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
                     // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
                
-                    cs = snd.cachedSound(ms, loop, (int)snd.loopStart, (int)snd.orgSampleCount, dynamitePan(snd));
+                    cs = snd.cachedSound(ms, loop, (int)snd.loopStart, (int)snd.orgSampleCount, DynamitePan(snd));
                 }
             }
 
@@ -791,7 +792,7 @@ namespace EPSSEditor
 
             cs.pitch = Math.Pow(2, (double)relNote / 12.0);
 
-            int vvfeMul = 1;
+            int vvfeMul;
             switch (snd.vvfe)
             {
                 case 0x3b: vvfeMul = 0; break;

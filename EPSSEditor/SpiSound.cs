@@ -144,7 +144,7 @@ namespace EPSSEditor
             s.Append("    ");
             s.Append(midiNote);
             s.Append("    ");
-            int i = data.getSoundNumberFromGuid(soundId);
+            int i = data.GetSoundNumberFromGuid(soundId);
 
             s.Append(i);
             s.Append("    ");
@@ -155,7 +155,7 @@ namespace EPSSEditor
 
         public long preLength(EPSSEditorData data)
         {
-            Sound sound = data.getSoundFromSoundId(soundId);
+            Sound sound = data.GetSoundFromSoundId(soundId);
 
             if (sound != null)
             {
@@ -201,7 +201,7 @@ namespace EPSSEditor
 
             try
             {
-                Sound sound = data.getSoundFromSoundId(soundId);
+                Sound sound = data.GetSoundFromSoundId(soundId);
                 if (sound != null)
                 {
                     //float volume = 1.0f;
@@ -300,7 +300,7 @@ namespace EPSSEditor
         {
             if (_ms == null)
             {
-                string outFile = data.convertSoundFileName();
+                string outFile = data.ConvertSoundFileName();
 
                 if (convertSound(data, outFile, newFreq, bits, channels))
                 {

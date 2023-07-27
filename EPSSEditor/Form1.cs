@@ -130,7 +130,7 @@ namespace EPSSEditor
                 if (projectFileDefined)
                 {
                     data = new EPSSEditorData();                 
-                    data.initialize(DrumMappingsFileName());
+                    data.Initialize(DrumMappingsFileName());
                     UpdateDialog();
                     dataNeedsSaving = true;
                     //SaveProjectSettings();
@@ -402,15 +402,17 @@ namespace EPSSEditor
                 }
 
                 item.SubItems.Add(s.name());
-                int nr = data.getSoundNumberFromGuid(s.soundId);
+                int nr = data.GetSoundNumberFromGuid(s.soundId);
                 item.SubItems.Add(nr.ToString());
 
                 item.SubItems.Add(Ext.ToPrettySize(s.preLength(data), 2));
                 item.SubItems.Add(s.transposeString());
                 item.SubItems.Add(s.VvfeString());
 
-                EPSSSpi_s_gr_frek props = new EPSSSpi_s_gr_frek();
-                props.data = s.s_gr_frek;
+                EPSSSpi_s_gr_frek props = new EPSSSpi_s_gr_frek
+                {
+                    data = s.s_gr_frek
+                };
 
                 item.SubItems.Add(props.drum.ToString());
                 item.SubItems.Add(props.velocity.ToString());
@@ -435,7 +437,7 @@ namespace EPSSEditor
             Sound snd = GetSoundAtSelectedIndex();
             if (snd != null)
             {
-                List<SpiSound> spiSounds = data.getSpiSoundsFromSound(snd);
+                List<SpiSound> spiSounds = data.GetSpiSoundsFromSound(snd);
                 deleteSoundButton.Enabled = spiSounds.Count == 0;
 
             }
@@ -459,7 +461,7 @@ namespace EPSSEditor
             if (data != null)
             {
                 EPSSSpiCreator creator = new EPSSSpiCreator(SpiVersion());
-                long sz = creator.length(data);
+                long sz = creator.Length(data);
                 totalSizeTextBox.Text = Ext.ToPrettySize(sz, 2);
 
                 int v = (int)(sz / 1024);
@@ -557,7 +559,7 @@ namespace EPSSEditor
                 using (FileStream fs = new FileStream(file, FileMode.Open))
                 {
                     data = (EPSSEditorData)ser.Deserialize(fs);
-                    data.fixOldVersions();
+                    data.FixOldVersions();
                 }
 
                 string newDir = "";
@@ -766,7 +768,7 @@ namespace EPSSEditor
                 if (WarnAndConfirmSpiDir(path, "Directory for conversion of SPI already exists.\nDo you want to delete it?"))
                 {
                     data = new EPSSEditorData();
-                    data.initialize(DrumMappingsFileName());
+                    data.Initialize(DrumMappingsFileName());
 
                     result = data.LoadSpiFile(spi, path, out errorMessage);
                     if (result)
@@ -815,8 +817,7 @@ namespace EPSSEditor
 
         private void DoSaveSpi()
         {
-            string errorString;
-            if (data.IsValidForSpiExport(out errorString))
+            if (data.IsValidForSpiExport(out string errorString))
             {
                 string startDir;
                 string startFile = Properties.Settings.Default.SpiExportFile;
@@ -842,7 +843,7 @@ namespace EPSSEditor
                     int sampFreq = AtariConstants.SampleFreq25k;
                     data.omni = omniPatchCheckBox.Checked;
 
-                    EPSSSpi spi = creator.create(data, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
+                    EPSSSpi spi = creator.Create(data, spiNameTextBox.Text, spiInfoTextBox.Text, sampFreq);
 
                     if (spi != null)
                     {
@@ -1116,7 +1117,7 @@ namespace EPSSEditor
                 string anyFile = SfzConverter.LoadSfzSound(data, midiChannel, programChange, file, filesAdded);
                 if (filesAdded.Count > 0)
                 {
-                    int ch = midiChannel < 128 ? data.getNextFreeMidiChannel() : data.getNextFreeProgramChange() + 1;
+                    int ch = midiChannel < 128 ? data.GetNextFreeMidiChannel() : data.GetNextFreeProgramChange() + 1;
                     if (ch > 0) SetMidiChannel(ch);
                     UpdateAfterSoundsAdded(filesAdded, anyFile, true);
                     data.soundFileName = anyFile;
@@ -1135,13 +1136,11 @@ namespace EPSSEditor
         {
             string sfzFile = SfzExportFileName();
             string sampleSubDir = "samples";
-            string sfzDir, sampleDir, name;
-            if (CheckSfzDirectories(sfzFile, sampleSubDir, out name, out sfzDir, out sampleDir))
+            if (CheckSfzDirectories(sfzFile, sampleSubDir, out string name, out string sfzDir, out string sampleDir))
             {
                 Dictionary<int, List<SfzSplitInfo>> dict = data.ConvertToSfzSplitInfoForSfzExport();
                 SfzConverter c = new SfzConverter();
-                string errorMessage;
-                bool result = c.SaveSFZ(dict, data.sounds, sfzDir, sampleSubDir, name, out errorMessage);
+                bool result = c.SaveSFZ(dict, data.sounds, sfzDir, sampleSubDir, name, out string errorMessage);
                 if (result) result = data.ExportSoundsToDir(sampleDir, out errorMessage);
                 if (result) MessageBox.Show("Exported successfully!", "EPSS Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 else MessageBox.Show("Save sfz failed:\n" + errorMessage);
@@ -1420,7 +1419,7 @@ namespace EPSSEditor
                     anyFile = SfzConverter.LoadSfzSound(data, midiChannel, programChange, filePath, filesAdded);
                     if (filesAdded.Count > 0)
                     {
-                        int ch = midiChannel < 128 ? data.getNextFreeMidiChannel() : data.getNextFreeProgramChange() + 1;
+                        int ch = midiChannel < 128 ? data.GetNextFreeMidiChannel() : data.GetNextFreeProgramChange() + 1;
                         if (ch > 0) SetMidiChannel(ch);
                         spiNeedsUpdate = true;
                         Properties.Settings.Default.SfzFile = filePath;
@@ -1499,7 +1498,7 @@ namespace EPSSEditor
                 UpdateAfterSoundChange(snd, toFreq);
                 compressionTrackBar.Value = CompressionTrackBarValueFromFrequency(toFreq);
                 useInSpiButton.Enabled = true;
-                List<SpiSound> spiSounds = data.getSpiSoundsFromSound(snd);
+                List<SpiSound> spiSounds = data.GetSpiSoundsFromSound(snd);
                 if ((Control.ModifierKeys & Keys.Alt) != Keys.None)
                 {
                     foreach (ListViewItem item in spiSoundListView.Items)
@@ -1642,13 +1641,13 @@ namespace EPSSEditor
 
                             if (!defaultMidiMapRadioButton.Checked)
                             {
-                                data.removeSpiSound(spiSnd.midiChannel, spiSnd.midiNote);
+                                data.RemoveSpiSound(spiSnd.midiChannel, spiSnd.midiNote);
                             }
                             data.AddSpiSound(spiSnd);
 
                             if (defaultMidiMapRadioButton.Checked)
                             {
-                                int ch = data.getNextFreeMidiChannel();
+                                int ch = data.GetNextFreeMidiChannel();
                                 if (ch > 0) SetMidiChannel(ch);
                             }
                         }
@@ -1704,7 +1703,7 @@ namespace EPSSEditor
 
                                     if (defaultMidiMapRadioButton.Checked)
                                     {
-                                        int ch = data.getNextFreeMidiChannel();
+                                        int ch = data.GetNextFreeMidiChannel();
                                         if (ch > 0) SetMidiChannel(ch);
                                     }
 
@@ -1727,7 +1726,7 @@ namespace EPSSEditor
                                 byte startNote = PercussionNote(); // 0-127
                                 spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
 
-                                if (data.isDrumSoundOccupied(startNote))
+                                if (data.IsDrumSoundOccupied(startNote))
                                 {
                                     addOk = false;
                                     MessageBox.Show("Drum sound " + spiSnd.midiNote.ToString() + " already occupied!");
@@ -1738,7 +1737,7 @@ namespace EPSSEditor
                                 byte startNote = Utility.ParseMidiTone(midiToneTextBox.Text);
                                 spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
 
-                                if (data.isMidiChannelOccupied(midiChannel)) // 1-16
+                                if (data.IsMidiChannelOccupied(midiChannel)) // 1-16
                                 {
                                     addOk = false;
                                     MessageBox.Show("MIDI channel " + midiChannel.ToString() + " already occupied!");
@@ -1773,7 +1772,7 @@ namespace EPSSEditor
                 {
                     bool doAdd = true;
                     byte pcNumber = (byte)(CurrentMidiChannel() - 1); // We are now in program change mode
-                    if (data.isProgramChangeOccupied(pcNumber))
+                    if (data.IsProgramChangeOccupied(pcNumber))
                     {
                         MessageBox.Show("Program Change number " + pcNumber.ToString() + " already occupied!");
                         doAdd = false;
@@ -1783,16 +1782,17 @@ namespace EPSSEditor
                         foreach (Sound sound in sounds)
                         {
                             Sound s = sound;
-                            SpiSound spiSnd = new SpiSound(s);
-
-                            spiSnd.midiChannel = 128;
-                            spiSnd.startNote = 60;
-                            spiSnd.endNote = 108;
-                            spiSnd.midiNote = 84;
-                            spiSnd.programNumber = pcNumber;
+                            SpiSound spiSnd = new SpiSound(s)
+                            {
+                                midiChannel = 128,
+                                startNote = 60,
+                                endNote = 108,
+                                midiNote = 84,
+                                programNumber = pcNumber
+                            };
                             data.AddSpiSound(spiSnd);
 
-                            pcNumber = (byte)data.getNextFreeProgramChange(); // in 0-127 range
+                            pcNumber = (byte)data.GetNextFreeProgramChange(); // in 0-127 range
                             if (pcNumber > 0) SetProgramChange(pcNumber + 1); // in 1-128 range
                         }
 
@@ -1809,23 +1809,25 @@ namespace EPSSEditor
                     {
                         bool doAdd = true;
                         byte pcNumber = (byte)(CurrentMidiChannel() - 1); // We are now in program change mode
-                        if (data.isProgramChangeOccupied(pcNumber)) {
+                        if (data.IsProgramChangeOccupied(pcNumber)) {
                             MessageBox.Show("Program Change number " + pcNumber.ToString() + " already occupied!");
                             doAdd = false;
                         }
 
                         if (doAdd)
                         {
-                            SpiSound spiSnd = new SpiSound(s);
-                            spiSnd.midiChannel = 128;
-                            spiSnd.startNote = 60;
-                            spiSnd.endNote = 108;
-                            spiSnd.midiNote = 84;
-                            spiSnd.programNumber = pcNumber;
+                            SpiSound spiSnd = new SpiSound(s)
+                            {
+                                midiChannel = 128,
+                                startNote = 60,
+                                endNote = 108,
+                                midiNote = 84,
+                                programNumber = pcNumber
+                            };
 
                             data.AddSpiSound(spiSnd);
 
-                            pcNumber = (byte)data.getNextFreeProgramChange(); // in 0-127 range
+                            pcNumber = (byte)data.GetNextFreeProgramChange(); // in 0-127 range
                             if (pcNumber > 0) SetProgramChange(pcNumber + 1); // in 1-128 range
 
                             UpdateSpiSoundListBox();
@@ -1906,8 +1908,7 @@ namespace EPSSEditor
 
             if (doLoad)
             {
-                string errorMessage;
-                bool result = DoLoadSpiFileDialog(out errorMessage);
+                bool result = DoLoadSpiFileDialog(out string errorMessage);
                 if (!result && !String.IsNullOrEmpty(errorMessage))
                 {
                     MessageBox.Show("SPI file cannot be loaded:\n" + errorMessage);
@@ -1918,8 +1919,7 @@ namespace EPSSEditor
 
         private void ImportSFZToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string errorMessage;
-            bool result = DoLoadSfzFileDialog(out errorMessage);
+            bool result = DoLoadSfzFileDialog(out string errorMessage);
             if (!result && !String.IsNullOrEmpty(errorMessage))
             {
                 MessageBox.Show("SFZ file cannot be loaded:\n" + errorMessage);
@@ -1976,8 +1976,10 @@ namespace EPSSEditor
         {
             if (pianoKbForm == null)
             {
-                pianoKbForm = new PianoKbForm(this, midiChannel);
-                pianoKbForm.StartPosition = FormStartPosition.Manual;
+                pianoKbForm = new PianoKbForm(this, midiChannel)
+                {
+                    StartPosition = FormStartPosition.Manual
+                };
 
                 int xOffset = (this.Width - pianoKbForm.Width) / 2;
                 Point p = this.Location + new Size(xOffset, this.Height);
@@ -2189,8 +2191,10 @@ namespace EPSSEditor
             if (sounds.Count == 1)
             {
                 Sound snd = sounds[0];
-                RenameForm r = new RenameForm(snd.name());
-                r.StartPosition = FormStartPosition.Manual;
+                RenameForm r = new RenameForm(snd.name())
+                {
+                    StartPosition = FormStartPosition.Manual
+                };
                 ToolStripMenuItem b = (ToolStripMenuItem)sender;
                 Point p = b.Owner.Location;
                 r.Location = p;

@@ -90,7 +90,7 @@ namespace EPSSEditor
                 if (snd != null)
                 {
                     //Console.WriteLine($"Found sound: {snd.name()}");
-                    CachedSound cs = data.cachedSound(snd, newFreq, note, vel);
+                    CachedSound cs = data.CachedSound(snd, newFreq, note, vel);
 
                     PlaySound(cs, midiChannel, note);
                     DoNoteOnEvent(midiChannel, note);
