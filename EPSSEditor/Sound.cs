@@ -83,8 +83,22 @@ namespace EPSSEditor
             {
                 sampleStream.Seek(0, SeekOrigin.Begin);
                 string ext = Path.GetExtension(p).ToLower();
-                if (ext == ".wav")
+                if (ext == ".ogg")
                 {
+                    using (var reader = new VorbisWaveReader(p))
+                    {
+                        WaveFormat fmt = reader.WaveFormat;
+                        channels = fmt.Channels;
+                        bitsPerSample = fmt.BitsPerSample;
+                        samplesPerSecond = fmt.SampleRate;
+                        sampleDataLength = reader.Length;
+                        sampleCount = sampleDataLength / (bitsPerSample / 2);
+                    }
+
+                }
+                else if (ext == ".wav")
+                {
+
                     using (var reader = new WaveFileReader(sampleStream))
                     {
                         WaveFormat fmt = reader.WaveFormat;
@@ -109,39 +123,26 @@ namespace EPSSEditor
                             int offset = 36;
                             //for (int n = 0; n < numberOfLoops; n++)
                             //{
-                                var cuePointId = BitConverter.ToInt32(chunkData, offset);
-                                var type = BitConverter.ToInt32(chunkData, offset + 4); // 0 = loop forward, 1 = alternating loop, 2 = reverse
+                            var cuePointId = BitConverter.ToInt32(chunkData, offset);
+                            var type = BitConverter.ToInt32(chunkData, offset + 4); // 0 = loop forward, 1 = alternating loop, 2 = reverse
 
-                                var start = BitConverter.ToInt32(chunkData, offset + 8);
-                                var end = BitConverter.ToInt32(chunkData, offset + 12);
-                                var fraction = BitConverter.ToInt32(chunkData, offset + 16);
-                                var playCount = BitConverter.ToInt32(chunkData, offset + 20);
+                            var start = BitConverter.ToInt32(chunkData, offset + 8);
+                            var end = BitConverter.ToInt32(chunkData, offset + 12);
+                            var fraction = BitConverter.ToInt32(chunkData, offset + 16);
+                            var playCount = BitConverter.ToInt32(chunkData, offset + 20);
 
-                                Console.WriteLine($"Sample {cuePointId} Start {start} End {end} Type {type} Fraction {fraction} PlayCount {playCount} SampleDataLength {sampleDataLength}");
-                                offset += 24;
+                            Console.WriteLine($"Sample {cuePointId} Start {start} End {end} Type {type} Fraction {fraction} PlayCount {playCount} SampleDataLength {sampleDataLength}");
+                            offset += 24;
 
-                                loop = true;
-                                loopStart = start;
-                                loopEnd = end;
-                                loopType = type;
+                            loop = true;
+                            loopStart = start;
+                            loopEnd = end;
+                            loopType = type;
 
-                                //break; // only read one loop
+                            //break; // only read one loop
                             //}
                         }
                     }
-                } 
-                else if (ext == ".ogg")
-                {                   
-                    using (var reader = new VorbisWaveReader(p))
-                    {
-                        WaveFormat fmt = reader.WaveFormat;
-                        channels = fmt.Channels;
-                        bitsPerSample = fmt.BitsPerSample;
-                        samplesPerSecond = fmt.SampleRate;
-                        sampleDataLength = reader.Length;
-                        sampleCount = sampleDataLength / (bitsPerSample / 2);
-                    }
-                    
                 }
                 else
                 {
@@ -149,7 +150,30 @@ namespace EPSSEditor
                 }
             }
 
-            if (soundValid )
+            if (!soundValid )
+            {
+                try
+                {
+                    using (var reader = new AudioFileReader(p))
+                    {
+                        WaveFormat fmt = reader.WaveFormat;
+                        channels = fmt.Channels;
+                        bitsPerSample = fmt.BitsPerSample;
+                        samplesPerSecond = fmt.SampleRate;
+                        sampleDataLength = reader.Length;
+                        sampleCount = sampleDataLength / (bitsPerSample / 2);
+                        //sampleCount = reader.SampleCount; // Does not take channels into account!
+                        soundValid = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    soundValid = false;
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+              
+            if (soundValid)
             {
                 path = p;
                 description = null;

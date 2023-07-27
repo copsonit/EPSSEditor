@@ -1466,7 +1466,7 @@ namespace EPSSEditor
                     }
                     else
                     {
-                        MessageBox.Show("Unsupport file format.");
+                        MessageBox.Show("Unsupported file format.");
                         break;
                     }                   
                 }
