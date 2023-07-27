@@ -871,21 +871,39 @@ namespace EPSSEditor
         // Sound
         private void LoadSound()
         {
-            loadSoundFileDialog.InitialDirectory = Path.GetDirectoryName(data.soundFileName);
+            string s = data.soundFileName;
+
+            if (s == null || s == "")
+            {
+                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                s = Path.Combine(s, "sample.wav");
+            }
+            else if (Path.GetExtension(s).ToLower() != "wav")
+            {
+                s = Path.ChangeExtension(s, "wav");
+            }
+
+
+            loadSoundFileDialog.InitialDirectory = Path.GetDirectoryName(s);
+            loadSoundFileDialog.FileName = Path.GetFileName(s);
 
             if (loadSoundFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string anyFile = "";
                 foreach (string fileName in loadSoundFileDialog.FileNames)
                 {
-                    data.AddSound(fileName);
-                    anyFile = fileName;
+                    if (data.AddSound(fileName))
+                    {
+                        anyFile = fileName;
+                    }
                 }
-                UpdateSoundListBox();
+                if (!String.IsNullOrEmpty(anyFile)) {
+                    UpdateSoundListBox();
 
-                data.soundFileName = anyFile;
-                dataNeedsSaving = true;
-                SaveProjectSettings();
+                    data.soundFileName = anyFile;
+                    dataNeedsSaving = true;
+                    SaveProjectSettings();
+                }
             }
         }
 
@@ -1052,6 +1070,19 @@ namespace EPSSEditor
 
         private void SaveSampleWithFileDialog()
         {
+            string s = data.soundFileName;
+
+            if (s == null || s == "")
+            {
+                s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                s = Path.Combine(s, "sample.wav");
+            }
+            else if (Path.GetExtension(s).ToLower() != "wav")
+            {
+                s = Path.ChangeExtension(s, "wav");
+            }
+
+
             List<int> selectedSpiSounds = SelectedSpiSounds();
             if (selectedSpiSounds.Count > 0)
             {
@@ -1059,7 +1090,8 @@ namespace EPSSEditor
                 {
                     if (selected >= 0)
                     {
-                        saveSampleFileDialog.InitialDirectory = Path.GetDirectoryName(data.soundFileName);
+                        saveSampleFileDialog.InitialDirectory = Path.GetDirectoryName(s);
+                        saveSampleFileDialog.FileName = Path.GetFileName(s);
                         if (saveSampleFileDialog.ShowDialog() == DialogResult.OK)
                         {
                             string outFile = saveSampleFileDialog.FileName;
@@ -1410,8 +1442,8 @@ namespace EPSSEditor
             foreach (var file in files)
             {
                 string filePath = file;
-                string ext = Path.GetExtension(filePath).ToUpper();
-                if (ext == ".SFZ")
+                string ext = Path.GetExtension(filePath).ToLower();
+                if (ext == ".sfz")
                 {
                     int cm = CurrentMidiChannel();
                     int midiChannel = mappingModeMidiRadioButton.Checked ? cm : 128;
@@ -1426,16 +1458,19 @@ namespace EPSSEditor
                         Properties.Settings.Default.Save();
                     }
                 }
-                else if (ext == ".WAV")
+                else 
                 {
-                    data.AddSound(filePath);
-                    filesAdded.Add(filePath);
+                    if (data.AddSound(filePath))
+                    {
+                        filesAdded.Add(filePath);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Unsupport file format.");
+                        break;
+                    }                   
                 }
-                else
-                {
-                    MessageBox.Show("Only support .WAV or .SFZ format.");
-                    break;
-                }
+
             }
 
             if (filesAdded.Count > 0)

@@ -7,6 +7,8 @@ using NAudio.Wave;
 using System.IO;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Windows.Forms;
+using EPSSEditor.Vorbis;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EPSSEditor
 {
@@ -211,28 +213,52 @@ namespace EPSSEditor
 
                     string volTempPath = System.IO.Path.GetTempFileName();
 
-                    using (var reader = new AudioFileReader(sound.path))
+                    string ext = Path.GetExtension(sound.path).ToLower();
+                    if (ext == ".ogg")
                     {
-                        // rewind and amplify
-                        reader.Position = 0;
-                        //                    reader.Volume = 1.0f / max;
-                        //reader.Volume = volume / max;
-                        reader.Volume = (float)(extVolume) / 100.0f;
-
-                        var outFormat = new WaveFormat(newFreq, reader.WaveFormat.Channels);
-                        // TODO use the pitch info to pitch it.
-                        // https://gitee.com/weivyuan/NAudio/tree/master/Docs  SmbPitchShiftingSampleProvider
-                        // Need to use the varispeed converter!
-                        using (var resampler = new MediaFoundationResampler(reader, outFormat))
+                        using (VorbisWaveReader reader = new VorbisWaveReader(sound.path))
                         {
-                            resampler.ResamplerQuality = 60; // Highest quality
-                            WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, loopStart, loopEnd); 
+                            // rewind and amplify
+                            reader.Position = 0;
+                            //                    reader.Volume = 1.0f / max;
+                            //reader.Volume = volume / max;
+                            //reader.Volume = (float)(extVolume) / 100.0f;
+
+                            var outFormat = new WaveFormat(newFreq, reader.WaveFormat.Channels);
+                            // TODO use the pitch info to pitch it.
+                            // https://gitee.com/weivyuan/NAudio/tree/master/Docs  SmbPitchShiftingSampleProvider
+                            // Need to use the varispeed converter!
+                            using (var resampler = new MediaFoundationResampler(reader, outFormat))
+                            {
+                                resampler.ResamplerQuality = 60; // Highest quality
+                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, loopStart, loopEnd);
+                            }
                         }
-
-
-
-                        
                     }
+                    else
+                    {
+                        using (var reader = new AudioFileReader(sound.path))
+                        {
+                            // rewind and amplify
+                            reader.Position = 0;
+                            //                    reader.Volume = 1.0f / max;
+                            //reader.Volume = volume / max;
+                            reader.Volume = (float)(extVolume) / 100.0f;
+
+                            var outFormat = new WaveFormat(newFreq, reader.WaveFormat.Channels);
+                            // TODO use the pitch info to pitch it.
+                            // https://gitee.com/weivyuan/NAudio/tree/master/Docs  SmbPitchShiftingSampleProvider
+                            // Need to use the varispeed converter!
+                            using (var resampler = new MediaFoundationResampler(reader, outFormat))
+                            {
+                                resampler.ResamplerQuality = 60; // Highest quality
+                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, loopStart, loopEnd);
+                            }
+                        }
+                    }
+
+
+  
 
                     using (var reader = new WaveFileReader(volTempPath))
                     {

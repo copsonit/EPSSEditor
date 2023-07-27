@@ -627,10 +627,14 @@ namespace EPSSEditor
         }
 
 
-        public void AddSound(string file)
+        public bool AddSound(string file)
         {
             Sound s = new Sound(file);
-            sounds.Add(s);
+            if (!String.IsNullOrEmpty(s.path)) {
+                sounds.Add(s);
+                return true;
+            }
+            return false;
         }
 
 

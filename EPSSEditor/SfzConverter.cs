@@ -398,19 +398,16 @@ namespace EPSSEditor
                     }
                     else
                     {
-                        if (Path.GetExtension(fp).ToLower() == ".wav")
+                        s = new Sound(fp);
+                        if (!String.IsNullOrEmpty(s.path))
                         {
-                            s = new Sound(fp)
-                            {
-                                description = Path.GetFileNameWithoutExtension(fp)
-                            };
+                            s.description = Path.GetFileNameWithoutExtension(fp);
                             data.sounds.Add(s);
                             sounds.Add(fp, s);
                             filesAdded.Add(fp);
-                        }
-                        else
+                        } else
                         {
-                            MessageBox.Show("Unsupported format for samples. Only supports WAV.");
+                            MessageBox.Show("Unsupported format for samples. Only supports WAV and OGG.");
                             abortLoad = true;
                             s = null;
                         }
@@ -418,14 +415,14 @@ namespace EPSSEditor
 
 
                     string kcS = tBase.GetValue("pitch_keycenter");
-                    byte kcByte = 0;
+                    byte kcByte = 60; // default
                     if (!String.IsNullOrEmpty(kcS))
                     {
 
                         //                    string kcS = tBase.variables[""];
                         if (!Utility.TryToByte(kcS, out kcByte))
                         {
-                            int v = Utility.ParseNoteToInt(kcS, 0);
+                            int v = Utility.ParseNoteToInt(kcS, 2);
                             if (v < 0 || v > 127)
                             {
                                 kcByte = 128;
@@ -446,7 +443,7 @@ namespace EPSSEditor
 
                         if (!Utility.TryToByte(loKeyS, out loByte))
                         {
-                            int v = Utility.ParseNoteToInt(loKeyS, 0);
+                            int v = Utility.ParseNoteToInt(loKeyS, 2);
                             if (v < 0 || v > 127)
                             {
                                 loByte = 128;

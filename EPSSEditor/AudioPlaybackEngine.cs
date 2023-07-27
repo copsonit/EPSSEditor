@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using EPSSEditor.Vorbis;
 
 namespace EPSSEditor
 {
@@ -304,54 +305,79 @@ namespace EPSSEditor
             loop = lp;
             loopType = 0; // Only forward supported in EPSS
 
+            string ext = Path.GetExtension(audioFileName).ToLower();
 
-            using (var audioFileReader = new AudioFileReader(audioFileName))
-            {
-                double loopFactor = (double)newSampleRate / (double)audioFileReader.WaveFormat.SampleRate;
-                loopStart = (int)(ls * loopFactor);
-                loopEnd = (int)(le * loopFactor);
+             long length;
 
-                var resampler = new WdlResamplingSampleProvider(audioFileReader, newSampleRate);
-                WaveFormat = resampler.WaveFormat;
-                var wholeFile = new List<float>((int)(audioFileReader.Length / 4));
-                var readBuffer = new float[resampler.WaveFormat.SampleRate * resampler.WaveFormat.Channels];
-                int samplesRead;
-                while ((samplesRead = resampler.Read(readBuffer, 0, readBuffer.Length)) > 0)
+            if (ext == ".ogg")
+            {               
+                using (VorbisWaveReader reader = new VorbisWaveReader(audioFileName))
                 {
-                    wholeFile.AddRange(readBuffer.Take(samplesRead));
-                }
-                AudioData = wholeFile.ToArray();
-
-                loopEnd = Math.Min(AudioData.Length, loopEnd);
-
-                /*
-                var resampler = new MediaFoundationResampler(audioFileReader, 44100);
-                WaveFormat = resampler.WaveFormat;
-                var wholeFile = new List<byte>((int)(audioFileReader.Length / 4));
-                var readBufferByte = new byte[resampler.WaveFormat.SampleRate * resampler.WaveFormat.Channels];
-                int samplesRead;
-                while ((samplesRead = resampler.Read(readBufferByte, 0, readBufferByte.Length)) > 0)
-                {
-                    wholeFile.AddRange(readBufferByte.Take(samplesRead));
-                }
-                AudioData = wholeFile.ToArray();
-                */
-
-                /*
-                WaveFormat = audioFileReader.WaveFormat;
-                var wholeFile = new List<float>((int)(audioFileReader.Length / 4));
-                var readBuffer = new float[audioFileReader.WaveFormat.SampleRate * audioFileReader.WaveFormat.Channels];
-                int samplesRead;
-                while ((samplesRead = audioFileReader.Read(readBuffer, 0, readBuffer.Length)) > 0)
-                {
-                    wholeFile.AddRange(readBuffer.Take(samplesRead));
-                }
-                AudioData = wholeFile.ToArray();
-                //WaveFormat = new WaveFormat(); // Default 44100, 16, 2
-                */
+                    length = reader.Length;
+                    InitCachedSound(reader, newSampleRate, length, ls, le);
+                }               
             }
+            else
+            {
+                using (AudioFileReader reader = new AudioFileReader(audioFileName))
+                {
+                    length = reader.Length;
+                    InitCachedSound(reader, newSampleRate, length, ls, le);
+                }
+            }
+
+
+
+
+
+            /*
+            var resampler = new MediaFoundationResampler(audioFileReader, 44100);
+            WaveFormat = resampler.WaveFormat;
+            var wholeFile = new List<byte>((int)(audioFileReader.Length / 4));
+            var readBufferByte = new byte[resampler.WaveFormat.SampleRate * resampler.WaveFormat.Channels];
+            int samplesRead;
+            while ((samplesRead = resampler.Read(readBufferByte, 0, readBufferByte.Length)) > 0)
+            {
+                wholeFile.AddRange(readBufferByte.Take(samplesRead));
+            }
+            AudioData = wholeFile.ToArray();
+            */
+
+            /*
+            WaveFormat = audioFileReader.WaveFormat;
+            var wholeFile = new List<float>((int)(audioFileReader.Length / 4));
+            var readBuffer = new float[audioFileReader.WaveFormat.SampleRate * audioFileReader.WaveFormat.Channels];
+            int samplesRead;
+            while ((samplesRead = audioFileReader.Read(readBuffer, 0, readBuffer.Length)) > 0)
+            {
+                wholeFile.AddRange(readBuffer.Take(samplesRead));
+            }
+            AudioData = wholeFile.ToArray();
+            //WaveFormat = new WaveFormat(); // Default 44100, 16, 2
+            */
+        }
+
+
+        private void InitCachedSound(ISampleProvider audioFileReader, int newSampleRate, long length, int ls, int le)
+        {
+            double loopFactor = (double)newSampleRate / (double)audioFileReader.WaveFormat.SampleRate;
+            loopStart = (int)(ls * loopFactor);
+            loopEnd = (int)(le * loopFactor);
+
+            var resampler = new WdlResamplingSampleProvider(audioFileReader, newSampleRate);
+            WaveFormat = resampler.WaveFormat;
+            var wholeFile = new List<float>((int)(length / 4));
+            var readBuffer = new float[resampler.WaveFormat.SampleRate * resampler.WaveFormat.Channels];
+            int samplesRead;
+            while ((samplesRead = resampler.Read(readBuffer, 0, readBuffer.Length)) > 0)
+            {
+                wholeFile.AddRange(readBuffer.Take(samplesRead));
+            }
+            AudioData = wholeFile.ToArray();
+
+            loopEnd = Math.Min(AudioData.Length, loopEnd);
         }
     }
-
-
 }
+
+

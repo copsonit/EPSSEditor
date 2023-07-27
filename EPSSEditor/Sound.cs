@@ -7,6 +7,7 @@ using NAudio.Wave;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
+using EPSSEditor.Vorbis;
 
 namespace EPSSEditor
 {
@@ -76,24 +77,15 @@ namespace EPSSEditor
 
         public void InitSound(string p)
         {
-            path = p;
-            description = null;
-            //length = new System.IO.FileInfo(path).Length;
-            _id = Guid.NewGuid();
-
-            _parameters = new ConversionParameters();
-            _parameters.normalize = new ConversionNormalize();
-
-            loKey = hiKey = keyCenter = 128;
-            loop = false;
-
-            using (FileStream wav = File.OpenRead(path))
+            path = null;
+            bool soundValid = true;
+            using (FileStream sampleStream = File.OpenRead(p))
             {
-                wav.Seek(0, SeekOrigin.Begin);
-
-                if (Path.GetExtension(p).ToLower() == ".wav")
+                sampleStream.Seek(0, SeekOrigin.Begin);
+                string ext = Path.GetExtension(p).ToLower();
+                if (ext == ".wav")
                 {
-                    using (var reader = new WaveFileReader(wav))
+                    using (var reader = new WaveFileReader(sampleStream))
                     {
                         WaveFormat fmt = reader.WaveFormat;
                         channels = fmt.Channels;
@@ -137,10 +129,39 @@ namespace EPSSEditor
                             //}
                         }
                     }
+                } 
+                else if (ext == ".ogg")
+                {                   
+                    using (var reader = new VorbisWaveReader(p))
+                    {
+                        WaveFormat fmt = reader.WaveFormat;
+                        channels = fmt.Channels;
+                        bitsPerSample = fmt.BitsPerSample;
+                        samplesPerSecond = fmt.SampleRate;
+                        sampleDataLength = reader.Length;
+                        sampleCount = sampleDataLength / (bitsPerSample / 2);
+                    }
+                    
+                }
+                else
+                {
+                    soundValid = false;
                 }
             }
-            //WaveStream ws = new WaveFileReader(wav);
-            //WaveFormat fmt = ws.WaveFormat;
+
+            if (soundValid )
+            {
+                path = p;
+                description = null;
+                //length = new System.IO.FileInfo(path).Length;
+                _id = Guid.NewGuid();
+
+                _parameters = new ConversionParameters();
+                _parameters.normalize = new ConversionNormalize();
+
+                loKey = hiKey = keyCenter = 128;
+                loop = false;
+            }
         }
 
         public Guid id() { return _id; }
