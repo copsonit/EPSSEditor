@@ -858,10 +858,29 @@ namespace EPSSEditor
         }
 
 
-        public SpiSound FindSpiSound(int midiChannel, int programChange, int note)
+        public void UpdateSoundForMidiChannel(SpiSound snd, int midiChannel, int note)
         {
             if (_findSpiSoundArray == null) { InitFinder(); }
-            SpiSound[] sounds = midiChannel == 128 ? _programArray[programChange] : _findSpiSoundArray[midiChannel - 1];
+            int idx = midiChannel - 1;
+            Dictionary<int, SpiSound[]> useArray = _findSpiSoundArray;
+            SpiSound[] sounds = useArray[idx];
+            sounds[note] = snd;
+            useArray[idx] = sounds;
+        }
+
+
+        public SpiSound FindSpiSoundFromProgramChange(int programChange, int note)
+        {
+            if (_findSpiSoundArray == null) { InitFinder(); }
+            SpiSound[] sounds = _programArray[programChange];
+            return sounds[note];
+        }
+
+
+        public SpiSound FindSpiSoundFromMidiChannel(int midiChannel, int note)
+        {
+            if (_findSpiSoundArray == null) { InitFinder(); }
+            SpiSound[] sounds = _findSpiSoundArray[midiChannel - 1];
             return sounds[note];
         }
     }

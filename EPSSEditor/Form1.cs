@@ -1058,12 +1058,14 @@ namespace EPSSEditor
         }
 
 
-        private void PlayConvertedSound(int midiChannel, int programChange, int note)
+        private void PlayConvertedSound(SpiSound snd, int midiChannel, int programChange, int note)
         {
             if (programChange < 128)
             {
                 spiSoundInstrument.ProgramChange(midiChannel, programChange);
             }
+            spiSoundInstrument.UpdateSoundForMidiChannel(snd, midiChannel, note);
+            
             spiSoundInstrument.NoteOn(midiChannel, note, 127);
         }
 
@@ -1478,7 +1480,14 @@ namespace EPSSEditor
                 UpdateAfterSoundsAdded(filesAdded, anyFile, spiNeedsUpdate);
             } else
             {
-                MessageBox.Show("Nothing was loaded. Files already exists.");
+                if (anyFile == null)
+                {
+                    MessageBox.Show("File can not be loaded.");
+                }
+                else
+                {
+                    MessageBox.Show("Nothing was loaded. Files already exists.");
+                }
             }
         }
 
@@ -2208,7 +2217,7 @@ namespace EPSSEditor
                     int playNote = snd.startNote;
                     if (centerKey >= snd.startNote && centerKey <= snd.endNote) playNote = centerKey;
                     playNote = Math.Min(127, Math.Max(0, playNote));
-                    PlayConvertedSound(midiChannel, programChange, playNote);
+                    PlayConvertedSound(snd, midiChannel, programChange, playNote);
                 }
             }
         }

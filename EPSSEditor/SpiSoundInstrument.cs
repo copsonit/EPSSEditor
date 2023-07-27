@@ -65,6 +65,17 @@ namespace EPSSEditor
             //cachedCachedSound = snd.cachedSound();
         }
 
+
+        public void UpdateSoundForMidiChannel(SpiSound snd, int midiChannel, int note)
+        {
+            if (_getEditorDataCallBack != null)
+            {
+                EPSSEditorData data = _getEditorDataCallBack();
+                data.UpdateSoundForMidiChannel(snd, midiChannel, note);
+            }
+        }
+
+
         public override void NoteOn(int midiChannel, int note, int vel)
         {
             //Console.WriteLine($"Spi got Note on: {midiChannel} {note} {vel}");
@@ -81,8 +92,19 @@ namespace EPSSEditor
             {
                 EPSSEditorData data = _getEditorDataCallBack();
 
+                SpiSound snd;
                 byte program = currentProgram[midiChannel - 1];
-                SpiSound snd = program < 128 ? data.FindSpiSound(128, program, note) : data.FindSpiSound(midiChannel, program, note);
+                if (program < 128)
+                {
+                    snd = data.FindSpiSoundFromProgramChange(program, note);
+                }
+                else
+                {
+                    snd = data.FindSpiSoundFromMidiChannel(midiChannel, note);
+                }
+
+
+                //SpiSound snd = program < 128 ? data.FindSpiSound(128, program, note) :;
                 //                if (program < 128)
                 //{
 

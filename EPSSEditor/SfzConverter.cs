@@ -5,6 +5,7 @@ using NAudio.Mixer;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -365,148 +366,151 @@ namespace EPSSEditor
             ParseSfz p = new ParseSfz();
             List<SfzBase> bases = p.parse(filePath);
             string basePath = Path.GetDirectoryName(filePath);
-            bool skipFirstGroup = true;
+            //bool skipFirstGroup = true;
             bool abortLoad = false;
-            foreach (SfzBase bas in bases)
+
+            byte defaultCenter = 60;
+            byte defaultLoByte = (byte)(defaultCenter - 24);
+            byte defaultHiByte = (byte)(defaultCenter + 24);
+            byte defaultKey = 60;
+
+            byte groupKeyCenter = defaultCenter;
+            byte groupLoKey = defaultLoByte;
+            byte groupHiKey = defaultHiByte;
+            byte groupKey = defaultKey;
+            string groupSample = "";
+            int index = 0;
+            try
             {
-                if (abortLoad) break;
-                if (bas is SfzGenericSection gSection)
+                foreach (SfzBase bas in bases)
                 {
-                    if (gSection.header.Contains("group"))
+                    index++;
+                    Console.WriteLine(index);
+                    if (abortLoad) break;
+                    if (bas is SfzGenericSection gSection)
                     {
-                        if (!skipFirstGroup)
+
+                        if (gSection.header.Contains("group"))
                         {
-                            midiChannel++;
-                            if (midiChannel > 16)
+                            groupSample = bas.FilePath(basePath);
+
+                            bool handled = ParseKey(bas.GetValue("key"), out groupKey);
+                            if (!handled) groupKey = defaultKey;
+                            else
                             {
-                                System.Windows.Forms.MessageBox.Show("Midi channel over 16. Will skip rest of sfz file.");
-                                break;
+                                groupLoKey = groupKey;
+                                groupHiKey = groupKey;
+                                groupKeyCenter = groupKey;
+                            }
+
+                            handled = ParseKey(bas.GetValue("pitch_keycenter"), out byte parsedGroupCenter);
+                            if (handled) groupKeyCenter = parsedGroupCenter;
+
+                            handled = ParseKey(bas.GetValue("lokey"), out byte parsedLoKey);
+                            if (handled) groupLoKey = parsedLoKey;
+
+                            handled = ParseKey(bas.GetValue("hikey"), out byte parsedHiKey);
+                            if (handled) groupHiKey = parsedHiKey;
+                        }
+
+                    }
+
+                    if (bas is SfzRegionSection tBase)
+                    {
+                        string fp = tBase.FilePath(basePath);
+                        if (fp == null) fp = groupSample;
+
+                        Sound s;
+                        if (sounds.ContainsKey(fp))
+                        {
+                            s = sounds[fp];
+                        }
+                        else
+                        {
+                            s = new Sound(fp);
+                            if (!String.IsNullOrEmpty(s.path))
+                            {
+                                s.description = Path.GetFileNameWithoutExtension(fp);
+                                data.sounds.Add(s);
+                                sounds.Add(fp, s);
+                                filesAdded.Add(fp);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Unsupported format for sample.");
+                                abortLoad = true;
+                                s = null;
                             }
                         }
-                        skipFirstGroup = false;
+                        byte kcByte = groupKeyCenter;
+                        byte loByte = groupLoKey;
+                        byte hiByte = groupHiKey;
+                        byte keyByte = groupKey;
+
+                        bool handled = ParseKey(tBase.GetValue("pitch_keycenter"), out byte kc);
+                        if (handled) kcByte = kc;
+
+
+                        handled = ParseKey(tBase.GetValue("lokey"), out byte lb);
+                        if (handled) loByte = lb;
+                        //                        loByte = (byte)Math.Max(0, (int)kcByte - 24);
+
+
+                        handled = ParseKey(tBase.GetValue("hikey"), out byte hb);
+                        if (handled) hiByte = hb;
+                        //                        hiByte = (byte)Math.Min(127, (int)kcByte + 24);
+
+
+
+
+
+                        if (s != null)
+                        {
+                            anyFile = fp;
+                            data.AddSfzSound(s, midiChannel, programChange, loByte, hiByte, kcByte, 0);
+
+
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("No sample found, skipping region.");
                     }
                 }
 
-                if (bas is SfzRegionSection tBase)
-                {
-                    string fp = tBase.FilePath(basePath);
-
-                    Sound s;
-                    if (sounds.ContainsKey(fp))
-                    {
-                        s = sounds[fp];
-                    }
-                    else
-                    {
-                        s = new Sound(fp);
-                        if (!String.IsNullOrEmpty(s.path))
-                        {
-                            s.description = Path.GetFileNameWithoutExtension(fp);
-                            data.sounds.Add(s);
-                            sounds.Add(fp, s);
-                            filesAdded.Add(fp);
-                        } else
-                        {
-                            MessageBox.Show("Unsupported format for samples. Only supports WAV and OGG.");
-                            abortLoad = true;
-                            s = null;
-                        }
-                    }
-
-
-                    string kcS = tBase.GetValue("pitch_keycenter");
-                    byte kcByte = 60; // default
-                    if (!String.IsNullOrEmpty(kcS))
-                    {
-
-                        //                    string kcS = tBase.variables[""];
-                        if (!Utility.TryToByte(kcS, out kcByte))
-                        {
-                            int v = Utility.ParseNoteToInt(kcS, 2);
-                            if (v < 0 || v > 127)
-                            {
-                                kcByte = 128;
-                            }
-                            else
-                            {
-                                kcByte = (byte)v;
-                            }
-                        }
-                    }
-
-                    //Sound s = new Sound(fp);
-                    //s.description = baseName + Path.GetFileNameWithoutExtension(fp);
-                    string loKeyS = tBase.GetValue("lokey");
-                    byte loByte = 0;
-                    if (!String.IsNullOrEmpty(loKeyS))
-                    {
-
-                        if (!Utility.TryToByte(loKeyS, out loByte))
-                        {
-                            int v = Utility.ParseNoteToInt(loKeyS, 2);
-                            if (v < 0 || v > 127)
-                            {
-                                loByte = 128;
-                            }
-                            else
-                            {
-                                loByte = (byte)v;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        loByte = (byte)Math.Max(0, (int)kcByte - 24);
-                    }
-                    //s.loKey = loByte;
-
-
-
-                    string hiKeyS = tBase.GetValue("hikey");
-                    byte hiByte = 0;
-                    if (!String.IsNullOrEmpty(hiKeyS))
-                    {
-
-                        if (!Utility.TryToByte(hiKeyS, out hiByte))
-                        {
-                            int v = Utility.ParseNoteToInt(hiKeyS, 0);
-                            if (v < 0 || v > 127)
-                            {
-                                hiByte = 128;
-                            }
-                            else
-                            {
-                                hiByte = (byte)v;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        hiByte = (byte)Math.Min(127, (int)kcByte + 24);
-                    }
-                    //s.hiKey = hiByte;
-
-
-
-                    //s.keyCenter = kcByte;
-
-
-                    //if (!data.IdenticalSoundExists(s))
-                    //{
-                    //data.sounds.Add(s);
-                    //}
-                    if (s != null)
-                    {
-                        anyFile = fp;
-                        data.AddSfzSound(s, midiChannel, programChange, loByte, hiByte, kcByte, 0);
-
-                    }
-
-                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                anyFile = null;
             }
 
             return anyFile;
-           
+
+        }
+
+
+        private static bool ParseKey(string kcS, out byte kc)
+        {
+            bool found = false;
+            kc = 60; // default
+            if (!String.IsNullOrEmpty(kcS))
+            {
+                found = true;
+                if (!Utility.TryToByte(kcS, out kc))
+                {
+                    int v = Utility.ParseNoteToInt(kcS, 2);
+                    if (v < 0 || v > 127)
+                    {
+                        kc = 128;
+                    }
+                    else
+                    {
+                        kc = (byte)v;
+                    }
+                }
+            }
+            return found;
         }
     }
 }

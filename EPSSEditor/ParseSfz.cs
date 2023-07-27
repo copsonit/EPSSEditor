@@ -68,7 +68,25 @@ namespace EPSSEditor
                     foreach(string w in words0)
                     {
                         string v = w.TrimEnd().TrimStart().ToLower();
-                        if (v.Length > 0) words.Add(v);
+                        if (v.Length > 0)
+                        {
+                            if ((words0.Length % 2) != 0 && Char.IsDigit(v[0]) && !Char.IsDigit(v[v.Length-1]))
+                            {
+                                StringBuilder sb = new StringBuilder();
+                                StringBuilder sb2 = new StringBuilder();
+                                foreach(var c in v)
+                                {
+                                    if (Char.IsDigit(c)) sb.Append(c);
+                                    else sb2.Append(c);
+                                }
+                                words.Add(sb.ToString());
+                                words.Add(sb2.ToString());
+                            } else
+                            {
+                                words.Add(v);
+                            }
+                            
+                        }
                     }
 
                     if (words.Count >= 2)
@@ -98,7 +116,14 @@ namespace EPSSEditor
             return null;
         }
 
-        
+
+        public string FilePath(string basePath)
+        {
+            string file = GetValue("sample");
+            if ( file != null)  return System.IO.Path.Combine(basePath, file);
+            return null;
+        }
+
     }
 
 
@@ -106,12 +131,6 @@ namespace EPSSEditor
     {
         //public string file;
 
-
-        public string FilePath(string basePath)
-        {
-            string file = variables["sample"];
-            return System.IO.Path.Combine(basePath, file);
-        }
 
         public override void init(string line)
         {
@@ -196,51 +215,60 @@ namespace EPSSEditor
             dict.Add("<region>", typeof(SfzRegionSection));
 
             string[] lines = System.IO.File.ReadAllLines(file);
-
+            
             SfzBase fn = null;
             List<SfzBase> bases = new List<SfzBase>();
-            foreach (string line in lines)
-            {
-                bool result = false;
 
-                if (line.Length > 0 && !isLineComment(line))
+            try
+            {
+                foreach (string line in lines)
                 {
-                    while (!result)
+                    Console.WriteLine(line);
+                    bool result = false;
+
+                    if (line.Length > 0 && !isLineComment(line))
                     {
-                        if (fn == null)
+                        while (!result)
                         {
-                            bool kwFound = false;
-                            foreach (var d in dict)
+                            if (fn == null)
                             {
-                                if (line.Contains(d.Key))
+                                bool kwFound = false;
+                                foreach (var d in dict)
                                 {
-                                    fn = (SfzBase)Activator.CreateInstance(d.Value);
+                                    if (line.Contains(d.Key))
+                                    {
+                                        fn = (SfzBase)Activator.CreateInstance(d.Value);
+                                        fn.init(line);
+                                        result = true;
+                                        kwFound = true;
+                                        break;
+                                    }
+                                }
+                                if (!kwFound)
+                                {
+                                    fn = new SfzGenericSection();
                                     fn.init(line);
                                     result = true;
-                                    kwFound = true;
-                                    break;
                                 }
                             }
-                            if (!kwFound)
+                            else
                             {
-                                fn = new SfzGenericSection();
-                                fn.init(line);
-                                result = true;
-                            }
-                        }
-                        else
-                        {
-                            result = fn.parse(line);
-                            if (!result)
-                            {
-                                bases.Add(fn);
-                                fn = null;
+                                result = fn.parse(line);
+                                if (!result)
+                                {
+                                    bases.Add(fn);
+                                    fn = null;
+                                }
                             }
                         }
                     }
                 }
+                bases.Add(fn);
             }
-            bases.Add(fn);
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
             return bases;
         }
     }
