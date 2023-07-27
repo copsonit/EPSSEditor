@@ -258,7 +258,9 @@ namespace EPSSEditor
                 {
                     EPSSSpi_soundAndPitchGen2 pitchNote = new EPSSSpi_soundAndPitchGen2
                     {
-                        noSound = 1 // All unused
+                        sound = 0,
+                        pitch = 0,
+                        noSound = 1 // Set all to unused initially.
                     };
                     splits.Add(pitchNote);
                 }
@@ -270,7 +272,7 @@ namespace EPSSEditor
             }
 
 
-            // Look through all the snds and enter the splits for the                     
+            // Look through all the snds and enter the splits for them.
             foreach (var snd in data.SpiSounds())
             {
                 if (snd.programNumber < 128)
@@ -434,16 +436,26 @@ namespace EPSSEditor
 
         public EPSSSpi_soundInfo GetSoundInfo(EPSSSpi_sample smp, SpiSound snd)
         {
+            EPSSSpi_loopmode loopmode = new EPSSSpi_loopmode
+            {
+                toneoffset = snd.transpose,
+                loopmode = snd.loopMode,
+                vvfe = snd.vvfe
+            };
+
+            EPSSSpi_s_gr_frek sgrfrek = new EPSSSpi_s_gr_frek
+            {
+                data = snd.s_gr_frek
+            };
+
             EPSSSpi_soundInfo info = new EPSSSpi_soundInfo
             {
                 s_sampstart = 0,
                 s_sampend = (uint)smp.data.Length,
-                s_loopstart = snd.loopStart
+                s_loopstart = snd.loopStart,
+                s_loopmode = loopmode,
+                s_gr_freq = sgrfrek
             };
-            info.s_loopmode.toneoffset = snd.transpose;
-            info.s_loopmode.loopmode = snd.loopMode;
-            info.s_loopmode.vvfe = snd.vvfe;
-            info.s_gr_freq.data = snd.s_gr_frek;
 
             return info;
         }
@@ -519,7 +531,6 @@ namespace EPSSEditor
             int total = mainLen + extLen + splitLen + soundLen + extSoundsLen + samplesLen;
 
             spi.main.i_filelen = (UInt32)total;
-
         }
 
 
@@ -530,30 +541,13 @@ namespace EPSSEditor
             if ((version <= 1 && noOfSounds < 256) ||
                 (version >=2 && noOfSounds < 65536))
             {
-                EPSSSpi spi;
-
-                if (version >= 2)
-                {
-                    spi = new EPSSSpiGen2();
-                }
-                else
-                {
-                    spi = new EPSSSpiG0G1();
-                }
-
-
+                EPSSSpi spi = version >= 2 ? new EPSSSpiGen2() : (EPSSSpi)new EPSSSpiG0G1();
                 Initialize(spi);
-
                 FillInMain(spi);
-
                 FillInExt(spi, name, info);
-
                 FillInSplit(data, spi);
-
                 FillInSamples(data, spi, sampFreq);
-
                 FillInOffsets(spi);
-
                 return spi;
             }
             else
