@@ -389,7 +389,6 @@ namespace EPSSEditor
                     if (abortLoad) break;
                     if (bas is SfzGenericSection gSection)
                     {
-
                         if (gSection.header.Contains("group"))
                         {
                             groupSample = bas.FilePath(basePath);
@@ -412,7 +411,6 @@ namespace EPSSEditor
                             handled = ParseKey(bas.GetValue("hikey"), out byte parsedHiKey);
                             if (handled) groupHiKey = parsedHiKey;
                         }
-
                     }
 
                     if (bas is SfzRegionSection tBase)
@@ -449,27 +447,14 @@ namespace EPSSEditor
 
                         bool handled = ParseKey(tBase.GetValue("pitch_keycenter"), out byte kc);
                         if (handled) kcByte = kc;
-
-
                         handled = ParseKey(tBase.GetValue("lokey"), out byte lb);
                         if (handled) loByte = lb;
-                        //                        loByte = (byte)Math.Max(0, (int)kcByte - 24);
-
-
                         handled = ParseKey(tBase.GetValue("hikey"), out byte hb);
                         if (handled) hiByte = hb;
-                        //                        hiByte = (byte)Math.Min(127, (int)kcByte + 24);
-
-
-
-
-
                         if (s != null)
                         {
                             anyFile = fp;
                             data.AddSfzSound(s, midiChannel, programChange, loByte, hiByte, kcByte, 0);
-
-
                         }
                     }
                     else
@@ -477,16 +462,13 @@ namespace EPSSEditor
                         Console.WriteLine("No sample found, skipping region.");
                     }
                 }
-
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
                 anyFile = null;
             }
-
             return anyFile;
-
         }
 
 

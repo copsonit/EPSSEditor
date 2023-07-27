@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Xml;
 
 namespace EPSSEditor
 {
@@ -55,10 +56,11 @@ namespace EPSSEditor
                 }
                 else
                 {
+                    // TODO, rewrite to use the new method in Region, if we find any issues with the one below.
                     string[] words0;
                     if (line.Contains("sample="))
                     {
-                        words0 = line.Split('=');
+                        words0 = line.Split('='); // only sample allowed to contain spaces, dont break on space
                     } else
                     {
                         words0 = line.Split('=', ' ');
@@ -70,6 +72,7 @@ namespace EPSSEditor
                         string v = w.TrimEnd().TrimStart().ToLower();
                         if (v.Length > 0)
                         {
+                            // Special case that tries to fix missed linebreak, i.e. numerical value and next parameter written without space
                             if ((words0.Length % 2) != 0 && Char.IsDigit(v[0]) && !Char.IsDigit(v[v.Length-1]))
                             {
                                 StringBuilder sb = new StringBuilder();
@@ -84,8 +87,7 @@ namespace EPSSEditor
                             } else
                             {
                                 words.Add(v);
-                            }
-                            
+                            }                           
                         }
                     }
 
@@ -129,58 +131,53 @@ namespace EPSSEditor
 
     public class SfzRegionSection : SfzBase
     {
-        //public string file;
-
-
         public override void init(string line)
         {
             for(int i=0;i<line.Length;i++)
             {
                 if (line[i] == '>')
                 {
-                    List<string> stringPairsToParse =   new List<string>();
-
                     string afterRegion = line.Substring(i + 1).Trim();
-
-                    if (OccurenceOf(afterRegion, '=') == 1) // Special case to allow space in sample if placed directly after region
+                    if (OccurenceOf(afterRegion, '=') >= 1)
                     {
-                        stringPairsToParse.Add(afterRegion);
+                        string[] words = afterRegion.Split('=');
+                        int wordIndex = 0;
+                        string key = words[wordIndex++].TrimEnd().TrimStart().ToLower();
+                        while (true)
+                        {
+                            string value = null;
+                            string nextKey = null;
+
+                            string valueAndNextKey = words[wordIndex++].TrimEnd().TrimStart().ToLower();
+                            if (wordIndex > (words.Length - 1))
+                            {
+                                value = valueAndNextKey;
+                                nextKey = null;
+                            }
+                            else
+                            {
+                                for (int j = valueAndNextKey.Length - 1; j >= 0; j--)
+                                {
+                                    if (valueAndNextKey[j] == ' ')
+                                    {
+                                        value = valueAndNextKey.Substring(0, j).Trim();
+                                        nextKey = valueAndNextKey.Substring(j, valueAndNextKey.Length - j).Trim();
+                                        break;
+                                    }
+                                }
+                            }
+                            if (value != null)
+                            {
+                                variables.Add(key, value);
+                                key = nextKey;
+                            }
+                            if (key == null) break;
+                        }
+
                     }
-                    else
-                    {
-                        if (OccurenceOf(afterRegion, ' ') == 0)
-                        {
-                            stringPairsToParse.Add(afterRegion);
-                        }
-                        else
-                        {
-                            string[] words = afterRegion.Split(' ');
-                            stringPairsToParse = words.ToList();
-                        }
-                    }
-
-
-                    foreach (var stringPair in stringPairsToParse)
-                    {
-
-                        string[] words = stringPair.Split('=');
-                        if (words.Length == 2)
-                        {
-                            string key = words[0].TrimEnd().TrimStart().ToLower();
-                            string value = words[1].TrimEnd().TrimStart().ToLower();
-                            variables.Add(key, value);
-                        }
-                        else
-                        {
-
-                            //throw (new ArgumentException("Incorrect parameters after <region>."));
-                        }
-                    }
-                    break;
                 }
             }
         }
-
     }
 
 
