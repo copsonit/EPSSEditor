@@ -873,19 +873,20 @@ namespace EPSSEditor
         {
             string s = data.soundFileName;
 
+            string filter = "*.*";
             if (s == null || s == "")
             {
                 s = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 s = Path.Combine(s, "sample.wav");
             }
-            else if (Path.GetExtension(s).ToLower() != "wav")
-            {
-                s = Path.ChangeExtension(s, "wav");
-            }
-
+            string ext = Path.GetExtension(s).ToLower();
+            filter = "*" + ext;
+            //if (ext == ".wav") filterIdx = 1;
+            //else if (ext == ".ogg") filterIdx = 2;
 
             loadSoundFileDialog.InitialDirectory = Path.GetDirectoryName(s);
             loadSoundFileDialog.FileName = Path.GetFileName(s);
+            loadSoundFileDialog.Filter = filter;
 
             if (loadSoundFileDialog.ShowDialog() == DialogResult.OK)
             {
