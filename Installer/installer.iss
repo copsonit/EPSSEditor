@@ -39,6 +39,7 @@ Source: "..\EPSSEditor\bin\Release\EPSSEditor.exe"; DestDir: "{app}"
 ;Source: "..\EPSSEditor\bin\Debug\EPSSEditor.pdb"; DestDir: "{app}"
 Source: "..\EPSSEditor\bin\Release\EPSSEditor.exe.config"; DestDir: "{app}"
 ;Source: "..\EPSSEditor\bin\Release\EPSSEditor.exe.manifest"; DestDir: "{app}"
+Source: "..\EPSSEditor\bin\Release\NVorbis.dll"; DestDir: "{app}"
  
 [Icons]
 Name: "{group}\EPSS Editor"; Filename: "{app}\EPSSEditor.exe"
