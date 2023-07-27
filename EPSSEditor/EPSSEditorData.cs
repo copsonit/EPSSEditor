@@ -93,7 +93,7 @@ namespace EPSSEditor
             errorMessage = null;
             _findSpiSoundArray = null;
             bool result = true;
-            for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
+            for (int i = 0; i < spi.main.i_no_of_sounds.No_of_sounds; i++)
             {
                 string safe = spi.extSounds.sounds[i].s_sampname.Trim();
                 safe = Utility.ReplaceIllegalCharacters(safe);
@@ -108,7 +108,7 @@ namespace EPSSEditor
                 }
 
                 uint sampleStart = spi.sounds.sounds[i].s_sampstart;
-                bool loop = spi.sounds.sounds[i].s_loopmode.loopmode == 2;
+                bool loop = spi.sounds.sounds[i].s_loopmode.Loopmode == 2;
                 long loopStart = spi.sounds.sounds[i].s_loopstart - sampleStart;
                 long loopEnd = spi.sounds.sounds[i].s_sampend - sampleStart;
 
@@ -123,7 +123,7 @@ namespace EPSSEditor
             SfzConverter c = new SfzConverter();
             Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(spi);
 
-            for (int midich = 0; midich < spi.main.i_no_of_MIDIch.no_of_MIDICh; midich++)
+            for (int midich = 0; midich < spi.main.i_no_of_MIDIch.No_of_MIDICh; midich++)
             {
                 List<SfzSplitInfo> splitsForChannel = new List<SfzSplitInfo>();
                 foreach (var kvp in soundNoToSplit)

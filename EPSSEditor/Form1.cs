@@ -414,14 +414,14 @@ namespace EPSSEditor
                     data = s.s_gr_frek
                 };
 
-                item.SubItems.Add(props.drum.ToString());
-                item.SubItems.Add(props.velocity.ToString());
-                item.SubItems.Add(props.soundType.ToString());
-                item.SubItems.Add(props.mode.ToString());
-                item.SubItems.Add(props.aftertouch.ToString());
-                item.SubItems.Add(props.stereoType.ToString());
-                item.SubItems.Add(props.stereoPan.ToString());
-                item.SubItems.Add(props.orgFreq.ToString());
+                item.SubItems.Add(props.Drum.ToString());
+                item.SubItems.Add(props.Velocity.ToString());
+                item.SubItems.Add(props.SoundType.ToString());
+                item.SubItems.Add(props.Mode.ToString());
+                item.SubItems.Add(props.Aftertouch.ToString());
+                item.SubItems.Add(props.StereoType.ToString());
+                item.SubItems.Add(props.StereoPan.ToString());
+                item.SubItems.Add(props.OrgFreq.ToString());
 
                 item.SubItems.Add(s.start.ToString("X8"));
                 item.SubItems.Add(s.loopStart.ToString("X8"));
@@ -847,7 +847,7 @@ namespace EPSSEditor
 
                     if (spi != null)
                     {
-                        int result = spi.save(url);
+                        int result = spi.Save(url);
                         if (result == 0)
                         {
                             Properties.Settings.Default.SpiExportFile = spiFile;

@@ -20,7 +20,7 @@ namespace EPSSEditor
             if (path.IsFile)
             {
 			    EPSSSpiG0G1 spi = new EPSSSpiG0G1();
-                spi.initialize();
+                spi.Initialize();
                 if (spi.Load(path, out errorMessage) == 0) return spi;
             }
             return null;

@@ -23,27 +23,27 @@ namespace EPSSEditor
 
         public void Initialize(EPSSSpi spi)
         {
-            spi.initialize();
+            spi.Initialize();
         }
 
 
         public void FillInMain(EPSSSpi spi)
         {
-            spi.main.i_no_of_MIDIch.no_of_MIDICh = (byte)noOfMidiCh;
+            spi.main.i_no_of_MIDIch.No_of_MIDICh = (byte)noOfMidiCh;
 
-            spi.main.i_no_of_sounds.no_of_sounds = (byte)(noOfSounds);
+            spi.main.i_no_of_sounds.No_of_sounds = (byte)(noOfSounds);
 
-            spi.main.i_patch_offset = (UInt16)(spi.main.length() + spi.ext.length());
+            spi.main.i_patch_offset = (UInt16)(spi.main.Length() + spi.ext.Length());
 
             if (version >= 2)
             {
-                spi.main.i_fileID.versionLow = 2;
-                spi.main.i_fileID.versionHigh = 0;
+                spi.main.i_fileID.VersionLow = 2;
+                spi.main.i_fileID.VersionHigh = 0;
             }
             else
             {
-                spi.main.i_fileID.versionLow = 1;
-                spi.main.i_fileID.versionHigh = 1;
+                spi.main.i_fileID.VersionLow = 1;
+                spi.main.i_fileID.VersionHigh = 1;
             }
         }
 
@@ -56,7 +56,7 @@ namespace EPSSEditor
             spi.ext.i_chtime = dr.ToDosDateTime();
             spi.ext.i_chdate = dr.ToDosDateTime();
             spi.ext.i_pname = name;
-            spi.ext.i_mainlen = (UInt16)(spi.main.length() + spi.ext.length());
+            spi.ext.i_mainlen = (UInt16)(spi.main.Length() + spi.ext.Length());
             spi.ext.i_splitlen = 2;
             spi.ext.i_xsinflen = 64;
             spi.ext.i_sinflen = 16;
@@ -94,9 +94,9 @@ namespace EPSSEditor
                     {
                         EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch
                         {
-                            sound = 0,
-                            pitch = 0,
-                            noSound = 1
+                            Sound = 0,
+                            Pitch = 0,
+                            NoSound = 1
                         };
                         channel.data[i] = sp;
 
@@ -110,9 +110,9 @@ namespace EPSSEditor
                     {
                         EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch
                         {
-                            sound = 0,
-                            pitch = 0,
-                            noSound = 1
+                            Sound = 0,
+                            Pitch = 0,
+                            NoSound = 1
                         };
                         channel.data[i] = sp;
                     }
@@ -127,9 +127,9 @@ namespace EPSSEditor
                                 relativeNote += 84; // Use new layout, i.e. 84 is center.
                                 EPSSSpi_soundAndPitch sp = new EPSSSpi_soundAndPitch
                                 {
-                                    sound = (byte)data.GetSoundNumberFromGuid(sndToFind.soundId),
-                                    pitch = (byte)relativeNote,
-                                    noSound = 0
+                                    Sound = (byte)data.GetSoundNumberFromGuid(sndToFind.soundId),
+                                    Pitch = (byte)relativeNote,
+                                    NoSound = 0
                                 };
                                 channel.data[i] = sp;
                             }
@@ -149,16 +149,16 @@ namespace EPSSEditor
 
                         if (i >= 36 && i <= 84) // C2 - C6
                         {
-                            sp.sound = (byte)data.GetSoundNumberFromGuid(snd.soundId);
-                            sp.pitch = snd.transposedNote(note);
+                            sp.Sound = (byte)data.GetSoundNumberFromGuid(snd.soundId);
+                            sp.Pitch = snd.transposedNote(note);
                             note++;
-                            sp.noSound = 0;
+                            sp.NoSound = 0;
                         }
                         else
                         {
-                            sp.sound = 0;
-                            sp.pitch = 0;
-                            sp.noSound = 1;
+                            sp.Sound = 0;
+                            sp.Pitch = 0;
+                            sp.NoSound = 1;
                         }
                         channel.data[i] = sp;
 
@@ -180,18 +180,18 @@ namespace EPSSEditor
                         {
                             if (sndToFind.midiNote == i + 1)
                             {
-                                sp.sound = (byte)data.GetSoundNumberFromGuid(sndToFind.soundId);
-                                sp.pitch = snd.transposedNote(84);
-                                sp.noSound = 0;
+                                sp.Sound = (byte)data.GetSoundNumberFromGuid(sndToFind.soundId);
+                                sp.Pitch = snd.transposedNote(84);
+                                sp.NoSound = 0;
                                 found = true;
                             }
                             if (found) break;
                         }
                         if (!found)
                         {
-                            sp.sound = 0;
-                            sp.pitch = 0;
-                            sp.noSound = 1;
+                            sp.Sound = 0;
+                            sp.Pitch = 0;
+                            sp.NoSound = 1;
 
                         }
                         channel.data[i] = sp;
@@ -220,15 +220,15 @@ namespace EPSSEditor
 
                         if (note > 0)
                         {
-                            sp.sound = spiSound;
-                            sp.pitch = note;
-                            sp.noSound = 0;
+                            sp.Sound = spiSound;
+                            sp.Pitch = note;
+                            sp.NoSound = 0;
                         }
                         else
                         {
-                            sp.sound = 0;
-                            sp.pitch = 0;
-                            sp.noSound = 1;
+                            sp.Sound = 0;
+                            sp.Pitch = 0;
+                            sp.NoSound = 1;
                         }
 
                         channel.data[i] = sp;
@@ -258,9 +258,9 @@ namespace EPSSEditor
                 {
                     EPSSSpi_soundAndPitchGen2 pitchNote = new EPSSSpi_soundAndPitchGen2
                     {
-                        sound = 0,
-                        pitch = 0,
-                        noSound = 1 // Set all to unused initially.
+                        Sound = 0,
+                        Pitch = 0,
+                        NoSound = 1 // Set all to unused initially.
                     };
                     splits.Add(pitchNote);
                 }
@@ -281,9 +281,9 @@ namespace EPSSEditor
                     byte hiNote = snd.endNote;
                     for (byte key = loNote; key <= hiNote; key++)
                     {
-                        programChanges[snd.programNumber].data[key].noSound = 0; // Mark that sound is used
-                        programChanges[snd.programNumber].data[key].pitch = (byte)(key); // 60 - 108 normal mapping
-                        programChanges[snd.programNumber].data[key].sound = (UInt16)data.GetSoundNumberFromGuid(snd.soundId);
+                        programChanges[snd.programNumber].data[key].NoSound = 0; // Mark that sound is used
+                        programChanges[snd.programNumber].data[key].Pitch = (byte)(key); // 60 - 108 normal mapping
+                        programChanges[snd.programNumber].data[key].Sound = (UInt16)data.GetSoundNumberFromGuid(snd.soundId);
                     }
                 }
             }
@@ -306,9 +306,9 @@ namespace EPSSEditor
                 tSplit.programs = programChanges.ToArray();
             }
 
-            int mainLength = spi.main.length();
-            int extLength = spi.ext.length();
-            int splitLength = spi.split.length();
+            int mainLength = spi.main.Length();
+            int extLength = spi.ext.Length();
+            int splitLength = spi.split.Length();
             int total = mainLength + extLength + splitLength;
 
 
@@ -438,9 +438,9 @@ namespace EPSSEditor
         {
             EPSSSpi_loopmode loopmode = new EPSSSpi_loopmode
             {
-                toneoffset = snd.transpose,
-                loopmode = snd.loopMode,
-                vvfe = snd.vvfe
+                Toneoffset = snd.transpose,
+                Loopmode = snd.loopMode,
+                Vvfe = snd.vvfe
             };
 
             EPSSSpi_s_gr_frek sgrfrek = new EPSSSpi_s_gr_frek
@@ -506,9 +506,9 @@ namespace EPSSEditor
         public void FillInOffsets(EPSSSpi spi)
         {
             // Fill in the offsets
-            spi.ext.i_sx_offset = (UInt16)(spi.main.length() + spi.ext.length() + spi.split.length() + spi.sounds.length());
+            spi.ext.i_sx_offset = (UInt16)(spi.main.Length() + spi.ext.Length() + spi.split.Length() + spi.sounds.Length());
 
-            spi.main.i_sdata_offset = (UInt16)(spi.main.length() + spi.ext.length() + spi.split.length() + spi.sounds.length() + spi.extSounds.length());
+            spi.main.i_sdata_offset = (UInt16)(spi.main.Length() + spi.ext.Length() + spi.split.Length() + spi.sounds.Length() + spi.extSounds.Length());
 
             uint sampleStartOffset = spi.main.i_sdata_offset;
             foreach (EPSSSpi_soundInfo info in spi.sounds.sounds)
@@ -522,12 +522,12 @@ namespace EPSSEditor
                 sampleStartOffset += smpLen;
             }
 
-            int mainLen = spi.main.length();
-            int extLen = spi.ext.length();
-            int splitLen = spi.split.length();
-            int soundLen = spi.sounds.length();
-            int extSoundsLen = spi.extSounds.length();
-            int samplesLen = spi.samples.length();
+            int mainLen = spi.main.Length();
+            int extLen = spi.ext.Length();
+            int splitLen = spi.split.Length();
+            int soundLen = spi.sounds.Length();
+            int extSoundsLen = spi.extSounds.Length();
+            int samplesLen = spi.samples.Length();
             int total = mainLen + extLen + splitLen + soundLen + extSoundsLen + samplesLen;
 
             spi.main.i_filelen = (UInt32)total;
@@ -638,15 +638,15 @@ namespace EPSSEditor
 
                     if (i >= 36 && i <= 84)
                     {
-                        sp.sound = (byte)ch;
-                        sp.pitch = note++;
-                        sp.noSound = 0;
+                        sp.Sound = (byte)ch;
+                        sp.Pitch = note++;
+                        sp.NoSound = 0;
                     }
                     else
                     {
-                        sp.sound = 0;
-                        sp.pitch = 0;
-                        sp.noSound = 1;
+                        sp.Sound = 0;
+                        sp.Pitch = 0;
+                        sp.NoSound = 1;
                     }
                     channel.data[i] = sp;
 
@@ -657,7 +657,7 @@ namespace EPSSEditor
             }
             spi.split.channels = channels.ToArray();
 
-            spi.main.i_sinfo_offset = (UInt16)(spi.main.length() + spi.ext.length() + spi.split.length());
+            spi.main.i_sinfo_offset = (UInt16)(spi.main.Length() + spi.ext.Length() + spi.split.Length());
 
 
 
@@ -680,7 +680,7 @@ namespace EPSSEditor
                 // convert sample to internal format smp.data 
                 if (i == 0)
                 {
-                    smp.loadSpl(new Uri(@"D:\OneDrive\Atari\Emulators etc\HDimage\Syquest\LJUDMODF\F\SQR_WAV.SPL"));
+                    smp.LoadSpl(new Uri(@"D:\OneDrive\Atari\Emulators etc\HDimage\Syquest\LJUDMODF\F\SQR_WAV.SPL"));
                 }
                 else
                 {
@@ -719,17 +719,17 @@ namespace EPSSEditor
                     s_sampend = (uint)smp.data.Length,
                     s_loopstart = 0
                 };
-                info.s_loopmode.toneoffset = 0;
-                info.s_loopmode.loopmode = 1;
-                info.s_loopmode.vvfe = 0;
-                info.s_gr_freq.drum = 0;
-                info.s_gr_freq.velocity = 0;
-                info.s_gr_freq.soundType = 0;
-                info.s_gr_freq.mode = 1;
-                info.s_gr_freq.aftertouch = 0;
-                info.s_gr_freq.stereoType = 0;
-                info.s_gr_freq.stereoPan = 0;
-                info.s_gr_freq.orgFreq = 3;
+                info.s_loopmode.Toneoffset = 0;
+                info.s_loopmode.Loopmode = 1;
+                info.s_loopmode.Vvfe = 0;
+                info.s_gr_freq.Drum = 0;
+                info.s_gr_freq.Velocity = 0;
+                info.s_gr_freq.SoundType = 0;
+                info.s_gr_freq.Mode = 1;
+                info.s_gr_freq.Aftertouch = 0;
+                info.s_gr_freq.StereoType = 0;
+                info.s_gr_freq.StereoPan = 0;
+                info.s_gr_freq.OrgFreq = 3;
 
                 EPSSSpi_extSoundInfo extInfo = new EPSSSpi_extSoundInfo
                 {
@@ -751,9 +751,9 @@ namespace EPSSEditor
 
 
             // Fill in the offsets
-            spi.ext.i_sx_offset = (UInt16)(spi.main.length() + spi.ext.length() + spi.split.length() + spi.sounds.length());
+            spi.ext.i_sx_offset = (UInt16)(spi.main.Length() + spi.ext.Length() + spi.split.Length() + spi.sounds.Length());
 
-            spi.main.i_sdata_offset = (UInt16)(spi.main.length() + spi.ext.length() + spi.split.length() + spi.sounds.length() + spi.extSounds.length());
+            spi.main.i_sdata_offset = (UInt16)(spi.main.Length() + spi.ext.Length() + spi.split.Length() + spi.sounds.Length() + spi.extSounds.Length());
 
             uint sampleStartOffset = spi.main.i_sdata_offset;
             foreach (EPSSSpi_soundInfo info in spi.sounds.sounds)
@@ -767,7 +767,7 @@ namespace EPSSEditor
                 sampleStartOffset += smpLen;
             }
 
-            spi.main.i_filelen = (UInt32)(spi.main.length() + spi.ext.length() + spi.split.length() + spi.sounds.length() + spi.extSounds.length() + spi.samples.length());
+            spi.main.i_filelen = (UInt32)(spi.main.Length() + spi.ext.Length() + spi.split.Length() + spi.sounds.Length() + spi.extSounds.Length() + spi.samples.Length());
 
             return spi;
         }

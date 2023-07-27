@@ -90,11 +90,11 @@ namespace EPSSEditor
     public abstract class EPSSBase
     {
         public int prePadding = 0;
-        public abstract int length();
+        public abstract int Length();
 
-        public abstract int write(BinaryWriter writer);
+        public abstract int Write(BinaryWriter writer);
         public abstract int Read(BinaryReader reader, EPSSSpi spi, out  string errorMessage);
-        public virtual bool isValidBlock() { return true; }
+        public virtual bool IsValidBlock() { return true; }
     }
 
 
@@ -109,37 +109,37 @@ namespace EPSSEditor
 
         public EPSSSpi_samples samples;
 
-        public abstract void initialize();
+        public abstract void Initialize();
 
 
-        public virtual int save(Uri dest)
+        public virtual int Save(Uri dest)
         {
-            int result = 0;
+            int result;
 
             try
             {
                 FileStream fs = new FileStream(dest.LocalPath, FileMode.Create, FileAccess.ReadWrite);
                 BinaryWriter writer = new BinaryWriter(fs);
 
-                if (main.isValidBlock())
+                if (main.IsValidBlock())
                 {
 
-                    result = main.write(writer);
+                    result = main.Write(writer);
 
-                    result = ext.write(writer);
+                    result = ext.Write(writer);
                 }
                 else
                 {
                     throw (new Exception("Old version of SPI not supported!"));
                 }
 
-                result = split.write(writer);
+                result = split.Write(writer);
 
-                result = sounds.write(writer);
+                result = sounds.Write(writer);
 
-                result = extSounds.write(writer);
+                result = extSounds.Write(writer);
 
-                result = samples.write(writer);
+                result = samples.Write(writer);
 
                 writer.Close();
                 //                fs.Close();
@@ -155,7 +155,7 @@ namespace EPSSEditor
         
         public virtual int Load(Uri src, out string errorMessage)
         {
-            int result = 0;
+            int result;
             errorMessage = null;
 
             try
@@ -167,8 +167,8 @@ namespace EPSSEditor
                 result = main.Read(reader, this, out errorMessage);
                 if (result == 0)
                 {
-                    byte low = main.i_fileID.versionLow;
-                    byte high= main.i_fileID.versionHigh;
+                    byte low = main.i_fileID.VersionLow;
+                    byte high= main.i_fileID.VersionHigh;
                     isG0 = (low == 0);
                     if (isG0)
                     {
@@ -207,13 +207,12 @@ namespace EPSSEditor
     }
 
 
-
     public class EPSSSpiG0G1 : EPSSSpi
     {
         public EPSSSpiG0G1() { }
 
 
-        public override void initialize()
+        public override void Initialize()
         {
             main = new EPSSSpi_main();
             ext = new EPSSSpi_extended();
@@ -230,7 +229,7 @@ namespace EPSSEditor
         public EPSSSpiGen2() { }
 
 
-        public override void initialize()
+        public override void Initialize()
         {
             main = new EPSSSpi_main();
             ext = new EPSSSpi_extendedGen2();
@@ -255,7 +254,7 @@ namespace EPSSEditor
         public EPSSSpi_fileId i_fileID; // 0E 
 
         
-        public override int write(BinaryWriter writer)
+        public override int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -305,18 +304,19 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int length()
+
+        public override int Length()
         {
             return 16;
         }
 
 
-        public override bool isValidBlock()
+        public override bool IsValidBlock()
         {
 
             // What we currently support.
-            if (i_fileID.versionHigh == 1 ||
-                (i_fileID.versionLow == 2 && i_fileID.versionHigh == 0))
+            if (i_fileID.VersionHigh == 1 ||
+                (i_fileID.VersionLow == 2 && i_fileID.VersionHigh == 0))
             {
                 return true;
             }
@@ -331,7 +331,7 @@ namespace EPSSEditor
         internal UInt16 data;
 
         // public Byte no_of_MIDICh : 4
-        public Byte no_of_MIDICh
+        public Byte No_of_MIDICh
         {
             get { return (byte)((data & 0xf) + 1); }
             set { data = (UInt16)((data & ~0xf) | ((value - 1) & 0xf)); }
@@ -343,7 +343,7 @@ namespace EPSSEditor
         internal UInt16 data;
 
         // public Byte no_of_sounds : 8
-        public Byte no_of_sounds
+        public Byte No_of_sounds
         {
             get { return (byte)(data & 0xff); }
             set { data = (UInt16)((data & ~0xff) | (value & 0xff)); }
@@ -356,7 +356,7 @@ namespace EPSSEditor
         internal UInt16 data;
 
         // public Byte versionLow : 8
-        public Byte versionLow  // 0x0 - Generation 0, 0x1 - Generation 1, 0x2 - Generation 2 (with program change)
+        public Byte VersionLow  // 0x0 - Generation 0, 0x1 - Generation 1, 0x2 - Generation 2 (with program change)
         { 
             get { return (byte)(data & 0xff); }
             set { data = (UInt16)((data & ~0xff) | (value & 0xff)); }
@@ -364,7 +364,7 @@ namespace EPSSEditor
 
 
         // public Byte versionHigh : 8
-        public Byte versionHigh  // 0x0 - Generation 0, 0x1 - Generation 1, 0x2 - Precalculated 12.5,
+        public Byte VersionHigh  // 0x0 - Generation 0, 0x1 - Generation 1, 0x2 - Precalculated 12.5,
 
         {
             get { return (byte)((data >> 8) & 0xff); }
@@ -403,18 +403,18 @@ namespace EPSSEditor
             i_patchinfo = filename + " conv from v0";
         }
 
-        public virtual void writeExpansionBytes(BinaryWriter writer)
+        public virtual void WriteExpansionBytes(BinaryWriter writer)
         {
             writer.Write("".ToFixedByteStream(6));
         }
 
-        public virtual void writeAdditionalBytes(BinaryWriter writer)
+        public virtual void WriteAdditionalBytes(BinaryWriter writer)
         {
             // None
         }
 
 
-        public override int write(BinaryWriter writer)
+        public override int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -433,11 +433,11 @@ namespace EPSSEditor
                 writer.WriteBigEndian(i_xsinflen);
                 writer.WriteBigEndian(i_sinflen);
 
-                writeExpansionBytes(writer);
+                WriteExpansionBytes(writer);
                 
                 writer.Write(i_patchinfo.ToFixedByteStream(32));
 
-                writeAdditionalBytes(writer);
+                WriteAdditionalBytes(writer);
      
             }
 
@@ -458,7 +458,7 @@ namespace EPSSEditor
             try
             {
                 
-                if (spi.main.i_fileID.versionLow == 2)
+                if (spi.main.i_fileID.VersionLow == 2)
                 {
                     throw (new Exception("Generation 2 patchfile NYI."));
                 }
@@ -496,7 +496,7 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int length()
+        public override int Length()
         {
             return 80 - 16; // !! Note that documentation start this offset at 16. This should be the length of this block only!
         }
@@ -510,21 +510,21 @@ namespace EPSSEditor
         public UInt32 i_sinfo_offset_g2; // $50
         public UInt32 i_sdata_offset_g2; // $54
 
-        public override void writeExpansionBytes(BinaryWriter writer)
+        public override void WriteExpansionBytes(BinaryWriter writer)
         {
             writer.WriteBigEndian(i_pchg_offset);
             writer.Write("".ToFixedByteStream(2));
         }
 
-        public override void writeAdditionalBytes(BinaryWriter writer)
+        public override void WriteAdditionalBytes(BinaryWriter writer)
         {
             writer.WriteBigEndian(i_sinfo_offset_g2);
             writer.WriteBigEndian(i_sdata_offset_g2);
         }
 
-        public override int length()
+        public override int Length()
         {
-            return base.length() + 8;
+            return base.Length() + 8;
         }
     }
 
@@ -536,7 +536,7 @@ namespace EPSSEditor
         public EPSSSpi_midiChannelSplit[] channels;
 
         
-        public override int write(BinaryWriter writer)
+        public override int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -547,7 +547,7 @@ namespace EPSSEditor
 
                 foreach (EPSSSpi_midiChannelSplit channel in channels) 
                 {
-                    channel.write(writer);
+                    channel.Write(writer);
                 }
             }
             catch (Exception ex)
@@ -567,12 +567,14 @@ namespace EPSSEditor
             try
             {
                 reader.BaseStream.Seek(spi.main.i_patch_offset, SeekOrigin.Begin);
-                byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+                byte maxSoundNo = spi.main.i_no_of_sounds.No_of_sounds;
                 List<EPSSSpi_midiChannelSplit> channelList = new List<EPSSSpi_midiChannelSplit>();
-                for (int midiChannel = 1; midiChannel <= spi.main.i_no_of_MIDIch.no_of_MIDICh; midiChannel++)
+                for (int midiChannel = 1; midiChannel <= spi.main.i_no_of_MIDIch.No_of_MIDICh; midiChannel++)
                 {
-                    EPSSSpi_midiChannelSplit channel = new EPSSSpi_midiChannelSplit();
-                    channel.data = new EPSSSpi_soundAndPitch[128];
+                    EPSSSpi_midiChannelSplit channel = new EPSSSpi_midiChannelSplit
+                    {
+                        data = new EPSSSpi_soundAndPitch[128]
+                    };
 
                     for (int tone = 0; tone < 128; tone++)
                     {
@@ -581,7 +583,7 @@ namespace EPSSEditor
                         snp.data = data;
                         //byte pitch = reader.ReadByte();
                         //byte sound = reader.ReadByte();
-                        if (snp.sound > maxSoundNo)
+                        if (snp.Sound > maxSoundNo)
                         {
                             throw (new Exception("Corrupt split table. Sound number exceeeds max sounds in spi."));
                         }
@@ -604,12 +606,12 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int length()
+        public override int Length()
         {
             int l = 0;
             foreach (EPSSSpi_midiChannelSplit channel in channels)
             {
-                l += channel.length();
+                l += channel.Length();
             }
             return l;
         }
@@ -621,9 +623,9 @@ namespace EPSSEditor
         public EPSSSpi_programChangeSplit[] programs;
 
 
-        public override int write(BinaryWriter writer)
+        public override int Write(BinaryWriter writer)
         {
-            int result = base.write(writer);
+            int result = base.Write(writer);
             if (result == 0)
             {
                 try
@@ -631,7 +633,7 @@ namespace EPSSEditor
                     int i = 0;
                     foreach (EPSSSpi_programChangeSplit program in programs)
                     {
-                        program.write(writer);
+                        program.Write(writer);
                         i++;
                     }
                     if (i != 128)
@@ -649,13 +651,13 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int length()
+        public override int Length()
         {
-            int l = base.length();
+            int l = base.Length();
 
             foreach (var program in programs)
             {
-                l += program.length();
+                l += program.Length();
             }
 
             return l;
@@ -668,7 +670,7 @@ namespace EPSSEditor
         public EPSSSpi_soundAndPitchGen2[] data;
 
 
-        public int write(BinaryWriter writer)
+        public int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -694,7 +696,7 @@ namespace EPSSEditor
             return result;
         }
 
-        public int length()
+        public int Length()
         {
             return 128 * 4;
         }
@@ -706,21 +708,21 @@ namespace EPSSEditor
         internal UInt32 data;
 
         // public UInt16 sound : 16
-        public UInt16 sound
+        public UInt16 Sound
         {
             get { return (UInt16)(data & 0xffff); }
             set { data = (UInt32)((data & ~0xffff) | (value & (UInt32)0xffff)); }
         }
 
         // public UInt16 pitch : 7
-        public UInt16 pitch
+        public UInt16 Pitch
         {
             get { return (UInt16)((data >> 16) & 0x7f); }
             set { data = (UInt32)((data & ~(0x7f << 16)) | ((value & (UInt32)0x7f) << 16)); }
         }
 
         // public Byte noSound : 0: use pitch, 1 no sound
-        public Byte noSound
+        public Byte NoSound
         {
             get { return (byte)((data >> 31) & (UInt32)0x1); }
             set { data = (UInt32)((data & ~(0x1 << 31)) | ((value & (UInt32)0x1) << 31)); }
@@ -732,7 +734,7 @@ namespace EPSSEditor
     {
         public EPSSSpi_soundAndPitch[] data;
 
-        public int write(BinaryWriter writer)
+        public int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -760,7 +762,7 @@ namespace EPSSEditor
         }
 
 
-        public int length()
+        public int Length()
         {
             return 128 * 2;
         }
@@ -775,21 +777,21 @@ namespace EPSSEditor
         public EPSSSpi_soundAndPitch(UInt16 value) { data = value;  }
 
         // public Byte sound : 8 bit
-        public Byte sound
+        public Byte Sound
         {
             get { return (byte)(data & 0xff); }
             set { data = (UInt16)((data & ~0xff) | (value & 0xff)); }
         }
 
         // public Byte pitch : 7 bit
-        public Byte pitch
+        public Byte Pitch
         {
             get { return (byte)((data >> 8) & 0x7f); }
             set { data = (UInt16)((data & ~(0x7f << 8)) | ((value & 0x7f) << 8));  }
         }
 
         // public Byte noSound : 0: use pitch, 1 no sound
-        public Byte noSound
+        public Byte NoSound
         {
             get { return (byte)((data >> 15) & 0x1); }
             set { data = (UInt16)((data & ~(0x1 << 15)) | ((value & 0x1) << 15)); }
@@ -803,7 +805,7 @@ namespace EPSSEditor
     {
         public EPSSSpi_soundInfo[] sounds;
 
-        public override int write(BinaryWriter writer)
+        public override int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -813,7 +815,7 @@ namespace EPSSEditor
                 long k = writer.BaseStream.Position;
                 foreach (EPSSSpi_soundInfo sound in sounds)
                 {
-                    sound.write(writer);
+                    sound.Write(writer);
                     j++;
                 }
                 long diff = writer.BaseStream.Position - k;
@@ -836,7 +838,7 @@ namespace EPSSEditor
             try
             {
                 reader.BaseStream.Seek(spi.main.i_sinfo_offset, SeekOrigin.Begin);
-                byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+                byte maxSoundNo = spi.main.i_no_of_sounds.No_of_sounds;
 
                 List<EPSSSpi_soundInfo> soundList = new List<EPSSSpi_soundInfo>();
                 for (int i =0; i < maxSoundNo; i++)
@@ -858,12 +860,12 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int length()
+        public override int Length()
         {
             int l = 0;
             foreach (EPSSSpi_soundInfo sound in sounds)
             {
-                l += sound.length();
+                l += sound.Length();
             }
             return l;
         }
@@ -878,9 +880,9 @@ namespace EPSSEditor
         public EPSSSpi_loopmode s_loopmode; // 0C
         public EPSSSpi_s_gr_frek s_gr_freq; // 0E
 
-        public int length() { return 16; }
+        public int Length() { return 16; }
 
-        public int write(BinaryWriter writer)
+        public int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -937,7 +939,7 @@ namespace EPSSEditor
 
         public void InitForG0(EPSSSpi spi)
         {
-            byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+            byte maxSoundNo = spi.main.i_no_of_sounds.No_of_sounds;
             List<EPSSSpi_extSoundInfo> soundList = new List<EPSSSpi_extSoundInfo>();
             for (int i = 0; i < maxSoundNo; i++)
             {
@@ -949,7 +951,7 @@ namespace EPSSEditor
             sounds = soundList.ToArray();
         }
         
-        public override int write(BinaryWriter writer)
+        public override int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -958,7 +960,7 @@ namespace EPSSEditor
                 int j = 0;
                 foreach (EPSSSpi_extSoundInfo sound in sounds)
                 {
-                    sound.write(writer);
+                    sound.Write(writer);
                     j++;
                 }
 
@@ -981,7 +983,7 @@ namespace EPSSEditor
             try
             {
                 reader.BaseStream.Seek(spi.ext.i_sx_offset, SeekOrigin.Begin);
-                byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+                byte maxSoundNo = spi.main.i_no_of_sounds.No_of_sounds;
 
                 List<EPSSSpi_extSoundInfo> soundList = new List<EPSSSpi_extSoundInfo>();
                 for (int i = 0; i < maxSoundNo; i++)
@@ -1003,12 +1005,12 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int length()
+        public override int Length()
         {
             int l = 0;
             foreach (EPSSSpi_extSoundInfo sound in sounds)
             {
-                l += sound.length();
+                l += sound.Length();
             }
             return l;
         }
@@ -1032,9 +1034,9 @@ namespace EPSSEditor
             s_subtone = 0;
         }
 
-        public int length() { return 64; }
+        public int Length() { return 64; }
 
-        public int write(BinaryWriter writer)
+        public int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -1044,7 +1046,7 @@ namespace EPSSEditor
                 writer.Write(s_extname.ToFixedByteStream(16));
                 writer.WriteBigEndian(s_extvolume);
                 writer.WriteBigEndian(s_subtone);
-                writer.Write("".ToFixedByteStream(length()-8-16-2-2));
+                writer.Write("".ToFixedByteStream(Length()-8-16-2-2));
             }
             catch (Exception ex)
             {
@@ -1071,7 +1073,7 @@ namespace EPSSEditor
                 s_extvolume = reader.ReadBigEndianUInt16();
                 s_subtone = reader.ReadBigEndianUInt16();
 
-                int numBytesLeft = length() - 8 - 16 - 2 - 2;
+                int numBytesLeft = Length() - 8 - 16 - 2 - 2;
                 bs = reader.ReadBytes(numBytesLeft);
             }
 
@@ -1092,21 +1094,21 @@ namespace EPSSEditor
         internal UInt16 data;
 
         // public Byte loopmode : 2
-        public byte loopmode // 0x00 - reserved, 0x01 - One shot, 0x02 - Loop on, 0x03 - reserved
+        public byte Loopmode // 0x00 - reserved, 0x01 - One shot, 0x02 - Loop on, 0x03 - reserved
         {
             get { return (byte)(data & 0x3); }
             set { data = (UInt16)((data & ~0x3) | (value & 0x3)); }
         }
 
         // public Byte vvfe : 6
-        public byte vvfe
+        public byte Vvfe
         {
             get { return (byte)((data >> 2) & 0x3f); }
             set { data = (UInt16)((data & ~(0x3f << 2)) | ((value & 0x3f) << 2)); }
         }
 
         // public Byte toneoffset : 1
-        public sbyte toneoffset
+        public sbyte Toneoffset
         {
             get { 
                 byte b = (byte)((data >> 8) & 0xff);
@@ -1129,7 +1131,7 @@ namespace EPSSEditor
         internal UInt16 data;
 
         // public Byte orgFreq : 2
-        public Byte orgFreq // 0x00 - 6250 Hz, 0x01 - 12517 Hz, 0x10 - 25033 Hz, 0x11 - 50066 Hz (Not used, only informational)
+        public Byte OrgFreq // 0x00 - 6250 Hz, 0x01 - 12517 Hz, 0x10 - 25033 Hz, 0x11 - 50066 Hz (Not used, only informational)
         {
             get { return (byte)(data & 0x3); }
             set { data = (UInt16)((data & ~0x3) | (value & 0x3)); }
@@ -1137,7 +1139,7 @@ namespace EPSSEditor
 
 
         // public Byte stereoPan : 2
-        public Byte stereoPan // 0x00 - Default panning, 0x01 - Undefined, 0x10 - Left, 0x11 - Right
+        public Byte StereoPan // 0x00 - Default panning, 0x01 - Undefined, 0x10 - Left, 0x11 - Right
         {
             get { return (byte)((data >> 2) & 0x3); }
             set { data = (UInt16)((data & ~(0x3 << 2)) | ((value & 0x3) << 2)); }
@@ -1145,21 +1147,21 @@ namespace EPSSEditor
 
 
         // public Byte stereoType : 2
-        public Byte stereoType // 0x00 - No effect, 0x01 - Reserved, 0x10 - Reserved, 0x11 - Reserved
+        public Byte StereoType // 0x00 - No effect, 0x01 - Reserved, 0x10 - Reserved, 0x11 - Reserved
         {
             get { return (byte)((data >> 4) & 0x3); }
             set { data = (UInt16)((data & ~(0x3 << 4)) | ((value & 0x3) << 4)); }
         }
 
         // public Byte aftertouch : 1
-        public Byte aftertouch // 0x0 - Off , 0x1 - On
+        public Byte Aftertouch // 0x0 - Off , 0x1 - On
         {
             get { return (byte)((data >> 6) & 0x1); }
             set { data = (UInt16)((data & ~(0x1 << 6)) | ((value & 0x1) << 6)); }
         }
 
         // public Byte mode : 1
-        public Byte mode // 0x0 - Stereo (not used) , 0x1 - Mono
+        public Byte Mode // 0x0 - Stereo (not used) , 0x1 - Mono
         {
             get { return (byte)((data >> 7) & 0x1); }
             set { data = (UInt16)((data & ~(0x1 << 7)) | ((value & 0x1) << 7)); }
@@ -1167,7 +1169,7 @@ namespace EPSSEditor
 
 
         // public Byte reserved : 4
-        public Byte reserved // Not used
+        public Byte Reserved // Not used
         {
             get { return (byte)((data >> 8) & 0xf); }
             set { data = (UInt16)((data & ~(0xf << 8)) | ((value & 0xf) << 8)); }
@@ -1175,7 +1177,7 @@ namespace EPSSEditor
 
 
         // public Byte soundType: 2
-        public Byte soundType // 0x00 - physical sound, 0x01 - virtual sound or subtone, s_subtone is the number of the sound which contains
+        public Byte SoundType // 0x00 - physical sound, 0x01 - virtual sound or subtone, s_subtone is the number of the sound which contains
             // the base sample for this sound, 0x02 - reserved, 0x03 - reserved
         {
             get { return (byte)((data >> 12) & 0x3); }
@@ -1184,7 +1186,7 @@ namespace EPSSEditor
 
 
         // public Byte velocity : 1
-        public Byte velocity // 0 - MIDI Velocity = VVFE, MIDI PolyPressure = Volume, 1 - MIDI Velocity = Volume, MIDI PolyPressure=VVFE
+        public Byte Velocity // 0 - MIDI Velocity = VVFE, MIDI PolyPressure = Volume, 1 - MIDI Velocity = Volume, MIDI PolyPressure=VVFE
         {
             get { return (byte)((data >> 14) & 0x1); }
             set { data = (UInt16)((data & ~(0x1 << 14)) | ((value & 0x1) << 14)); }
@@ -1192,7 +1194,7 @@ namespace EPSSEditor
         }
 
         // public Byte drum : 1
-        public Byte drum // 0 - Normal sound, 1 - Drumsound (no freq calculation made)
+        public Byte Drum // 0 - Normal sound, 1 - Drumsound (no freq calculation made)
         {
             get { return (byte)((data >> 15) & 0x1); }
             set { data = (UInt16)((data & ~(0x1 << 15)) | ((value & 0x1) << 15)); }
@@ -1205,7 +1207,7 @@ namespace EPSSEditor
         public EPSSSpi_sample[] samples;
 
 
-        public override int write(BinaryWriter writer)
+        public override int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -1213,7 +1215,7 @@ namespace EPSSEditor
             {
                 foreach (EPSSSpi_sample smp in samples)
                 {
-                    smp.write(writer);
+                    smp.Write(writer);
                 }
             }
             catch (Exception ex)
@@ -1233,7 +1235,7 @@ namespace EPSSEditor
             try
             {                
                 reader.BaseStream.Seek(spi.main.i_sdata_offset, SeekOrigin.Begin);
-                byte maxSoundNo = spi.main.i_no_of_sounds.no_of_sounds;
+                byte maxSoundNo = spi.main.i_no_of_sounds.No_of_sounds;
                 List<EPSSSpi_sample> sampleList = new List<EPSSSpi_sample>();
                 for (int i=0; i < maxSoundNo; i++)
                 {
@@ -1257,12 +1259,12 @@ namespace EPSSEditor
             return result;
         }
 
-        public override int length()
+        public override int Length()
         {
             int l = 0;
             foreach (EPSSSpi_sample smp in samples)
             {
-                l += smp.length();
+                l += smp.Length();
             }
             return l;
         }
@@ -1274,9 +1276,9 @@ namespace EPSSEditor
 
         public byte[] data;
 
-        public int length() { return data.Length; }
+        public int Length() { return data.Length; }
 
-        public int write(BinaryWriter writer)
+        public int Write(BinaryWriter writer)
         {
             int result = 0;
 
@@ -1294,7 +1296,7 @@ namespace EPSSEditor
         }
 
 
-        public void loadSpl(Uri path)
+        public void LoadSpl(Uri path)
         {
             try
             {

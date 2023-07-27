@@ -137,7 +137,7 @@ namespace EPSSEditor
         {
 
             Dictionary<int, List<SfzSplitInfo>> dict = new Dictionary<int, List<SfzSplitInfo>>();
-            for (int i = 0; i < spi.main.i_no_of_sounds.no_of_sounds; i++)
+            for (int i = 0; i < spi.main.i_no_of_sounds.No_of_sounds; i++)
             {
                 List<SfzSplitInfo> list = new List<SfzSplitInfo>();
                 SfzSplitInfo si = new SfzSplitInfo();
@@ -145,7 +145,7 @@ namespace EPSSEditor
                 dict.Add(i, list);
             }
 
-            for (int midich = 0; midich < spi.main.i_no_of_MIDIch.no_of_MIDICh; midich++)
+            for (int midich = 0; midich < spi.main.i_no_of_MIDIch.No_of_MIDICh; midich++)
             {
                 EPSSSpi_midiChannelSplit split = spi.split.channels[midich];
 
@@ -153,13 +153,13 @@ namespace EPSSEditor
                 byte currentMidiNote = 0;
                 foreach (EPSSSpi_soundAndPitch sp in split.data)
                 {
-                    if (sp.noSound == 0) // We have a sound defined
+                    if (sp.NoSound == 0) // We have a sound defined
                     {
-                        int sound = sp.sound;
-                        int pitch = EPSSNoteToMidiNote(sp.pitch); // converted pitch, ALWAYS 60-108!
-                        sbyte toneOffset = spi.sounds.sounds[sound].s_loopmode.toneoffset;
-                        byte vvfe = spi.sounds.sounds[sound].s_loopmode.vvfe;
-                        byte lm = spi.sounds.sounds[sound].s_loopmode.loopmode;
+                        int sound = sp.Sound;
+                        int pitch = EPSSNoteToMidiNote(sp.Pitch); // converted pitch, ALWAYS 60-108!
+                        sbyte toneOffset = spi.sounds.sounds[sound].s_loopmode.Toneoffset;
+                        byte vvfe = spi.sounds.sounds[sound].s_loopmode.Vvfe;
+                        byte lm = spi.sounds.sounds[sound].s_loopmode.Loopmode;
                         UInt16 s_gr_frek = spi.sounds.sounds[sound].s_gr_freq.data;
 
                         UInt32 startInSpi = spi.sounds.sounds[sound].s_sampstart;
