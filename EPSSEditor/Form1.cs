@@ -132,7 +132,8 @@ namespace EPSSEditor
                     data = new EPSSEditorData();                 
                     data.initialize(DrumMappingsFileName());
                     UpdateDialog();
-                    SaveProjectSettings();
+                    dataNeedsSaving = true;
+                    //SaveProjectSettings();
                 }
             }
             int newFreq = FrequencyFromCompressionTrackBar(1); // TODO settings to set freq for midi player instrument
@@ -444,8 +445,7 @@ namespace EPSSEditor
             omniPatchCheckBox.Checked = data.omni;
             gen2CheckBox.Checked = data.HasAnyProgramChange();
 
-            string errorString;
-            bool spiSaveEnabled = data.IsValidForSpiExport(out errorString);
+            bool spiSaveEnabled = data.IsValidForSpiExport();
             var mi = menuStrip1.Items.Find("saveSPIToolStripMenuItem", true);
             foreach (var item in mi)
             {
@@ -851,9 +851,6 @@ namespace EPSSEditor
                         {
                             Properties.Settings.Default.SpiExportFile = spiFile;
                             Properties.Settings.Default.Save();
-
-                            dataNeedsSaving = true;
-                            SaveProjectSettings();
                             MessageBox.Show("SPI exported successfully!", "EPSS Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else
@@ -1013,7 +1010,7 @@ namespace EPSSEditor
                     data.RemoveSpiSound(index - removed);
                     removed++;
                 }
-                dataNeedsSaving = true;
+
 
                 UpdateSpiSoundListBox();
                 if (spiSoundListView.Items.Count > 0)
@@ -1024,6 +1021,7 @@ namespace EPSSEditor
                     spiSoundListView.Items[select].Focused = true;
                     spiSoundListView.Items[select].EnsureVisible();
                 }
+                dataNeedsSaving = true;
                 SaveProjectSettings();
                 UpdateTotalSize();
             }
@@ -1142,7 +1140,7 @@ namespace EPSSEditor
             {
                 Dictionary<int, List<SfzSplitInfo>> dict = data.ConvertToSfzSplitInfoForSfzExport();
                 SfzConverter c = new SfzConverter();
-                string errorMessage = "";
+                string errorMessage;
                 bool result = c.SaveSFZ(dict, data.sounds, sfzDir, sampleSubDir, name, out errorMessage);
                 if (result) result = data.ExportSoundsToDir(sampleDir, out errorMessage);
                 if (result) MessageBox.Show("Exported successfully!", "EPSS Editor", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1343,7 +1341,7 @@ namespace EPSSEditor
         }
 
 
-        private void spiSoundListView_MouseUp(object sender, MouseEventArgs e)
+        private void SpiSoundListView_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Middle && (Control.ModifierKeys & Keys.Shift) != Keys.None)
             {
@@ -1360,13 +1358,13 @@ namespace EPSSEditor
         }
 
 
-        private void spiSoundListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        private void SpiSoundListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
             UpdateSpiSoundButtons();
         }
 
 
-        private void spiSoundListView_KeyDown(object sender, KeyEventArgs e)
+        private void SpiSoundListView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete)
             {
@@ -1387,7 +1385,7 @@ namespace EPSSEditor
         }
 
 
-        private void soundListBox_DragEnter(object sender, DragEventArgs e)
+        private void SoundListBox_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.Text))
             {
@@ -1404,7 +1402,7 @@ namespace EPSSEditor
         }
 
 
-        private void soundListBox_DragDrop(object sender, DragEventArgs e)
+        private void SoundListBox_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             string anyFile = "";
@@ -1451,8 +1449,7 @@ namespace EPSSEditor
         }
 
 
-
-        private void soundListBox_KeyPress(object sender, KeyPressEventArgs e)
+        private void SoundListBox_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == ' ')
             {
@@ -1463,7 +1460,7 @@ namespace EPSSEditor
         }
 
 
-        private void soundListBox_KeyDown(object sender, KeyEventArgs e)
+        private void SoundListBox_KeyDown(object sender, KeyEventArgs e)
         {
             ctrlAPressed = false;
             if (e.KeyCode == Keys.Delete)
@@ -1485,7 +1482,7 @@ namespace EPSSEditor
         }
 
 
-        private void soundListBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void SoundListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             Sound snd = GetSoundAtSelectedIndex();
             if (snd != null)
@@ -1535,19 +1532,19 @@ namespace EPSSEditor
         }
 
 
-        private void loadSoundButton_Click(object sender, EventArgs e)
+        private void LoadSoundButton_Click(object sender, EventArgs e)
         {
             LoadSound();
         }
 
 
-        private void deleteSoundButton_Click(object sender, EventArgs e)
+        private void DeleteSoundButton_Click(object sender, EventArgs e)
         {
             DeleteSelectedSound();
         }
 
 
-        private void compressionTrackBar_Scroll(object sender, EventArgs e)
+        private void CompressionTrackBar_Scroll(object sender, EventArgs e)
         {
             Sound snd = GetSoundAtSelectedIndex();
             if (snd != null)
@@ -1558,7 +1555,7 @@ namespace EPSSEditor
         }
 
 
-        private void midiChTrackBar_Scroll(object sender, EventArgs e)
+        private void MidiChTrackBar_Scroll(object sender, EventArgs e)
         {
             int ch = midiChTrackBar.Value;
             SetMidiChannel(ch);
@@ -1582,7 +1579,7 @@ namespace EPSSEditor
         }
 
 
-        private void useInSpiButton_Click(object sender, EventArgs e)
+        private void UseInSpiButton_Click(object sender, EventArgs e)
         {
             List<Sound> sounds = GetSelectedSounds();
             if (mappingModeMidiRadioButton.Checked)
@@ -1656,9 +1653,9 @@ namespace EPSSEditor
                             }
                         }
                         UpdateSpiSoundListBox();
+                        UpdateTotalSize();
                         dataNeedsSaving = true;
                         SaveProjectSettings();
-                        UpdateTotalSize();
                     }
                     else
                     {
@@ -1711,9 +1708,9 @@ namespace EPSSEditor
                                         if (ch > 0) SetMidiChannel(ch);
                                     }
 
+                                    UpdateTotalSize();
                                     dataNeedsSaving = true;
                                     SaveProjectSettings();
-                                    UpdateTotalSize();
                                 }
                             }
                         }
@@ -1762,9 +1759,9 @@ namespace EPSSEditor
                                     }
                                 }
 
+                                UpdateTotalSize();
                                 dataNeedsSaving = true;
                                 SaveProjectSettings();
-                                UpdateTotalSize();
                             }
                         }
                     }
@@ -1800,9 +1797,9 @@ namespace EPSSEditor
                         }
 
                         UpdateSpiSoundListBox();
+                        UpdateTotalSize();
                         dataNeedsSaving = true;
                         SaveProjectSettings();
-                        UpdateTotalSize();
                     }
                 }
                 else if (sounds.Count == 1)
@@ -1832,9 +1829,9 @@ namespace EPSSEditor
                             if (pcNumber > 0) SetProgramChange(pcNumber + 1); // in 1-128 range
 
                             UpdateSpiSoundListBox();
+                            UpdateTotalSize();
                             dataNeedsSaving = true;
                             SaveProjectSettings();
-                            UpdateTotalSize();
                         }
                     }
                 }
@@ -1842,13 +1839,13 @@ namespace EPSSEditor
         }
 
 
-        private void deleteSpiSoundButton_Click(object sender, EventArgs e)
+        private void DeleteSpiSoundButton_Click(object sender, EventArgs e)
         {
             DeleteSelectedSpiSound();
         }
 
 
-        private void newProjectToolStripMenuItem_Click_1(object sender, EventArgs e)
+        private void NewProjectToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             bool doNew = true;
             if (dataNeedsSaving)
@@ -1867,13 +1864,19 @@ namespace EPSSEditor
         }
 
 
-        private void saveProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveProjectSettingsFileDialog();
         }
 
 
-        private void loadProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveProjectToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            SaveProjectSettings();
+        }
+
+
+        private void LoadProjectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             bool doLoad = true;
             if (dataNeedsSaving)
@@ -1890,7 +1893,7 @@ namespace EPSSEditor
         }
 
 
-        private void loadSPIToolStripMenuItem_Click(object sender, EventArgs e)
+        private void LoadSPIToolStripMenuItem_Click(object sender, EventArgs e)
         {
             bool doLoad = true;
             if (dataNeedsSaving)
@@ -1903,7 +1906,7 @@ namespace EPSSEditor
 
             if (doLoad)
             {
-                string errorMessage = "";
+                string errorMessage;
                 bool result = DoLoadSpiFileDialog(out errorMessage);
                 if (!result && !String.IsNullOrEmpty(errorMessage))
                 {
@@ -1913,7 +1916,7 @@ namespace EPSSEditor
         }
 
 
-        private void importSFZToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ImportSFZToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string errorMessage;
             bool result = DoLoadSfzFileDialog(out errorMessage);
@@ -1924,13 +1927,13 @@ namespace EPSSEditor
         }
 
 
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
         }
 
 
-        private void normalizeTrackBar_Scroll(object sender, EventArgs e)
+        private void NormalizeTrackBar_Scroll(object sender, EventArgs e)
         {
             if (callbacks)
             {
@@ -1941,7 +1944,7 @@ namespace EPSSEditor
         }
 
 
-        private void normalizeCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void NormalizeCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (callbacks)
             {
@@ -1952,13 +1955,13 @@ namespace EPSSEditor
         }
 
 
-        private void saveSFZToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveSFZToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DoSaveSfz();
         }
 
 
-        private void clearSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ClearSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string settingsFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
             if (MessageBox.Show("Settings files is stored:\n" + settingsFile + "\nDo you want to clear them?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -2014,7 +2017,7 @@ namespace EPSSEditor
         }
 
 
-        private void spiSoundListenButton_Click(object sender, EventArgs e)
+        private void SpiSoundListenButton_Click(object sender, EventArgs e)
         {
             ShowMidiKeyboardForSelectedSpiSound();
         }
@@ -2048,59 +2051,59 @@ namespace EPSSEditor
         }
 
 
-        private void previewComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void PreviewComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             data.previewSelected = previewComboBox.SelectedIndex;
             dataNeedsSaving = true;
-            SaveProjectSettings();
+            //SaveProjectSettings();
         }
 
 
-        private void saveSampleButton_Click(object sender, EventArgs e)
+        private void SaveSampleButton_Click(object sender, EventArgs e)
         {
             SaveSampleWithFileDialog();
         }
 
 
-        private void spiNameTextBox_TextChanged(object sender, EventArgs e)
+        private void SpiNameTextBox_TextChanged(object sender, EventArgs e)
         {
             data.spiName = spiNameTextBox.Text;
             dataNeedsSaving = true;
-            SaveProjectSettings();
+            //SaveProjectSettings();
         }
 
 
-        private void spiInfoTextBox_TextChanged(object sender, EventArgs e)
+        private void SpiInfoTextBox_TextChanged(object sender, EventArgs e)
         {
             data.spiDescription = spiInfoTextBox.Text;
             dataNeedsSaving = true;
-            SaveProjectSettings();
+            //SaveProjectSettings();
         }
 
 
-        private void omniPatchCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void OmniPatchCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             data.omni = omniPatchCheckBox.Checked;
             dataNeedsSaving = true;
-            SaveProjectSettings();
+            //SaveProjectSettings();
         }
 
 
-        private void gen2CheckBox_CheckedChanged(object sender, EventArgs e)
+        private void Gen2CheckBox_CheckedChanged(object sender, EventArgs e)
         {
             data.spiVersion = SpiVersion();
             dataNeedsSaving = true;
-            SaveProjectSettings();
+            //SaveProjectSettings();
         }
 
 
-        private void playButton_MouseDown(object sender, MouseEventArgs e)
+        private void PlayButton_MouseDown(object sender, MouseEventArgs e)
         {
             _playingSounds = PlaySelectedSound();
         }
 
 
-        private void playButton_MouseUp(object sender, MouseEventArgs e)
+        private void PlayButton_MouseUp(object sender, MouseEventArgs e)
         {
             foreach (var sound in _playingSounds)
             {
@@ -2109,7 +2112,7 @@ namespace EPSSEditor
         }
 
 
-        private void mappingModeMidiRadioButton_CheckedChanged(object sender, EventArgs e)
+        private void MappingModeMidiRadioButton_CheckedChanged(object sender, EventArgs e)
         {
             if (mappingModeMidiRadioButton.Checked)
             {
@@ -2123,7 +2126,7 @@ namespace EPSSEditor
         }
 
 
-        private void mappingModeProgramRadioButton_CheckedChanged(object sender, EventArgs e)
+        private void MappingModeProgramRadioButton_CheckedChanged(object sender, EventArgs e)
         {
             if (mappingModeMidiRadioButton.Checked)
             {
@@ -2137,7 +2140,7 @@ namespace EPSSEditor
         }
 
 
-        private void spiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void SpiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             //Console.WriteLine(e.X + " " + e.Y);
 
@@ -2174,13 +2177,13 @@ namespace EPSSEditor
         }
 
 
-        private void saveSPIToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveSPIToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DoSaveSpi();
         }
 
 
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        private void ToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             List<Sound> sounds = GetSelectedSounds();
             if (sounds.Count == 1)
@@ -2216,13 +2219,13 @@ namespace EPSSEditor
         }
 
 
-        private void custMidiToneFromTextBox_TextChanged(object sender, EventArgs e)
+        private void CustMidiToneFromTextBox_TextChanged(object sender, EventArgs e)
         {
             CustomSampleRadioButton.Checked = true;
         }
 
 
-        private void custMidiToneToTextBox_TextChanged(object sender, EventArgs e)
+        private void CustMidiToneToTextBox_TextChanged(object sender, EventArgs e)
         {
             CustomSampleRadioButton.Checked = true;
         }
@@ -2258,14 +2261,14 @@ namespace EPSSEditor
         }
 
 
-        internal void pianoBox1_PianoKeyDown(object sender, M.PianoKeyEventArgs args, int midiChannel, int velocity)
+        internal void PianoBox1_PianoKeyDown(object sender, M.PianoKeyEventArgs args, int midiChannel, int velocity)
         {
             byte note = (byte)args.Key;
             spiSoundInstrument.NoteOn(midiChannel, note, velocity);
         }
 
 
-        internal void pianoBox1_PianoKeyUp(object sender, M.PianoKeyEventArgs args, int midiChannel)
+        internal void PianoBox1_PianoKeyUp(object sender, M.PianoKeyEventArgs args, int midiChannel)
         {
             byte note = (byte)args.Key;
             spiSoundInstrument.NoteOff(midiChannel, note);
@@ -2284,7 +2287,7 @@ namespace EPSSEditor
         }
 
 
-        private void loadMidButton_Click(object sender, EventArgs e)
+        private void LoadMidButton_Click(object sender, EventArgs e)
         {
             string midFile = Properties.Settings.Default.MidFile;
             loadMidFileDialog.FileName = midFile;
@@ -2308,7 +2311,7 @@ namespace EPSSEditor
         }
 
 
-        private void stopMidButton_Click(object sender, EventArgs e)
+        private void StopMidButton_Click(object sender, EventArgs e)
         {
             if (!MidPlayer.isPlaying)
             {
@@ -2322,7 +2325,7 @@ namespace EPSSEditor
         }
 
 
-        private void playMidButton_Click(object sender, EventArgs e)
+        private void PlayMidButton_Click(object sender, EventArgs e)
         {
             StartPlayingMid();
         }
@@ -2348,13 +2351,13 @@ namespace EPSSEditor
         }
 
 
-        private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void CheckForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             CheckUpdates.CheckForApplicationUpdate(this, GetRunningVersion(), inStart: false);
         }
 
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void Timer1_Tick(object sender, EventArgs e)
         {
             UpdateSongPosition();
         }
@@ -2388,7 +2391,7 @@ namespace EPSSEditor
         }
 
 
-        private void revMidButton_MouseDown(object sender, MouseEventArgs e)
+        private void RevMidButton_MouseDown(object sender, MouseEventArgs e)
         {
             spoolStep = -32;
             revMidTimer.Start();
@@ -2397,21 +2400,21 @@ namespace EPSSEditor
         }
 
 
-        private void revMidTimer_Tick(object sender, EventArgs e)
+        private void RevMidTimer_Tick(object sender, EventArgs e)
         {
             MidPlayer.SpoolTick(spoolStep);
             UpdateSongPosition();
         }
 
 
-        private void revMidButton_MouseUp(object sender, MouseEventArgs e)
+        private void RevMidButton_MouseUp(object sender, MouseEventArgs e)
         {
             revMidTimer.Stop();
             if (wasPlayingBeforeSpool) StartPlayingMid();
         }
 
 
-        private void ffwMidButton_MouseDown(object sender, MouseEventArgs e)
+        private void FfwMidButton_MouseDown(object sender, MouseEventArgs e)
         {
             spoolStep = 32;
             revMidTimer.Start();
@@ -2420,7 +2423,7 @@ namespace EPSSEditor
         }
 
 
-        private void ffwMidButton_MouseUp(object sender, MouseEventArgs e)
+        private void FfwMidButton_MouseUp(object sender, MouseEventArgs e)
         {
             revMidTimer.Stop();
             if (wasPlayingBeforeSpool) StartPlayingMid();
@@ -2502,39 +2505,40 @@ namespace EPSSEditor
         }
 
 
-        private void playMidButton_KeyDown(object sender, KeyEventArgs e)
+        private void PlayMidButton_KeyDown(object sender, KeyEventArgs e)
         {
             if (HandleTransportKeyDown(e.KeyCode)) e.Handled = true;
         }
 
 
-        private void stopMidButton_KeyDown(object sender, KeyEventArgs e)
+        private void StopMidButton_KeyDown(object sender, KeyEventArgs e)
         {
             if (HandleTransportKeyDown(e.KeyCode)) e.Handled = true;
         }
 
 
-        private void revMidButton_KeyDown(object sender, KeyEventArgs e)
+        private void RevMidButton_KeyDown(object sender, KeyEventArgs e)
         {
             if (HandleTransportKeyDown(e.KeyCode)) e.Handled = true;
         }
 
 
-        private void ffwMidButton_KeyDown(object sender, KeyEventArgs e)
+        private void FfwMidButton_KeyDown(object sender, KeyEventArgs e)
         {
             if (HandleTransportKeyDown(e.KeyCode)) e.Handled = true;
         }
 
 
-        private void revMidButton_KeyUp(object sender, KeyEventArgs e)
+        private void RevMidButton_KeyUp(object sender, KeyEventArgs e)
         {
             if (HandleTransportKeyUp()) e.Handled = true;
         }
 
 
-        private void ffwMidButton_KeyUp(object sender, KeyEventArgs e)
+        private void FfwMidButton_KeyUp(object sender, KeyEventArgs e)
         {
             if (HandleTransportKeyUp()) e.Handled = true;
         }
+
     }
 }

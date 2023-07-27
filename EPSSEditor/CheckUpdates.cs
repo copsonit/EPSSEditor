@@ -100,11 +100,9 @@ namespace EPSSEditor
             if (doc != null)
             {
                 string xml = doc.Declaration.ToString() + doc.ToString(SaveOptions.DisableFormatting);
-
-                System.Xml.XmlReaderSettings settings = new System.Xml.XmlReaderSettings();
                 System.IO.StringReader xmlRead = new System.IO.StringReader(xml);
 
-                System.Xml.Serialization.XmlSerializer xSerializer = new System.Xml.Serialization.XmlSerializer(typeof(EPSSEditorAktuell));
+                XmlSerializer xSerializer = new XmlSerializer(typeof(EPSSEditorAktuell));
                 try
                 {
                     akt = (EPSSEditorAktuell)xSerializer.Deserialize(xmlRead);

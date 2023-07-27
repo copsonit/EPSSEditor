@@ -62,13 +62,13 @@ namespace EPSSEditor
         {
             int midiChannel = midiChTrackBar.Value;
             int midiVelocity = midVelTrackBar.Value;
-            _form1.pianoBox1_PianoKeyDown(sender, args, midiChannel, midiVelocity);
+            _form1.PianoBox1_PianoKeyDown(sender, args, midiChannel, midiVelocity);
         }
 
         private void pianoBox2_PianoKeyUp(object sender, M.PianoKeyEventArgs args)
         {
             int midiChannel = midiChTrackBar.Value;
-            _form1.pianoBox1_PianoKeyUp(sender, args, midiChannel);
+            _form1.PianoBox1_PianoKeyUp(sender, args, midiChannel);
         }
 
         public void NoteOnOff(int midiChannel, int note, bool onOff, bool suppressEvent)

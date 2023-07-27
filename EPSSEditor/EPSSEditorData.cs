@@ -416,6 +416,13 @@ namespace EPSSEditor
             return valid;
         }
 
+
+        public bool IsValidForSpiExport()
+        {
+            return IsValidForSpiExport(out _);
+        }
+
+
         public bool isMidiChannelOccupied(int midiChannel)
         {
             bool[] occupied = getOccupiedMidiChannels();

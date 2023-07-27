@@ -143,6 +143,7 @@
             this.loadMidFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.revMidTimer = new System.Windows.Forms.Timer(this.components);
+            this.saveProjectToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
@@ -178,11 +179,11 @@
             this.soundListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.soundListBox.Size = new System.Drawing.Size(213, 394);
             this.soundListBox.TabIndex = 2;
-            this.soundListBox.SelectedIndexChanged += new System.EventHandler(this.soundListBox_SelectedIndexChanged);
-            this.soundListBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.soundListBox_DragDrop);
-            this.soundListBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.soundListBox_DragEnter);
-            this.soundListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.soundListBox_KeyDown);
-            this.soundListBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.soundListBox_KeyPress);
+            this.soundListBox.SelectedIndexChanged += new System.EventHandler(this.SoundListBox_SelectedIndexChanged);
+            this.soundListBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.SoundListBox_DragDrop);
+            this.soundListBox.DragEnter += new System.Windows.Forms.DragEventHandler(this.SoundListBox_DragEnter);
+            this.soundListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SoundListBox_KeyDown);
+            this.soundListBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.SoundListBox_KeyPress);
             // 
             // contextMenuStrip1
             // 
@@ -196,7 +197,7 @@
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(129, 22);
             this.toolStripMenuItem1.Text = "Rename ...";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.ToolStripMenuItem1_Click);
             // 
             // groupBox2
             // 
@@ -236,7 +237,7 @@
             this.button1.Text = "Save...";
             this.infoToolTip.SetToolTip(this.button1, "Saving all selected SPI Sounds to file one by one.");
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.saveSampleButton_Click);
+            this.button1.Click += new System.EventHandler(this.SaveSampleButton_Click);
             // 
             // previewComboBox
             // 
@@ -253,7 +254,7 @@
             this.previewComboBox.Name = "previewComboBox";
             this.previewComboBox.Size = new System.Drawing.Size(290, 21);
             this.previewComboBox.TabIndex = 17;
-            this.previewComboBox.SelectedIndexChanged += new System.EventHandler(this.previewComboBox_SelectedIndexChanged);
+            this.previewComboBox.SelectedIndexChanged += new System.EventHandler(this.PreviewComboBox_SelectedIndexChanged);
             // 
             // label9
             // 
@@ -276,7 +277,7 @@
             this.spiSoundListenButton.Text = "Listen";
             this.infoToolTip.SetToolTip(this.spiSoundListenButton, "Listen to SPI Sound sample. Only first selected is played.");
             this.spiSoundListenButton.UseVisualStyleBackColor = true;
-            this.spiSoundListenButton.Click += new System.EventHandler(this.spiSoundListenButton_Click);
+            this.spiSoundListenButton.Click += new System.EventHandler(this.SpiSoundListenButton_Click);
             // 
             // spiSoundListView
             // 
@@ -290,10 +291,10 @@
             this.spiSoundListView.Size = new System.Drawing.Size(556, 402);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
-            this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.spiSoundListView_ItemSelectionChanged);
-            this.spiSoundListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.spiSoundListView_KeyDown);
-            this.spiSoundListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.spiSoundListView_MouseDoubleClick);
-            this.spiSoundListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.spiSoundListView_MouseUp);
+            this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.SpiSoundListView_ItemSelectionChanged);
+            this.spiSoundListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SpiSoundListView_KeyDown);
+            this.spiSoundListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.SpiSoundListView_MouseDoubleClick);
+            this.spiSoundListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.SpiSoundListView_MouseUp);
             // 
             // deleteSpiSoundButton
             // 
@@ -307,7 +308,7 @@
             this.infoToolTip.SetToolTip(this.deleteSpiSoundButton, "You can also use the Delete button on your keyboard to delete an SPI Sound from t" +
         "he list");
             this.deleteSpiSoundButton.UseVisualStyleBackColor = true;
-            this.deleteSpiSoundButton.Click += new System.EventHandler(this.deleteSpiSoundButton_Click);
+            this.deleteSpiSoundButton.Click += new System.EventHandler(this.DeleteSpiSoundButton_Click);
             // 
             // groupBox9
             // 
@@ -341,7 +342,7 @@
             this.mappingModeProgramRadioButton.TabStop = true;
             this.mappingModeProgramRadioButton.Text = "Program Change";
             this.mappingModeProgramRadioButton.UseVisualStyleBackColor = true;
-            this.mappingModeProgramRadioButton.CheckedChanged += new System.EventHandler(this.mappingModeProgramRadioButton_CheckedChanged);
+            this.mappingModeProgramRadioButton.CheckedChanged += new System.EventHandler(this.MappingModeProgramRadioButton_CheckedChanged);
             // 
             // mappingModeMidiRadioButton
             // 
@@ -353,7 +354,7 @@
             this.mappingModeMidiRadioButton.TabStop = true;
             this.mappingModeMidiRadioButton.Text = "MIDI Channel";
             this.mappingModeMidiRadioButton.UseVisualStyleBackColor = true;
-            this.mappingModeMidiRadioButton.CheckedChanged += new System.EventHandler(this.mappingModeMidiRadioButton_CheckedChanged);
+            this.mappingModeMidiRadioButton.CheckedChanged += new System.EventHandler(this.MappingModeMidiRadioButton_CheckedChanged);
             // 
             // groupBox11
             // 
@@ -422,7 +423,7 @@
             this.custMidiToneToTextBox.Name = "custMidiToneToTextBox";
             this.custMidiToneToTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneToTextBox.TabIndex = 21;
-            this.custMidiToneToTextBox.TextChanged += new System.EventHandler(this.custMidiToneToTextBox_TextChanged);
+            this.custMidiToneToTextBox.TextChanged += new System.EventHandler(this.CustMidiToneToTextBox_TextChanged);
             // 
             // custMidiToneLabel
             // 
@@ -446,7 +447,7 @@
             this.midiChTrackBar.Size = new System.Drawing.Size(129, 45);
             this.midiChTrackBar.TabIndex = 5;
             this.midiChTrackBar.Value = 1;
-            this.midiChTrackBar.Scroll += new System.EventHandler(this.midiChTrackBar_Scroll);
+            this.midiChTrackBar.Scroll += new System.EventHandler(this.MidiChTrackBar_Scroll);
             // 
             // custMidiToneFromTextBox
             // 
@@ -454,7 +455,7 @@
             this.custMidiToneFromTextBox.Name = "custMidiToneFromTextBox";
             this.custMidiToneFromTextBox.Size = new System.Drawing.Size(30, 20);
             this.custMidiToneFromTextBox.TabIndex = 20;
-            this.custMidiToneFromTextBox.TextChanged += new System.EventHandler(this.custMidiToneFromTextBox_TextChanged);
+            this.custMidiToneFromTextBox.TextChanged += new System.EventHandler(this.CustMidiToneFromTextBox_TextChanged);
             // 
             // CustomSampleRadioButton
             // 
@@ -576,7 +577,7 @@
             this.spiNameTextBox.Size = new System.Drawing.Size(174, 20);
             this.spiNameTextBox.TabIndex = 5;
             this.spiNameTextBox.Text = "EPSSEDIT";
-            this.spiNameTextBox.TextChanged += new System.EventHandler(this.spiNameTextBox_TextChanged);
+            this.spiNameTextBox.TextChanged += new System.EventHandler(this.SpiNameTextBox_TextChanged);
             // 
             // groupBox3
             // 
@@ -607,8 +608,8 @@
             this.playButton.Text = "Listen";
             this.infoToolTip.SetToolTip(this.playButton, "Listen to sound");
             this.playButton.UseVisualStyleBackColor = true;
-            this.playButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.playButton_MouseDown);
-            this.playButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.playButton_MouseUp);
+            this.playButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PlayButton_MouseDown);
+            this.playButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.PlayButton_MouseUp);
             // 
             // loadSoundButton
             // 
@@ -620,7 +621,7 @@
             this.loadSoundButton.Text = "Load...";
             this.infoToolTip.SetToolTip(this.loadSoundButton, "You can drag sounds to the  box to add them faster!");
             this.loadSoundButton.UseVisualStyleBackColor = true;
-            this.loadSoundButton.Click += new System.EventHandler(this.loadSoundButton_Click);
+            this.loadSoundButton.Click += new System.EventHandler(this.LoadSoundButton_Click);
             // 
             // label13
             // 
@@ -642,7 +643,7 @@
             this.infoToolTip.SetToolTip(this.deleteSoundButton, "You can also use the Delete button on your keyboard to delete souds from the list" +
         "");
             this.deleteSoundButton.UseVisualStyleBackColor = true;
-            this.deleteSoundButton.Click += new System.EventHandler(this.deleteSoundButton_Click);
+            this.deleteSoundButton.Click += new System.EventHandler(this.DeleteSoundButton_Click);
             // 
             // groupBox5
             // 
@@ -779,7 +780,7 @@
             this.normalizeCheckBox.TabIndex = 1;
             this.normalizeCheckBox.Text = "Normalize";
             this.normalizeCheckBox.UseVisualStyleBackColor = true;
-            this.normalizeCheckBox.CheckedChanged += new System.EventHandler(this.normalizeCheckBox_CheckedChanged);
+            this.normalizeCheckBox.CheckedChanged += new System.EventHandler(this.NormalizeCheckBox_CheckedChanged);
             // 
             // normalizeTrackBar
             // 
@@ -794,7 +795,7 @@
             this.normalizeTrackBar.TickFrequency = 100;
             this.normalizeTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
             this.normalizeTrackBar.Value = 100;
-            this.normalizeTrackBar.Scroll += new System.EventHandler(this.normalizeTrackBar_Scroll);
+            this.normalizeTrackBar.Scroll += new System.EventHandler(this.NormalizeTrackBar_Scroll);
             // 
             // conversionTextBox
             // 
@@ -932,7 +933,7 @@
             this.compressionTrackBar.Name = "compressionTrackBar";
             this.compressionTrackBar.Size = new System.Drawing.Size(202, 45);
             this.compressionTrackBar.TabIndex = 0;
-            this.compressionTrackBar.Scroll += new System.EventHandler(this.compressionTrackBar_Scroll);
+            this.compressionTrackBar.Scroll += new System.EventHandler(this.CompressionTrackBar_Scroll);
             // 
             // useInSpiButton
             // 
@@ -946,7 +947,7 @@
             this.useInSpiButton.Text = "A\r\nD\r\nD\r\n\r\n->\r\n->\r\n->\r\n\r\nS\r\nO\r\nU\r\nN\r\nD";
             this.useInSpiButton.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.useInSpiButton.UseVisualStyleBackColor = true;
-            this.useInSpiButton.Click += new System.EventHandler(this.useInSpiButton_Click);
+            this.useInSpiButton.Click += new System.EventHandler(this.UseInSpiButton_Click);
             // 
             // menuStrip1
             // 
@@ -967,6 +968,7 @@
             this.newProjectToolStripMenuItem,
             this.loadProjectToolStripMenuItem,
             this.saveProjectToolStripMenuItem,
+            this.saveProjectToolStripMenuItem1,
             this.toolStripSeparator1,
             this.loadSPIToolStripMenuItem,
             this.importSFZToolStripMenuItem,
@@ -982,75 +984,75 @@
             // newProjectToolStripMenuItem
             // 
             this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newProjectToolStripMenuItem.Text = "New Project...";
-            this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.newProjectToolStripMenuItem_Click_1);
+            this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.NewProjectToolStripMenuItem_Click_1);
             // 
             // loadProjectToolStripMenuItem
             // 
             this.loadProjectToolStripMenuItem.Name = "loadProjectToolStripMenuItem";
-            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadProjectToolStripMenuItem.Text = "Load Project...";
-            this.loadProjectToolStripMenuItem.Click += new System.EventHandler(this.loadProjectToolStripMenuItem_Click);
+            this.loadProjectToolStripMenuItem.Click += new System.EventHandler(this.LoadProjectToolStripMenuItem_Click);
             // 
             // saveProjectToolStripMenuItem
             // 
             this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
-            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
-            this.saveProjectToolStripMenuItem.Text = "Save Project...";
-            this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.saveProjectToolStripMenuItem_Click);
+            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveProjectToolStripMenuItem.Text = "Save Project as...";
+            this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.SaveProjectToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(151, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // loadSPIToolStripMenuItem
             // 
             this.loadSPIToolStripMenuItem.Name = "loadSPIToolStripMenuItem";
-            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.loadSPIToolStripMenuItem.Text = "Import SPI...";
-            this.loadSPIToolStripMenuItem.Click += new System.EventHandler(this.loadSPIToolStripMenuItem_Click);
+            this.loadSPIToolStripMenuItem.Click += new System.EventHandler(this.LoadSPIToolStripMenuItem_Click);
             // 
             // importSFZToolStripMenuItem
             // 
             this.importSFZToolStripMenuItem.Name = "importSFZToolStripMenuItem";
-            this.importSFZToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.importSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.importSFZToolStripMenuItem.Text = "Import SFZ...";
-            this.importSFZToolStripMenuItem.Click += new System.EventHandler(this.importSFZToolStripMenuItem_Click);
+            this.importSFZToolStripMenuItem.Click += new System.EventHandler(this.ImportSFZToolStripMenuItem_Click);
             // 
             // saveSPIToolStripMenuItem
             // 
             this.saveSPIToolStripMenuItem.Name = "saveSPIToolStripMenuItem";
-            this.saveSPIToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.saveSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveSPIToolStripMenuItem.Text = "Export SPI...";
-            this.saveSPIToolStripMenuItem.Click += new System.EventHandler(this.saveSPIToolStripMenuItem_Click);
+            this.saveSPIToolStripMenuItem.Click += new System.EventHandler(this.SaveSPIToolStripMenuItem_Click);
             // 
             // saveSFZToolStripMenuItem
             // 
             this.saveSFZToolStripMenuItem.Name = "saveSFZToolStripMenuItem";
-            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveSFZToolStripMenuItem.Text = "Export SFZ...";
-            this.saveSFZToolStripMenuItem.Click += new System.EventHandler(this.saveSFZToolStripMenuItem_Click);
+            this.saveSFZToolStripMenuItem.Click += new System.EventHandler(this.SaveSFZToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(151, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
             // clearSettingsToolStripMenuItem
             // 
             this.clearSettingsToolStripMenuItem.Name = "clearSettingsToolStripMenuItem";
-            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.clearSettingsToolStripMenuItem.Text = "Clear settings...";
-            this.clearSettingsToolStripMenuItem.Click += new System.EventHandler(this.clearSettingsToolStripMenuItem_Click);
+            this.clearSettingsToolStripMenuItem.Click += new System.EventHandler(this.ClearSettingsToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -1065,7 +1067,7 @@
             this.checkForUpdatesToolStripMenuItem.Name = "checkForUpdatesToolStripMenuItem";
             this.checkForUpdatesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.checkForUpdatesToolStripMenuItem.Text = "Check for Updates...";
-            this.checkForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.checkForUpdatesToolStripMenuItem_Click);
+            this.checkForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.CheckForUpdatesToolStripMenuItem_Click);
             // 
             // loadSoundFileDialog
             // 
@@ -1085,7 +1087,7 @@
             this.omniPatchCheckBox.Text = "Omni patch";
             this.infoToolTip.SetToolTip(this.omniPatchCheckBox, "Create the patch with the same sound on all MIDI channels in the patch.");
             this.omniPatchCheckBox.UseVisualStyleBackColor = true;
-            this.omniPatchCheckBox.CheckedChanged += new System.EventHandler(this.omniPatchCheckBox_CheckedChanged);
+            this.omniPatchCheckBox.CheckedChanged += new System.EventHandler(this.OmniPatchCheckBox_CheckedChanged);
             // 
             // gen2CheckBox
             // 
@@ -1100,7 +1102,7 @@
             this.infoToolTip.SetToolTip(this.gen2CheckBox, "Only supported in EPSS Driver 3.7 and newer! Create a patch that contains both MI" +
         "DI Channel mapping and program change mappings.");
             this.gen2CheckBox.UseVisualStyleBackColor = true;
-            this.gen2CheckBox.CheckedChanged += new System.EventHandler(this.gen2CheckBox_CheckedChanged);
+            this.gen2CheckBox.CheckedChanged += new System.EventHandler(this.Gen2CheckBox_CheckedChanged);
             // 
             // loadMidButton
             // 
@@ -1113,7 +1115,7 @@
             this.loadMidButton.Text = "Load and Play MID...";
             this.infoToolTip.SetToolTip(this.loadMidButton, "Load and play MID file");
             this.loadMidButton.UseVisualStyleBackColor = true;
-            this.loadMidButton.Click += new System.EventHandler(this.loadMidButton_Click);
+            this.loadMidButton.Click += new System.EventHandler(this.LoadMidButton_Click);
             // 
             // stopMidButton
             // 
@@ -1125,8 +1127,8 @@
             this.stopMidButton.Text = "Stop";
             this.infoToolTip.SetToolTip(this.stopMidButton, "Stop playing MID file");
             this.stopMidButton.UseVisualStyleBackColor = true;
-            this.stopMidButton.Click += new System.EventHandler(this.stopMidButton_Click);
-            this.stopMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.stopMidButton_KeyDown);
+            this.stopMidButton.Click += new System.EventHandler(this.StopMidButton_Click);
+            this.stopMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.StopMidButton_KeyDown);
             // 
             // playMidButton
             // 
@@ -1138,8 +1140,8 @@
             this.playMidButton.Text = "Play";
             this.infoToolTip.SetToolTip(this.playMidButton, "Start playing MID file");
             this.playMidButton.UseVisualStyleBackColor = true;
-            this.playMidButton.Click += new System.EventHandler(this.playMidButton_Click);
-            this.playMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.playMidButton_KeyDown);
+            this.playMidButton.Click += new System.EventHandler(this.PlayMidButton_Click);
+            this.playMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PlayMidButton_KeyDown);
             // 
             // revMidButton
             // 
@@ -1151,10 +1153,10 @@
             this.revMidButton.Text = "<<";
             this.infoToolTip.SetToolTip(this.revMidButton, "Fast Rewind in MID file");
             this.revMidButton.UseVisualStyleBackColor = true;
-            this.revMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.revMidButton_KeyDown);
-            this.revMidButton.KeyUp += new System.Windows.Forms.KeyEventHandler(this.revMidButton_KeyUp);
-            this.revMidButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.revMidButton_MouseDown);
-            this.revMidButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.revMidButton_MouseUp);
+            this.revMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.RevMidButton_KeyDown);
+            this.revMidButton.KeyUp += new System.Windows.Forms.KeyEventHandler(this.RevMidButton_KeyUp);
+            this.revMidButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.RevMidButton_MouseDown);
+            this.revMidButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.RevMidButton_MouseUp);
             // 
             // ffwMidButton
             // 
@@ -1166,10 +1168,10 @@
             this.ffwMidButton.Text = ">>";
             this.infoToolTip.SetToolTip(this.ffwMidButton, "Fast forward MID file");
             this.ffwMidButton.UseVisualStyleBackColor = true;
-            this.ffwMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ffwMidButton_KeyDown);
-            this.ffwMidButton.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ffwMidButton_KeyUp);
-            this.ffwMidButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ffwMidButton_MouseDown);
-            this.ffwMidButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ffwMidButton_MouseUp);
+            this.ffwMidButton.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FfwMidButton_KeyDown);
+            this.ffwMidButton.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FfwMidButton_KeyUp);
+            this.ffwMidButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FfwMidButton_MouseDown);
+            this.ffwMidButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FfwMidButton_MouseUp);
             // 
             // groupBox4
             // 
@@ -1239,7 +1241,7 @@
             this.spiInfoTextBox.Size = new System.Drawing.Size(174, 20);
             this.spiInfoTextBox.TabIndex = 18;
             this.spiInfoTextBox.Text = "Created with EPSSEditor";
-            this.spiInfoTextBox.TextChanged += new System.EventHandler(this.spiInfoTextBox_TextChanged);
+            this.spiInfoTextBox.TextChanged += new System.EventHandler(this.SpiInfoTextBox_TextChanged);
             // 
             // saveSpiFileDialog
             // 
@@ -1316,12 +1318,19 @@
             // timer1
             // 
             this.timer1.Interval = 80;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timer1.Tick += new System.EventHandler(this.Timer1_Tick);
             // 
             // revMidTimer
             // 
             this.revMidTimer.Interval = 20;
-            this.revMidTimer.Tick += new System.EventHandler(this.revMidTimer_Tick);
+            this.revMidTimer.Tick += new System.EventHandler(this.RevMidTimer_Tick);
+            // 
+            // saveProjectToolStripMenuItem1
+            // 
+            this.saveProjectToolStripMenuItem1.Name = "saveProjectToolStripMenuItem1";
+            this.saveProjectToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.saveProjectToolStripMenuItem1.Text = "Save Project";
+            this.saveProjectToolStripMenuItem1.Click += new System.EventHandler(this.SaveProjectToolStripMenuItem1_Click);
             // 
             // Form1
             // 
@@ -1501,6 +1510,7 @@
         private System.Windows.Forms.Button ffwMidButton;
         private System.Windows.Forms.Button revMidButton;
         private System.Windows.Forms.Timer revMidTimer;
+        private System.Windows.Forms.ToolStripMenuItem saveProjectToolStripMenuItem1;
     }
 }
 
