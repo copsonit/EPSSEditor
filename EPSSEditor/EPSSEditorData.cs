@@ -67,6 +67,12 @@ namespace EPSSEditor
         }
 
 
+        public void ClearAll()
+        {
+            ClearSounds();
+            ClearSpiSounds();
+        }
+
         public bool VerifyFiles(string remapDir, out string sampleNotFound)
         {
             foreach(Sound sound in sounds)
@@ -558,7 +564,7 @@ namespace EPSSEditor
         }
 
 
-        public void ClearSpiSounds()
+        private void ClearSpiSounds()
         {
             spiSounds.Clear();
             _findSpiSoundArray = null;
@@ -613,6 +619,33 @@ namespace EPSSEditor
                 errorMessage = ex.Message;
             }
             return result;
+        }
+
+
+        public void AddSound(string file)
+        {
+            Sound s = new Sound(file);
+            sounds.Add(s);
+        }
+
+
+        public void ClearSounds()
+        {
+            sounds.Clear();
+        }
+
+
+        public void RemoveSound(int idx)
+        {
+            sounds.RemoveAt(idx);
+        }
+
+
+        public bool SoundRefersToSPISound(int idx)
+        {
+            Sound snd = sounds[idx];
+            List<SpiSound> spiSounds = getSpiSoundsFromSound(snd);
+            return spiSounds.Count > 0;
         }
 
 

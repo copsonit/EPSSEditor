@@ -8,7 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath; // for XPathSelectElements
 using System.Xml.Serialization;
-
+using System.Windows.Forms;
 
 namespace EPSSEditor
 { 
@@ -27,10 +27,63 @@ namespace EPSSEditor
         public EPSSEditorAktuellInst() { }
     }
 
-
-    public static class KollaEfterNyVersion
+ 
+    public static class  CheckUpdates
     {
-        public static EPSSEditorAktuell KollaEfterNy(string _folder)
+        public static void CheckForApplicationUpdate(Form1 mainForm, Version currentVersion, bool inStart = true)
+        {
+            EPSSEditorAktuell akt = CheckForUpdates(@"https://copson.se/epss/wp-content/uploads/EPSSEditorCurrentVersionInfo2.xml");
+            if (akt == null) return;
+
+            int nMajor = akt.aktuell.maj;
+            int nMinor = akt.aktuell.min;
+            int nBuild = akt.aktuell.bld;
+            string version = nMajor + "." + nMinor + "." + nBuild;
+
+            if (inStart)
+            {
+                string ignore = Properties.Settings.Default.IgnoreVersion;
+                if (!String.IsNullOrEmpty(ignore))
+                {
+
+                    if (version == ignore)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            string strPath = akt.folder;
+
+            // Get my own version's numbers
+            //Assembly assembly = Assembly.GetExecutingAssembly();
+            //FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+
+            //int nAppMajor = fileVersionInfo.FileMajorPart;
+            //int nAppMinor = fileVersionInfo.FileMinorPart;
+            //int nAppBuild = fileVersionInfo.FileBuildPart;
+
+            int nAppMajor = currentVersion.Major;
+            int nAppMinor = currentVersion.Minor;
+            int nAppBuild = currentVersion.Build;
+
+            if (nMajor > nAppMajor || (nMajor == nAppMajor && nMinor > nAppMinor) || (nMajor == nAppMajor && nMinor == nAppMinor && nBuild > nAppBuild))
+            {
+                string link = strPath;
+                string updateMsg = "EPSS Editor v" + version + " released.";
+                UpdateAvailable form = new UpdateAvailable(mainForm, updateMsg, link, version, inStart);
+
+                form.ShowDialog();
+            }
+            else if (!inStart)
+            {
+                MessageBox.Show("You are already running latest.");
+            }
+        }
+
+
+
+        private static EPSSEditorAktuell CheckForUpdates(string _folder)
         {
 
             EPSSEditorAktuell akt = null;
