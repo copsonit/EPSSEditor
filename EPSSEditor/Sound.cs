@@ -11,7 +11,7 @@ using EPSSEditor.Vorbis;
 
 namespace EPSSEditor
 {
-    public class Sound
+    public class Sound : ICloneable
     {
         public string path;
         public string description;
@@ -61,6 +61,11 @@ namespace EPSSEditor
             }
         }
 
+
+        public virtual object Clone()
+        {
+            return this.MemberwiseClone();
+        }
 
         public bool InitSound(string p, out string errorMessage)
         {
@@ -195,7 +200,7 @@ namespace EPSSEditor
 
         public string name()
         {
-            if (description == null) return Path.GetFileNameWithoutExtension(path);
+            //if (description == null) return Path.GetFileNameWithoutExtension(path);
             return description;
         }
 
@@ -213,6 +218,7 @@ namespace EPSSEditor
                     {
                         File.Move(path, newFullPath);
                         path = newFullPath;
+                        description = Path.GetFileNameWithoutExtension(path);
                         return true;
                     }
                     catch (Exception e)

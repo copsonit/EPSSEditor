@@ -48,14 +48,18 @@ namespace EPSSEditor
         }
     }
 
-    public class DrumSettingsHelper
+    public class DrumSettingsHelper : ICloneable
     {
         public Mapping[] mappings;
 
+        public virtual object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         public void initialize(string drumSettingsFileName)
         {
-
-
+            if (String.IsNullOrEmpty(drumSettingsFileName)) return;
 
             List<Mapping> drumMappings = new List<Mapping>();
             //            List<string> output = new List<string>();

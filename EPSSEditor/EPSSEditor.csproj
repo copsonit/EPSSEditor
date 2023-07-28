@@ -136,6 +136,7 @@
     </Compile>
     <Compile Include="SpiSoundInstrument.cs" />
     <Compile Include="TimeBarrier.cs" />
+    <Compile Include="Undo.cs" />
     <Compile Include="UpdateAvailable.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -13,7 +13,7 @@ using static System.Net.Mime.MediaTypeNames;
 namespace EPSSEditor
 {
   
-    public class SpiSound : IDisposable
+    public class SpiSound : IDisposable, ICloneable
     {
         public byte midiChannel; // [1-16]
         public byte midiNote; // [0-127] This is the midi note where the sound is played at pitch 0. center note
@@ -120,7 +120,12 @@ namespace EPSSEditor
             // TODO
         }
 
-        public void Dispose()
+        public virtual object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+            public void Dispose()
         {
             if (_blockAlignedStream != null)
             {

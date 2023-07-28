@@ -133,6 +133,7 @@ namespace EPSSEditor
                     data.Initialize(DrumMappingsFileName());
                     UpdateDialog();
                     dataNeedsSaving = true;
+                    Undo.New(data);
                     //SaveProjectSettings();
                 }
             }
@@ -539,6 +540,7 @@ namespace EPSSEditor
             UpdateSoundDialog();
             UpdateConversionSettings();
             if (!String.IsNullOrEmpty(anyFile)) data.soundFileName = anyFile;
+            Undo.RegisterUndoChange(data);
             dataNeedsSaving = true;
             SaveProjectSettings();
         }
@@ -607,7 +609,7 @@ namespace EPSSEditor
                         result = false;
                     }
                 }
-
+                Undo.New(data);
                 UpdateDialog();
                 UpdateTotalSize();
             }
@@ -778,6 +780,7 @@ namespace EPSSEditor
                     result = data.LoadSpiFile(spi, path, out errorMessage);
                     if (result)
                     {
+                        Undo.New(data);
                         UpdateDialog();
                         UpdateTotalSize();
                         dataNeedsSaving = true;
@@ -911,6 +914,7 @@ namespace EPSSEditor
                     UpdateSoundListBox();
 
                     data.soundFileName = anyFile;
+                    Undo.RegisterUndoChange(data);
                     dataNeedsSaving = true;
                     SaveProjectSettings();
                 }
@@ -938,6 +942,7 @@ namespace EPSSEditor
             }
             else
             {
+
                 int removed = 0;
                 int idx = 0;
                 foreach (int index in indices)
@@ -963,6 +968,7 @@ namespace EPSSEditor
                 {
                     useInSpiButton.Enabled = false;
                 }
+                Undo.RegisterUndoChange(data);
                 dataNeedsSaving = true;
                 SaveProjectSettings();
 
@@ -1028,6 +1034,7 @@ namespace EPSSEditor
             List<int> idxRemoved = SelectedSpiSounds();
             if (idxRemoved.Count > 0)
             {
+
                 int removed = 0;
                 int lastRemoved = -1;
                 foreach (int index in idxRemoved)
@@ -1046,6 +1053,7 @@ namespace EPSSEditor
                     spiSoundListView.Items[select].Focused = true;
                     spiSoundListView.Items[select].EnsureVisible();
                 }
+                Undo.RegisterUndoChange(data);
                 dataNeedsSaving = true;
                 SaveProjectSettings();
                 UpdateTotalSize();
@@ -1430,6 +1438,26 @@ namespace EPSSEditor
                 spiSoundListView.EndUpdate();
                 e.Handled = true;
             }
+            else if (e.KeyCode == Keys.Z && e.Control)
+            {
+                EPSSEditorData newData = Undo.UndoLastOperation();
+                if (newData != null)
+                {
+                    data = newData;
+                    UpdateDialog();
+                    UpdateTotalSize();
+                }
+            }
+            else if (e.KeyCode == Keys.Y && e.Control)
+            {
+                EPSSEditorData newData = Undo.RedoLastOperation();
+                if (newData != null)
+                {
+                    data = newData;
+                    UpdateDialog();
+                    UpdateTotalSize();
+                }
+            }
         }
 
 
@@ -1706,6 +1734,7 @@ namespace EPSSEditor
                         }
                         UpdateSpiSoundListBox();
                         UpdateTotalSize();
+                        Undo.RegisterUndoChange(data);
                         dataNeedsSaving = true;
                         SaveProjectSettings();
                     }
@@ -1761,6 +1790,7 @@ namespace EPSSEditor
                                     }
 
                                     UpdateTotalSize();
+                                    Undo.RegisterUndoChange(data);
                                     dataNeedsSaving = true;
                                     SaveProjectSettings();
                                 }
@@ -1812,6 +1842,7 @@ namespace EPSSEditor
                                 }
 
                                 UpdateTotalSize();
+                                Undo.RegisterUndoChange(data);
                                 dataNeedsSaving = true;
                                 SaveProjectSettings();
                             }
@@ -1851,6 +1882,7 @@ namespace EPSSEditor
 
                         UpdateSpiSoundListBox();
                         UpdateTotalSize();
+                        Undo.RegisterUndoChange(data);
                         dataNeedsSaving = true;
                         SaveProjectSettings();
                     }
@@ -1885,6 +1917,7 @@ namespace EPSSEditor
 
                             UpdateSpiSoundListBox();
                             UpdateTotalSize();
+                            Undo.RegisterUndoChange(data);
                             dataNeedsSaving = true;
                             SaveProjectSettings();
                         }
@@ -1913,6 +1946,7 @@ namespace EPSSEditor
             if (doNew)
             {
                 InitEpssEditorData(forceNewProject: true);
+                Undo.New(data);
                 dataNeedsSaving = true;
                 SaveProjectSettings();
             }
@@ -2124,6 +2158,7 @@ namespace EPSSEditor
         {
             data.spiName = spiNameTextBox.Text;
             dataNeedsSaving = true;
+            Undo.RegisterUndoChange(data);
             //SaveProjectSettings();
         }
 
@@ -2132,6 +2167,7 @@ namespace EPSSEditor
         {
             data.spiDescription = spiInfoTextBox.Text;
             dataNeedsSaving = true;
+            Undo.RegisterUndoChange(data);
             //SaveProjectSettings();
         }
 
@@ -2140,6 +2176,7 @@ namespace EPSSEditor
         {
             data.omni = omniPatchCheckBox.Checked;
             dataNeedsSaving = true;
+            Undo.RegisterUndoChange(data);
             //SaveProjectSettings();
         }
 
@@ -2147,7 +2184,7 @@ namespace EPSSEditor
         private void Gen2CheckBox_CheckedChanged(object sender, EventArgs e)
         {
             data.spiVersion = SpiVersion();
-            dataNeedsSaving = true;
+            //dataNeedsSaving = true;
             //SaveProjectSettings();
         }
 
@@ -2238,12 +2275,37 @@ namespace EPSSEditor
         }
 
 
+        private string RenameFormAt(Point p, string org)
+        {
+            RenameForm r = new RenameForm(org);
+            {
+                StartPosition = FormStartPosition.Manual;
+            };
+            r.Location = p;
+            r.Size = new Size(40, 20);
+            DialogResult res = r.ShowDialog();
+            if (res == DialogResult.OK)
+            {
+                return r.GetText().Trim();
+            }
+            return "";
+        }
+
+
         private void ToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             List<Sound> sounds = GetSelectedSounds();
             if (sounds.Count == 1)
             {
                 Sound snd = sounds[0];
+                /*
+                ToolStripMenuItem b = (ToolStripMenuItem)sender;
+                Point p = b.Owner.Location;
+                string s = RenameFormAt(p, snd.name());
+                */
+
+
+
                 RenameForm r = new RenameForm(snd.name())
                 {
                     StartPosition = FormStartPosition.Manual
@@ -2255,14 +2317,17 @@ namespace EPSSEditor
                 DialogResult res = r.ShowDialog();
                 if (res == DialogResult.OK)
                 {
+
                     string s = r.GetText().Trim();
-                    if (!String.IsNullOrEmpty(s))
+
+                    if (!String.IsNullOrEmpty(s) && s != snd.name())
                     {
                         if (snd.Rename(s, out string errorString))
                         {
                             UpdateSoundListBox();
                             data.RefreshSpiSounds();
                             UpdateSpiSoundListBox();
+                            Undo.New(data); // 
                             dataNeedsSaving = true;
                             SaveProjectSettings();
                         }

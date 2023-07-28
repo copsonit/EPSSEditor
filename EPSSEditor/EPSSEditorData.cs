@@ -18,9 +18,9 @@ namespace EPSSEditor
 {
 
 
-    public class EPSSEditorData
+    public class EPSSEditorData : ICloneable
     {
-        // All public fields are saved in ProjectSettings.
+            // All public fields are saved in ProjectSettings.
         public DrumSettingsHelper drumMappings;
         public List<Sound> sounds;
         public List<SpiSound> spiSounds;
@@ -38,6 +38,19 @@ namespace EPSSEditor
 
         public EPSSEditorData() { }
 
+
+        public virtual object Clone()
+        {
+            EPSSEditorData o = (EPSSEditorData)this.MemberwiseClone();
+            o.Initialize(null);
+            o.drumMappings = (DrumSettingsHelper)drumMappings.Clone();
+            foreach (var s in sounds) { o.sounds.Add((Sound)s.Clone());  }
+            foreach (var s in spiSounds) { o.spiSounds.Add((SpiSound)s.Clone()); }          
+            o._findSpiSoundArray = null;
+            o._programArray = null;
+
+            return o;
+        }
 
         public void Initialize(string drumSettingsFileName)
         {
