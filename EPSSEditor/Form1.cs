@@ -1034,7 +1034,9 @@ namespace EPSSEditor
             List<int> idxRemoved = SelectedSpiSounds();
             if (idxRemoved.Count > 0)
             {
-
+                ListViewItem topItem = spiSoundListView.TopItem;
+                int lastIndex = topItem.Index;
+                
                 int removed = 0;
                 int lastRemoved = -1;
                 foreach (int index in idxRemoved)
@@ -1052,6 +1054,8 @@ namespace EPSSEditor
                     spiSoundListView.Items[select].Selected = true;
                     spiSoundListView.Items[select].Focused = true;
                     spiSoundListView.Items[select].EnsureVisible();
+                    int dist = lastRemoved - lastIndex;
+                    spiSoundListView.TopItem = spiSoundListView.Items[Math.Max(0, select-dist)];
                 }
                 Undo.RegisterUndoChange(data);
                 dataNeedsSaving = true;
