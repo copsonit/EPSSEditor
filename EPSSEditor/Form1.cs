@@ -508,17 +508,22 @@ namespace EPSSEditor
         }
 
 
-        private void UpdateAfterSoundsAdded(List<string> filesAdded, string anyFile, bool spiNeedsUpdate)
+        private void UpdateAfterSoundsAdded(List<string> filesAdded, bool spiNeedsUpdate)
         {
+            string anyFile = "";
             if (filesAdded.Count > 0)
             {
                 UpdateSoundListBox();
-                if (spiNeedsUpdate) UpdateSpiSoundListBox();
+                if (spiNeedsUpdate)
+                {
+                    UpdateSpiSoundListBox();
+                    UpdateTotalSize();
+                }
 
                 soundListBox.BeginUpdate();
-
                 foreach (string file in filesAdded)
                 {
+                    anyFile = file;
                     for (int i = 0; i < data.sounds.Count(); i++)
                     {
                         if (data.sounds[i].path == file)
@@ -533,7 +538,7 @@ namespace EPSSEditor
 
             UpdateSoundDialog();
             UpdateConversionSettings();
-            data.soundFileName = anyFile;
+            if (!String.IsNullOrEmpty(anyFile)) data.soundFileName = anyFile;
             dataNeedsSaving = true;
             SaveProjectSettings();
         }
@@ -890,11 +895,16 @@ namespace EPSSEditor
             if (loadSoundFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string anyFile = "";
-                foreach (string fileName in loadSoundFileDialog.FileNames)
+                foreach (string filePath in loadSoundFileDialog.FileNames)
                 {
-                    if (data.AddSound(fileName))
+                    if (data.AddSound(filePath, out _, out string errorMessage))
                     {
-                        anyFile = fileName;
+                        anyFile = filePath;
+                    }
+                    else
+                    {
+                        string fileName = Path.GetFileName(filePath);
+                        MessageBox.Show($"Error loading sound {fileName}:\n{errorMessage}");
                     }
                 }
                 if (!String.IsNullOrEmpty(anyFile)) {
@@ -1013,9 +1023,6 @@ namespace EPSSEditor
         }
 
 
-
-
-
         private void DeleteSelectedSpiSound()
         {
             List<int> idxRemoved = SelectedSpiSounds();
@@ -1029,7 +1036,6 @@ namespace EPSSEditor
                     data.RemoveSpiSound(index - removed);
                     removed++;
                 }
-
 
                 UpdateSpiSoundListBox();
                 if (spiSoundListView.Items.Count > 0)
@@ -1141,26 +1147,35 @@ namespace EPSSEditor
                 string file = loadSfzFileDialog.FileName;
                 Properties.Settings.Default.SfzFile = file;
                 Properties.Settings.Default.Save();
-
-                List<string> filesAdded = new List<string>();
-
-                int cm = CurrentMidiChannel();
-                int midiChannel = mappingModeMidiRadioButton.Checked ? cm : 128;
-                int programChange = mappingModeProgramRadioButton.Checked ? cm - 1 : 128;
-
-                string anyFile = SfzConverter.LoadSfzSound(data, midiChannel, programChange, file, filesAdded);
-                if (filesAdded.Count > 0)
+                                
+                List<string> soundFilesAdded = new List<string>();
+                result = LoadSfz(file, soundFilesAdded, out errorMessage);             
+                if (result)
                 {
-                    int ch = midiChannel < 128 ? data.GetNextFreeMidiChannel() : data.GetNextFreeProgramChange() + 1;
-                    if (ch > 0) SetMidiChannel(ch);
-                    UpdateAfterSoundsAdded(filesAdded, anyFile, true);
-                    data.soundFileName = anyFile;
-                    result = true;
-                }
-                else
-                {
-                    errorMessage = "Nothing was loaded. Files already exists.";
-                }
+                    UpdateAfterSoundsAdded(soundFilesAdded, true);
+                }               
+            }
+            return result;
+        }
+
+
+        private bool LoadSfz(string filePath, List<string> soundFilesAdded, out string errorMessage)
+        {
+            int cm = CurrentMidiChannel();
+            int midiChannel = mappingModeMidiRadioButton.Checked ? cm : 128;
+            int programChange = mappingModeProgramRadioButton.Checked ? cm - 1 : 128;
+
+            bool result = SfzConverter.LoadSfzSound(data, midiChannel, programChange, filePath, soundFilesAdded, out errorMessage);
+            if (result && soundFilesAdded.Count > 0)
+            {
+                int ch = midiChannel < 128 ? data.GetNextFreeMidiChannel() : data.GetNextFreeProgramChange() + 1;
+                if (ch > 0) SetMidiChannel(ch);
+                Properties.Settings.Default.SfzFile = filePath;
+                Properties.Settings.Default.Save();
+            }
+            else
+            {
+                errorMessage = "Nothing was loaded. Files already exists.";
             }
             return result;
         }
@@ -1438,56 +1453,50 @@ namespace EPSSEditor
         private void SoundListBox_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            string anyFile = "";
             List<string> filesAdded = new List<string>();
             bool spiNeedsUpdate = false;
-            foreach (var file in files)
+
+            string lastFileName = "";
+            bool result = false;
+            Dictionary<string, string> filesWithErrors =   new Dictionary<string, string>();
+            foreach (var filePath in files)
             {
-                string filePath = file;
+                string errorMessage = "";
+                lastFileName = Path.GetFileName(filePath);
                 string ext = Path.GetExtension(filePath).ToLower();
                 if (ext == ".sfz")
                 {
-                    int cm = CurrentMidiChannel();
-                    int midiChannel = mappingModeMidiRadioButton.Checked ? cm : 128;
-                    int programChange = mappingModeProgramRadioButton.Checked ? cm -1  : 128;
-                    anyFile = SfzConverter.LoadSfzSound(data, midiChannel, programChange, filePath, filesAdded);
-                    if (filesAdded.Count > 0)
-                    {
-                        int ch = midiChannel < 128 ? data.GetNextFreeMidiChannel() : data.GetNextFreeProgramChange() + 1;
-                        if (ch > 0) SetMidiChannel(ch);
-                        spiNeedsUpdate = true;
-                        Properties.Settings.Default.SfzFile = filePath;
-                        Properties.Settings.Default.Save();
-                    }
+                    result = LoadSfz(filePath, filesAdded, out errorMessage);
+                    spiNeedsUpdate = true;
                 }
                 else 
                 {
-                    if (data.AddSound(filePath))
-                    {
-                        filesAdded.Add(filePath);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Unsupported file format.");
-                        break;
-                    }                   
+                     result = data.AddSound(filePath, out _, out errorMessage);
+                    if (result) filesAdded.Add(filePath);
                 }
-
+                if (!result)
+                {
+                    filesWithErrors.Add(Path.GetFileName(filePath), errorMessage);
+                }
+            }
+            if (filesWithErrors.Count > 0) {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine($"{files.Length} files dropped, {filesAdded.Count} sounds loaded.");
+                sb.AppendLine("Files not loaded:");
+                foreach (var file in filesWithErrors)
+                {
+                    sb.AppendLine($"{file.Key} : {file.Value}");
+                }
+                MessageBox.Show(sb.ToString());
             }
 
             if (filesAdded.Count > 0)
             {
-                UpdateAfterSoundsAdded(filesAdded, anyFile, spiNeedsUpdate);
-            } else
+                UpdateAfterSoundsAdded(filesAdded, spiNeedsUpdate);
+            } 
+            else if (result)
             {
-                if (anyFile == null)
-                {
-                    MessageBox.Show("File can not be loaded.");
-                }
-                else
-                {
-                    MessageBox.Show("Nothing was loaded. Files already exists.");
-                }
+                MessageBox.Show("Nothing was loaded.");
             }
         }
 

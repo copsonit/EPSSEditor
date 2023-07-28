@@ -182,7 +182,6 @@ namespace EPSSEditor
                                 current.LastMidich == midich)
                             {
                                 current.UpdateHigh(midich, pitch, currentMidiNote);
-
                             }
                             else
                             {
@@ -196,11 +195,9 @@ namespace EPSSEditor
                         else
                         {
                             current.UpdateLow(midich, pitch, currentMidiNote);
-
                         }
 
                         dict[sound] = infos;
-
                     }
                     else
                     {
@@ -307,10 +304,10 @@ namespace EPSSEditor
                     }
                 }
             }
-            catch (Exception exp)
+            catch (Exception ex)
             {
-                Console.Write(exp.Message);
-                errorMessage = exp.Message;
+                Console.Write(ex.ToString());
+                errorMessage = ex.Message;
                 result = false;
             }
             return result;
@@ -350,24 +347,21 @@ namespace EPSSEditor
             return result;
         }
 
-        public static string LoadSfzSound(EPSSEditorData data, int midiChannel, int programChange, string filePath, List<string> filesAdded)
+        public static bool LoadSfzSound(EPSSEditorData data, int midiChannel, int programChange, string filePath, List<string> filesAdded, out string errorMessage)
         {
+            bool result = false;
+            errorMessage = "Unknown error";
             
-            //List<string> soundsAdded = new List<string>();
-            
-            Dictionary<string, Sound> sounds = new Dictionary<string, Sound>();
+            Dictionary<string, Sound> soundDict= new Dictionary<string, Sound>();
             foreach (Sound s in data.sounds)
             {
-                sounds.Add(s.path, s);
-            }
-            
+                soundDict.Add(s.path, s);
+            }           
 
-            string anyFile = "";
+            errorMessage = "";
             ParseSfz p = new ParseSfz();
             List<SfzBase> bases = p.Parse(filePath);
             string basePath = Path.GetDirectoryName(filePath);
-            //bool skipFirstGroup = true;
-            bool abortLoad = false;
 
             byte defaultCenter = 60;
             byte defaultLoByte = (byte)(defaultCenter - 24);
@@ -379,14 +373,11 @@ namespace EPSSEditor
             byte groupHiKey = defaultHiByte;
             byte groupKey = defaultKey;
             string groupSample = "";
-            int index = 0;
             try
             {
                 foreach (SfzBase bas in bases)
                 {
-                    index++;
-                    Console.WriteLine(index);
-                    if (abortLoad) break;
+                    result = false;
                     if (bas is SfzGenericSection gSection)
                     {
                         if (gSection.header.Contains("group"))
@@ -411,6 +402,7 @@ namespace EPSSEditor
                             handled = ParseKey(bas.GetValue("hikey"), out byte parsedHiKey);
                             if (handled) groupHiKey = parsedHiKey;
                         }
+                        result = true;
                     }
 
                     if (bas is SfzRegionSection tBase)
@@ -419,56 +411,53 @@ namespace EPSSEditor
                         if (fp == null) fp = groupSample;
 
                         Sound s;
-                        if (sounds.ContainsKey(fp))
+                        if (soundDict.ContainsKey(fp))
                         {
-                            s = sounds[fp];
+                            s = soundDict[fp];
+                            result = true;
                         }
                         else
                         {
-                            s = new Sound(fp);
-                            if (!String.IsNullOrEmpty(s.path))
+                            if (data.AddSound(fp, out s, out errorMessage))
                             {
-                                s.description = Path.GetFileNameWithoutExtension(fp);
-                                data.sounds.Add(s);
-                                sounds.Add(fp, s);
+                                byte kcByte = groupKeyCenter;
+                                byte loByte = groupLoKey;
+                                byte hiByte = groupHiKey;
+                                byte keyByte = groupKey;
+
+                                bool handled = ParseKey(tBase.GetValue("pitch_keycenter"), out byte kc);
+                                if (handled) kcByte = kc;
+                                handled = ParseKey(tBase.GetValue("lokey"), out byte lb);
+                                if (handled) loByte = lb;
+                                handled = ParseKey(tBase.GetValue("hikey"), out byte hb);
+                                if (handled) hiByte = hb;
+
+                                data.AddSfzSound(s, midiChannel, programChange, loByte, hiByte, kcByte, 0);
                                 filesAdded.Add(fp);
+                                soundDict.Add(s.path, s);
+                                result = true;
                             }
                             else
                             {
-                                MessageBox.Show("Unsupported format for sample.");
-                                abortLoad = true;
-                                s = null;
+                                Console.WriteLine($"Sound cannot be added: {fp}");
                             }
-                        }
-                        byte kcByte = groupKeyCenter;
-                        byte loByte = groupLoKey;
-                        byte hiByte = groupHiKey;
-                        byte keyByte = groupKey;
-
-                        bool handled = ParseKey(tBase.GetValue("pitch_keycenter"), out byte kc);
-                        if (handled) kcByte = kc;
-                        handled = ParseKey(tBase.GetValue("lokey"), out byte lb);
-                        if (handled) loByte = lb;
-                        handled = ParseKey(tBase.GetValue("hikey"), out byte hb);
-                        if (handled) hiByte = hb;
-                        if (s != null)
-                        {
-                            anyFile = fp;
-                            data.AddSfzSound(s, midiChannel, programChange, loByte, hiByte, kcByte, 0);
                         }
                     }
                     else
                     {
                         Console.WriteLine("No sample found, skipping region.");
+                        result = true;
                     }
+                    if (!result) break;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e.ToString());
-                anyFile = null;
+                Console.WriteLine(ex.ToString());
+                errorMessage = ex.Message;
+                result = false;
             }
-            return anyFile;
+            return result;
         }
 
 

@@ -571,6 +571,12 @@ namespace EPSSEditor
             long spiExtSoundsLength = 64 * noOfSounds;
             long spiSamplesLength = 0;
 
+            foreach (var idxAndSnd in usedSounds)
+            {
+                SpiSound snd = idxAndSnd.Value;
+                spiSamplesLength += snd.preLength(data);              
+            }
+
             return mainLength + spiExtLength + spiSplitLength + spiSoundsLength + spiExtSoundsLength + spiSamplesLength;
         }
 

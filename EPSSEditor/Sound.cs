@@ -11,18 +11,6 @@ using EPSSEditor.Vorbis;
 
 namespace EPSSEditor
 {
-    public class SoundLoadError
-    {
-        public SoundLoadError() {}
-    }
-
-    public class SoundLoadNoError : SoundLoadError
-    {
-        public SoundLoadNoError() { }
-    }
-
-
- 
     public class Sound
     {
         public string path;
@@ -51,10 +39,6 @@ namespace EPSSEditor
 
         public Sound() { }
 
-        public Sound(string p) {
-            InitSound(p);
-        }
-
 
         public Sound(byte[] soundData, string outPath, bool loop, long loopStart, long loopEnd)
         {
@@ -69,16 +53,20 @@ namespace EPSSEditor
                 using (var s = new RawSourceWaveStream(ms, new WaveFormat(sampleRate, bits, channels)))
                 {
                     WaveLoopFileWriter.CreateWaveLoopFile(outPath, s, loop, loopStart, loopEnd);
-                    InitSound(outPath);
+                    if (!InitSound(outPath, out string errorMessage))
+                    {
+                        Console.WriteLine($"Sound not initialized: {errorMessage}");
+                    }
                 }
             }
         }
 
 
-        public void InitSound(string p)
+        public bool InitSound(string p, out string errorMessage)
         {
-            path = null;
-            bool soundValid = true;
+            bool result = false;
+            errorMessage = "Unknown error";
+
             using (FileStream sampleStream = File.OpenRead(p))
             {
                 sampleStream.Seek(0, SeekOrigin.Begin);
@@ -93,6 +81,7 @@ namespace EPSSEditor
                         samplesPerSecond = fmt.SampleRate;
                         sampleDataLength = reader.Length;
                         sampleCount = sampleDataLength / (bitsPerSample / 2);
+                        result = true;
                     }
 
                 }
@@ -142,15 +131,12 @@ namespace EPSSEditor
                             //break; // only read one loop
                             //}
                         }
+                        result = true;
                     }
-                }
-                else
-                {
-                    soundValid = false;
                 }
             }
 
-            if (!soundValid )
+            if (!result)
             {
                 try
                 {
@@ -163,20 +149,20 @@ namespace EPSSEditor
                         sampleDataLength = reader.Length;
                         sampleCount = sampleDataLength / (bitsPerSample / 2);
                         //sampleCount = reader.SampleCount; // Does not take channels into account!
-                        soundValid = true;
+                        result = true;
                     }
                 }
                 catch (Exception ex)
                 {
-                    soundValid = false;
                     Console.WriteLine(ex.ToString());
+                    errorMessage = ex.Message;
                 }
             }
               
-            if (soundValid)
+            if (result)
             {
                 path = p;
-                description = null;
+                description = Path.GetFileNameWithoutExtension(path);
                 //length = new System.IO.FileInfo(path).Length;
                 _id = Guid.NewGuid();
 
@@ -186,16 +172,20 @@ namespace EPSSEditor
                 loKey = hiKey = keyCenter = 128;
                 loop = false;
             }
+            return result;
         }
 
         public Guid id() { return _id; }
 
+
         public ConversionParameters parameters() { return _parameters; }
+
 
         public void updateConversionParameters(int toBit, int toFreq)
         {
             _parameters.updateConversions(this, toBit, toFreq);
         }
+
 
         public void updateNormalize(bool normalize, int normalizePercentage)
         {
@@ -203,16 +193,12 @@ namespace EPSSEditor
         }
 
 
-        public SoundLoadError loadSound(string path)
-        {
-            return new SoundLoadNoError();
-        }
-
         public string name()
         {
             if (description == null) return Path.GetFileNameWithoutExtension(path);
             return description;
         }
+
 
         public bool Rename(string newName, out string errorString)
         {

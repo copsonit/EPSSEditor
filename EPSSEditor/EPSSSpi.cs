@@ -297,7 +297,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_main.Read: {0}", ex.ToString());
-                errorMessage = ex.ToString();
+                errorMessage = ex.Message;
                 result = 1;
             }
 
@@ -489,7 +489,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_extended.Rrite: {0}", ex.ToString());
-                errorMessage = ex.ToString();
+                errorMessage = ex.Message;
                 result = 1;
             }
 
@@ -599,7 +599,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: {0}", ex.ToString());
-                errorMessage = ex.ToString();
+                errorMessage = ex.Message;
                 result = 1;
             }
 
@@ -853,7 +853,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: {0}", ex.ToString());
-                errorMessage = ex.ToString();
+                errorMessage = ex.Message;
                 result = 1;
             }
 
@@ -923,7 +923,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_sountInfo.Read: {0}", ex.ToString());
-                errorMessage = ex.ToString();
+                errorMessage = ex.Message;
                 result = 1;
             }
 
@@ -998,7 +998,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: {0}", ex.ToString());
-                errorMessage =  ex.ToString();
+                errorMessage = ex.Message;
                 result = 1;
             }
 
@@ -1080,7 +1080,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_splitInfo.Read: {0}", ex.ToString());
-                errorMessage = ex.ToString();
+                errorMessage = ex.Message;
                 result = 1;
             }
 
@@ -1252,7 +1252,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_samples.Read: {0}", ex.ToString());
-                errorMessage = ex.ToString();
+                errorMessage = ex.Message;
                 result = 1;
             }
 
@@ -1328,7 +1328,7 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 Console.WriteLine("Exception during EPSSSpi_sample.Read: {0}", ex.ToString());
-                errorMessage = ex.ToString();
+                errorMessage = ex.Message;
                 result = 1;
             }
 

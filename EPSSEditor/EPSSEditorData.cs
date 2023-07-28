@@ -113,7 +113,7 @@ namespace EPSSEditor
                 long loopEnd = spi.sounds.sounds[i].s_sampend - sampleStart;
 
                 Sound snd = new Sound(spi.samples.samples[i].data, outPath, loop, loopStart, loopEnd);
-                sounds.Add(snd);
+                AddSound(snd);
             }
 
 
@@ -272,18 +272,18 @@ namespace EPSSEditor
 
         public List<SpiSound> GetSpiSoundsFromSound(Sound sound)
         {
-            List<SpiSound> sounds = new List<SpiSound>();
+            List<SpiSound> usedSounds= new List<SpiSound>();
             if (sound != null)
             {
                 foreach (SpiSound spiSnd in spiSounds)
                 {
                     if (sound.id() == spiSnd.soundId)
                     {
-                        sounds.Add(spiSnd);
+                        usedSounds.Add(spiSnd);
                     }
                 }
             }
-            return sounds;
+            return usedSounds;
         }
 
 
@@ -621,22 +621,52 @@ namespace EPSSEditor
             catch (Exception ex)
             {
                 result = false;
+                Console.WriteLine(ex.ToString());
                 errorMessage = ex.Message;
             }
             return result;
         }
 
 
-        public bool AddSound(string file)
+        public void AddSound(Sound s)
         {
-            Sound s = new Sound(file);
-            if (!String.IsNullOrEmpty(s.path)) {
-                sounds.Add(s);
+            sounds.Add(s);
+        }
+
+        /*
+        public bool AddSound(string file, out string errorMessage)
+        {
+            Sound s = new Sound();
+            if (s.InitSound(file, out errorMessage)) { 
+            //if (!String.IsNullOrEmpty(s.path)) {
+                AddSound(s);
                 return true;
             }
             return false;
         }
+        */
 
+
+        public bool AddSound(string file, out Sound s, out string errorMessage)
+        {
+
+            //s = new Sound(file);
+            s = new Sound();
+            if (s.InitSound(file, out errorMessage))
+            //if (!String.IsNullOrEmpty(s.path))
+            {
+                if (IdenticalSoundExists(s))
+                {
+                    errorMessage = "Identical sound exists.";
+                }
+                else
+                {
+                    AddSound(s);
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public void ClearSounds()
         {
