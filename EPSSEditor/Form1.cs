@@ -943,17 +943,22 @@ namespace EPSSEditor
             else
             {
 
-                int removed = 0;
-                int idx = 0;
-                foreach (int index in indices)
+                //int removed = 0;
+                
+                int topIndex = soundListBox.TopIndex;
+                int visible = soundListBox.Height / soundListBox.ItemHeight - 1;
+                int dist = 0;
+                int idx = -1;
+                for (int index = indices.Count - 1; index >= 0; index--)
                 {
-                    idx = index - removed;
-                    data.RemoveSound(idx);
-
-                    removed++;
+                    int removeIdx = indices[index];
+                    dist = Math.Min(visible, Math.Max(0, removeIdx - topIndex));
+                    data.RemoveSound(removeIdx);
+                    soundListBox.Items.RemoveAt(removeIdx);
+                    if (idx == -1) idx = removeIdx;
                 }
+                
 
-                UpdateSoundListBox();
                 int itemsLeft = soundListBox.Items.Count;
                 if (itemsLeft > 0)
                 {
@@ -963,6 +968,10 @@ namespace EPSSEditor
                     }
                     soundListBox.SelectedIndex = idx;
                     useInSpiButton.Enabled = true;
+                    soundListBox.TopIndex = Math.Max(0, idx - dist);
+
+                    
+                    
                 }
                 else
                 {
@@ -1037,25 +1046,24 @@ namespace EPSSEditor
                 ListViewItem topItem = spiSoundListView.TopItem;
                 int lastIndex = topItem.Index;
                 
-                int removed = 0;
                 int lastRemoved = -1;
-                foreach (int index in idxRemoved)
+
+                for (int index = idxRemoved.Count-1; index >= 0; index--)
                 {
-                    lastRemoved = (index - removed);
-                    data.RemoveSpiSound(index - removed);
-                    removed++;
+                    data.RemoveSpiSound(idxRemoved[index]);
+                    spiSoundListView.Items[idxRemoved[index]].Remove();
+                    lastRemoved = idxRemoved[index];
                 }
 
-                UpdateSpiSoundListBox();
                 if (spiSoundListView.Items.Count > 0)
                 {
                     int select = Math.Min(lastRemoved, spiSoundListView.Items.Count - 1);
                     select = Math.Max(0, select);
                     spiSoundListView.Items[select].Selected = true;
                     spiSoundListView.Items[select].Focused = true;
-                    spiSoundListView.Items[select].EnsureVisible();
                     int dist = lastRemoved - lastIndex;
                     spiSoundListView.TopItem = spiSoundListView.Items[Math.Max(0, select-dist)];
+                    spiSoundListView.Items[select].EnsureVisible();
                 }
                 Undo.RegisterUndoChange(data);
                 dataNeedsSaving = true;
