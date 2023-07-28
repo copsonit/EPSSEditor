@@ -14,8 +14,8 @@ namespace EPSSEditor
 
     public interface ISfzSection
     {
-        void init(string line);
-        bool parse(string line);
+        void Init(string line);
+        bool Parse(string line);
 
 
 
@@ -36,12 +36,12 @@ namespace EPSSEditor
         }
 
 
-        public virtual void init(string line)
+        public virtual void Init(string line)
         {
             // No Parameters default
         }
 
-        public virtual bool parse(string line)
+        public virtual bool Parse(string line)
         {
             if (line.Contains('<') && line.Contains('>'))
             {
@@ -131,7 +131,7 @@ namespace EPSSEditor
 
     public class SfzRegionSection : SfzBase
     {
-        public override void init(string line)
+        public override void Init(string line)
         {
             for(int i=0;i<line.Length;i++)
             {
@@ -184,7 +184,7 @@ namespace EPSSEditor
     public class SfzGenericSection : SfzBase
     {
         public string header;
-        public override void init(string line)
+        public override void Init(string line)
         {
             header = line;
         }
@@ -199,17 +199,19 @@ namespace EPSSEditor
         }
 
 
-        bool isLineComment(string line)
+        bool IsLineComment(string line)
         {
             if (line.StartsWith("//")) return true;
             return false;
                    
         }
 
-        public List<SfzBase> parse(string file)
+        public List<SfzBase> Parse(string file)
         {
-            Dictionary<string, System.Type> dict = new Dictionary<string, System.Type>();
-            dict.Add("<region>", typeof(SfzRegionSection));
+            Dictionary<string, System.Type> dict = new Dictionary<string, System.Type>
+            {
+                { "<region>", typeof(SfzRegionSection) }
+            };
 
             string[] lines = System.IO.File.ReadAllLines(file);
             
@@ -223,7 +225,7 @@ namespace EPSSEditor
                     Console.WriteLine(line);
                     bool result = false;
 
-                    if (line.Length > 0 && !isLineComment(line))
+                    if (line.Length > 0 && !IsLineComment(line))
                     {
                         while (!result)
                         {
@@ -235,7 +237,7 @@ namespace EPSSEditor
                                     if (line.Contains(d.Key))
                                     {
                                         fn = (SfzBase)Activator.CreateInstance(d.Value);
-                                        fn.init(line);
+                                        fn.Init(line);
                                         result = true;
                                         kwFound = true;
                                         break;
@@ -244,13 +246,13 @@ namespace EPSSEditor
                                 if (!kwFound)
                                 {
                                     fn = new SfzGenericSection();
-                                    fn.init(line);
+                                    fn.Init(line);
                                     result = true;
                                 }
                             }
                             else
                             {
-                                result = fn.parse(line);
+                                result = fn.Parse(line);
                                 if (!result)
                                 {
                                     bases.Add(fn);

@@ -364,7 +364,7 @@ namespace EPSSEditor
 
             string anyFile = "";
             ParseSfz p = new ParseSfz();
-            List<SfzBase> bases = p.parse(filePath);
+            List<SfzBase> bases = p.Parse(filePath);
             string basePath = Path.GetDirectoryName(filePath);
             //bool skipFirstGroup = true;
             bool abortLoad = false;
