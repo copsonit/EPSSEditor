@@ -71,6 +71,7 @@ namespace EPSSEditor
         {
             bool result = false;
             errorMessage = "Unknown error";
+            loop = false;
 
             using (FileStream sampleStream = File.OpenRead(p))
             {
@@ -175,7 +176,7 @@ namespace EPSSEditor
                 _parameters.normalize = new ConversionNormalize();
 
                 loKey = hiKey = keyCenter = 128;
-                loop = false;
+                //loop = false;
             }
             return result;
         }

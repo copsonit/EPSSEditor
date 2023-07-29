@@ -2,6 +2,7 @@
 using NAudio.MediaFoundation;
 using NAudio.Midi;
 using NAudio.Mixer;
+using NAudio.SoundFont;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
@@ -483,5 +484,160 @@ namespace EPSSEditor
             }
             return found;
         }
+
+        // Load sf2
+        // Only allow to load them if mapping set to program change. What to do otherwise?
+        // Convert each sample in sf2 to wav
+        // Directory for conversion should be project folder \ sf2 filename \
+        // Add sound for each wav readin ghte parameters
+        // Use AddSfzSound to add the SPI simliar to LoadSfz
+        public static bool LoadSf2(EPSSEditorData data, string filePath, out string errorMessage)
+        {
+            bool result = false;
+            errorMessage = "Unknown error";
+
+            SoundFont sf = new SoundFont(filePath);
+            foreach (var preset in sf.Presets)
+            {
+                foreach (var zone in preset.Zones)
+                {
+                    foreach (var gen in zone.Generators)
+                    {
+                        if (gen.GeneratorType == GeneratorEnum.Instrument)
+                        {
+                            Instrument i = gen.Instrument;
+                            foreach (var izone in i.Zones)
+                            {
+                                foreach (var igen in izone.Generators)
+                                {
+                                    if (igen.GeneratorType == GeneratorEnum.SampleID)
+                                    {
+                                        SampleHeader sh = igen.SampleHeader;
+                                        //uint start = sh.Start;
+                                        //uint end = sh.End;
+                                        Console.WriteLine($"SampleHeader: {sh}");
+                                        result = true;
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+                //string fp = 
+                //Instrument i = preset.
+            }
+
+            return result;
+        }
+
+
+
+        /*
+         * https://csharp.hotexamples.com/site/redirect?url=https%3A%2F%2Fgithub.com%2Fzeromus%2Fsf2xrni
+        void ImportSamples(SoundFont sf2, Preset preset, XInstrument xrni)
+        {
+            var xl = new List<XSample>();
+            var ml = new List<SampleMap>();
+            var il = new List<int>();
+            foreach (var pzone in preset.Zones)
+            { // perc. bank likely has more than one instrument here.
+                var i = pzone.Instrument();
+                var kr = pzone.KeyRange(); // FIXME: where should I use it?
+                if (i == null)
+                    continue; // FIXME: is it possible?
+
+                var vr = pzone.VelocityRange();
+
+                // an Instrument contains a set of zones that contain sample headers.
+                int sampleCount = 0;
+                foreach (var izone in i.Zones)
+                {
+                    var ikr = izone.KeyRange();
+                    var ivr = izone.VelocityRange();
+                    var sh = izone.SampleHeader();
+                    if (sh == null)
+                        continue; // FIXME: is it possible?
+
+                    // FIXME: sample data must become monoral (panpot neutral)
+                    var xs = ConvertSample(sampleCount++, sh, sf2.SampleData, izone);
+                    xs.Name = NormalizePathName(sh.SampleName);
+                    ml.Add(new SampleMap(ikr, ivr, xs, sh));
+                }
+            }
+
+            ml.Sort((m1, m2) =>
+                m1.KeyLowRange != m2.KeyLowRange ? m1.KeyLowRange - m2.KeyLowRange :
+                m1.KeyHighRange != m2.KeyHighRange ? m1.KeyHighRange - m2.KeyHighRange :
+                m1.VelocityLowRange != m2.VelocityLowRange ? m1.VelocityLowRange - m2.VelocityLowRange :
+                m1.VelocityHighRange - m2.VelocityHighRange);
+
+            int prev = -1;
+            foreach (var m in ml)
+            {
+                prev = m.KeyLowRange;
+                il.Add(m.KeyLowRange);
+                xl.Add(m.Sample);
+            }
+
+            xrni.SampleSplitMap = new SampleSplitMap();
+            xrni.SampleSplitMap.NoteOnMappings = new SampleSplitMapNoteOnMappings();
+            var nm = new SampleSplitMapping[ml.Count];
+            xrni.SampleSplitMap.NoteOnMappings.NoteOnMapping = nm;
+            for (int i = 0; i < ml.Count; i++)
+            {
+                var m = ml[i];
+                var n = new SampleSplitMapping();
+                n.BaseNote = m.Sample.BaseNote;
+                n.NoteStart = m.KeyLowRange;
+                n.NoteEnd = m.KeyHighRange <= 0 ? 128 : m.KeyHighRange;
+                n.SampleIndex = i;
+                if (m.VelocityHighRange > 0)
+                {
+                    n.MapVelocityToVolume = true;
+                    n.VelocityStart = m.VelocityLowRange;
+                    n.VelocityEnd = m.VelocityHighRange;
+                }
+                nm[i] = n;
+            }
+
+            xrni.Samples = new RenoiseInstrumentSamples();
+            xrni.Samples.Sample = xl.ToArray();
+        }
+
+        		XSample ConvertSample (int count, SSampleHeader sh, byte [] sample, Zone izone)
+		{
+			// Indices in sf2 are numbers of samples, not byte length. So double them.
+			var xs = new XSample ();
+			xs.Extension = ".wav";
+			xs.LoopStart =(sh.StartLoop - sh.Start);
+			xs.LoopEnd = (sh.EndLoop - sh.Start);
+			int sampleModes = izone.SampleModes ();
+			xs.LoopMode = sampleModes == 0 ? InstrumentSampleLoopMode.Off : InstrumentSampleLoopMode.Forward;
+			xs.Name = String.Format ("Sample{0:D02} ({1})", count, sh.SampleName);
+			xs.BaseNote = (sbyte) izone.OverridingRootKey ();
+//			xs.Volume = (izone.VelocityRange () & 0xFF00 >> 8); // low range
+			if (xs.BaseNote == 0)
+				xs.BaseNote = (sbyte) sh.OriginalPitch;
+//Console.WriteLine ("{0} ({1}/{2}/{3}/{4}) {5}:{6}:{7}:{8}", xs.Name, sh.Start, sh.StartLoop, sh.EndLoop, sh.End, sh.SampleRate != 0xAC44 ? sh.SampleRate.ToString () : "", sh.OriginalPitch != 60 ? sh.OriginalPitch.ToString () : "", sh.PitchCorrection != 0 ? sh.PitchCorrection.ToString () : "", sampleModes);
+			xs.FileName = xs.Name + ".wav";
+			var ms = new MemoryStream ();
+			var wfw = new WaveFileWriter (ms, new WaveFormat ((int) sh.SampleRate, 16, 1));
+			wfw.WriteData (sample, 2 * (int) sh.Start, 2 * (int) (sh.End - sh.Start));
+			wfw.Close ();
+			xs.Buffer = ms.ToArray ();
+
+			return xs;
+		}
+
+        		string NormalizePathName (string name)
+		{
+			foreach (char c in Path.GetInvalidPathChars ())
+				name = name.Replace (c, '_');
+			name = name.Replace (':', '_');
+			return name;
+		}
+
+        */
     }
 }

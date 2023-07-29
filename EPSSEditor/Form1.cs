@@ -1200,6 +1200,16 @@ namespace EPSSEditor
             return result;
         }
 
+
+        private bool LoadSf2(string filePath, List<string> soundFilesAdded, out string errorMessage)
+        {
+            bool result = false;
+
+            result = SfzConverter.LoadSf2(data, filePath, out errorMessage);
+
+            return result;
+        }
+
  
         private void DoSaveSfz()
         {
@@ -1508,6 +1518,10 @@ namespace EPSSEditor
                 {
                     result = LoadSfz(filePath, filesAdded, out errorMessage);
                     spiNeedsUpdate = true;
+                }
+                else if (ext == ".sf2")
+                {
+                    result = LoadSf2(filePath, filesAdded, out errorMessage);
                 }
                 else 
                 {

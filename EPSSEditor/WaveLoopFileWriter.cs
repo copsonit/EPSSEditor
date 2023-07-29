@@ -11,9 +11,7 @@ namespace EPSSEditor
 
     // Not possible as it has lots of privates. Has to fork from NAudio, change so it will be extendable and then extend it here.
     public class WaveLoopFileWriter : WaveFileWriter 
-    {      
-        private long smplChunkSizePos;
-        private long smplChunkSize;
+    {
         private bool loop;
         private long loopStart;
         private long loopEnd;
@@ -31,7 +29,7 @@ namespace EPSSEditor
     : this(new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.Read), format, loop, loopStart, loopEnd)
         { }
 
-
+                
         public static void CreateWaveLoopFile(string filename, IWaveProvider sourceProvider, bool loop, long loopStart, long loopEnd)
         {
             using (var writer = new WaveLoopFileWriter(filename, sourceProvider.WaveFormat, loop, loopStart, loopEnd))
@@ -48,17 +46,23 @@ namespace EPSSEditor
                     // Write will throw exception if WAV file becomes too large
                     writer.Write(buffer, 0, bytesRead);
                 }
-                writer.WriteAdditionalDataChunks(writer.Writer);
             }
         }
-
+        
 
         private void WriteSmplChunk(BinaryWriter writer)
         {
             if (HasSmplChunk())
             {
+                // Write the new chunk at the end.
+                writer.Seek(0, SeekOrigin.End);
+                if (writer.BaseStream.Length % 2 == 1)
+                {
+                    writer.Write((Byte)0x00);
+                }
+
                 writer.Write(Encoding.UTF8.GetBytes("smpl"));
-                smplChunkSizePos = writer.BaseStream.Position;
+                long smplChunkSizePos = writer.BaseStream.Position;
                 writer.Write((int)0); // chunkSize
                 writer.Write((int)0); // dwManufacturer
                 writer.Write((int)0); // dwProduct
@@ -77,16 +81,15 @@ namespace EPSSEditor
                 writer.Write((int)loopEnd); // dwEnd
                 writer.Write((int)0); // dwFraction
                 writer.Write((int)0); // dwPlayCount
-                smplChunkSize = writer.BaseStream.Position - smplChunkSizePos - 4;
-            }
-        }
+                long smplChunkSize = writer.BaseStream.Position - smplChunkSizePos - 4;
 
-        private void UpdateSmplChunk(BinaryWriter writer)
-        {
-            if (HasSmplChunk())
-            {
+                // Update chunk size.
                 writer.Seek((int)smplChunkSizePos, SeekOrigin.Begin);
                 writer.Write((long)smplChunkSize);
+
+                // Update total size.
+                writer.Seek(4, SeekOrigin.Begin);
+                writer.Write((int)(writer.BaseStream.Length - 8));
             }
         }
 
@@ -100,12 +103,6 @@ namespace EPSSEditor
         protected override void UpdateHeader(BinaryWriter writer)
         {
             base.UpdateHeader(writer);
-            UpdateSmplChunk(writer);
-        }
-
-
-        public void WriteAdditionalDataChunks(BinaryWriter writer)
-        {
             WriteSmplChunk(writer);
         }
     }
