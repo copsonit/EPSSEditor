@@ -9,11 +9,12 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Windows.Forms;
 using EPSSEditor.Vorbis;
 using static System.Net.Mime.MediaTypeNames;
+using NAudio.CoreAudioApi;
 
 namespace EPSSEditor
 {
-  
-    public class SpiSound : IDisposable, ICloneable
+
+    public class SpiSound : IDisposable, ICloneable, IEquatable<SpiSound>, IComparable<SpiSound>
     {
         public byte midiChannel; // [1-16]
         public byte midiNote; // [0-127] This is the midi note where the sound is played at pitch 0. center note
@@ -45,11 +46,12 @@ namespace EPSSEditor
         private BlockAlignReductionStream _blockAlignedStream = null;
         private CachedSound _cachedAudio;
 
-        public SpiSound() {
+        public SpiSound()
+        {
             startNote = endNote = programNumber = 128;
             //midiNoteMapped = 84;
             transpose = 0;
-            
+
         }
 
         public SpiSound(Sound sound)
@@ -70,7 +72,8 @@ namespace EPSSEditor
                 loopEnd = (UInt32)sound.loopEnd;
                 orgSampleCount = (UInt32)sound.sampleCount;
                 //end = (UInt32)sound.loopEnd;
-            } else
+            }
+            else
             {
                 loopMode = 1;
                 loopStart = 0;
@@ -82,14 +85,14 @@ namespace EPSSEditor
             extVolume = 100;
             midiNote = 84;
         }
-        
-        
+
+
         public SpiSound(Sound sound, SfzSplitInfo sfz) // Used when importing from SPI
         {
             //midiNoteMapped = 84;
             soundId = sound.id();
             SetNameFromSound(sound);
- 
+
             midiChannel = (byte)(sfz.Midich + 1);
             startNote = (byte)sfz.NoteStart;
             endNote = (byte)sfz.NoteEnd;
@@ -125,7 +128,7 @@ namespace EPSSEditor
             return this.MemberwiseClone();
         }
 
-            public void Dispose()
+        public void Dispose()
         {
             if (_blockAlignedStream != null)
             {
@@ -157,7 +160,7 @@ namespace EPSSEditor
             s.Append("    ");
             s.Append(_name);
             return s.ToString();
-          
+
         }
 
         public long preLength(EPSSEditorData data)
@@ -170,7 +173,7 @@ namespace EPSSEditor
             }
             return 0;
         }
-       
+
         /* TODO?
         private void getNormalizeValues(ref Sound sound, ref float volume, ref float max)
         {
@@ -263,7 +266,7 @@ namespace EPSSEditor
                     }
 
 
-  
+
 
                     using (var reader = new WaveFileReader(volTempPath))
                     {
@@ -309,7 +312,8 @@ namespace EPSSEditor
                     */
 
                     System.IO.File.Delete(volTempPath);
-                } else
+                }
+                else
                 {
                     MessageBox.Show("Fatal error, not matching sound found!");
                 }
@@ -343,7 +347,7 @@ namespace EPSSEditor
                         file.Read(bytes, 0, (int)file.Length);
                         _ms.Write(bytes, 0, (int)file.Length);
                     }
-                   
+
                 }
             }
             return _ms;
@@ -430,6 +434,52 @@ namespace EPSSEditor
                 case 1: return "x64";
                 case 2: return "x128";
                 default: return "---";
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            SpiSound objAsSnd = obj as SpiSound;
+            if (objAsSnd == null) return false;
+            else return Equals(objAsSnd);
+        }
+
+        public bool Equals(SpiSound other)
+        {
+            if (other == null) return false;
+            return (this.midiChannel.Equals(other.midiChannel) &&
+                this.midiNote.Equals(other.midiNote) &&
+                this.startNote.Equals(other.startNote) &&
+                this.endNote.Equals(other.endNote) &&
+                this.programNumber.Equals(other.programNumber) &&
+                this.soundId.Equals(other.soundId));
+        }
+
+        public int CompareTo(SpiSound compareSnd)
+        {
+            // A null value means that this object is greater.
+            if (compareSnd == null)
+                return 1;
+            else
+            {
+                if (this.programNumber == compareSnd.programNumber)
+                {
+                    if (this.midiChannel == compareSnd.midiChannel)
+                    {
+                        if (this.startNote == compareSnd.startNote)
+                        {
+                            if (this.endNote == compareSnd.endNote)
+                            {
+                                return _name.CompareTo(compareSnd._name);
+                            }
+                            else return this.endNote.CompareTo(compareSnd.endNote);
+                        }
+                        else return this.startNote.CompareTo(compareSnd.startNote);
+                    }
+                    else return this.midiChannel.CompareTo(compareSnd.midiChannel);
+                }
+                else return this.programNumber.CompareTo(compareSnd.programNumber);
             }
         }
     }

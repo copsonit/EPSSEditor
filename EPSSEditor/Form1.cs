@@ -349,7 +349,7 @@ namespace EPSSEditor
             spiSoundListView.Columns.Add("Program", 55, HorizontalAlignment.Right);
 
             spiSoundListView.Columns.Add("Sound", 165, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("#", 25, HorizontalAlignment.Right);
+            spiSoundListView.Columns.Add("#", 40, HorizontalAlignment.Right);
             spiSoundListView.Columns.Add("Size", 55, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("Transpose", 55, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("Vvfe", 35, HorizontalAlignment.Left);
@@ -1625,6 +1625,8 @@ namespace EPSSEditor
                     {
                         item.Selected = false;
                     }
+
+                    
                     foreach (ListViewItem item in spiSoundListView.Items)
                     {
                         int selected = item.Index;
@@ -1636,10 +1638,14 @@ namespace EPSSEditor
                                 if (spiSnd == selectedSnd)
                                 {
                                     item.Selected = true;
+                                    spiSoundListView.EnsureVisible(selected);
                                 }
                             }
                         }
                     }
+
+                    spiSoundListView.Focus();
+
                 }
             }
             else

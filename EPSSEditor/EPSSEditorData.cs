@@ -595,6 +595,11 @@ namespace EPSSEditor
             _findSpiSoundArray = null;
         }
 
+        public void SortSpiSounds()
+        {
+            spiSounds.Sort();
+        }
+
 
         public bool ExportSoundsToDir(string exportDir, out string errorMessage)
         {

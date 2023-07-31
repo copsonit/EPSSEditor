@@ -488,11 +488,6 @@ namespace EPSSEditor
         }
 
         // Load sf2
-        // v  Only allow to load them if mapping set to program change. What to do otherwise?
-        //    Convert each sample in sf2 to wav
-        //    Directory for conversion should be project folder \ sf2 filename \
-        //    Add sound for each wav readin ghte parameters
-        //    Use AddSfzSound to add the SPI simliar to LoadSfz
         public static bool LoadSf2(EPSSEditorData data, int programChange, string filePath, string samplesPath, List<string> filesAdded, out string errorMessage)
         {
             bool result = false;
@@ -601,6 +596,7 @@ namespace EPSSEditor
             {
                 Console.WriteLine(ex.Message);
             }
+            data.SortSpiSounds();
 
             return result;
         }
