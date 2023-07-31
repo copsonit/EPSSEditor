@@ -997,7 +997,7 @@ namespace EPSSEditor
         }
 
 
-        private List<Sound> GetSelectedSounds()
+        private List<Sound> SelectedSounds()
         {
             ListBox.SelectedIndexCollection soundIndices = soundListBox.SelectedIndices;
             List<Sound> selected = new List<Sound>();
@@ -1014,7 +1014,7 @@ namespace EPSSEditor
             List<CachedSound> soundsPlaying = new List<CachedSound>();
             try
             {
-                List<Sound> sounds = GetSelectedSounds();
+                List<Sound> sounds = SelectedSounds();
                 foreach (var snd in sounds)
                 {
                     CachedSound cs = snd.cachedSound();
@@ -1706,7 +1706,7 @@ namespace EPSSEditor
 
         private void UseInSpiButton_Click(object sender, EventArgs e)
         {
-            List<Sound> sounds = GetSelectedSounds();
+            List<Sound> sounds = SelectedSounds();
             if (mappingModeMidiRadioButton.Checked)
             {
                 if (sounds.Count > 1)
@@ -2284,31 +2284,31 @@ namespace EPSSEditor
             List<int> selected = SelectedSpiSounds();
             if (selected.Count > 0)
             {
-                SpiSound snd = data.SpiSoundAtIndex(selected.First());
-                if (snd != null)
+                SpiSound spiSnd = data.SpiSoundAtIndex(selected.First());
+                if (spiSnd != null)
                 {
-                    int midiChannel = snd.midiChannel;
+                    int midiChannel = spiSnd.midiChannel;
                     int programChange = 128;
                     if (midiChannel == 128)
                     {
                         midiChannel = 1; // Program Change sounds
-                        programChange = snd.programNumber;
+                        programChange = spiSnd.programNumber;
                     }
                     ShowMidiKeyboard(midiChannel);
                     SetKeyAllOff();
 
                     ShowMidiChannel(midiChannel);
-                    ShowNotes(midiChannel, snd.startNote, snd.endNote);
+                    ShowNotes(midiChannel, spiSnd.startNote, spiSnd.endNote);
                     //for (int i = snd.startNote; i <= snd.endNote; i++) {
                       //  ShowNote(snd.midiChannel, i, true, true);
                     //}
-                    int centerKey = snd.CenterNote();
+                    int centerKey = spiSnd.CenterNote();
                     ShowNote(midiChannel, centerKey, true, true);
                     SetCenterKey(centerKey);
-                    int playNote = snd.startNote;
-                    if (centerKey >= snd.startNote && centerKey <= snd.endNote) playNote = centerKey;
+                    int playNote = spiSnd.startNote;
+                    if (centerKey >= spiSnd.startNote && centerKey <= spiSnd.endNote) playNote = centerKey;
                     playNote = Math.Min(127, Math.Max(0, playNote));
-                    PlayConvertedSound(snd, midiChannel, programChange, playNote);
+                    PlayConvertedSound(spiSnd, midiChannel, programChange, playNote);
                 }
             }
         }
@@ -2339,7 +2339,7 @@ namespace EPSSEditor
 
         private void ToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            List<Sound> sounds = GetSelectedSounds();
+            List<Sound> sounds = SelectedSounds();
             if (sounds.Count == 1)
             {
                 Sound snd = sounds[0];

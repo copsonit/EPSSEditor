@@ -556,10 +556,13 @@ namespace EPSSEditor
 
                                         bool hasSound = false;
                                         Sound s = null;
+
                                         if (soundDict.ContainsKey(fp))
                                         {
                                             s = soundDict[fp];
                                             hasSound = true;
+                                            kcByte = (byte)OverridingRootKey(izone);
+                                            if (kcByte == 0) kcByte = (byte)sh.OriginalPitch;
                                         }
                                         else
                                         {
@@ -567,6 +570,7 @@ namespace EPSSEditor
                                             {
                                                 hasSound = data.AddSound(fp, out s, out errorMessage);
                                                 kcByte = (byte)kc;
+
                                             }
                                             if (!hasSound) Console.WriteLine($"Sound cannot be added: {fp}");
                                         }
@@ -600,6 +604,21 @@ namespace EPSSEditor
 
             return result;
         }
+
+
+        private static int OverridingRootKey(Zone izone)
+        {
+            UInt16 overridingRootKey = 0;
+            foreach (var gen in izone.Generators)
+            {
+                if (gen.GeneratorType == GeneratorEnum.OverridingRootKey)
+                {
+                    overridingRootKey = gen.UInt16Amount;
+                }
+            }
+            return overridingRootKey;
+        }
+
 
         private static bool ConvertSampleFromSf2(string path, SampleHeader sh, byte[] sample, Zone izone, out sbyte baseNote)
         {
