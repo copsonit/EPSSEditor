@@ -942,9 +942,6 @@ namespace EPSSEditor
             }
             else
             {
-
-                //int removed = 0;
-                
                 int topIndex = soundListBox.TopIndex;
                 int visible = soundListBox.Height / soundListBox.ItemHeight - 1;
                 int dist = 0;
@@ -956,8 +953,7 @@ namespace EPSSEditor
                     data.RemoveSound(removeIdx);
                     soundListBox.Items.RemoveAt(removeIdx);
                     if (idx == -1) idx = removeIdx;
-                }
-                
+                }               
 
                 int itemsLeft = soundListBox.Items.Count;
                 if (itemsLeft > 0)
@@ -968,10 +964,7 @@ namespace EPSSEditor
                     }
                     soundListBox.SelectedIndex = idx;
                     useInSpiButton.Enabled = true;
-                    soundListBox.TopIndex = Math.Max(0, idx - dist);
-
-                    
-                    
+                    soundListBox.TopIndex = Math.Max(0, idx - dist);                  
                 }
                 else
                 {
