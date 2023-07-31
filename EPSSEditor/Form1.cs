@@ -1205,7 +1205,19 @@ namespace EPSSEditor
         {
             bool result = false;
 
-            result = SfzConverter.LoadSf2(data, filePath, out errorMessage);
+            if (mappingModeProgramRadioButton.Checked)
+            {
+                string sampleSubDir = "samples";
+                string startDir = Path.GetDirectoryName(Properties.Settings.Default.ProjectFile);
+                string samplesPath = Path.Combine(startDir, Path.GetFileNameWithoutExtension(filePath), sampleSubDir);
+                int cm = CurrentMidiChannel();
+                int programChange = mappingModeProgramRadioButton.Checked ? cm - 1 : 128;
+
+                result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
+            } 
+            else {
+                errorMessage = "Only valid to load SF2 with\nProgram Change Mapping selected.";
+            }
 
             return result;
         }
@@ -1522,6 +1534,7 @@ namespace EPSSEditor
                 else if (ext == ".sf2")
                 {
                     result = LoadSf2(filePath, filesAdded, out errorMessage);
+                    spiNeedsUpdate = true;
                 }
                 else 
                 {
