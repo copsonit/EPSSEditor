@@ -1,7 +1,9 @@
 ﻿using EPSSEditor;
+using M;
 using NAudio.MediaFoundation;
 using NAudio.Midi;
 using NAudio.Mixer;
+using NAudio.SoundFont;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
@@ -9,9 +11,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+//using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace EPSSEditor
@@ -418,29 +422,28 @@ namespace EPSSEditor
                         }
                         else
                         {
-                            if (data.AddSound(fp, out s, out errorMessage))
-                            {
-                                byte kcByte = groupKeyCenter;
-                                byte loByte = groupLoKey;
-                                byte hiByte = groupHiKey;
-                                byte keyByte = groupKey;
+                            result = (data.AddSound(fp, out s, out errorMessage));
+                            if (!result) Console.WriteLine($"Sound cannot be added: {fp}");
+                        }
 
-                                bool handled = ParseKey(tBase.GetValue("pitch_keycenter"), out byte kc);
-                                if (handled) kcByte = kc;
-                                handled = ParseKey(tBase.GetValue("lokey"), out byte lb);
-                                if (handled) loByte = lb;
-                                handled = ParseKey(tBase.GetValue("hikey"), out byte hb);
-                                if (handled) hiByte = hb;
+                        if (result)
+                        {
+                            byte kcByte = groupKeyCenter;
+                            byte loByte = groupLoKey;
+                            byte hiByte = groupHiKey;
+                            byte keyByte = groupKey;
 
-                                data.AddSfzSound(s, midiChannel, programChange, loByte, hiByte, kcByte, 0);
-                                filesAdded.Add(fp);
-                                soundDict.Add(s.path, s);
-                                result = true;
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Sound cannot be added: {fp}");
-                            }
+                            bool handled = ParseKey(tBase.GetValue("pitch_keycenter"), out byte kc);
+                            if (handled) kcByte = kc;
+                            handled = ParseKey(tBase.GetValue("lokey"), out byte lb);
+                            if (handled) loByte = lb;
+                            handled = ParseKey(tBase.GetValue("hikey"), out byte hb);
+                            if (handled) hiByte = hb;
+
+                            data.AddSfzSound(s, midiChannel, programChange, loByte, hiByte, kcByte, 0);
+                            filesAdded.Add(fp);
+                            if (!soundDict.ContainsKey(fp)) soundDict.Add(s.path, s);
+                            result = true;
                         }
                     }
                     else
@@ -483,5 +486,281 @@ namespace EPSSEditor
             }
             return found;
         }
+
+        // Load sf2
+        public static bool LoadSf2(EPSSEditorData data, int programChange, string filePath, string samplesPath, List<string> filesAdded, out string errorMessage)
+        {
+            bool result = false;
+            errorMessage = "Unknown error";
+            Directory.CreateDirectory(samplesPath);
+
+            Dictionary<string, Sound> soundDict = new Dictionary<string, Sound>();
+            foreach (Sound s in data.sounds)
+            {
+                soundDict.Add(s.path, s);
+            }
+
+
+            SoundFont sf = new SoundFont(filePath);
+
+            try
+            {
+                foreach (var preset in sf.Presets)
+                {
+                    int bank = preset.Bank;
+                    int patchNumber = preset.PatchNumber;
+                    Console.WriteLine($"Preset: {bank}:{patchNumber}");
+                    foreach (var zone in preset.Zones)
+                    {
+                        Console.WriteLine($"Zone: {zone}");
+                        foreach (var gen in zone.Generators)
+                        {
+                            Console.WriteLine($"Generator: {gen}");
+                            if (gen.GeneratorType == GeneratorEnum.Instrument)
+                            {
+                                Instrument i = gen.Instrument;
+                                string instName = i.Name;
+
+
+                                foreach (var izone in i.Zones)
+                                {
+                                    SampleHeader sh = null;
+                                    byte lo = 128;
+                                    byte hi = 128;
+                                    byte kcByte = 128;
+                                    foreach (var igen in izone.Generators)
+                                    {
+                                        if (igen.GeneratorType == GeneratorEnum.SampleID)
+                                        {
+                                            sh = igen.SampleHeader;
+                                            //uint start = sh.Start;
+                                            //uint end = sh.End;
+                                            Console.WriteLine($"SampleHeader: {sh}");
+                                            //izone.Generators[0].GetType
+                                        }
+                                        else if (igen.GeneratorType == GeneratorEnum.KeyRange)
+                                        {
+                                            lo = igen.LowByteAmount;
+                                            hi = igen.HighByteAmount;
+                                        }
+                                        else if (igen.GeneratorType == GeneratorEnum.KeyNumber)
+                                        {
+                                            kcByte = (byte)igen.Int16Amount;
+                                        }
+                                        else if (gen.GeneratorType == GeneratorEnum.OverridingRootKey)
+                                        {
+                                            kcByte = (byte)gen.UInt16Amount;
+                                        }
+                                    }
+
+                                    if (sh != null)
+                                    {
+                                        string name = sh.SampleName;
+                                        var fp = Path.Combine(samplesPath, name + ".wav");
+
+                                        bool hasSound = false;
+                                        Sound s = null;
+
+                                        if (soundDict.ContainsKey(fp))
+                                        {
+                                            s = soundDict[fp];
+                                            hasSound = true;
+                                        }
+                                        else
+                                        {
+                                            if (ConvertSampleFromSf2(fp, sh, sf.SampleData, izone))
+                                            {
+                                                hasSound = data.AddSound(fp, out s, out errorMessage);
+                                            }
+                                            if (!hasSound) Console.WriteLine($"Sound cannot be added: {fp}");
+                                        }
+
+                                        if (hasSound && s != null)
+                                        {
+                                            if (kcByte == 128)
+                                            {
+                                                kcByte = (byte)sh.OriginalPitch;
+                                            }
+
+                                            if (bank == 128)
+                                            { // percussion, channel 10
+                                                data.AddSfzSound(s, 10, 128, lo, hi, kcByte, 0);
+                                            }
+                                            else
+                                            {
+                                                data.AddSfzSound(s, 128, patchNumber, lo, hi, kcByte, 0);
+                                            }
+                                            filesAdded.Add(fp);
+                                            if (!soundDict.ContainsKey(fp)) soundDict.Add(s.path, s);
+                                            result = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            data.SortSpiSounds();
+
+            return result;
+        }
+
+
+        private static int OverridingRootKey(Zone izone)
+        {
+            UInt16 overridingRootKey = 0;
+            foreach (var gen in izone.Generators)
+            {
+
+            }
+            return overridingRootKey;
+        }
+
+
+        private static bool ConvertSampleFromSf2(string path, SampleHeader sh, byte[] sample, Zone izone)
+        {
+            bool result = false;
+            
+            if (sh != null)
+            {
+                uint ls = (sh.StartLoop - sh.Start);
+                uint le = (sh.EndLoop - sh.Start);
+
+                UInt16 sampleModes = 0;
+                UInt16 overridingRootKey = 0;
+                foreach (var gen in izone.Generators)
+                {
+                    if (gen.GeneratorType == GeneratorEnum.SampleModes)
+                    {
+                        sampleModes = gen.UInt16Amount;
+                    }
+                 }
+                bool loop = sampleModes != 0;
+
+                using (FileStream fs = new FileStream(path, FileMode.Create))
+                {
+                    using (var wfw = new WaveLoopFileWriter(fs, new WaveFormat((int)sh.SampleRate, 16, 1), loop, ls, le))
+                    {
+                        wfw.Write(sample, 2 * (int)sh.Start, 2 * (int)(sh.End - sh.Start));
+                        result = true;
+                    }
+                }
+
+            }
+
+            return result;
+        }
+
+        /*
+         * https://csharp.hotexamples.com/site/redirect?url=https%3A%2F%2Fgithub.com%2Fzeromus%2Fsf2xrni
+        void ImportSamples(SoundFont sf2, Preset preset, XInstrument xrni)
+        {
+            var xl = new List<XSample>();
+            var ml = new List<SampleMap>();
+            var il = new List<int>();
+            foreach (var pzone in preset.Zones)
+            { // perc. bank likely has more than one instrument here.
+                var i = pzone.Instrument();
+                var kr = pzone.KeyRange(); // FIXME: where should I use it?
+                if (i == null)
+                    continue; // FIXME: is it possible?
+
+                var vr = pzone.VelocityRange();
+
+                // an Instrument contains a set of zones that contain sample headers.
+                int sampleCount = 0;
+                foreach (var izone in i.Zones)
+                {
+                    var ikr = izone.KeyRange();
+                    var ivr = izone.VelocityRange();
+                    var sh = izone.SampleHeader();
+                    if (sh == null)
+                        continue; // FIXME: is it possible?
+
+                    // FIXME: sample data must become monoral (panpot neutral)
+                    var xs = ConvertSample(sampleCount++, sh, sf2.SampleData, izone);
+                    xs.Name = NormalizePathName(sh.SampleName);
+                    ml.Add(new SampleMap(ikr, ivr, xs, sh));
+                }
+            }
+
+            ml.Sort((m1, m2) =>
+                m1.KeyLowRange != m2.KeyLowRange ? m1.KeyLowRange - m2.KeyLowRange :
+                m1.KeyHighRange != m2.KeyHighRange ? m1.KeyHighRange - m2.KeyHighRange :
+                m1.VelocityLowRange != m2.VelocityLowRange ? m1.VelocityLowRange - m2.VelocityLowRange :
+                m1.VelocityHighRange - m2.VelocityHighRange);
+
+            int prev = -1;
+            foreach (var m in ml)
+            {
+                prev = m.KeyLowRange;
+                il.Add(m.KeyLowRange);
+                xl.Add(m.Sample);
+            }
+
+            xrni.SampleSplitMap = new SampleSplitMap();
+            xrni.SampleSplitMap.NoteOnMappings = new SampleSplitMapNoteOnMappings();
+            var nm = new SampleSplitMapping[ml.Count];
+            xrni.SampleSplitMap.NoteOnMappings.NoteOnMapping = nm;
+            for (int i = 0; i < ml.Count; i++)
+            {
+                var m = ml[i];
+                var n = new SampleSplitMapping();
+                n.BaseNote = m.Sample.BaseNote;
+                n.NoteStart = m.KeyLowRange;
+                n.NoteEnd = m.KeyHighRange <= 0 ? 128 : m.KeyHighRange;
+                n.SampleIndex = i;
+                if (m.VelocityHighRange > 0)
+                {
+                    n.MapVelocityToVolume = true;
+                    n.VelocityStart = m.VelocityLowRange;
+                    n.VelocityEnd = m.VelocityHighRange;
+                }
+                nm[i] = n;
+            }
+
+            xrni.Samples = new RenoiseInstrumentSamples();
+            xrni.Samples.Sample = xl.ToArray();
+        }
+
+        		XSample ConvertSample (int count, SSampleHeader sh, byte [] sample, Zone izone)
+		{
+			// Indices in sf2 are numbers of samples, not byte length. So double them.
+			var xs = new XSample ();
+			xs.Extension = ".wav";
+			xs.LoopStart =(sh.StartLoop - sh.Start);
+			xs.LoopEnd = (sh.EndLoop - sh.Start);
+			int sampleModes = izone.SampleModes ();
+			xs.LoopMode = sampleModes == 0 ? InstrumentSampleLoopMode.Off : InstrumentSampleLoopMode.Forward;
+			xs.Name = String.Format ("Sample{0:D02} ({1})", count, sh.SampleName);
+			xs.BaseNote = (sbyte) izone.OverridingRootKey ();
+//			xs.Volume = (izone.VelocityRange () & 0xFF00 >> 8); // low range
+			if (xs.BaseNote == 0)
+				xs.BaseNote = (sbyte) sh.OriginalPitch;
+//Console.WriteLine ("{0} ({1}/{2}/{3}/{4}) {5}:{6}:{7}:{8}", xs.Name, sh.Start, sh.StartLoop, sh.EndLoop, sh.End, sh.SampleRate != 0xAC44 ? sh.SampleRate.ToString () : "", sh.OriginalPitch != 60 ? sh.OriginalPitch.ToString () : "", sh.PitchCorrection != 0 ? sh.PitchCorrection.ToString () : "", sampleModes);
+			xs.FileName = xs.Name + ".wav";
+			var ms = new MemoryStream ();
+			var wfw = new WaveFileWriter (ms, new WaveFormat ((int) sh.SampleRate, 16, 1));
+			wfw.WriteData (sample, 2 * (int) sh.Start, 2 * (int) (sh.End - sh.Start));
+			wfw.Close ();
+			xs.Buffer = ms.ToArray ();
+
+			return xs;
+		}
+
+        		string NormalizePathName (string name)
+		{
+			foreach (char c in Path.GetInvalidPathChars ())
+				name = name.Replace (c, '_');
+			name = name.Replace (':', '_');
+			return name;
+		}
+
+        */
     }
 }

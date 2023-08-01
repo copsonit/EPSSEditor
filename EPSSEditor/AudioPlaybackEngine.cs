@@ -96,13 +96,13 @@ namespace EPSSEditor
 
         public int Read(float[] buffer, int offset, int count)
         {
-            int loopEnd = cachedSound.loopEnd;
-            int loopStart = cachedSound.loopStart;
+            int loopEnd = (int)cachedSound.loopEnd;
+            int loopStart = (int)cachedSound.loopStart;
             int sourceSampleEnd = cachedSound.loop ? loopEnd : cachedSound.AudioData.Length;
             var availableSamples = sourceSampleEnd - position;
 
             var samplesToCopy = Math.Min(availableSamples, count);
-            //Console.WriteLine("AudioData:{0}, position:{1} count:{2}, available: {3}, offset: {4} samplesToCopy: {5} loopStart {6} loopEnd {7}", cachedSound.AudioData.Length, position, count.ToString(), availableSamples.ToString(), offset, samplesToCopy, loopStart, loopEnd);
+            //Console.WriteLine("AudioData:{0}, position:{1} count:{2}, available: {3}, offset: {4} samplesToCopy: {5} pitch:{6} loopStart {7} loopEnd {8} orgLoopStart {9} orgLoopEnd {10}", cachedSound.AudioData.Length, position, count.ToString(), availableSamples.ToString(), offset, samplesToCopy, pitch, loopStart, loopEnd, cachedSound.loopStart, cachedSound.loopEnd);
 
             double pitch = cachedSound.pitch;
             double readPos = position;
@@ -244,11 +244,11 @@ namespace EPSSEditor
         public bool IsPlaying { get; set; }
         public bool loop = false;
         public int loopType = 0;
-        public int loopStart = 0;
-        public int loopEnd = 0;
+        public UInt32 loopStart = 0;
+        public UInt32 loopEnd = 0;
         public double pitch = 1.0;
         public int vvfeOffset = 0;
-        public CachedSound(MemoryStream ms, bool loop, int loopStart, int orgSampleCount, float pan)
+        public CachedSound(MemoryStream ms, bool loop, UInt32 loopStart, UInt32 loopEnd, float pan)
         {
             this.loop = loop;
             loopType = 0; // only forward supported in EPSS
@@ -265,17 +265,18 @@ namespace EPSSEditor
             var rsAsSampleProvider = rs.ToSampleProvider();
 
             ISampleProvider resampler;
+            int newFreq = 44100;
 
             if (Math.Abs(pan) > 0.01)
             {
                 var panner = new PanningSampleProvider(rsAsSampleProvider);
                 panner.PanStrategy = new SquareRootPanStrategy();
                 panner.Pan = pan;
-                resampler = new WdlResamplingSampleProvider(panner, 44100);
+                resampler = new WdlResamplingSampleProvider(panner, newFreq);
             }
             else
             {
-                resampler = new WdlResamplingSampleProvider(rsAsSampleProvider, 44100);
+                resampler = new WdlResamplingSampleProvider(rsAsSampleProvider, newFreq);
             }
 
             WaveFormat = resampler.WaveFormat;
@@ -291,15 +292,15 @@ namespace EPSSEditor
 
             if (loop)
             {
-
-                this.loopEnd = AudioData.Length;
-                this.loopStart = (int)(((double)loopStart / (double)orgSampleCount) * (double)AudioData.Length);
+                double lengthChangeFact = (double)newFreq / (double)rsAsSampleProvider.WaveFormat.SampleRate;
+                this.loopStart = (UInt32)((double)loopStart * lengthChangeFact);
+                this.loopEnd = (UInt32)((double)loopEnd * lengthChangeFact);
             }
 
             
         }
 
-        public CachedSound(string audioFileName, bool lp, int ls, int le)
+        public CachedSound(string audioFileName, bool lp, UInt32 ls, UInt32 le)
         {
             int newSampleRate = 44100;
             loop = lp;
@@ -358,11 +359,13 @@ namespace EPSSEditor
         }
 
 
-        private void InitCachedSound(ISampleProvider audioFileReader, int newSampleRate, long length, int ls, int le)
+        private void InitCachedSound(ISampleProvider audioFileReader, int newSampleRate, long length, UInt32 ls, UInt32 le)
         {
+            loopStart = ls;
+            loopEnd = le;
             double loopFactor = (double)newSampleRate / (double)audioFileReader.WaveFormat.SampleRate;
-            loopStart = (int)(ls * loopFactor);
-            loopEnd = (int)(le * loopFactor);
+            loopStart = (UInt32)((double)ls * loopFactor);
+            loopEnd = (UInt32)((double)le * loopFactor);
 
             var resampler = new WdlResamplingSampleProvider(audioFileReader, newSampleRate);
             WaveFormat = resampler.WaveFormat;
@@ -374,8 +377,6 @@ namespace EPSSEditor
                 wholeFile.AddRange(readBuffer.Take(samplesRead));
             }
             AudioData = wholeFile.ToArray();
-
-            loopEnd = Math.Min(AudioData.Length, loopEnd);
         }
     }
 }

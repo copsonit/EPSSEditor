@@ -9,11 +9,12 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Windows.Forms;
 using EPSSEditor.Vorbis;
 using static System.Net.Mime.MediaTypeNames;
+using NAudio.CoreAudioApi;
 
 namespace EPSSEditor
 {
-  
-    public class SpiSound : IDisposable, ICloneable
+
+    public class SpiSound : IDisposable, ICloneable, IEquatable<SpiSound>, IComparable<SpiSound>
     {
         public byte midiChannel; // [1-16]
         public byte midiNote; // [0-127] This is the midi note where the sound is played at pitch 0. center note
@@ -35,21 +36,23 @@ namespace EPSSEditor
         public UInt32 end;
         public UInt32 loopStart;
         public UInt32 loopEnd;
-        public UInt32 orgSampleCount; // From Sound, needed to be able to recalculate loopStart.
 
         public UInt16 extVolume;
         public UInt16 subTone;
 
 
         private MemoryStream _ms = null;
+        private UInt32 _msLoopStart;
+        private UInt32 _msLoopEnd;
         private BlockAlignReductionStream _blockAlignedStream = null;
         private CachedSound _cachedAudio;
 
-        public SpiSound() {
+        public SpiSound()
+        {
             startNote = endNote = programNumber = 128;
             //midiNoteMapped = 84;
             transpose = 0;
-            
+
         }
 
         public SpiSound(Sound sound)
@@ -68,28 +71,27 @@ namespace EPSSEditor
                 loopMode = 2;
                 loopStart = (UInt32)sound.loopStart; //Initially from original Sound based on Sound freq, channels, bits
                 loopEnd = (UInt32)sound.loopEnd;
-                orgSampleCount = (UInt32)sound.sampleCount;
                 //end = (UInt32)sound.loopEnd;
-            } else
+            }
+            else
             {
                 loopMode = 1;
                 loopStart = 0;
                 loopEnd = 0;
-                orgSampleCount = 0;
                 //end = (UInt32)sound.length; // TODO 16 8 bits etc
             }
 
             extVolume = 100;
             midiNote = 84;
         }
-        
-        
+
+
         public SpiSound(Sound sound, SfzSplitInfo sfz) // Used when importing from SPI
         {
             //midiNoteMapped = 84;
             soundId = sound.id();
             SetNameFromSound(sound);
- 
+
             midiChannel = (byte)(sfz.Midich + 1);
             startNote = (byte)sfz.NoteStart;
             endNote = (byte)sfz.NoteEnd;
@@ -104,7 +106,6 @@ namespace EPSSEditor
             end = sfz.End;
             loopStart = sfz.LoopStart;
             loopEnd = sfz.LoopEnd;
-            orgSampleCount = sfz.End;
 
             extVolume = sfz.ExtVolume;
             subTone = sfz.SubTone;
@@ -125,7 +126,7 @@ namespace EPSSEditor
             return this.MemberwiseClone();
         }
 
-            public void Dispose()
+        public void Dispose()
         {
             if (_blockAlignedStream != null)
             {
@@ -157,7 +158,7 @@ namespace EPSSEditor
             s.Append("    ");
             s.Append(_name);
             return s.ToString();
-          
+
         }
 
         public long preLength(EPSSEditorData data)
@@ -170,7 +171,7 @@ namespace EPSSEditor
             }
             return 0;
         }
-       
+
         /* TODO?
         private void getNormalizeValues(ref Sound sound, ref float volume, ref float max)
         {
@@ -202,9 +203,11 @@ namespace EPSSEditor
         */
 
 
-        public bool convertSound(EPSSEditorData data, string outFile, int newFreq, int bits, int channels)
+        public bool convertSound(EPSSEditorData data, string outFile, int newFreq, int bits, int channels, out UInt32 newLs, out UInt32 newLe)
         {
             bool result = true;
+            newLs = loopStart;
+            newLe = loopEnd;
 
             try
             {
@@ -215,8 +218,10 @@ namespace EPSSEditor
                     //float max = 1.0f;
                     //getNormalizeValues(ref sound, ref volume, ref max);
                     bool loop = loopMode == 2;
+                    double lengthChangeFact;
 
                     string volTempPath = System.IO.Path.GetTempFileName();
+                    volTempPath = Path.ChangeExtension(volTempPath, ".wav");
 
                     string ext = Path.GetExtension(sound.path).ToLower();
                     if (ext == ".ogg")
@@ -236,7 +241,13 @@ namespace EPSSEditor
                             using (var resampler = new MediaFoundationResampler(reader, outFormat))
                             {
                                 resampler.ResamplerQuality = 60; // Highest quality
-                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, loopStart, loopEnd);
+                                
+                                lengthChangeFact = (double)newFreq / (double)reader.WaveFormat.SampleRate;
+                                //lengthFactor *= (double)(16.0 / (double)reader.WaveFormat.BitsPerSample);
+                                newLs = (UInt32)((double)newLs * lengthChangeFact);
+                                newLe = (UInt32)((double)newLe * lengthChangeFact);
+
+                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, newLs, newLe);
                             }
                         }
                     }
@@ -257,13 +268,20 @@ namespace EPSSEditor
                             using (var resampler = new MediaFoundationResampler(reader, outFormat))
                             {
                                 resampler.ResamplerQuality = 60; // Highest quality
-                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, loopStart, loopEnd);
+
+                                lengthChangeFact = (double)newFreq / (double)reader.WaveFormat.SampleRate;
+                                //lengthFactor *= (double)(16.0 / (double)reader.WaveFormat.BitsPerSample);
+                                newLs = (UInt32)((double)newLs * lengthChangeFact);
+                                newLe = (UInt32)((double)newLe* lengthChangeFact);
+
+                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, newLs, newLe);
                             }
+                            Console.WriteLine($"Temporary file:{volTempPath}");
                         }
                     }
 
 
-  
+
 
                     using (var reader = new WaveFileReader(volTempPath))
                     {
@@ -271,8 +289,10 @@ namespace EPSSEditor
                         var newFormat = new WaveFormat(newFreq, bits, channels);
                         using (var conversionStream = new WaveFormatConversionStream(newFormat, reader))
                         {
-                            WaveLoopFileWriter.CreateWaveLoopFile(outFile, conversionStream, loop, loopStart, loopEnd);
+                            // no loop recalc should be needed as frequences are correct and loop defines samples, not bytes
+                            WaveLoopFileWriter.CreateWaveLoopFile(outFile, conversionStream, loop, newLs, newLe);
                         }
+                        Console.WriteLine($"Outfile: {outFile}");
                     }
 
                     /*
@@ -309,7 +329,8 @@ namespace EPSSEditor
                     */
 
                     System.IO.File.Delete(volTempPath);
-                } else
+                }
+                else
                 {
                     MessageBox.Show("Fatal error, not matching sound found!");
                 }
@@ -333,7 +354,7 @@ namespace EPSSEditor
             {
                 string outFile = data.ConvertSoundFileName();
 
-                if (convertSound(data, outFile, newFreq, bits, channels))
+                if (convertSound(data, outFile, newFreq, bits, channels, out _msLoopStart, out _msLoopEnd))
                 {
                     _ms = new MemoryStream();
                     using (FileStream file = new FileStream(outFile, FileMode.Open, FileAccess.Read))
@@ -343,11 +364,18 @@ namespace EPSSEditor
                         file.Read(bytes, 0, (int)file.Length);
                         _ms.Write(bytes, 0, (int)file.Length);
                     }
-                   
+
                 }
             }
             return _ms;
         }
+
+
+        public UInt32 MsLoopStart() { return _msLoopStart; }
+        
+        
+        public UInt32 MsLoopEnd() { return _msLoopEnd; }
+
 
         /*
         public WaveStream waveStream()
@@ -378,11 +406,11 @@ namespace EPSSEditor
         }
 
 
-        public CachedSound cachedSound(MemoryStream ms, bool loop, int loopStart, int orgSampleCount, float pan)
+        public CachedSound cachedSound(MemoryStream ms, bool loop, UInt32 ls, UInt32 le, float pan)
         {
             if (_cachedAudio == null)
             {
-                _cachedAudio = new CachedSound(ms, loop, loopStart, orgSampleCount, pan);
+                _cachedAudio = new CachedSound(ms, loop, ls, le, pan);
             }
             return _cachedAudio;
         }
@@ -430,6 +458,52 @@ namespace EPSSEditor
                 case 1: return "x64";
                 case 2: return "x128";
                 default: return "---";
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            SpiSound objAsSnd = obj as SpiSound;
+            if (objAsSnd == null) return false;
+            else return Equals(objAsSnd);
+        }
+
+        public bool Equals(SpiSound other)
+        {
+            if (other == null) return false;
+            return (this.midiChannel.Equals(other.midiChannel) &&
+                this.midiNote.Equals(other.midiNote) &&
+                this.startNote.Equals(other.startNote) &&
+                this.endNote.Equals(other.endNote) &&
+                this.programNumber.Equals(other.programNumber) &&
+                this.soundId.Equals(other.soundId));
+        }
+
+        public int CompareTo(SpiSound compareSnd)
+        {
+            // A null value means that this object is greater.
+            if (compareSnd == null)
+                return 1;
+            else
+            {
+                if (this.programNumber == compareSnd.programNumber)
+                {
+                    if (this.midiChannel == compareSnd.midiChannel)
+                    {
+                        if (this.startNote == compareSnd.startNote)
+                        {
+                            if (this.endNote == compareSnd.endNote)
+                            {
+                                return _name.CompareTo(compareSnd._name);
+                            }
+                            else return this.endNote.CompareTo(compareSnd.endNote);
+                        }
+                        else return this.startNote.CompareTo(compareSnd.startNote);
+                    }
+                    else return this.midiChannel.CompareTo(compareSnd.midiChannel);
+                }
+                else return this.programNumber.CompareTo(compareSnd.programNumber);
             }
         }
     }

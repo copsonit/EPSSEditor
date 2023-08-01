@@ -234,7 +234,7 @@ namespace EPSSEditor
         public string ConvertSoundFileName()
         {
             if (_fileNameForListenConvertedSound == null)
-                _fileNameForListenConvertedSound = Path.GetTempFileName();
+                _fileNameForListenConvertedSound = Path.ChangeExtension(Path.GetTempFileName(), ".wav");
             return _fileNameForListenConvertedSound;
         }
 
@@ -595,6 +595,11 @@ namespace EPSSEditor
             _findSpiSoundArray = null;
         }
 
+        public void SortSpiSounds()
+        {
+            spiSounds.Sort();
+        }
+
 
         public bool ExportSoundsToDir(string exportDir, out string errorMessage)
         {
@@ -738,7 +743,7 @@ namespace EPSSEditor
 
                 MemoryStream ms = snd.getWaveStream(this, newFreq, newBits, newChannels);
                 ms.Seek(0, SeekOrigin.Begin);
-                cs = snd.cachedSound(ms, false, (int)snd.loopStart, (int)snd.orgSampleCount, DynamitePan(snd));
+                cs = snd.cachedSound(ms, false, snd.MsLoopStart(), snd.MsLoopEnd(), DynamitePan(snd));
                 cs.pitch = 1;
                 cs.vvfeOffset = 0;
 
@@ -823,7 +828,7 @@ namespace EPSSEditor
                     //Console.WriteLine("Making cached sound: newFreq: {0}, newBits: {1} newChannels: {2}, loopStart: {3}, loopEnd: {4}",
                     // newFreq, newBits, newChannels, snd.loopStart, snd.loopEnd);
                
-                    cs = snd.cachedSound(ms, loop, (int)snd.loopStart, (int)snd.orgSampleCount, DynamitePan(snd));
+                    cs = snd.cachedSound(ms, loop, snd.MsLoopStart(), snd.MsLoopEnd(), DynamitePan(snd));
                 }
             }
 
@@ -838,6 +843,7 @@ namespace EPSSEditor
             //Console.WriteLine(relNote);
 
             cs.pitch = Math.Pow(2, (double)relNote / 12.0);
+            
 
             int vvfeMul;
             switch (snd.vvfe)
