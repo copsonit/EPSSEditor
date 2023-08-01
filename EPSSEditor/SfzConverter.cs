@@ -547,6 +547,10 @@ namespace EPSSEditor
                                         {
                                             kcByte = (byte)igen.Int16Amount;
                                         }
+                                        else if (gen.GeneratorType == GeneratorEnum.OverridingRootKey)
+                                        {
+                                            kcByte = (byte)gen.UInt16Amount;
+                                        }
                                     }
 
                                     if (sh != null)
@@ -561,22 +565,23 @@ namespace EPSSEditor
                                         {
                                             s = soundDict[fp];
                                             hasSound = true;
-                                            kcByte = (byte)OverridingRootKey(izone);
-                                            if (kcByte == 0) kcByte = (byte)sh.OriginalPitch;
                                         }
                                         else
                                         {
-                                            if (ConvertSampleFromSf2(fp, sh, sf.SampleData, izone, out sbyte kc))
+                                            if (ConvertSampleFromSf2(fp, sh, sf.SampleData, izone))
                                             {
                                                 hasSound = data.AddSound(fp, out s, out errorMessage);
-                                                kcByte = (byte)kc;
-
                                             }
                                             if (!hasSound) Console.WriteLine($"Sound cannot be added: {fp}");
                                         }
 
                                         if (hasSound && s != null)
                                         {
+                                            if (kcByte == 128)
+                                            {
+                                                kcByte = (byte)sh.OriginalPitch;
+                                            }
+
                                             if (bank == 128)
                                             { // percussion, channel 10
                                                 data.AddSfzSound(s, 10, 128, lo, hi, kcByte, 0);
@@ -611,19 +616,15 @@ namespace EPSSEditor
             UInt16 overridingRootKey = 0;
             foreach (var gen in izone.Generators)
             {
-                if (gen.GeneratorType == GeneratorEnum.OverridingRootKey)
-                {
-                    overridingRootKey = gen.UInt16Amount;
-                }
+
             }
             return overridingRootKey;
         }
 
 
-        private static bool ConvertSampleFromSf2(string path, SampleHeader sh, byte[] sample, Zone izone, out sbyte baseNote)
+        private static bool ConvertSampleFromSf2(string path, SampleHeader sh, byte[] sample, Zone izone)
         {
             bool result = false;
-            baseNote = -128;
             
             if (sh != null)
             {
@@ -638,15 +639,8 @@ namespace EPSSEditor
                     {
                         sampleModes = gen.UInt16Amount;
                     }
-                    else if (gen.GeneratorType == GeneratorEnum.OverridingRootKey)
-                    {
-                        overridingRootKey = gen.UInt16Amount;
-                    }
                  }
                 bool loop = sampleModes != 0;
-
-                baseNote = (sbyte)overridingRootKey;
-                if (baseNote == 0) baseNote = (sbyte)sh.OriginalPitch;
 
                 using (FileStream fs = new FileStream(path, FileMode.Create))
                 {

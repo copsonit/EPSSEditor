@@ -241,7 +241,7 @@ namespace EPSSEditor
         {
             if (_cachedAudio == null)
             {
-                _cachedAudio = new CachedSound(path, loop, loopStart, loopEnd);
+                _cachedAudio = new CachedSound(path, loop, (UInt32)loopStart, (UInt32)loopEnd);
             }
             return _cachedAudio;
         }

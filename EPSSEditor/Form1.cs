@@ -1124,7 +1124,7 @@ namespace EPSSEditor
                         {
                             string outFile = saveSampleFileDialog.FileName;
                             SpiSound snd = data.SpiSoundAtIndex(selected);
-                            if (!snd.convertSound(data, outFile, FrequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
+                            if (!snd.convertSound(data, outFile, FrequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels, out _, out _))
                             {
                                 MessageBox.Show("Sound not saved.");
                             }

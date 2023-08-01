@@ -330,7 +330,9 @@ namespace EPSSEditor
             EPSSSpi_sample smp = new EPSSSpi_sample();
 
             string outFile = Path.GetTempFileName();
-            if (snd.convertSound(data, outFile, freq, AtariConstants.SampleBits, AtariConstants.SampleChannels))
+
+            // TODO: check that we convert loops correct here!
+            if (snd.convertSound(data, outFile, freq, AtariConstants.SampleBits, AtariConstants.SampleChannels, out UInt32 newLs, out UInt32 newLe))
             {
                 using (var wav = File.OpenRead(outFile))
                 {

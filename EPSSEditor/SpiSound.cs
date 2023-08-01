@@ -36,13 +36,14 @@ namespace EPSSEditor
         public UInt32 end;
         public UInt32 loopStart;
         public UInt32 loopEnd;
-        public UInt32 orgSampleCount; // From Sound, needed to be able to recalculate loopStart.
 
         public UInt16 extVolume;
         public UInt16 subTone;
 
 
         private MemoryStream _ms = null;
+        private UInt32 _msLoopStart;
+        private UInt32 _msLoopEnd;
         private BlockAlignReductionStream _blockAlignedStream = null;
         private CachedSound _cachedAudio;
 
@@ -70,7 +71,6 @@ namespace EPSSEditor
                 loopMode = 2;
                 loopStart = (UInt32)sound.loopStart; //Initially from original Sound based on Sound freq, channels, bits
                 loopEnd = (UInt32)sound.loopEnd;
-                orgSampleCount = (UInt32)sound.sampleCount;
                 //end = (UInt32)sound.loopEnd;
             }
             else
@@ -78,7 +78,6 @@ namespace EPSSEditor
                 loopMode = 1;
                 loopStart = 0;
                 loopEnd = 0;
-                orgSampleCount = 0;
                 //end = (UInt32)sound.length; // TODO 16 8 bits etc
             }
 
@@ -107,7 +106,6 @@ namespace EPSSEditor
             end = sfz.End;
             loopStart = sfz.LoopStart;
             loopEnd = sfz.LoopEnd;
-            orgSampleCount = sfz.End;
 
             extVolume = sfz.ExtVolume;
             subTone = sfz.SubTone;
@@ -205,9 +203,11 @@ namespace EPSSEditor
         */
 
 
-        public bool convertSound(EPSSEditorData data, string outFile, int newFreq, int bits, int channels)
+        public bool convertSound(EPSSEditorData data, string outFile, int newFreq, int bits, int channels, out UInt32 newLs, out UInt32 newLe)
         {
             bool result = true;
+            newLs = loopStart;
+            newLe = loopEnd;
 
             try
             {
@@ -218,8 +218,10 @@ namespace EPSSEditor
                     //float max = 1.0f;
                     //getNormalizeValues(ref sound, ref volume, ref max);
                     bool loop = loopMode == 2;
+                    double lengthChangeFact;
 
                     string volTempPath = System.IO.Path.GetTempFileName();
+                    volTempPath = Path.ChangeExtension(volTempPath, ".wav");
 
                     string ext = Path.GetExtension(sound.path).ToLower();
                     if (ext == ".ogg")
@@ -239,7 +241,13 @@ namespace EPSSEditor
                             using (var resampler = new MediaFoundationResampler(reader, outFormat))
                             {
                                 resampler.ResamplerQuality = 60; // Highest quality
-                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, loopStart, loopEnd);
+                                
+                                lengthChangeFact = (double)newFreq / (double)reader.WaveFormat.SampleRate;
+                                //lengthFactor *= (double)(16.0 / (double)reader.WaveFormat.BitsPerSample);
+                                newLs = (UInt32)((double)newLs * lengthChangeFact);
+                                newLe = (UInt32)((double)newLe * lengthChangeFact);
+
+                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, newLs, newLe);
                             }
                         }
                     }
@@ -260,8 +268,15 @@ namespace EPSSEditor
                             using (var resampler = new MediaFoundationResampler(reader, outFormat))
                             {
                                 resampler.ResamplerQuality = 60; // Highest quality
-                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, loopStart, loopEnd);
+
+                                lengthChangeFact = (double)newFreq / (double)reader.WaveFormat.SampleRate;
+                                //lengthFactor *= (double)(16.0 / (double)reader.WaveFormat.BitsPerSample);
+                                newLs = (UInt32)((double)newLs * lengthChangeFact);
+                                newLe = (UInt32)((double)newLe* lengthChangeFact);
+
+                                WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, newLs, newLe);
                             }
+                            Console.WriteLine($"Temporary file:{volTempPath}");
                         }
                     }
 
@@ -274,8 +289,10 @@ namespace EPSSEditor
                         var newFormat = new WaveFormat(newFreq, bits, channels);
                         using (var conversionStream = new WaveFormatConversionStream(newFormat, reader))
                         {
-                            WaveLoopFileWriter.CreateWaveLoopFile(outFile, conversionStream, loop, loopStart, loopEnd);
+                            // no loop recalc should be needed as frequences are correct and loop defines samples, not bytes
+                            WaveLoopFileWriter.CreateWaveLoopFile(outFile, conversionStream, loop, newLs, newLe);
                         }
+                        Console.WriteLine($"Outfile: {outFile}");
                     }
 
                     /*
@@ -337,7 +354,7 @@ namespace EPSSEditor
             {
                 string outFile = data.ConvertSoundFileName();
 
-                if (convertSound(data, outFile, newFreq, bits, channels))
+                if (convertSound(data, outFile, newFreq, bits, channels, out _msLoopStart, out _msLoopEnd))
                 {
                     _ms = new MemoryStream();
                     using (FileStream file = new FileStream(outFile, FileMode.Open, FileAccess.Read))
@@ -352,6 +369,13 @@ namespace EPSSEditor
             }
             return _ms;
         }
+
+
+        public UInt32 MsLoopStart() { return _msLoopStart; }
+        
+        
+        public UInt32 MsLoopEnd() { return _msLoopEnd; }
+
 
         /*
         public WaveStream waveStream()
@@ -382,11 +406,11 @@ namespace EPSSEditor
         }
 
 
-        public CachedSound cachedSound(MemoryStream ms, bool loop, int loopStart, int orgSampleCount, float pan)
+        public CachedSound cachedSound(MemoryStream ms, bool loop, UInt32 ls, UInt32 le, float pan)
         {
             if (_cachedAudio == null)
             {
-                _cachedAudio = new CachedSound(ms, loop, loopStart, orgSampleCount, pan);
+                _cachedAudio = new CachedSound(ms, loop, ls, le, pan);
             }
             return _cachedAudio;
         }
