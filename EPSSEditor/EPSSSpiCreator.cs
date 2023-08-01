@@ -331,8 +331,7 @@ namespace EPSSEditor
 
             string outFile = Path.GetTempFileName();
 
-            // TODO: check that we convert loops correct here!
-            if (snd.convertSound(data, outFile, freq, AtariConstants.SampleBits, AtariConstants.SampleChannels, out UInt32 newLs, out UInt32 newLe))
+            if (snd.convertSound(data, outFile, freq, AtariConstants.SampleBits, AtariConstants.SampleChannels))
             {
                 using (var wav = File.OpenRead(outFile))
                 {
@@ -454,7 +453,7 @@ namespace EPSSEditor
             {
                 s_sampstart = 0,
                 s_sampend = (uint)smp.data.Length,
-                s_loopstart = snd.loopStart,
+                s_loopstart = snd.MsLoopStart(),
                 s_loopmode = loopmode,
                 s_gr_freq = sgrfrek
             };
@@ -463,7 +462,7 @@ namespace EPSSEditor
         }
 
 
-        public EPSSSpi_extSoundInfo GetExtSoundInfoFromSpiSound(/*EPSSSpi_sample smp, */SpiSound snd)
+        public EPSSSpi_extSoundInfo GetExtSoundInfoFromSpiSound(SpiSound snd)
         {
             EPSSSpi_extSoundInfo extInfo = new EPSSSpi_extSoundInfo
             {

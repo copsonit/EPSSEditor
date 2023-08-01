@@ -21,7 +21,7 @@ namespace EPSSEditor
 
         public byte startNote; // [0-127] 128:not defined
         public byte endNote; // [0-127] 128:not defined
-        //public byte midiNoteMapped;
+
         public byte programNumber; // [0-127]  128:not defined
         public sbyte transpose;
         public byte vvfe;
@@ -34,15 +34,16 @@ namespace EPSSEditor
         public byte loopMode; // EPSS, 1 -> single shot, 2 -> loop
         public UInt32 start;
         public UInt32 end;
-        public UInt32 loopStart;
+
+        // These are mirrored with Sound, i.e. *NOT* converted depending on frequency changes, bit changes etc.
+        public UInt32 loopStart; 
         public UInt32 loopEnd;
 
         public UInt16 extVolume;
         public UInt16 subTone;
 
-
         private MemoryStream _ms = null;
-        private UInt32 _msLoopStart;
+        private UInt32 _msLoopStart; // Values present when sound is converted
         private UInt32 _msLoopEnd;
         private BlockAlignReductionStream _blockAlignedStream = null;
         private CachedSound _cachedAudio;
@@ -71,14 +72,12 @@ namespace EPSSEditor
                 loopMode = 2;
                 loopStart = (UInt32)sound.loopStart; //Initially from original Sound based on Sound freq, channels, bits
                 loopEnd = (UInt32)sound.loopEnd;
-                //end = (UInt32)sound.loopEnd;
             }
             else
             {
                 loopMode = 1;
                 loopStart = 0;
                 loopEnd = 0;
-                //end = (UInt32)sound.length; // TODO 16 8 bits etc
             }
 
             extVolume = 100;
@@ -203,11 +202,11 @@ namespace EPSSEditor
         */
 
 
-        public bool convertSound(EPSSEditorData data, string outFile, int newFreq, int bits, int channels, out UInt32 newLs, out UInt32 newLe)
+        public bool convertSound(EPSSEditorData data, string outFile, int newFreq, int bits, int channels)
         {
             bool result = true;
-            newLs = loopStart;
-            newLe = loopEnd;
+            UInt32 newLs = loopStart;
+            UInt32 newLe = loopEnd;
 
             try
             {
@@ -295,6 +294,9 @@ namespace EPSSEditor
                         Console.WriteLine($"Outfile: {outFile}");
                     }
 
+                    _msLoopStart = newLs;
+                    _msLoopEnd = newLe;
+
                     /*
                     bool destroyMore = false;
 
@@ -354,7 +356,7 @@ namespace EPSSEditor
             {
                 string outFile = data.ConvertSoundFileName();
 
-                if (convertSound(data, outFile, newFreq, bits, channels, out _msLoopStart, out _msLoopEnd))
+                if (convertSound(data, outFile, newFreq, bits, channels))
                 {
                     _ms = new MemoryStream();
                     using (FileStream file = new FileStream(outFile, FileMode.Open, FileAccess.Read))

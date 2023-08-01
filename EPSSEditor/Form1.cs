@@ -430,7 +430,19 @@ namespace EPSSEditor
                 item.SubItems.Add(props.OrgFreq.ToString());
 
                 item.SubItems.Add(s.start.ToString("X8"));
-                item.SubItems.Add(s.loopStart.ToString("X8"));
+
+                Sound sound = data.GetSoundFromSoundId(s.soundId);
+                ConversionParameters p = sound.parameters();
+                uint ls = s.loopStart;
+                if (p != null)
+                {
+                    if (p.freq != null)
+                    {
+                        ls = (uint)(p.freq.compressionFactor() * s.loopStart);
+                    }
+                }
+                //int ls = (int)(p?.freq?.compressionFactor() * s.loopStart);
+                item.SubItems.Add(ls.ToString("X8"));
                 item.SubItems.Add(s.end.ToString("X8"));
                 item.SubItems.Add(s.loopMode.ToString());
 
@@ -1404,7 +1416,7 @@ namespace EPSSEditor
                         {
                             string outFile = saveSampleFileDialog.FileName;
                             SpiSound snd = data.SpiSoundAtIndex(selected);
-                            if (!snd.convertSound(data, outFile, FrequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels, out _, out _))
+                            if (!snd.convertSound(data, outFile, FrequencyFromCompressionTrackBar(compressionTrackBar.Value), AtariConstants.SampleBits, AtariConstants.SampleChannels))
                             {
                                 MessageBox.Show("Sound not saved.");
                             }
