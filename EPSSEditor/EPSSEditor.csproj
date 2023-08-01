@@ -161,6 +161,7 @@
     <Compile Include="PianoKbForm.Designer.cs">
       <DependentUpon>PianoKbForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SoundsToSpiSounds.cs" />
     <Compile Include="SpiSoundInstrument.cs" />
     <Compile Include="TimeBarrier.cs" />
     <Compile Include="Undo.cs" />

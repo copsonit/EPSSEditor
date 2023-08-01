@@ -241,8 +241,8 @@ namespace EPSSEditor
         private void UpdateSpiSoundButtons()
         {
             bool enabled = SelectedSpiSounds().Count > 0;
-            deleteSpiSoundButton.Enabled = enabled;
-            button1.Enabled = enabled;
+            EnableToolStripItem("deleteSelectedSPISoundToolStripMenuItem", enabled);
+            EnableToolStripItem("saveSPISoundToolStripMenuItem", enabled);
             spiSoundListenButton.Enabled = enabled;
         }
 
@@ -260,7 +260,10 @@ namespace EPSSEditor
         private void UpdateSoundDialog()
         {
             groupBox5.Enabled = soundListBox.SelectedItems.Count == 1;
-            deleteSoundButton.Enabled = soundListBox.SelectedItems.Count > 0;
+            bool enabled = soundListBox.SelectedItems.Count > 0;
+            EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", enabled);
+            EnableToolStripItem("deleteInputSoundToolStripMenuItem", enabled);
+            playButton.Enabled = soundListBox.SelectedItems.Count >= 1;
         }
 
 
@@ -326,7 +329,9 @@ namespace EPSSEditor
                 soundListBox.Items.Add(s.name());
             }
 
-            deleteSoundButton.Enabled = soundListBox.SelectedItems.Count > 0;
+            bool enabled = soundListBox.SelectedItems.Count > 0;
+            EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", enabled);
+            EnableToolStripItem("deleteInputSoundToolStripMenuItem", enabled);
         }
 
 
@@ -435,13 +440,16 @@ namespace EPSSEditor
                 spiSoundListView.Items.Add(item);
             }
 
+            /*
             Sound snd = GetSoundAtSelectedIndex();
             if (snd != null)
             {
                 List<SpiSound> spiSounds = data.GetSpiSoundsFromSound(snd);
-                deleteSoundButton.Enabled = spiSounds.Count == 0;
 
+                bool enabled = spiSounds.Count == 0 && soundListBox.SelectedItems.Count > 0;
+                EnableToolStripItem("deleteInputSoundToolStripMenuItem", enabled);
             }
+            */
 
             spiNameTextBox.Text = data.spiName;
             spiInfoTextBox.Text = data.spiDescription;
@@ -449,10 +457,16 @@ namespace EPSSEditor
             gen2CheckBox.Checked = data.HasAnyProgramChange();
 
             bool spiSaveEnabled = data.IsValidForSpiExport();
-            var mi = menuStrip1.Items.Find("saveSPIToolStripMenuItem", true);
+            EnableToolStripItem("saveSPIToolStripMenuItem", spiSaveEnabled);
+        }
+
+
+        private void EnableToolStripItem(string name, bool enabled)
+        {
+            var mi = menuStrip1.Items.Find(name, true);
             foreach (var item in mi)
             {
-                item.Enabled = spiSaveEnabled;
+                item.Enabled = enabled;
             }
         }
 
@@ -964,17 +978,21 @@ namespace EPSSEditor
                     }
                     soundListBox.SelectedIndex = idx;
                     useInSpiButton.Enabled = true;
+                    EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", true);
                     soundListBox.TopIndex = Math.Max(0, idx - dist);                  
                 }
                 else
                 {
                     useInSpiButton.Enabled = false;
+                    EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", false);
                 }
                 Undo.RegisterUndoChange(data);
                 dataNeedsSaving = true;
                 SaveProjectSettings();
 
-                deleteSoundButton.Enabled = soundListBox.SelectedItems.Count > 0;
+                bool enabled = soundListBox.SelectedItems.Count > 0;
+
+                EnableToolStripItem("deleteInputSoundToolStripMenuItem", enabled);
             }
         }
 
@@ -1025,6 +1043,275 @@ namespace EPSSEditor
 
 
         // SPI Sound List View
+        private void AddSounds()
+        {
+            List<Sound> sounds = SelectedSounds();
+            if (mappingModeMidiRadioButton.Checked)
+            {
+                if (sounds.Count > 1)
+                {
+                    // Map multiple sounds
+                    bool mappingOk = false;
+                    byte startNote = 128;
+                    if (MultiSampleRadioButton.Checked)
+                    {
+                        startNote = Utility.ParseMidiTone(midiToneTextBox.Text);
+                        mappingOk = true;
+                    }
+                    else if (GmPercMidiMappingRadioButton.Checked)
+                    {
+                        mappingOk = true;
+                        startNote = PercussionNote();
+                    }
+                    else if (defaultMidiMapRadioButton.Checked)
+                    {
+                        mappingOk = true;
+                        startNote = 128;
+                    }
+
+                    if (mappingOk)
+                    {
+                        foreach (Sound sound in sounds)
+                        {
+                            Sound snd = sound;
+                            SpiSound spiSnd = new SpiSound(snd);
+
+                            if (defaultMidiMapRadioButton.Checked)
+                            {
+                                spiSnd.startNote = 60;
+                                spiSnd.endNote = 108;
+                                spiSnd.midiNote = 84;
+                            }
+                            else
+                            {
+                                spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
+                                startNote++;
+                            }
+
+                            int midiChannel = CurrentMidiChannel();
+                            spiSnd.midiChannel = (byte)midiChannel;
+
+                            int toFreq;
+                            if (snd.parameters().hasParameters())
+                            {
+                                toFreq = snd.parameters().freq.toFreq;
+                            }
+                            else
+                            {
+                                toFreq = Properties.Settings.Default.SampleConversionDestFreq;
+                            }
+
+                            UpdateAfterSoundChange(snd, toFreq);
+                            compressionTrackBar.Value = CompressionTrackBarValueFromFrequency(toFreq);
+
+                            if (!defaultMidiMapRadioButton.Checked)
+                            {
+                                data.RemoveSpiSound(spiSnd.midiChannel, spiSnd.midiNote);
+                            }
+                            data.AddSpiSound(spiSnd);
+
+                            if (defaultMidiMapRadioButton.Checked)
+                            {
+                                int ch = data.GetNextFreeMidiChannel();
+                                if (ch > 0) SetMidiChannel(ch);
+                            }
+                        }
+                        UpdateSpiSoundListBox();
+                        UpdateTotalSize();
+                        Undo.RegisterUndoChange(data);
+                        dataNeedsSaving = true;
+                        SaveProjectSettings();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Need to have multi sample mapping or GM Percussion mapping selected!");
+                    }
+                }
+                else
+                {
+                    // Map single sound
+                    Sound snd = GetSoundAtSelectedIndex();
+                    if (snd != null)
+                    {
+                        if (defaultMidiMapRadioButton.Checked || CustomSampleRadioButton.Checked)
+                        {
+                            bool doAdd = true;
+                            byte startNote = 60;
+                            byte endNote = 108;
+                            byte center = 84;
+                            if (CustomSampleRadioButton.Checked)
+                            {
+                                startNote = Utility.ParseMidiTone(custMidiToneFromTextBox.Text);
+                                endNote = Utility.ParseMidiTone(custMidiToneToTextBox.Text);
+                                string centerText = custMidToneCentreTextBox.Text;
+                                if (!String.IsNullOrEmpty(centerText)) center = Utility.ParseMidiTone(centerText);
+                                else center = 0;
+
+                                doAdd = (startNote < 128 && endNote < 128 && startNote <= endNote && (startNote - endNote) <= 48);
+
+                                if (center == 0) center = (byte)(startNote + (endNote - startNote) / 2);
+                                else
+                                {
+                                    if (center < startNote || center > endNote) doAdd = false;
+                                }
+                                if (!doAdd) MessageBox.Show("Incorrect from, to, center note values!");
+                            }
+                            if (doAdd)
+                            {
+                                bool added = data.AddSoundToSpiSound(snd, CurrentMidiChannel(), startNote, endNote, center);
+                                if (!added)
+                                {
+                                    MessageBox.Show("Notes overlap!");
+                                }
+                                else
+                                {
+                                    UpdateSpiSoundListBox();
+
+                                    if (defaultMidiMapRadioButton.Checked)
+                                    {
+                                        int ch = data.GetNextFreeMidiChannel();
+                                        if (ch > 0) SetMidiChannel(ch);
+                                    }
+
+                                    UpdateTotalSize();
+                                    Undo.RegisterUndoChange(data);
+                                    dataNeedsSaving = true;
+                                    SaveProjectSettings();
+                                }
+                            }
+                        }
+                        else // Drums and Multisample (one sample per note)
+                        {
+                            bool addOk = true;
+                            SpiSound spiSnd = new SpiSound(snd);
+
+                            int midiChannel = CurrentMidiChannel();
+                            spiSnd.midiChannel = (byte)midiChannel;
+
+                            if (GmPercMidiMappingRadioButton.Checked) // Always channel 10 when gmperc is chosen. 
+                            {
+                                byte startNote = PercussionNote(); // 0-127
+                                spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
+
+                                if (data.IsDrumSoundOccupied(startNote))
+                                {
+                                    addOk = false;
+                                    MessageBox.Show("Drum sound " + spiSnd.midiNote.ToString() + " already occupied!");
+                                }
+                            }
+                            else // multisample
+                            {
+                                byte startNote = Utility.ParseMidiTone(midiToneTextBox.Text);
+                                spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
+
+                                if (data.IsMidiChannelOccupied(midiChannel)) // 1-16
+                                {
+                                    addOk = false;
+                                    MessageBox.Show("MIDI channel " + midiChannel.ToString() + " already occupied!");
+                                }
+                            }
+
+                            if (addOk)
+                            {
+                                data.AddSpiSound(spiSnd);
+                                UpdateSpiSoundListBox();
+
+                                if (GmPercMidiMappingRadioButton.Checked)
+                                {
+                                    int idx = drumsComboBox1.SelectedIndex;
+                                    if (idx < drumsComboBox1.Items.Count - 1)
+                                    {
+                                        drumsComboBox1.SelectedIndex = idx + 1;
+                                    }
+                                }
+
+                                UpdateTotalSize();
+                                Undo.RegisterUndoChange(data);
+                                dataNeedsSaving = true;
+                                SaveProjectSettings();
+                            }
+                        }
+                    }
+                }
+            }
+            else // This is for patches with Program Change!
+            {
+                if (sounds.Count > 1)
+                {
+                    bool doAdd = true;
+                    byte pcNumber = (byte)(CurrentMidiChannel() - 1); // We are now in program change mode
+                    if (data.IsProgramChangeOccupied(pcNumber))
+                    {
+                        MessageBox.Show("Program Change number " + pcNumber.ToString() + " already occupied!");
+                        doAdd = false;
+                    }
+                    if (doAdd)
+                    {
+                        foreach (Sound sound in sounds)
+                        {
+                            Sound s = sound;
+                            SpiSound spiSnd = new SpiSound(s)
+                            {
+                                midiChannel = 128,
+                                startNote = 60,
+                                endNote = 108,
+                                midiNote = 84,
+                                programNumber = pcNumber
+                            };
+                            data.AddSpiSound(spiSnd);
+
+                            pcNumber = (byte)data.GetNextFreeProgramChange(); // in 0-127 range
+                            if (pcNumber > 0) SetProgramChange(pcNumber + 1); // in 1-128 range
+                        }
+
+                        UpdateSpiSoundListBox();
+                        UpdateTotalSize();
+                        Undo.RegisterUndoChange(data);
+                        dataNeedsSaving = true;
+                        SaveProjectSettings();
+                    }
+                }
+                else if (sounds.Count == 1)
+                {
+                    Sound s = GetSoundAtSelectedIndex();
+                    if (s != null)
+                    {
+                        bool doAdd = true;
+                        byte pcNumber = (byte)(CurrentMidiChannel() - 1); // We are now in program change mode
+                        if (data.IsProgramChangeOccupied(pcNumber))
+                        {
+                            MessageBox.Show("Program Change number " + pcNumber.ToString() + " already occupied!");
+                            doAdd = false;
+                        }
+
+                        if (doAdd)
+                        {
+                            SpiSound spiSnd = new SpiSound(s)
+                            {
+                                midiChannel = 128,
+                                startNote = 60,
+                                endNote = 108,
+                                midiNote = 84,
+                                programNumber = pcNumber
+                            };
+
+                            data.AddSpiSound(spiSnd);
+
+                            pcNumber = (byte)data.GetNextFreeProgramChange(); // in 0-127 range
+                            if (pcNumber > 0) SetProgramChange(pcNumber + 1); // in 1-128 range
+
+                            UpdateSpiSoundListBox();
+                            UpdateTotalSize();
+                            Undo.RegisterUndoChange(data);
+                            dataNeedsSaving = true;
+                            SaveProjectSettings();
+                        }
+                    }
+                }
+            }
+        }
+    
+
         ListViewItem SelectedListViewItem(Point lwPos)
         {
             return spiSoundListView.HitTest(lwPos.X, lwPos.Y).Item;
@@ -1465,26 +1752,6 @@ namespace EPSSEditor
                 spiSoundListView.EndUpdate();
                 e.Handled = true;
             }
-            else if (e.KeyCode == Keys.Z && e.Control)
-            {
-                EPSSEditorData newData = Undo.UndoLastOperation();
-                if (newData != null)
-                {
-                    data = newData;
-                    UpdateDialog();
-                    UpdateTotalSize();
-                }
-            }
-            else if (e.KeyCode == Keys.Y && e.Control)
-            {
-                EPSSEditorData newData = Undo.RedoLastOperation();
-                if (newData != null)
-                {
-                    data = newData;
-                    UpdateDialog();
-                    UpdateTotalSize();
-                }
-            }
         }
 
 
@@ -1611,6 +1878,7 @@ namespace EPSSEditor
                 UpdateAfterSoundChange(snd, toFreq);
                 compressionTrackBar.Value = CompressionTrackBarValueFromFrequency(toFreq);
                 useInSpiButton.Enabled = true;
+                EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", true);
                 List<SpiSound> spiSounds = data.GetSpiSoundsFromSound(snd);
                 if ((Control.ModifierKeys & Keys.Alt) != Keys.None)
                 {
@@ -1644,21 +1912,10 @@ namespace EPSSEditor
             else
             {
                 useInSpiButton.Enabled = false;
+                EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", false);
             }
             UpdateSoundDialog();
             UpdateConversionSettings();
-        }
-
-
-        private void LoadSoundButton_Click(object sender, EventArgs e)
-        {
-            LoadSound();
-        }
-
-
-        private void DeleteSoundButton_Click(object sender, EventArgs e)
-        {
-            DeleteSelectedSound();
         }
 
 
@@ -1699,276 +1956,9 @@ namespace EPSSEditor
 
         private void UseInSpiButton_Click(object sender, EventArgs e)
         {
-            List<Sound> sounds = SelectedSounds();
-            if (mappingModeMidiRadioButton.Checked)
-            {
-                if (sounds.Count > 1)
-                {
-                    // Map multiple sounds
-                    bool mappingOk = false;
-                    byte startNote = 128;
-                    if (MultiSampleRadioButton.Checked)
-                    {
-                        startNote = Utility.ParseMidiTone(midiToneTextBox.Text);
-                        mappingOk = true;
-                    }
-                    else if (GmPercMidiMappingRadioButton.Checked)
-                    {
-                        mappingOk = true;
-                        startNote = PercussionNote();
-                    }
-                    else if (defaultMidiMapRadioButton.Checked)
-                    {
-                        mappingOk = true;
-                        startNote = 128;
-                    }
-
-                    if (mappingOk)
-                    {
-                        foreach (Sound sound in sounds)
-                        {
-                            Sound snd = sound;
-                            SpiSound spiSnd = new SpiSound(snd);
-
-                            if (defaultMidiMapRadioButton.Checked)
-                            {
-                                spiSnd.startNote = 60;
-                                spiSnd.endNote = 108;
-                                spiSnd.midiNote = 84;
-                            }
-                            else
-                            {
-                                spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
-                                startNote++;
-                            }
-
-                            int midiChannel = CurrentMidiChannel();
-                            spiSnd.midiChannel = (byte)midiChannel;
-
-                            int toFreq;
-                            if (snd.parameters().hasParameters())
-                            {
-                                toFreq = snd.parameters().freq.toFreq;
-                            }
-                            else
-                            {
-                                toFreq = Properties.Settings.Default.SampleConversionDestFreq;
-                            }
-
-                            UpdateAfterSoundChange(snd, toFreq);
-                            compressionTrackBar.Value = CompressionTrackBarValueFromFrequency(toFreq);
-
-                            if (!defaultMidiMapRadioButton.Checked)
-                            {
-                                data.RemoveSpiSound(spiSnd.midiChannel, spiSnd.midiNote);
-                            }
-                            data.AddSpiSound(spiSnd);
-
-                            if (defaultMidiMapRadioButton.Checked)
-                            {
-                                int ch = data.GetNextFreeMidiChannel();
-                                if (ch > 0) SetMidiChannel(ch);
-                            }
-                        }
-                        UpdateSpiSoundListBox();
-                        UpdateTotalSize();
-                        Undo.RegisterUndoChange(data);
-                        dataNeedsSaving = true;
-                        SaveProjectSettings();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Need to have multi sample mapping or GM Percussion mapping selected!");
-                    }
-                }
-                else
-                {
-                    // Map single sound
-                    Sound snd = GetSoundAtSelectedIndex();
-                    if (snd != null)
-                    {
-                        if (defaultMidiMapRadioButton.Checked || CustomSampleRadioButton.Checked)
-                        {
-                            bool doAdd = true;
-                            byte startNote = 60;
-                            byte endNote = 108;
-                            byte center = 84;
-                            if (CustomSampleRadioButton.Checked)
-                            {
-                                startNote = Utility.ParseMidiTone(custMidiToneFromTextBox.Text);
-                                endNote = Utility.ParseMidiTone(custMidiToneToTextBox.Text);
-                                string centerText = custMidToneCentreTextBox.Text;
-                                if (!String.IsNullOrEmpty(centerText)) center = Utility.ParseMidiTone(centerText);
-                                else center = 0;
-
-                                doAdd = (startNote < 128 && endNote < 128 && startNote <= endNote && (startNote - endNote) <= 48);
-
-                                if (center == 0) center = (byte)(startNote + (endNote - startNote) / 2);
-                                else
-                                {
-                                    if (center < startNote || center > endNote) doAdd = false;
-                                }
-                                if (!doAdd) MessageBox.Show("Incorrect from, to, center note values!");
-                            }
-                            if (doAdd)
-                            {
-                                bool added = data.AddSoundToSpiSound(snd, CurrentMidiChannel(), startNote, endNote, center);
-                                if (!added)
-                                {
-                                    MessageBox.Show("Notes overlap!");
-                                }
-                                else
-                                {
-                                    UpdateSpiSoundListBox();
-
-                                    if (defaultMidiMapRadioButton.Checked)
-                                    {
-                                        int ch = data.GetNextFreeMidiChannel();
-                                        if (ch > 0) SetMidiChannel(ch);
-                                    }
-
-                                    UpdateTotalSize();
-                                    Undo.RegisterUndoChange(data);
-                                    dataNeedsSaving = true;
-                                    SaveProjectSettings();
-                                }
-                            }
-                        }
-                        else // Drums and Multisample (one sample per note)
-                        {
-                            bool addOk = true;
-                            SpiSound spiSnd = new SpiSound(snd);
-
-                            int midiChannel = CurrentMidiChannel();
-                            spiSnd.midiChannel = (byte)midiChannel;
-
-                            if (GmPercMidiMappingRadioButton.Checked) // Always channel 10 when gmperc is chosen. 
-                            {
-                                byte startNote = PercussionNote(); // 0-127
-                                spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
-
-                                if (data.IsDrumSoundOccupied(startNote))
-                                {
-                                    addOk = false;
-                                    MessageBox.Show("Drum sound " + spiSnd.midiNote.ToString() + " already occupied!");
-                                }
-                            }
-                            else // multisample
-                            {
-                                byte startNote = Utility.ParseMidiTone(midiToneTextBox.Text);
-                                spiSnd.midiNote = spiSnd.startNote = spiSnd.endNote = startNote;
-
-                                if (data.IsMidiChannelOccupied(midiChannel)) // 1-16
-                                {
-                                    addOk = false;
-                                    MessageBox.Show("MIDI channel " + midiChannel.ToString() + " already occupied!");
-                                }
-                            }
-
-                            if (addOk)
-                            {
-                                data.AddSpiSound(spiSnd);
-                                UpdateSpiSoundListBox();
-
-                                if (GmPercMidiMappingRadioButton.Checked)
-                                {
-                                    int idx = drumsComboBox1.SelectedIndex;
-                                    if (idx < drumsComboBox1.Items.Count - 1)
-                                    {
-                                        drumsComboBox1.SelectedIndex = idx + 1;
-                                    }
-                                }
-
-                                UpdateTotalSize();
-                                Undo.RegisterUndoChange(data);
-                                dataNeedsSaving = true;
-                                SaveProjectSettings();
-                            }
-                        }
-                    }
-                }
-            }
-            else // This is for patches with Program Change!
-            {
-                if (sounds.Count > 1)
-                {
-                    bool doAdd = true;
-                    byte pcNumber = (byte)(CurrentMidiChannel() - 1); // We are now in program change mode
-                    if (data.IsProgramChangeOccupied(pcNumber))
-                    {
-                        MessageBox.Show("Program Change number " + pcNumber.ToString() + " already occupied!");
-                        doAdd = false;
-                    }
-                    if (doAdd)
-                    {
-                        foreach (Sound sound in sounds)
-                        {
-                            Sound s = sound;
-                            SpiSound spiSnd = new SpiSound(s)
-                            {
-                                midiChannel = 128,
-                                startNote = 60,
-                                endNote = 108,
-                                midiNote = 84,
-                                programNumber = pcNumber
-                            };
-                            data.AddSpiSound(spiSnd);
-
-                            pcNumber = (byte)data.GetNextFreeProgramChange(); // in 0-127 range
-                            if (pcNumber > 0) SetProgramChange(pcNumber + 1); // in 1-128 range
-                        }
-
-                        UpdateSpiSoundListBox();
-                        UpdateTotalSize();
-                        Undo.RegisterUndoChange(data);
-                        dataNeedsSaving = true;
-                        SaveProjectSettings();
-                    }
-                }
-                else if (sounds.Count == 1)
-                {
-                    Sound s = GetSoundAtSelectedIndex();
-                    if (s != null)
-                    {
-                        bool doAdd = true;
-                        byte pcNumber = (byte)(CurrentMidiChannel() - 1); // We are now in program change mode
-                        if (data.IsProgramChangeOccupied(pcNumber)) {
-                            MessageBox.Show("Program Change number " + pcNumber.ToString() + " already occupied!");
-                            doAdd = false;
-                        }
-
-                        if (doAdd)
-                        {
-                            SpiSound spiSnd = new SpiSound(s)
-                            {
-                                midiChannel = 128,
-                                startNote = 60,
-                                endNote = 108,
-                                midiNote = 84,
-                                programNumber = pcNumber
-                            };
-
-                            data.AddSpiSound(spiSnd);
-
-                            pcNumber = (byte)data.GetNextFreeProgramChange(); // in 0-127 range
-                            if (pcNumber > 0) SetProgramChange(pcNumber + 1); // in 1-128 range
-
-                            UpdateSpiSoundListBox();
-                            UpdateTotalSize();
-                            Undo.RegisterUndoChange(data);
-                            dataNeedsSaving = true;
-                            SaveProjectSettings();
-                        }
-                    }
-                }
-            }
+            AddSounds();
         }
 
-
-        private void DeleteSpiSoundButton_Click(object sender, EventArgs e)
-        {
-            DeleteSelectedSpiSound();
-        }
 
 
         private void NewProjectToolStripMenuItem_Click_1(object sender, EventArgs e)
@@ -2183,12 +2173,6 @@ namespace EPSSEditor
             data.previewSelected = previewComboBox.SelectedIndex;
             dataNeedsSaving = true;
             //SaveProjectSettings();
-        }
-
-
-        private void SaveSampleButton_Click(object sender, EventArgs e)
-        {
-            SaveSampleWithFileDialog();
         }
 
 
@@ -2700,5 +2684,56 @@ namespace EPSSEditor
             if (HandleTransportKeyUp()) e.Handled = true;
         }
 
+        private void undoCtrlZToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EPSSEditorData newData = Undo.UndoLastOperation();
+            if (newData != null)
+            {
+                data = newData;
+                UpdateDialog();
+                UpdateTotalSize();
+            }
+        }
+
+        private void redoCtrlYToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            EPSSEditorData newData = Undo.RedoLastOperation();
+            if (newData != null)
+            {
+                data = newData;
+                UpdateDialog();
+                UpdateTotalSize();
+            }
+        }
+
+        private void loadInputSoundToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            LoadSound();
+        }
+
+        private void deleteInputSoundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DeleteSelectedSound();
+        }
+
+        private void deleteSelectedSPISoundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DeleteSelectedSpiSound();
+        }
+
+        private void saveSPISoundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveSampleWithFileDialog();
+        }
+
+        private void addSelectedInputSoundToSPISoundsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddSounds();
+        }
+
+        private void playButton_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            PlaySelectedSound(forceLoopOff: true);
+        }
     }
 }
