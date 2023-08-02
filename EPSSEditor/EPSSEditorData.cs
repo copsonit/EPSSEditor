@@ -251,6 +251,10 @@ namespace EPSSEditor
                 {
                     snd.sampleDataLength = new System.IO.FileInfo(snd.path).Length;
                 }
+                if (snd.name() == null)
+                {
+                    snd.description = Path.GetFileNameWithoutExtension(snd.path);
+                }
             }
         }
 
