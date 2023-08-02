@@ -47,11 +47,17 @@ namespace EPSSEditor
             tickNum = 0;
             //long rate = 250000; // Number of us per tick
             long rate = 500000; // 500000 should be 120bpm.... 
-            if (_midReader.timeSignature == null) rate *= 4;
-            long ticksPerQuarter = _midReader.mf.DeltaTicksPerQuarterNote;
-            double playbackSpeed = 1;
+            SetTempo(rate);
+        }
 
-            long tickLen = (long)((rate / (ticksPerQuarter * playbackSpeed)) * 10.0f);     //len of each tick in 0.1 usecs (or 100 nanosecs)
+
+        public static void SetTempo(long microSecondsPerQuarterNote)
+        {
+            if (_midReader.timeSignature == null) microSecondsPerQuarterNote*= 4;
+            long ticksPerQuarter = _midReader.mf.DeltaTicksPerQuarterNote;
+            double playbackSpeed = 1.0; // ???
+
+            long tickLen = (long)((microSecondsPerQuarterNote/ (ticksPerQuarter * playbackSpeed)) * 10.0f);     //len of each tick in 0.1 usecs (or 100 nanosecs)
             double tickLenInS = (double)tickLen / 10000000;
             double fps = 60; // wanted fps around this.
             // Calculate best value of FPS when tickIncrement is even.
@@ -59,6 +65,7 @@ namespace EPSSEditor
             timeBarrierFps = (tickIncrement * fps) / (int)tickIncrement;
             midiTicksPerThreadTick = (int)tickIncrement;
         }
+
 
         public static void StartPlaying()
         {
@@ -227,7 +234,14 @@ namespace EPSSEditor
                     MidiEvent midiEvent = events[eventPointer];
                     while (tickNum >= midiEvent.AbsoluteTime && eventPointer < (events.Count-1))
                     {
-                        _midiInstrument?.DoMidiEvent(midiEvent);
+                        if (midiEvent is TempoEvent tempo)
+                        {
+                            SetTempo(tempo.MicrosecondsPerQuarterNote);
+                        }
+                        else
+                        {
+                            _midiInstrument?.DoMidiEvent(midiEvent);
+                        }
 
                         if (eventPointer < (events.Count - 1)) eventPointer++;
                         //if (eventPointer >= events.Count)
