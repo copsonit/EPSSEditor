@@ -107,6 +107,16 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.clearSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoCtrlZToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.redoCtrlYToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.loadInputSoundToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.addSelectedInputSoundToSPISoundsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteInputSoundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.saveSPISoundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteSelectedSPISoundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadSoundFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -139,16 +149,6 @@
             this.loadMidFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.revMidTimer = new System.Windows.Forms.Timer(this.components);
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.undoCtrlZToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.redoCtrlYToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteInputSoundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteSelectedSPISoundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.addSelectedInputSoundToSPISoundsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.loadInputSoundToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.saveSPISoundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox9.SuspendLayout();
@@ -924,82 +924,163 @@
             // newProjectToolStripMenuItem
             // 
             this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.newProjectToolStripMenuItem.Text = "New Project...";
             this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.NewProjectToolStripMenuItem_Click_1);
             // 
             // loadProjectToolStripMenuItem
             // 
             this.loadProjectToolStripMenuItem.Name = "loadProjectToolStripMenuItem";
-            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadProjectToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.loadProjectToolStripMenuItem.Text = "Load Project...";
             this.loadProjectToolStripMenuItem.Click += new System.EventHandler(this.LoadProjectToolStripMenuItem_Click);
             // 
             // saveProjectToolStripMenuItem
             // 
             this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
-            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.saveProjectToolStripMenuItem.Text = "Save Project as...";
             this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.SaveProjectToolStripMenuItem_Click);
             // 
             // saveProjectToolStripMenuItem1
             // 
             this.saveProjectToolStripMenuItem1.Name = "saveProjectToolStripMenuItem1";
-            this.saveProjectToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.saveProjectToolStripMenuItem1.Size = new System.Drawing.Size(161, 22);
             this.saveProjectToolStripMenuItem1.Text = "Save Project";
             this.saveProjectToolStripMenuItem1.Click += new System.EventHandler(this.SaveProjectToolStripMenuItem1_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(158, 6);
             // 
             // loadSPIToolStripMenuItem
             // 
             this.loadSPIToolStripMenuItem.Name = "loadSPIToolStripMenuItem";
-            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadSPIToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.loadSPIToolStripMenuItem.Text = "Import SPI...";
             this.loadSPIToolStripMenuItem.Click += new System.EventHandler(this.LoadSPIToolStripMenuItem_Click);
             // 
             // importSFZToolStripMenuItem
             // 
             this.importSFZToolStripMenuItem.Name = "importSFZToolStripMenuItem";
-            this.importSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.importSFZToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.importSFZToolStripMenuItem.Text = "Import SFZ...";
             this.importSFZToolStripMenuItem.Click += new System.EventHandler(this.ImportSFZToolStripMenuItem_Click);
             // 
             // saveSPIToolStripMenuItem
             // 
             this.saveSPIToolStripMenuItem.Name = "saveSPIToolStripMenuItem";
-            this.saveSPIToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSPIToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.saveSPIToolStripMenuItem.Text = "Export SPI...";
             this.saveSPIToolStripMenuItem.Click += new System.EventHandler(this.SaveSPIToolStripMenuItem_Click);
             // 
             // saveSFZToolStripMenuItem
             // 
             this.saveSFZToolStripMenuItem.Name = "saveSFZToolStripMenuItem";
-            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSFZToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.saveSFZToolStripMenuItem.Text = "Export SFZ...";
             this.saveSFZToolStripMenuItem.Click += new System.EventHandler(this.SaveSFZToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(158, 6);
             // 
             // clearSettingsToolStripMenuItem
             // 
             this.clearSettingsToolStripMenuItem.Name = "clearSettingsToolStripMenuItem";
-            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.clearSettingsToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.clearSettingsToolStripMenuItem.Text = "Clear settings...";
             this.clearSettingsToolStripMenuItem.Click += new System.EventHandler(this.ClearSettingsToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.undoCtrlZToolStripMenuItem,
+            this.redoCtrlYToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.loadInputSoundToolStripMenuItem1,
+            this.addSelectedInputSoundToSPISoundsToolStripMenuItem,
+            this.deleteInputSoundToolStripMenuItem,
+            this.toolStripSeparator4,
+            this.saveSPISoundToolStripMenuItem,
+            this.deleteSelectedSPISoundToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 22);
+            this.editToolStripMenuItem.Text = "Edit";
+            // 
+            // undoCtrlZToolStripMenuItem
+            // 
+            this.undoCtrlZToolStripMenuItem.Name = "undoCtrlZToolStripMenuItem";
+            this.undoCtrlZToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl-Z";
+            this.undoCtrlZToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+            this.undoCtrlZToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
+            this.undoCtrlZToolStripMenuItem.Text = "Undo";
+            this.undoCtrlZToolStripMenuItem.Click += new System.EventHandler(this.undoCtrlZToolStripMenuItem_Click);
+            // 
+            // redoCtrlYToolStripMenuItem
+            // 
+            this.redoCtrlYToolStripMenuItem.Name = "redoCtrlYToolStripMenuItem";
+            this.redoCtrlYToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl-Y";
+            this.redoCtrlYToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
+            this.redoCtrlYToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
+            this.redoCtrlYToolStripMenuItem.Text = "Redo";
+            this.redoCtrlYToolStripMenuItem.Click += new System.EventHandler(this.redoCtrlYToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(283, 6);
+            // 
+            // loadInputSoundToolStripMenuItem1
+            // 
+            this.loadInputSoundToolStripMenuItem1.Name = "loadInputSoundToolStripMenuItem1";
+            this.loadInputSoundToolStripMenuItem1.Size = new System.Drawing.Size(286, 22);
+            this.loadInputSoundToolStripMenuItem1.Text = "Load Input Sound...";
+            this.loadInputSoundToolStripMenuItem1.Click += new System.EventHandler(this.loadInputSoundToolStripMenuItem1_Click);
+            // 
+            // addSelectedInputSoundToSPISoundsToolStripMenuItem
+            // 
+            this.addSelectedInputSoundToSPISoundsToolStripMenuItem.Name = "addSelectedInputSoundToSPISoundsToolStripMenuItem";
+            this.addSelectedInputSoundToSPISoundsToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
+            this.addSelectedInputSoundToSPISoundsToolStripMenuItem.Text = "Add Selected Input Sound to SPI Sounds";
+            this.addSelectedInputSoundToSPISoundsToolStripMenuItem.Click += new System.EventHandler(this.addSelectedInputSoundToSPISoundsToolStripMenuItem_Click);
+            // 
+            // deleteInputSoundToolStripMenuItem
+            // 
+            this.deleteInputSoundToolStripMenuItem.Name = "deleteInputSoundToolStripMenuItem";
+            this.deleteInputSoundToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
+            this.deleteInputSoundToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
+            this.deleteInputSoundToolStripMenuItem.Text = "Delete Selected Input Sound";
+            this.deleteInputSoundToolStripMenuItem.Click += new System.EventHandler(this.deleteInputSoundToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(283, 6);
+            // 
+            // saveSPISoundToolStripMenuItem
+            // 
+            this.saveSPISoundToolStripMenuItem.Name = "saveSPISoundToolStripMenuItem";
+            this.saveSPISoundToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
+            this.saveSPISoundToolStripMenuItem.Text = "Save SPI Sound...";
+            this.saveSPISoundToolStripMenuItem.Click += new System.EventHandler(this.saveSPISoundToolStripMenuItem_Click);
+            // 
+            // deleteSelectedSPISoundToolStripMenuItem
+            // 
+            this.deleteSelectedSPISoundToolStripMenuItem.Name = "deleteSelectedSPISoundToolStripMenuItem";
+            this.deleteSelectedSPISoundToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
+            this.deleteSelectedSPISoundToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
+            this.deleteSelectedSPISoundToolStripMenuItem.Text = "Delete Selected SPI Sound";
+            this.deleteSelectedSPISoundToolStripMenuItem.Click += new System.EventHandler(this.deleteSelectedSPISoundToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -1275,87 +1356,6 @@
             // 
             this.revMidTimer.Interval = 20;
             this.revMidTimer.Tick += new System.EventHandler(this.RevMidTimer_Tick);
-            // 
-            // editToolStripMenuItem
-            // 
-            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.undoCtrlZToolStripMenuItem,
-            this.redoCtrlYToolStripMenuItem,
-            this.toolStripSeparator3,
-            this.loadInputSoundToolStripMenuItem1,
-            this.addSelectedInputSoundToSPISoundsToolStripMenuItem,
-            this.deleteInputSoundToolStripMenuItem,
-            this.toolStripSeparator4,
-            this.saveSPISoundToolStripMenuItem,
-            this.deleteSelectedSPISoundToolStripMenuItem});
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 22);
-            this.editToolStripMenuItem.Text = "Edit";
-            // 
-            // undoCtrlZToolStripMenuItem
-            // 
-            this.undoCtrlZToolStripMenuItem.Name = "undoCtrlZToolStripMenuItem";
-            this.undoCtrlZToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl-Z";
-            this.undoCtrlZToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.undoCtrlZToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
-            this.undoCtrlZToolStripMenuItem.Text = "Undo";
-            this.undoCtrlZToolStripMenuItem.Click += new System.EventHandler(this.undoCtrlZToolStripMenuItem_Click);
-            // 
-            // redoCtrlYToolStripMenuItem
-            // 
-            this.redoCtrlYToolStripMenuItem.Name = "redoCtrlYToolStripMenuItem";
-            this.redoCtrlYToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl-Y";
-            this.redoCtrlYToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-            this.redoCtrlYToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
-            this.redoCtrlYToolStripMenuItem.Text = "Redo";
-            this.redoCtrlYToolStripMenuItem.Click += new System.EventHandler(this.redoCtrlYToolStripMenuItem_Click);
-            // 
-            // deleteInputSoundToolStripMenuItem
-            // 
-            this.deleteInputSoundToolStripMenuItem.Name = "deleteInputSoundToolStripMenuItem";
-            this.deleteInputSoundToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
-            this.deleteInputSoundToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
-            this.deleteInputSoundToolStripMenuItem.Text = "Delete Selected Input Sound";
-            this.deleteInputSoundToolStripMenuItem.Click += new System.EventHandler(this.deleteInputSoundToolStripMenuItem_Click);
-            // 
-            // deleteSelectedSPISoundToolStripMenuItem
-            // 
-            this.deleteSelectedSPISoundToolStripMenuItem.Name = "deleteSelectedSPISoundToolStripMenuItem";
-            this.deleteSelectedSPISoundToolStripMenuItem.ShortcutKeyDisplayString = "DEL";
-            this.deleteSelectedSPISoundToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
-            this.deleteSelectedSPISoundToolStripMenuItem.Text = "Delete Selected SPI Sound";
-            this.deleteSelectedSPISoundToolStripMenuItem.Click += new System.EventHandler(this.deleteSelectedSPISoundToolStripMenuItem_Click);
-            // 
-            // addSelectedInputSoundToSPISoundsToolStripMenuItem
-            // 
-            this.addSelectedInputSoundToSPISoundsToolStripMenuItem.Name = "addSelectedInputSoundToSPISoundsToolStripMenuItem";
-            this.addSelectedInputSoundToSPISoundsToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
-            this.addSelectedInputSoundToSPISoundsToolStripMenuItem.Text = "Add Selected Input Sound to SPI Sounds";
-            this.addSelectedInputSoundToSPISoundsToolStripMenuItem.Click += new System.EventHandler(this.addSelectedInputSoundToSPISoundsToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(283, 6);
-            // 
-            // loadInputSoundToolStripMenuItem1
-            // 
-            this.loadInputSoundToolStripMenuItem1.Name = "loadInputSoundToolStripMenuItem1";
-            this.loadInputSoundToolStripMenuItem1.Size = new System.Drawing.Size(286, 22);
-            this.loadInputSoundToolStripMenuItem1.Text = "Load Input Sound...";
-            this.loadInputSoundToolStripMenuItem1.Click += new System.EventHandler(this.loadInputSoundToolStripMenuItem1_Click);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(283, 6);
-            // 
-            // saveSPISoundToolStripMenuItem
-            // 
-            this.saveSPISoundToolStripMenuItem.Name = "saveSPISoundToolStripMenuItem";
-            this.saveSPISoundToolStripMenuItem.Size = new System.Drawing.Size(286, 22);
-            this.saveSPISoundToolStripMenuItem.Text = "Save SPI Sound...";
-            this.saveSPISoundToolStripMenuItem.Click += new System.EventHandler(this.saveSPISoundToolStripMenuItem_Click);
             // 
             // Form1
             // 
