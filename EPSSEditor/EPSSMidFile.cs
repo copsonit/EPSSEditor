@@ -55,7 +55,7 @@ namespace EPSSEditor
         {
             if (_midReader.timeSignature == null) microSecondsPerQuarterNote*= 4;
             long ticksPerQuarter = _midReader.mf.DeltaTicksPerQuarterNote;
-            double playbackSpeed = 1.0; // ???
+            double playbackSpeed = 1.0;
 
             long tickLen = (long)((microSecondsPerQuarterNote/ (ticksPerQuarter * playbackSpeed)) * 10.0f);     //len of each tick in 0.1 usecs (or 100 nanosecs)
             double tickLenInS = (double)tickLen / 10000000;
