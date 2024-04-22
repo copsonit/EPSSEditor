@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using EPSSEditor.Vorbis;
 using static System.Net.Mime.MediaTypeNames;
 using NAudio.CoreAudioApi;
+using System.ComponentModel;
+using System.Security.AccessControl;
 
 namespace EPSSEditor
 {
@@ -47,6 +49,9 @@ namespace EPSSEditor
         private UInt32 _msLoopEnd;
         private BlockAlignReductionStream _blockAlignedStream = null;
         private CachedSound _cachedAudio;
+
+        private EPSSEditorData _parent;
+       
 
         public SpiSound()
         {
@@ -120,6 +125,8 @@ namespace EPSSEditor
             // TODO
         }
 
+        
+
         public virtual object Clone()
         {
             return this.MemberwiseClone();
@@ -142,6 +149,11 @@ namespace EPSSEditor
 
         public string name() { return _name; }
         public string extName() { return _extName; }
+
+        public void setParent(EPSSEditorData data)
+        {
+            _parent = data;
+        }
 
 
         public string description(EPSSEditorData data)
@@ -508,5 +520,74 @@ namespace EPSSEditor
                 else return this.programNumber.CompareTo(compareSnd.programNumber);
             }
         }
+
+        [DisplayName("MIDI")]
+        public string MidiChannel
+        {
+            get
+            {
+                if (midiChannel <= 16)
+                {
+                    return midiChannel.ToString();
+                }
+                return "-";
+            }
+        }
+
+        [DisplayName("Note")]
+        public string MidiNote
+        {
+            get {
+                if (startNote < 128 && endNote < 128)
+                {
+                    return startNote.ToString() + "-" + endNote.ToString();
+                }
+                return midiNote.ToString(); 
+            }
+        }
+
+        [DisplayName("Program")]
+        public string Program
+        {
+            get {
+                if (programNumber < 128)
+                {
+                    return (programNumber + 1).ToString();
+                }
+                return "-"; 
+            }
+        }
+
+
+        [DisplayName("Sound")]
+        public string Sound
+        {
+            get { return _name; }
+        }
+
+        [DisplayName("#")]
+        public string SoundNumber
+        {
+            get {
+
+                return _parent.GetSoundNumberFromGuid(soundId).ToString();
+                //return soundId.ToString(); // TODO needs global data to be able to map to number
+                //item.SubItems.Add(nr.ToString());
+            }
+
+        }
+
+
+        [DisplayName("Size")]
+        public string Size
+        {
+            get {
+
+                return Ext.ToPrettySize(preLength(_parent), 2).ToString();  
+            }
+        }
+
+        
+
     }
 }

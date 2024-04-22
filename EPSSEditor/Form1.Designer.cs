@@ -34,6 +34,7 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.spiSoundsDataGridView = new System.Windows.Forms.DataGridView();
             this.previewComboBox = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
             this.spiSoundListenButton = new System.Windows.Forms.Button();
@@ -151,6 +152,7 @@
             this.revMidTimer = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.spiSoundsDataGridView)).BeginInit();
             this.groupBox9.SuspendLayout();
             this.groupBox12.SuspendLayout();
             this.groupBox11.SuspendLayout();
@@ -192,6 +194,7 @@
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
@@ -209,6 +212,7 @@
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.spiSoundsDataGridView);
             this.groupBox2.Controls.Add(this.previewComboBox);
             this.groupBox2.Controls.Add(this.label9);
             this.groupBox2.Controls.Add(this.spiSoundListenButton);
@@ -227,6 +231,19 @@
             this.groupBox2.Text = "SPI Sounds";
             this.infoToolTip.SetToolTip(this.groupBox2, "Change transpose with Shift+mouse wheel on sound. Reset transpose with Shift+midd" +
         "le mouse button on sound.");
+            this.groupBox2.Enter += new System.EventHandler(this.groupBox2_Enter);
+            // 
+            // spiSoundsDataGridView
+            // 
+            this.spiSoundsDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.spiSoundsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.spiSoundsDataGridView.Location = new System.Drawing.Point(7, 379);
+            this.spiSoundsDataGridView.Name = "spiSoundsDataGridView";
+            this.spiSoundsDataGridView.RowHeadersWidth = 82;
+            this.spiSoundsDataGridView.Size = new System.Drawing.Size(553, 42);
+            this.spiSoundsDataGridView.TabIndex = 18;
             // 
             // previewComboBox
             // 
@@ -270,23 +287,25 @@
             // 
             // spiSoundListView
             // 
-            this.spiSoundListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.spiSoundListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.spiSoundListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.spiSoundListView.HideSelection = false;
             this.spiSoundListView.Location = new System.Drawing.Point(5, 19);
             this.spiSoundListView.Name = "spiSoundListView";
-            this.spiSoundListView.Size = new System.Drawing.Size(556, 402);
+            this.spiSoundListView.Size = new System.Drawing.Size(556, 348);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
             this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.SpiSoundListView_ItemSelectionChanged);
+            this.spiSoundListView.SelectedIndexChanged += new System.EventHandler(this.spiSoundListView_SelectedIndexChanged);
             this.spiSoundListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SpiSoundListView_KeyDown);
             this.spiSoundListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.SpiSoundListView_MouseDoubleClick);
             this.spiSoundListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.SpiSoundListView_MouseUp);
             // 
             // groupBox9
             // 
+            this.groupBox9.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox9.Controls.Add(this.groupBox12);
             this.groupBox9.Controls.Add(this.groupBox11);
             this.groupBox9.Location = new System.Drawing.Point(6, 305);
@@ -1377,7 +1396,7 @@
             this.Location = global::EPSSEditor.Properties.Settings.Default.WinLocation;
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.MinimumSize = new System.Drawing.Size(1094, 650);
+            this.MinimumSize = new System.Drawing.Size(967, 554);
             this.Name = "Form1";
             this.helpProvider1.SetShowHelp(this, false);
             this.Text = "EPSS Editor v x.xx";
@@ -1387,6 +1406,7 @@
             this.contextMenuStrip1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.spiSoundsDataGridView)).EndInit();
             this.groupBox9.ResumeLayout(false);
             this.groupBox12.ResumeLayout(false);
             this.groupBox12.PerformLayout();
@@ -1540,6 +1560,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem deleteSelectedSPISoundToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveSPISoundToolStripMenuItem;
+        private System.Windows.Forms.DataGridView spiSoundsDataGridView;
     }
 }
 

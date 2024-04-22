@@ -39,6 +39,19 @@ namespace EPSSEditor
         public EPSSEditorData() { }
 
 
+        public List<SpiSound> SpiSoundsForBinding()
+        {
+            List<SpiSound> snds = new List<SpiSound> ();
+            foreach(SpiSound snd in spiSounds)
+            {
+                SpiSound nw = snd;
+                nw.setParent(this);
+                snds.Add(nw);
+            }
+            return snds;
+        }
+
+
         public virtual object Clone()
         {
             EPSSEditorData o = (EPSSEditorData)this.MemberwiseClone();

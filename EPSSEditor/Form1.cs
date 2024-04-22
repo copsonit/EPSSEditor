@@ -323,11 +323,18 @@ namespace EPSSEditor
 
         private void UpdateSoundListBox()
         {
+
+            /*
             soundListBox.Items.Clear();
             foreach (Sound s in data.sounds)
             {
                 soundListBox.Items.Add(s.name());
             }
+            */
+            soundListBox.DataSource = null;
+            BindSoundListBox();
+            
+            //soundListBox.Refresh();
 
             bool enabled = soundListBox.SelectedItems.Count > 0;
             EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", enabled);
@@ -347,6 +354,21 @@ namespace EPSSEditor
 
         private void UpdateSpiSoundListBox()
         {
+            spiSoundsDataGridView.DataSource = null;
+            //BindingSource bs = new BindingSource(data.spiSounds, null);
+            BindingSource bs = new BindingSource(data.SpiSoundsForBinding(), null);
+
+
+            spiSoundsDataGridView.Rows.GetRowCount(DataGridViewElementStates.Visible);
+            spiSoundsDataGridView.DataSource = bs;
+            foreach (DataGridViewRow row in spiSoundsDataGridView.Rows)
+            {
+                row.HeaderCell.Value = (row.Index).ToString();
+                
+            }
+
+            spiSoundsDataGridView.TopLeftHeaderCell.Value = "Id";
+
             spiSoundListView.Clear();
             spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("MIDI", 35, HorizontalAlignment.Right);
@@ -547,6 +569,7 @@ namespace EPSSEditor
                     UpdateTotalSize();
                 }
 
+
                 soundListBox.BeginUpdate();
                 foreach (string file in filesAdded)
                 {
@@ -582,6 +605,13 @@ namespace EPSSEditor
         }
 
 
+        private void BindSoundListBox()
+        {
+            soundListBox.DataSource = data.sounds;
+            soundListBox.DisplayMember = "ListDisplayName";
+            soundListBox.ValueMember = "IdToString";
+        }
+
         // Settings
         private bool LoadProjectSettings(string file)
         {
@@ -593,6 +623,7 @@ namespace EPSSEditor
                 {
                     data = (EPSSEditorData)ser.Deserialize(fs);
                     data.FixOldVersions();
+                    BindSoundListBox();
                 }
 
                 string newDir = "";
@@ -968,36 +999,46 @@ namespace EPSSEditor
             }
             else
             {
-                int topIndex = soundListBox.TopIndex;
-                int visible = soundListBox.Height / soundListBox.ItemHeight - 1;
-                int dist = 0;
-                int idx = -1;
                 for (int index = indices.Count - 1; index >= 0; index--)
                 {
                     int removeIdx = indices[index];
-                    dist = Math.Min(visible, Math.Max(0, removeIdx - topIndex));
                     data.RemoveSound(removeIdx);
-                    soundListBox.Items.RemoveAt(removeIdx);
-                    if (idx == -1) idx = removeIdx;
-                }               
+                }
+                UpdateSoundListBox();
 
-                int itemsLeft = soundListBox.Items.Count;
-                if (itemsLeft > 0)
-                {
-                    if (idx >= itemsLeft)
+                    /*
+                    int topIndex = soundListBox.TopIndex;
+                    int visible = soundListBox.Height / soundListBox.ItemHeight - 1;
+                    int dist = 0;
+                    int idx = -1;
+                    for (int index = indices.Count - 1; index >= 0; index--)
                     {
-                        idx = itemsLeft - 1;
+                        int removeIdx = indices[index];
+                        dist = Math.Min(visible, Math.Max(0, removeIdx - topIndex));
+                        data.RemoveSound(removeIdx);
+                        soundListBox.Items.RemoveAt(removeIdx);
+                        if (idx == -1) idx = removeIdx;
+                    } 
+
+
+                    int itemsLeft = soundListBox.Items.Count;
+                    if (itemsLeft > 0)
+                    {
+                        if (idx >= itemsLeft)
+                        {
+                            idx = itemsLeft - 1;
+                        }
+                        soundListBox.SelectedIndex = idx;
+                        useInSpiButton.Enabled = true;
+                        EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", true);
+                        soundListBox.TopIndex = Math.Max(0, idx - dist);                  
                     }
-                    soundListBox.SelectedIndex = idx;
-                    useInSpiButton.Enabled = true;
-                    EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", true);
-                    soundListBox.TopIndex = Math.Max(0, idx - dist);                  
-                }
-                else
-                {
-                    useInSpiButton.Enabled = false;
-                    EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", false);
-                }
+                    else
+                    {
+                        useInSpiButton.Enabled = false;
+                        EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", false);
+                    }
+                    */
                 Undo.RegisterUndoChange(data);
                 dataNeedsSaving = true;
                 SaveProjectSettings();
@@ -2746,6 +2787,16 @@ namespace EPSSEditor
         private void playButton_KeyPress(object sender, KeyPressEventArgs e)
         {
             PlaySelectedSound(forceLoopOff: true);
+        }
+
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void spiSoundListView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
