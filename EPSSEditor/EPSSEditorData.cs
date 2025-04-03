@@ -38,6 +38,8 @@ namespace EPSSEditor
         private Dictionary<int, SpiSound[]> _findSpiSoundArray; // midiChannel -> Sound[128]
         private Dictionary<int, SpiSound[]> _programArray;  // program -> Sound[128]
 
+        private bool _dataNeedsSaving;
+
 
         public EPSSEditorData() { }
 
@@ -51,6 +53,7 @@ namespace EPSSEditor
             foreach (var s in spiSounds) { o.spiSounds.Add((SpiSound)s.Clone()); }          
             o._findSpiSoundArray = null;
             o._programArray = null;
+            o._dataNeedsSaving = this._dataNeedsSaving;
 
             return o;
         }
@@ -69,8 +72,18 @@ namespace EPSSEditor
             _programArray = null;
             created = DateTime.Now;
             changed = DateTime.Now;
+            _dataNeedsSaving = false;
         }
 
+        public void SetDataNeedsSaving(bool flag)
+        {
+            _dataNeedsSaving =  flag;
+        }
+
+        public bool GetDataNeedsSaving()
+        {
+            return _dataNeedsSaving;
+        }
 
         public void ClearAll()
         {
