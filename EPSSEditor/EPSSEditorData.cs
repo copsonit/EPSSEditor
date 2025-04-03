@@ -13,6 +13,7 @@ using System.Data.SqlTypes;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Windows.Forms;
 using System.ComponentModel;
 
 namespace EPSSEditor
@@ -31,6 +32,8 @@ namespace EPSSEditor
         public int previewSelected;
         public bool omni;
         public int spiVersion;
+        public DateTime created;
+        public DateTime changed;
 
         private string _fileNameForListenConvertedSound = null;
         private Dictionary<int, SpiSound[]> _findSpiSoundArray; // midiChannel -> Sound[128]
@@ -63,6 +66,8 @@ namespace EPSSEditor
             previewSelected = 0;
             _findSpiSoundArray = null;
             _programArray = null;
+            created = DateTime.Now;
+            changed = DateTime.Now;
         }
 
 
@@ -131,6 +136,8 @@ namespace EPSSEditor
 
             spiName = spi.ext.i_pname.Trim();
             spiDescription = spi.ext.i_patchinfo.Trim();
+            created = spi.ext.GetCreationDateTime();
+            changed = spi.ext.GetChangeDateTime();
 
             SfzConverter c = new SfzConverter();
             Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(spi);
@@ -254,6 +261,14 @@ namespace EPSSEditor
                 {
                     snd.description = Path.GetFileNameWithoutExtension(snd.path);
                 }
+            }
+            if (created == DateTime.MinValue)
+            {
+                created = DateTime.Now;
+            }
+            if (changed == DateTime.MinValue)
+            {
+                changed = DateTime.Now;
             }
             foreach(SpiSound spiSnd in spiSounds)
             {

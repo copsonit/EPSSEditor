@@ -28,8 +28,8 @@ namespace EPSSEditor
         private List<CachedSound> _playingSounds;
         private int spoolStep;
         private bool wasPlayingBeforeSpool;
+        private bool ignoreChangedFlag;
         private bool _useDataGridView = true; // spiSoundListView or spiSoundsDataGridView
-
 
         public Form1()
         {
@@ -319,7 +319,9 @@ namespace EPSSEditor
         {
             if (initialize > 0)
             {
+                ignoreChangedFlag = true;
                 previewComboBox.SelectedIndex = data.previewSelected;
+                ignoreChangedFlag = false;
             }
         }
 
@@ -521,10 +523,14 @@ namespace EPSSEditor
             }
             */
 
+            ignoreChangedFlag = true;
             spiNameTextBox.Text = data.spiName;
             spiInfoTextBox.Text = data.spiDescription;
             omniPatchCheckBox.Checked = data.omni;
             gen2CheckBox.Checked = data.HasAnyProgramChange();
+            spiInfoChangeTB.Text = data.changed.ToString();
+            spiInfoCreatedTB.Text = data.created.ToString();
+            ignoreChangedFlag = false;
 
             bool spiSaveEnabled = data.IsValidForSpiExport();
             EnableToolStripItem("saveSPIToolStripMenuItem", spiSaveEnabled);
@@ -766,6 +772,7 @@ namespace EPSSEditor
                     XmlSerializer ser = new XmlSerializer(typeof(EPSSEditorData));
                     using (FileStream fs = new FileStream(file, FileMode.Create))
                     {
+                        data.changed = DateTime.Now;
                         ser.Serialize(fs, data);
                     }
                     dataNeedsSaving = false;
@@ -2321,7 +2328,11 @@ namespace EPSSEditor
         private void PreviewComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             data.previewSelected = previewComboBox.SelectedIndex;
-            dataNeedsSaving = true;
+            if (!ignoreChangedFlag)
+            {
+                dataNeedsSaving = true;
+            }
+
             //SaveProjectSettings();
         }
 
@@ -2329,8 +2340,11 @@ namespace EPSSEditor
         private void SpiNameTextBox_TextChanged(object sender, EventArgs e)
         {
             data.spiName = spiNameTextBox.Text;
-            dataNeedsSaving = true;
-            Undo.RegisterUndoChange(data);
+            if (!ignoreChangedFlag)
+            {
+                dataNeedsSaving = true;
+                Undo.RegisterUndoChange(data);
+            }
             //SaveProjectSettings();
         }
 
@@ -2338,8 +2352,11 @@ namespace EPSSEditor
         private void SpiInfoTextBox_TextChanged(object sender, EventArgs e)
         {
             data.spiDescription = spiInfoTextBox.Text;
-            dataNeedsSaving = true;
-            Undo.RegisterUndoChange(data);
+            if (!ignoreChangedFlag)
+            {
+                dataNeedsSaving = true;
+                Undo.RegisterUndoChange(data);
+            }
             //SaveProjectSettings();
         }
 
