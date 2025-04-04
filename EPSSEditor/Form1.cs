@@ -685,8 +685,7 @@ namespace EPSSEditor
             return 0;
         }
 
-        /*
-         * TODO
+
         private void BackupProjectSettings()
         {
             string file = Properties.Settings.Default.ProjectFile;
@@ -702,7 +701,6 @@ namespace EPSSEditor
                 File.Copy(file, backupFile, false);
             }
         }
-        */
 
 
         private void SaveProjectSettings()
@@ -712,6 +710,8 @@ namespace EPSSEditor
                 string file = Properties.Settings.Default.ProjectFile;
                 if (file != "")
                 {
+                    BackupProjectSettings();
+
                     XmlSerializer ser = new XmlSerializer(typeof(EPSSEditorData));
                     using (FileStream fs = new FileStream(file, FileMode.Create))
                     {
