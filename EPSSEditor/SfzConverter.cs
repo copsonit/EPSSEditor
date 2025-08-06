@@ -487,7 +487,34 @@ namespace EPSSEditor
             return found;
         }
 
+
+        public static Sf2Info Sf2Info(string filePath)
+        {
+            SoundFont sf = new SoundFont(filePath);
+
+            Sf2Info info = new Sf2Info();
+
+            foreach (var preset in sf.Presets)
+            {
+                int bank = preset.Bank;
+                int patchNumber = preset.PatchNumber;
+                info.AddPreset(bank, patchNumber, preset.Name);
+            }
+            return info;
+        }
+
+        public static bool Sf2ContainsMultipleBanks(Sf2Info info)
+        {
+            bool result = false;
+
+            result = info.Banks().Count > 1;
+
+            return result;
+        }
+
+
         // Load sf2
+        // TODO: Add input of banks here when we have multiple banks in sf2
         public static bool LoadSf2(EPSSEditorData data, int programChange, string filePath, string samplesPath, List<string> filesAdded, out string errorMessage)
         {
             bool result = false;
@@ -509,6 +536,9 @@ namespace EPSSEditor
                 foreach (var preset in sf.Presets)
                 {
                     int bank = preset.Bank;
+                    // TODO: use the bank number if it is defined as an input parameter
+                    if (bank > 0) continue; // Test code to unly use bank 0
+  
                     int patchNumber = preset.PatchNumber;
                     Console.WriteLine($"Preset: {bank}:{patchNumber}");
                     foreach (var zone in preset.Zones)

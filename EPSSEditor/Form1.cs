@@ -1440,6 +1440,52 @@ namespace EPSSEditor
                 int cm = CurrentMidiChannel();
                 int programChange = mappingModeProgramRadioButton.Checked ? cm - 1 : 128;
 
+                Sf2Info info = SfzConverter.Sf2Info(filePath);
+
+                if (SfzConverter.Sf2ContainsMultipleBanks(info))
+                {
+                    Sf2ImportForm f = new Sf2ImportForm()
+                    {
+                        StartPosition = FormStartPosition.Manual
+                    };
+
+                    TreeView tv = f.TreeView();
+
+                    TreeNode tn = new TreeNode();
+                    tn.Name = "mainNode";
+                    tn.Text = filePath;
+
+
+                    foreach (var v in info.bankInfo)
+                    {
+                        TreeNode bn = new TreeNode();
+                        bn.Name = v.Key.ToString();
+                        bn.Text = "Bank " + v.Key.ToString();
+
+                        foreach (var v2 in v.Value.presets)
+                        {
+                            TreeNode cn = new TreeNode();
+                            cn.Name = v2.Key.ToString();
+                            cn.Text = "Preset " + v2.Key.ToString() + ": " + v2.Value.name;
+                            bn.Nodes.Add(cn);
+                        }
+
+                        tn.Nodes.Add(bn);
+                    }
+
+                    tv.Nodes.Clear();
+                    tv.Nodes.Add(tn);
+
+                    DialogResult res = f.ShowDialog();
+                    if (res == DialogResult.OK)
+                    {
+                        TreeNode selected = tv.SelectedNode;
+
+                    }
+
+                }
+                result = false;
+                errorMessage= "In test...";
                 result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
             }
             else
