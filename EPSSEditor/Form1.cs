@@ -1,7 +1,12 @@
-﻿using System;
+﻿using NAudio.Utils;
+using System;
 using System.Collections.Generic;
+using System.Configuration;  // Add a reference to System.Configuration.dll
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -11,6 +16,7 @@ using System.Reflection;
 using System.Data.Common;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 
 namespace EPSSEditor
@@ -1432,6 +1438,27 @@ namespace EPSSEditor
         {
             bool result = false;
 
+            // if mapping is set to Program Change, we can load SF2 files, otherwise change mapping to program change
+            // Check if we're in program change mapping mode
+            if (!mappingModeProgramRadioButton.Checked)
+            {
+                // Ask user if they want to switch to program change mode
+                if (MessageBox.Show(
+                    "SF2 files require Program Change mapping mode.\nDo you want to switch to Program Change mode?",
+                    "EPSS Editor",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    // Switch to program change mapping mode
+                    mappingModeProgramRadioButton.Checked = true;
+                }
+                else
+                {
+                    errorMessage = "SF2 files can only be loaded in Program Change mapping mode.";
+                    return false;
+                }
+            }
+
             if (mappingModeProgramRadioButton.Checked)
             {
                 string sampleSubDir = "samples";
@@ -1442,14 +1469,16 @@ namespace EPSSEditor
 
                 Sf2Info info = SfzConverter.Sf2Info(filePath);
 
+                bool doSf2Import = true;
                 if (SfzConverter.Sf2ContainsMultipleBanks(info))
                 {
+
                     Sf2ImportForm f = new Sf2ImportForm()
                     {
                         StartPosition = FormStartPosition.Manual
                     };
 
-                    TreeView tv = f.TreeView();
+                    System.Windows.Forms.TreeView tv = f.TreeView();
 
                     TreeNode tn = new TreeNode();
                     tn.Name = "mainNode";
@@ -1475,14 +1504,45 @@ namespace EPSSEditor
 
                     tv.Nodes.Clear();
                     tv.Nodes.Add(tn);
+                    
+                    if (tn.Nodes.Count > 0)
+                    {
+                        tv.SelectedNode = tn.Nodes[0];
+                        tv.SelectedNode.Expand();
+                       
+                            
+                    }
 
                     DialogResult res = f.ShowDialog();
                     if (res == DialogResult.OK)
                     {
                         TreeNode selected = tv.SelectedNode;
+                        // open selected node
+                    } else
+                    {
+                        doSf2Import = false;
+                    }
+                }
+          
+                if (doSf2Import)
+                {
+                    //make a progress bar here as the load can take some time
 
+                    // Show progress form
+                    using (var progress = new ProgressForm("Loading sounds"))
+                    {
+                        progress.Show(this);
+
+                        // Pass progress callback to SfzConverter
+                        result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded,
+                            out errorMessage, (value, status) => progress.SetProgress(value, status));
                     }
 
+
+                    //result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
+                } else
+                {
+                    errorMessage = "Import cancelled by user.";
                 }
                 result = false;
                 errorMessage= "In test...";

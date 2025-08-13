@@ -42,6 +42,7 @@
             // 
             // sf2ImportContinueButton
             // 
+            this.sf2ImportContinueButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.sf2ImportContinueButton.Location = new System.Drawing.Point(318, 429);
             this.sf2ImportContinueButton.Name = "sf2ImportContinueButton";
             this.sf2ImportContinueButton.Size = new System.Drawing.Size(75, 23);
@@ -59,7 +60,7 @@
             this.textBox1.Text = "More than one bank of sounds found. Please select which bank you want to import i" +
     "n the window below:";
             // 
-            // Sf2Import
+            // Sf2ImportForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -67,7 +68,7 @@
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.sf2ImportContinueButton);
             this.Controls.Add(this.sf2ImportTreeView);
-            this.Name = "Sf2Import";
+            this.Name = "Sf2ImportForm";
             this.Text = "SF2 Import Settings";
             this.ResumeLayout(false);
             this.PerformLayout();
