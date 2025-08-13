@@ -12,11 +12,12 @@ using static System.Net.Mime.MediaTypeNames;
 using NAudio.CoreAudioApi;
 using System.ComponentModel;
 using System.Security.AccessControl;
+using System.Runtime.Remoting.Messaging;
 
 namespace EPSSEditor
 {
 
-    public class SpiSound : IDisposable, ICloneable, IEquatable<SpiSound>, IComparable<SpiSound>
+    public class SpiSound : IDisposable, ICloneable, IEquatable<SpiSound>, IComparable<SpiSound>, INotifyPropertyChanged
     {
         public byte midiChannel; // [1-16]
         public byte midiNote; // [0-127] This is the midi note where the sound is played at pitch 0. center note
@@ -25,7 +26,24 @@ namespace EPSSEditor
         public byte endNote; // [0-127] 128:not defined
 
         public byte programNumber; // [0-127]  128:not defined
-        public sbyte transpose;
+        //public sbyte transpose;
+        private sbyte _transpose;
+        [Browsable(false)]
+        public sbyte transpose
+        {
+            get => _transpose;
+            set
+            {
+                if (_transpose != value)
+                {
+                    _transpose = value;
+                    OnPropertyChanged((nameof(transpose)));
+                }
+            }
+        }
+
+
+
         public byte vvfe;
         public UInt16 s_gr_frek;
 
@@ -38,7 +56,7 @@ namespace EPSSEditor
         public UInt32 end;
 
         // These are mirrored with Sound, i.e. *NOT* converted depending on frequency changes, bit changes etc.
-        public UInt32 loopStart; 
+        public UInt32 loopStart;
         public UInt32 loopEnd;
 
         public UInt16 extVolume;
@@ -51,7 +69,13 @@ namespace EPSSEditor
         private CachedSound _cachedAudio;
 
         private EPSSEditorData _parent;
-       
+
+        //public sbyte transpose123;
+        // how do I hide a binding property?
+
+        
+
+        
 
         public SpiSound()
         {
@@ -125,7 +149,7 @@ namespace EPSSEditor
             // TODO
         }
 
-        
+
 
         public virtual object Clone()
         {
@@ -158,6 +182,10 @@ namespace EPSSEditor
 
         public string description(EPSSEditorData data)
         {
+            if (_parent == null)
+            {
+                return "";
+            }
             StringBuilder s = new StringBuilder();
             s.Append(midiChannel);
             s.Append("    ");
@@ -174,6 +202,10 @@ namespace EPSSEditor
 
         public long preLength(EPSSEditorData data)
         {
+            if (_parent == null)
+            {
+                return 0;
+            }
             Sound sound = data.GetSoundFromSoundId(soundId);
 
             if (sound != null)
@@ -252,7 +284,7 @@ namespace EPSSEditor
                             using (var resampler = new MediaFoundationResampler(reader, outFormat))
                             {
                                 resampler.ResamplerQuality = 60; // Highest quality
-                                
+
                                 lengthChangeFact = (double)newFreq / (double)reader.WaveFormat.SampleRate;
                                 //lengthFactor *= (double)(16.0 / (double)reader.WaveFormat.BitsPerSample);
                                 newLs = (UInt32)((double)newLs * lengthChangeFact);
@@ -283,7 +315,7 @@ namespace EPSSEditor
                                 lengthChangeFact = (double)newFreq / (double)reader.WaveFormat.SampleRate;
                                 //lengthFactor *= (double)(16.0 / (double)reader.WaveFormat.BitsPerSample);
                                 newLs = (UInt32)((double)newLs * lengthChangeFact);
-                                newLe = (UInt32)((double)newLe* lengthChangeFact);
+                                newLe = (UInt32)((double)newLe * lengthChangeFact);
 
                                 WaveLoopFileWriter.CreateWaveLoopFile(volTempPath, resampler, loop, newLs, newLe);
                             }
@@ -386,8 +418,8 @@ namespace EPSSEditor
 
 
         public UInt32 MsLoopStart() { return _msLoopStart; }
-        
-        
+
+
         public UInt32 MsLoopEnd() { return _msLoopEnd; }
 
 
@@ -436,7 +468,7 @@ namespace EPSSEditor
             return Math.Min(127, Math.Max(0, midiNote - transpose));
         }
 
-        public string transposeString()
+        public string TransposeString()
         {
             if (transpose == 0) return "0";
             else if (transpose > 0) return "+" + transpose.ToString();
@@ -444,7 +476,7 @@ namespace EPSSEditor
         }
 
 
-        public byte transposedNote(byte original)
+        public byte TransposedNote(byte original)
         {
             int newNote = (int)original + transpose; // normal pitch + transpose
             if (newNote > 128) newNote = 128;
@@ -521,7 +553,8 @@ namespace EPSSEditor
             }
         }
 
-        [DisplayName("MIDI")]
+
+        [DisplayName("MIDI"), Width(35)]
         public string MidiChannel
         {
             get
@@ -534,7 +567,7 @@ namespace EPSSEditor
             }
         }
 
-        [DisplayName("Note")]
+        [DisplayName("Note"), Width(55)]
         public string MidiNote
         {
             get {
@@ -542,11 +575,11 @@ namespace EPSSEditor
                 {
                     return startNote.ToString() + "-" + endNote.ToString();
                 }
-                return midiNote.ToString(); 
+                return midiNote.ToString();
             }
         }
 
-        [DisplayName("Program")]
+        [DisplayName("Program"), Width(55)]
         public string Program
         {
             get {
@@ -554,21 +587,26 @@ namespace EPSSEditor
                 {
                     return (programNumber + 1).ToString();
                 }
-                return "-"; 
+                return "-";
             }
         }
 
 
-        [DisplayName("Sound")]
-        public string Sound
+        [DisplayName("Sound"), Width(100)]
+        public string SoundName
         {
             get { return _name; }
+            //set { _name = value;  }
         }
 
-        [DisplayName("#")]
+        [DisplayName("#"), Width(40)]
         public string SoundNumber
         {
             get {
+                if (_parent == null)
+                {
+                    return "-";
+                }
 
                 return _parent.GetSoundNumberFromGuid(soundId).ToString();
                 //return soundId.ToString(); // TODO needs global data to be able to map to number
@@ -578,15 +616,175 @@ namespace EPSSEditor
         }
 
 
-        [DisplayName("Size")]
+        [DisplayName("Size"), Width(55)]
         public string Size
         {
             get {
 
-                return Ext.ToPrettySize(preLength(_parent), 2).ToString();  
+                return Ext.ToPrettySize(preLength(_parent), 2).ToString();
             }
         }
 
+        [DisplayName("Transpose"), Width(55)]
+        public string Transpose
+        {
+            get
+            {
+                return TransposeString();
+            }
+        }
+
+        [DisplayName("Vvfe"), Width(35)]
+        public string Vvfe
+        {
+            get
+            {
+                return VvfeString();
+            }
+        }
+
+        private EPSSSpi_s_gr_frek S_gr_frek()
+        {
+            return new EPSSSpi_s_gr_frek
+            {
+                data = s_gr_frek
+            };
+        }
+
+
+
+        [DisplayName("Drum"), Width(20)]
+        public string Drum
+        {
+            get
+            {
+                return S_gr_frek().Drum.ToString();
+            }
+        }
+
+        [DisplayName("Velocity"), Width(20)]
+        public string Velocity
+        {
+            get
+            {
+                return S_gr_frek().Velocity.ToString();
+            }
+        }
+
+        [DisplayName("SoundType"), Width(20)]
+        public string SoundType
+        {
+            get
+            {
+                return S_gr_frek().SoundType.ToString();
+            }
+        }
+        [DisplayName("Mode"), Width(20)]
+        public string Mode
+        {
+            get
+            {
+                return S_gr_frek().Mode.ToString();
+            }
+        }
+        [DisplayName("Aftertouch"), Width(20)]
+        public string Aftertouch
+        {
+            get
+            {
+                return S_gr_frek().Aftertouch.ToString();
+            }
+        }
+
+        [DisplayName("StereoType"), Width(20)]
+        public string StereoType
+        {
+            get
+            {
+                return S_gr_frek().StereoType.ToString();
+            }
+        }
+        [DisplayName("StereoPan"), Width(20)]
+        public string StereoPan
+        {
+            get
+            {
+                return S_gr_frek().StereoPan.ToString();
+            }
+        }
+        [DisplayName("OrgFreq"), Width(20)]
+        public string OrgFreq
+        {
+            get
+            {
+                return S_gr_frek().OrgFreq.ToString();
+            }
+        }
+
+        [DisplayName("Start"), Width(65)]
+        public string Start
+        {
+            get
+            {
+                return start.ToString("X8");
+            }
+        }
+
+        private Sound Sound()
+        {
+            if (_parent == null)
+            {
+                return null;
+            }
+
+            return _parent.GetSoundFromSoundId(soundId);
+        }
+
+        [DisplayName("Loop"), Width(65)]
+        public string Loop
+        {
+            get
+            {
+                Sound s = Sound();
+                if (s == null) return "";
+                ConversionParameters p = s.parameters();
+
+                uint ls = loopStart;
+                if (p != null)
+                { 
+                    if (p.freq != null)
+                    {
+                        ls = (uint)(p.freq.compressionFactor() * loopStart);
+                    }
+                }
+
+                return ls.ToString("X8");
+            }
+       
+        }
+
+        [DisplayName("End"), Width(65)]
+        public string End
+        { get { return end.ToString("X8"); } }
+
+        [DisplayName("LoopMode"), Width(20)]
+        public string LoopMode
+        { get { return loopMode.ToString(); } }
+
+        [DisplayName("Volume"), Width(40)]
+        public string Volume
+        { get { return extVolume.ToString(); } }
+
+        [DisplayName("SubTone"), Width(40)]
+        public string SubTone
+        { get { return subTone.ToString(); } }
+
+        
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         
 
     }

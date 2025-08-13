@@ -244,6 +244,7 @@
             this.spiSoundsDataGridView.RowHeadersWidth = 82;
             this.spiSoundsDataGridView.Size = new System.Drawing.Size(553, 42);
             this.spiSoundsDataGridView.TabIndex = 18;
+            this.spiSoundsDataGridView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.spiSoundsDataGridView_KeyDown);
             // 
             // previewComboBox
             // 
