@@ -1409,6 +1409,27 @@ namespace EPSSEditor
             if (idxRemoved.Count > 0)
             {
                 // TODO: migrate to spiSoundsDataGridView
+                BindingSource bs = spiSoundsDataGridView.DataSource as BindingSource;
+
+                List<SpiSound> sounds = data.SpiSoundsForBinding();
+                int removed = 0;
+                for (int index = idxRemoved.Count - 1; index >= 0; index--)
+                {
+                    int idx = idxRemoved[index];
+                    if (idx < 0 || idx >= sounds.Count)
+                    {
+                        MessageBox.Show("Invalid SPI sound index: " + idx);
+                        return;
+                    } else
+                    {
+                        sounds.RemoveAt(idx-removed);
+                        removed++;
+                    }
+                }
+
+                bs.ResetBindings(false);
+
+                /*
                 ListViewItem topItem = spiSoundListView.TopItem;
                 int lastIndex = topItem.Index;
 
@@ -1435,6 +1456,7 @@ namespace EPSSEditor
                 dataNeedsSaving = true;
                 SaveProjectSettings();
                 UpdateTotalSize();
+                */
             }
         }
 
@@ -2891,29 +2913,8 @@ namespace EPSSEditor
                                 snd.transpose -= 1;
                             }
                             spiSoundsDataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
-                            /*
-                            var bs = spiSoundsDataGridView.DataSource as BindingSource;
-                            if (bs != null)
-                            {
-                                bs.ResetBindings(false);
-                            }
-                            else
-                            {
-                                spiSoundsDataGridView.Refresh();
-                            }
-                            */
-                            // How do I refresh the DataGridView after editing? 
-
-                            //BindingSource bs = (BindingSource)spiSoundsDataGridView.DataSource;
-                            //bs.ResetBindings(false);
-                            //bs.EndEdit();
-                            //spiSoundsDataGridView.RefreshEdit();
                         }
                     }
-                    //spiSoundsDataGridView.
-                    //SpiSound s = 
-
                 }
             }
         }

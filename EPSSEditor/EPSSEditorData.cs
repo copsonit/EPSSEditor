@@ -35,20 +35,24 @@ namespace EPSSEditor
         private Dictionary<int, SpiSound[]> _findSpiSoundArray; // midiChannel -> Sound[128]
         private Dictionary<int, SpiSound[]> _programArray;  // program -> Sound[128]
 
+        private List<SpiSound> _spiSoundsForBinding = null;
 
         public EPSSEditorData() { }
 
 
         public List<SpiSound> SpiSoundsForBinding()
         {
-            List<SpiSound> snds = new List<SpiSound> ();
-            foreach(SpiSound snd in spiSounds)
+            if (_spiSoundsForBinding == null)
             {
-                SpiSound nw = snd;
-                nw.setParent(this);
-                snds.Add(nw);
+                _spiSoundsForBinding = new List<SpiSound>();
+                foreach (SpiSound snd in spiSounds)
+                {
+                    SpiSound nw = snd;
+                    nw.setParent(this);
+                    _spiSoundsForBinding.Add(nw);
+                }
             }
-            return snds;
+            return _spiSoundsForBinding;
         }
 
 
