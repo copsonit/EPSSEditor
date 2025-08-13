@@ -1,13 +1,16 @@
-﻿using System;
+﻿using NAudio.Utils;
+using System;
 using System.Collections.Generic;
+using System.Configuration;  // Add a reference to System.Configuration.dll
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using System.IO;
-using System.Configuration;  // Add a reference to System.Configuration.dll
-using System.Reflection;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace EPSSEditor
 {
@@ -27,6 +30,11 @@ namespace EPSSEditor
         private bool wasPlayingBeforeSpool;
         private bool ignoreChangedFlag;
 
+        // Add these fields to your Form1 class
+        private System.Windows.Forms.ToolTip spiSoundListViewHeaderToolTip;
+        private IntPtr spiSoundListViewHeaderHandle = IntPtr.Zero;
+        private ListViewHeaderNativeWindow spiSoundListViewHeaderNativeWindow;
+
         public Form1()
         {
             InitializeComponent();
@@ -34,6 +42,8 @@ namespace EPSSEditor
             //dataNeedsSaving = false;
             _processListViewScrollListener = new ControlScrollListener(spiSoundListView);
             _processListViewScrollListener.ControlScrolled += SpiSoundListViewScrollListener_ControlScrolled;
+            spiSoundListViewHeaderToolTip = new System.Windows.Forms.ToolTip();
+            spiSoundListViewHeaderToolTip.ShowAlways = true;
         }
 
 
@@ -358,6 +368,11 @@ namespace EPSSEditor
         private void UpdateSpiSoundListBox()
         {
             spiSoundListView.Clear();
+            /*ColumnHeader h = new ColumnHeader();
+            h.Text = "Id";
+            h.Width = 40;
+            h.TextAlign = HorizontalAlignment.Left;
+            spiSoundListView.Columns.Add(h);*/
             spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("MIDI", 35, HorizontalAlignment.Right);
             spiSoundListView.Columns.Add("Note", 55, HorizontalAlignment.Right);
@@ -383,6 +398,16 @@ namespace EPSSEditor
             spiSoundListView.Columns.Add("Vol", 40, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("Sub", 40, HorizontalAlignment.Left);
             spiSoundListView.View = View.Details;
+
+            if (spiSoundListViewHeaderNativeWindow == null)
+            {
+                spiSoundListViewHeaderNativeWindow = new ListViewHeaderNativeWindow(
+                    spiSoundListView,
+                    spiSoundListViewHeaderToolTip,
+                    GetColumnTooltip
+                );
+            }
+            //spiSoundListView.ShowItemToolTips = true;
 
             spiSoundListView.FullRowSelect = true;
             int i = 0;
@@ -461,6 +486,19 @@ namespace EPSSEditor
 
                 spiSoundListView.Items.Add(item);
             }
+
+            // Add tooltip text for column headers when mouse hovers
+            /*
+            spiSoundListViewHeaderHandle = ListViewExtensions.GetHeaderHandle(spiSoundListView);
+            if (spiSoundListViewHeaderHandle != IntPtr.Zero)
+            {
+                Control headerControl = Control.FromHandle(spiSoundListViewHeaderHandle);
+                if (headerControl != null)
+                {
+                    headerControl.MouseMove += SpiSoundListViewHeader_MouseMove;
+                }
+            }
+            */
 
             /*
             Sound snd = GetSoundAtSelectedIndex();
@@ -1523,6 +1561,27 @@ namespace EPSSEditor
         {
             bool result = false;
 
+            // if mapping is set to Program Change, we can load SF2 files, otherwise change mapping to program change
+            // Check if we're in program change mapping mode
+            if (!mappingModeProgramRadioButton.Checked)
+            {
+                // Ask user if they want to switch to program change mode
+                if (MessageBox.Show(
+                    "SF2 files require Program Change mapping mode.\nDo you want to switch to Program Change mode?",
+                    "EPSS Editor",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    // Switch to program change mapping mode
+                    mappingModeProgramRadioButton.Checked = true;
+                }
+                else
+                {
+                    errorMessage = "SF2 files can only be loaded in Program Change mapping mode.";
+                    return false;
+                }
+            }
+
             if (mappingModeProgramRadioButton.Checked)
             {
                 string sampleSubDir = "samples";
@@ -1533,14 +1592,16 @@ namespace EPSSEditor
 
                 Sf2Info info = SfzConverter.Sf2Info(filePath);
 
+                bool doSf2Import = true;
                 if (SfzConverter.Sf2ContainsMultipleBanks(info))
                 {
+
                     Sf2ImportForm f = new Sf2ImportForm()
                     {
                         StartPosition = FormStartPosition.Manual
                     };
 
-                    TreeView tv = f.TreeView();
+                    System.Windows.Forms.TreeView tv = f.TreeView();
 
                     TreeNode tn = new TreeNode();
                     tn.Name = "mainNode";
@@ -1566,18 +1627,46 @@ namespace EPSSEditor
 
                     tv.Nodes.Clear();
                     tv.Nodes.Add(tn);
+                    
+                    if (tn.Nodes.Count > 0)
+                    {
+                        tv.SelectedNode = tn.Nodes[0];
+                        tv.SelectedNode.Expand();
+                       
+                            
+                    }
 
                     DialogResult res = f.ShowDialog();
                     if (res == DialogResult.OK)
                     {
                         TreeNode selected = tv.SelectedNode;
+                        // open selected node
+                    } else
+                    {
+                        doSf2Import = false;
+                    }
+                }
+          
+                if (doSf2Import)
+                {
+                    //make a progress bar here as the load can take some time
 
+                    // Show progress form
+                    using (var progress = new ProgressForm("Loading sounds"))
+                    {
+                        progress.Show(this);
+
+                        // Pass progress callback to SfzConverter
+                        result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded,
+                            out errorMessage, (value, status) => progress.SetProgress(value, status));
                     }
 
+
+                    //result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
+                } else
+                {
+                    errorMessage = "Import cancelled by user.";
                 }
-                result = false;
-                errorMessage= "In test...";
-                result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
             } 
             else {
                 errorMessage = "Only valid to load SF2 with\nProgram Change Mapping selected.";
@@ -2839,5 +2928,181 @@ namespace EPSSEditor
         {
             PlaySelectedSound(forceLoopOff: true);
         }
+
+        // Add this method to your Form1 class
+        /*private void SpiSoundListViewHeader_MouseMove(object sender, MouseEventArgs e)
+        {
+            int columnIndex = ListViewExtensions.GetColumnIndexAtX(spiSoundListView, e.X);
+            if (columnIndex >= 0)
+            {
+                string tooltip = GetColumnTooltip(columnIndex);
+                if (!string.IsNullOrEmpty(tooltip))
+                {
+                    spiSoundListViewHeaderToolTip.SetToolTip((Control)sender, tooltip);
+                    return;
+                }
+            }
+            spiSoundListViewHeaderToolTip.SetToolTip((Control)sender, "");
+        }*/
+
+        // Helper for column tooltips
+        private string GetColumnTooltip(int columnIndex)
+        {
+            switch (columnIndex)
+            {
+                case 0: return "Index number of the SPI sound";
+                case 1: return "MIDI channel (1-16) or - for program change sounds";
+                case 2: return "MIDI note range or single note number";
+                case 3: return "Program change number (1-128) or - for channel mapped sounds";
+                case 4: return "Sound name";
+                case 5: return "Sound number in sound list";
+                case 6: return "Size of the sound after conversion";
+                case 7: return "Transposition in semitones";
+                case 8: return "Volume velocity fade envelope settings";
+                case 9: return "Drum flag";
+                case 10: return "Velocity sensitivity";
+                case 11: return "Sound type";
+                case 12: return "Mode";
+                case 13: return "Aftertouch";
+                case 14: return "Stereo type";
+                case 15: return "Pan position";
+                case 16: return "Original frequency";
+                case 17: return "Sample start offset (hex)";
+                case 18: return "Loop start point (hex)";
+                case 19: return "Sample end point (hex)";
+                case 20: return "Loop mode (0=off, 1=no loop, 2=forward, 3=pingpong)";
+                case 21: return "Volume (0-127)";
+                case 22: return "Sub tone offset";
+                default: return null;
+            }
+        }
+
+    }
+
+
+    public class ListViewHeaderNativeWindow : NativeWindow
+    {
+        private readonly System.Windows.Forms.ListView _listView;
+        private readonly System.Windows.Forms.ToolTip _toolTip;
+        private readonly Func<int, string> _getColumnTooltip;
+
+        public ListViewHeaderNativeWindow(System.Windows.Forms.ListView listView, System.Windows.Forms.ToolTip toolTip, Func<int, string> getColumnTooltip)
+        {
+            _listView = listView;
+            _toolTip = toolTip;
+            _getColumnTooltip = getColumnTooltip;
+
+            IntPtr headerHandle = ListViewExtensions.GetHeaderHandle(listView);
+            if (headerHandle != IntPtr.Zero)
+            {
+                AssignHandle(headerHandle);
+            }
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            const int WM_MOUSEMOVE = 0x0200;
+            if (m.Msg == WM_MOUSEMOVE)
+            {
+                int x = (short)(m.LParam.ToInt32() & 0xFFFF);
+                int y = (short)((m.LParam.ToInt32() >> 16) & 0xFFFF);
+                int col = ListViewExtensions.GetColumnIndexAtX(_listView, x);
+                if (col >= 0)
+                {
+                    string tip = _getColumnTooltip(col);
+                    if (!string.IsNullOrEmpty(tip))
+                    {
+                        // Convert header coordinates to screen, then to ListView client
+                        NativeMethods.POINT pt = new NativeMethods.POINT { x = x, y = y };
+                        NativeMethods.ClientToScreen(Handle, ref pt);
+                        Point screenPoint = new Point(pt.x, pt.y);
+                        Point clientPoint = _listView.PointToClient(screenPoint);
+
+                        _toolTip.Show(tip, _listView, clientPoint.X, clientPoint.Y + 20, 3000);
+                        base.WndProc(ref m);
+                        return;
+                    }
+                }
+                _toolTip.Hide(_listView);
+            }
+            base.WndProc(ref m);
+
+            /*
+
+            if (m.Msg == WM_MOUSEMOVE)
+            {
+                int x = (short)(m.LParam.ToInt32() & 0xFFFF);
+                int col = ListViewExtensions.GetColumnIndexAtX(_listView, x);
+                if (col >= 0)
+                {
+                    string tip = _getColumnTooltip(col);
+                    if (!string.IsNullOrEmpty(tip))
+                    {
+                        _toolTip.SetToolTip(_listView, tip);
+                        base.WndProc(ref m);
+                        return;
+                    }
+                }
+                _toolTip.SetToolTip(_listView, "");
+            }
+            base.WndProc(ref m);
+            */
+        }
+    }
+
+    public static class ListViewExtensions
+    {
+        private const uint LVM_GETHEADER = 0x1000 + 31;
+        private const int HDM_HITTEST = 0x1206;
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        public static IntPtr GetHeaderHandle(System.Windows.Forms.ListView listView)
+        {
+            return SendMessage(listView.Handle, LVM_GETHEADER, IntPtr.Zero, IntPtr.Zero);
+        }
+        
+        public static int GetColumnIndexAtX(System.Windows.Forms.ListView listView, int x)
+        {
+            IntPtr header = GetHeaderHandle(listView);
+            if (header == IntPtr.Zero) return -1;
+
+            HDHITTESTINFO hti = new HDHITTESTINFO();
+            hti.pt_x = x;
+            hti.pt_y = 5; // Y doesn't matter much for horizontal headers
+
+            IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(hti));
+            Marshal.StructureToPtr(hti, ptr, false);
+            int col = (int)SendMessage(header, HDM_HITTEST, IntPtr.Zero, ptr);
+            Marshal.FreeHGlobal(ptr);
+
+            return col;
+        }
+        
+        
+        [StructLayout(LayoutKind.Sequential)]
+        private struct HDHITTESTINFO
+        {
+            public int pt_x;
+            public int pt_y;
+            public uint flags;
+            public int iItem;
+        }
+        
+    }
+
+    internal static class NativeMethods
+    {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
+        {
+            public int x;
+            public int y;
+        }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
     }
 }

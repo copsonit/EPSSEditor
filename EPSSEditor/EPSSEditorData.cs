@@ -705,6 +705,7 @@ namespace EPSSEditor
             if (s.InitSound(file, out errorMessage))
             //if (!String.IsNullOrEmpty(s.path))
             {
+                Console.WriteLine("AddSound: Adding sound: " + s.ToString());
                 if (IdenticalSoundExists(s))
                 {
                     errorMessage = "Identical sound exists.";

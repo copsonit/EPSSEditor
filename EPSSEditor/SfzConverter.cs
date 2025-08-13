@@ -515,8 +515,10 @@ namespace EPSSEditor
 
         // Load sf2
         // TODO: Add input of banks here when we have multiple banks in sf2
-        public static bool LoadSf2(EPSSEditorData data, int programChange, string filePath, string samplesPath, List<string> filesAdded, out string errorMessage)
+        public static bool LoadSf2(EPSSEditorData data, int programChange, string filePath, string samplesPath, List<string> filesAdded, out string errorMessage, Action<int, string> progressCallback = null)
+        
         {
+            int wantedBank = 1; // TODO: use this as input parameter to select bank
             bool result = false;
             errorMessage = "Unknown error";
             Directory.CreateDirectory(samplesPath);
@@ -529,17 +531,25 @@ namespace EPSSEditor
 
 
             SoundFont sf = new SoundFont(filePath);
+            progressCallback(50, "Loading SF2: " + filePath);
 
             try
             {
                 HashSet<string> used = new HashSet<string>();
+                int totalPresets = sf.Presets.Count();
+                double inc = 50.0 / totalPresets;
+                double current = 50.0;
                 foreach (var preset in sf.Presets)
                 {
                     int bank = preset.Bank;
-                    // TODO: use the bank number if it is defined as an input parameter
-                    if (bank > 0) continue; // Test code to unly use bank 0
-  
+
+                    if (bank != wantedBank) continue;
+
+                    progressCallback((int)current, "Loading Bank " + bank.ToString() + ", Preset " + preset.Name);
+                    current += inc;
+
                     int patchNumber = preset.PatchNumber;
+                    
                     Console.WriteLine($"Preset: {bank}:{patchNumber}");
                     foreach (var zone in preset.Zones)
                     {
@@ -561,6 +571,7 @@ namespace EPSSEditor
                                     byte kcByte = 128;
                                     foreach (var igen in izone.Generators)
                                     {
+                                        //Console.WriteLine($"Processing: {igen.GeneratorType}...");
                                         if (igen.GeneratorType == GeneratorEnum.SampleID)
                                         {
                                             sh = igen.SampleHeader;
@@ -573,19 +584,43 @@ namespace EPSSEditor
                                         {
                                             lo = igen.LowByteAmount;
                                             hi = igen.HighByteAmount;
+                                            Console.WriteLine($"GeneratorType: {igen.GeneratorType} {lo} {hi}");
                                         }
                                         else if (igen.GeneratorType == GeneratorEnum.KeyNumber)
                                         {
                                             kcByte = (byte)igen.Int16Amount;
+                                            Console.WriteLine($"GeneratorType: {igen.GeneratorType} {kcByte}");
                                         }
-                                        else if (gen.GeneratorType == GeneratorEnum.OverridingRootKey)
+                                        else if (igen.GeneratorType == GeneratorEnum.OverridingRootKey)
                                         {
-                                            kcByte = (byte)gen.UInt16Amount;
+                                            kcByte = (byte)igen.UInt16Amount;
+                                            Console.WriteLine($"GeneratorType: {igen.GeneratorType} {kcByte}");
                                         }
-                                        else if (gen.GeneratorType == GeneratorEnum.VelocityRange)
+                                        else if (igen.GeneratorType == GeneratorEnum.VelocityRange)
                                         {
-                                            byte hiVel = gen.HighByteAmount;
-                                            byte loVel = gen.LowByteAmount;
+                                            byte hiVel = igen.HighByteAmount;
+                                            byte loVel = igen.LowByteAmount;
+                                            Console.WriteLine($"GeneratorType: {igen.GeneratorType} {hiVel} {loVel}");
+                                        }
+                                        else if (igen.GeneratorType == GeneratorEnum.Pan)
+                                        {
+                                            double v = (double)igen.Int16Amount / 10.0;
+                                            Console.WriteLine($"GeneratorType: {igen.GeneratorType} {v}");
+                                        }
+                                        else if (igen.GeneratorType == GeneratorEnum.InitialAttenuation)
+                                        {
+                                            short v = igen.Int16Amount;
+                                            Console.WriteLine($"GeneratorType: {igen.GeneratorType} {v}");
+                                        }
+                                        else if (igen.GeneratorType == GeneratorEnum.FineTune)
+                                        {
+                                            short v = igen.Int16Amount;
+                                            Console.WriteLine($"GeneratorType: {igen.GeneratorType} {v}");
+                                        }
+                                        else if (igen.GeneratorType == GeneratorEnum.CoarseTune)
+                                        {
+                                            short v = igen.Int16Amount;
+                                            Console.WriteLine($"GeneratorType: {igen.GeneratorType} {v}");
                                         }
                                         else
                                         {
@@ -608,11 +643,14 @@ namespace EPSSEditor
                                         {
                                             s = soundDict[fp];
                                             hasSound = true;
+                                            Console.WriteLine($"Reusing sound {s}");
                                         }
                                         else
                                         {
+                                            Console.WriteLine($"Adding sound: {fp}");
                                             if (ConvertSampleFromSf2(fp, sh, sf.SampleData, izone))
                                             {
+                                                // TODO: Check why we get identical sound found!
                                                 hasSound = data.AddSound(fp, out s, out errorMessage);
                                             }
                                             if (!hasSound) Console.WriteLine($"Sound cannot be added: {fp}");
@@ -630,7 +668,7 @@ namespace EPSSEditor
                                             string soundKey = $"{name};{bank};{usedPatchNumber};{lo};{hi};{kcByte}";
                                             // Only use one bank as we cannot really handle multi bank
                                             // TODO read sf2 instruments first and let user choose which bank to convert
-                                            if (!used.Contains(soundKey) && (bank == 0 || bank == 128)) {
+                                            if (!used.Contains(soundKey) && (bank == wantedBank || bank == 128)) {
                                                 used.Add(soundKey);
 
                                                 if (bank == 128)
