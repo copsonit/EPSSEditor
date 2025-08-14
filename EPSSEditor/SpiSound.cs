@@ -26,8 +26,9 @@ namespace EPSSEditor
         public byte endNote; // [0-127] 128:not defined
 
         public byte programNumber; // [0-127]  128:not defined
-        //public sbyte transpose;
-        private sbyte _transpose;
+        
+        private sbyte _transpose; // [-64, 63] 0 = no transpose, -64 = -5 octaves, 63 = +5 octaves (check EPSSSpi_soundInfo for details)
+
         [Browsable(false)]
         public sbyte transpose
         {
@@ -69,13 +70,6 @@ namespace EPSSEditor
         private CachedSound _cachedAudio;
 
         private EPSSEditorData _parent;
-
-        //public sbyte transpose123;
-        // how do I hide a binding property?
-
-        
-
-        
 
         public SpiSound()
         {

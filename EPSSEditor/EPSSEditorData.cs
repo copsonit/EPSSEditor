@@ -42,6 +42,7 @@ namespace EPSSEditor
 
         public List<SpiSound> SpiSoundsForBinding()
         {
+            // TODO keep this list in sync with spiSounds or use spiSounds directly?
             if (_spiSoundsForBinding == null)
             {
                 _spiSoundsForBinding = new List<SpiSound>();
