@@ -2966,14 +2966,8 @@ namespace EPSSEditor
                 }
                 else if (e.KeyCode == Keys.A && e.Control)
                 {
-                    //TODO: update for spiSoundsDataGridView
-                    spiSoundListView.BeginUpdate();
-
-                    for (int i = 0; i < spiSoundListView.Items.Count; i++)
-                    {
-                        spiSoundListView.Items[i].Selected = true;
-                    }
-                    spiSoundListView.EndUpdate();
+                    //DONE: update for spiSoundsDataGridView
+                    spiSoundsDataGridView.SelectAll();
                     e.Handled = true;
                 }
             }
