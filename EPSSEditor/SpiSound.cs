@@ -547,6 +547,28 @@ namespace EPSSEditor
             }
         }
 
+        [DisplayName("ID"), Width(35)]
+        public string Id
+        {
+            get
+            {
+                if (_parent == null)
+                {
+                    return soundId.ToString();
+                }
+                int nr = _parent.GetSoundNumberFromGuid(soundId);
+                if (nr < 0)
+                {
+                    return soundId.ToString();
+                }
+                else
+                {
+                    return nr.ToString();
+                }
+            }
+        }
+
+
 
         [DisplayName("MIDI"), Width(35)]
         public string MidiChannel

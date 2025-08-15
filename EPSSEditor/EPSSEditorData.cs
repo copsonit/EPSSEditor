@@ -260,7 +260,7 @@ namespace EPSSEditor
         }
 
 
-        public void FixOldVersions()
+        public void AfterLoad()
         {
             foreach (Sound snd in sounds)
             {
@@ -276,6 +276,10 @@ namespace EPSSEditor
                 {
                     snd.description = Path.GetFileNameWithoutExtension(snd.path);
                 }
+            }
+            foreach(SpiSound spiSnd in spiSounds)
+            {
+                spiSnd.setParent(this);
             }
         }
 
@@ -763,6 +767,7 @@ namespace EPSSEditor
 
         public void AddSpiSound(SpiSound spiSnd)
         {
+            spiSnd.setParent(this);
             spiSounds.Add(spiSnd);
             _findSpiSoundArray = null;
         }

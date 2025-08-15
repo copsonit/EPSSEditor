@@ -391,19 +391,16 @@ namespace EPSSEditor
                     var w = (WidthAttribute)p.Attributes[typeof(WidthAttribute)];
                     column.Width = w.Width;
                     //column.ReadOnly = false;
+                    column.MinimumWidth = 6;
                 }
             }
+            spiSoundsDataGridView.RowHeadersVisible = false;
 
             spiSoundsDataGridView.Columns[3].MinimumWidth = 50;
             spiSoundsDataGridView.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             spiSoundsDataGridView.TopLeftHeaderCell.Value = "Id";
             spiSoundsDataGridView.AllowUserToAddRows = false;
-            //spiSoundsDataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-
-            //spiSoundsDataGridView.Wh
-
-
             // Old
             spiSoundListView.Clear();
             spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
@@ -658,7 +655,7 @@ namespace EPSSEditor
                 using (FileStream fs = new FileStream(file, FileMode.Open))
                 {
                     data = (EPSSEditorData)ser.Deserialize(fs);
-                    data.FixOldVersions();
+                    data.AfterLoad();
                     BindSoundListBox();
                 }
 
