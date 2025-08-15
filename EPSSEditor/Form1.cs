@@ -369,7 +369,7 @@ namespace EPSSEditor
         {
             spiSoundsDataGridView.DataSource = null;
             //BindingSource bs = new BindingSource(data.spiSounds, null);
-            BindingSource bs = new BindingSource(data.SpiSoundsForBinding(), null);
+            BindingSource bs = new BindingSource(data.SpiSounds(), null);
 
 
 
@@ -1413,7 +1413,7 @@ namespace EPSSEditor
                 // DONE: migrate to spiSoundsDataGridView
                 BindingSource bs = spiSoundsDataGridView.DataSource as BindingSource;
 
-                BindingList<SpiSound> sounds = data.SpiSoundsForBinding();
+                BindingList<SpiSound> sounds = data.SpiSounds();
                 idxRemoved.Sort();
                 //int removed = 0;
                 for (int index = idxRemoved.Count - 1; index >= 0; index--)
@@ -1476,7 +1476,7 @@ namespace EPSSEditor
 
             if (_useDataGridView)
             {
-                int numberOfSounds = data.SpiSoundsForBinding().Count;
+                int numberOfSounds = data.SpiSounds().Count;
                 foreach (var item in spiSoundsDataGridView.SelectedRows)
                 {
                     if (item is DataGridViewRow row && row.Index >= 0 && row.Index < numberOfSounds)
@@ -2913,16 +2913,8 @@ namespace EPSSEditor
             rowIndex = info.RowIndex;
             if (rowIndex >= 0)
             {
-                BindingList<SpiSound> sounds = data.SpiSoundsForBinding();
+                BindingList<SpiSound> sounds = data.SpiSounds();
                 return sounds[rowIndex];
-
-                /*
-                var obj = spiSoundsDataGridView.Rows[ri].DataBoundItem;
-                if (obj is SpiSound)
-                {
-                    return (SpiSound)obj;
-                }
-                */
             }
             return null;
         }

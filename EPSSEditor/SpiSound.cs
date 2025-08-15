@@ -556,7 +556,8 @@ namespace EPSSEditor
                 {
                     return soundId.ToString();
                 }
-                int nr = _parent.GetSoundNumberFromGuid(soundId);
+
+                int nr = _parent.GetIndexInSpiSoundsFromSpiSound(this);
                 if (nr < 0)
                 {
                     return soundId.ToString();

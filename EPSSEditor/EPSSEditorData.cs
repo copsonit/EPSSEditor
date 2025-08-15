@@ -36,29 +36,7 @@ namespace EPSSEditor
         private Dictionary<int, SpiSound[]> _findSpiSoundArray; // midiChannel -> Sound[128]
         private Dictionary<int, SpiSound[]> _programArray;  // program -> Sound[128]
 
-        private List<SpiSound> _spiSoundsForBinding = null;
-
         public EPSSEditorData() { }
-
-        public BindingList<SpiSound> SpiSoundsForBinding()
-        {
-            return spiSounds;
-            /*
-            // TODO keep this list in sync with spiSounds or use spiSounds directly?
-            if (_spiSoundsForBinding == null)
-            {
-                _spiSoundsForBinding = new List<SpiSound>();
-                foreach (SpiSound snd in spiSounds)
-                {
-                    SpiSound nw = snd;
-                    nw.setParent(this);
-                    _spiSoundsForBinding.Add(nw);
-                }
-            }
-            return _spiSoundsForBinding;
-            */
-        }
-
 
         public virtual object Clone()
         {
@@ -294,6 +272,21 @@ namespace EPSSEditor
                 }
             }
             return null;
+        }
+
+
+        public int GetIndexInSpiSoundsFromSpiSound(SpiSound snd)
+        {
+            int index = 0;
+            foreach (SpiSound spiSnd in spiSounds)
+            {
+                if (spiSnd == snd)
+                {
+                    return index;
+                }
+                index++;
+            }
+            return index;
         }
 
 
