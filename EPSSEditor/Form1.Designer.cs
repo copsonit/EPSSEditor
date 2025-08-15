@@ -246,6 +246,7 @@
             this.spiSoundsDataGridView.Location = new System.Drawing.Point(4, 3);
             this.spiSoundsDataGridView.Name = "spiSoundsDataGridView";
             this.spiSoundsDataGridView.RowHeadersWidth = 82;
+            this.spiSoundsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.spiSoundsDataGridView.Size = new System.Drawing.Size(546, 184);
             this.spiSoundsDataGridView.TabIndex = 18;
             this.spiSoundsDataGridView.SelectionChanged += new System.EventHandler(this.spiSoundsDataGridView_SelectionChanged);

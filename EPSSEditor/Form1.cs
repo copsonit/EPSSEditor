@@ -41,7 +41,8 @@ namespace EPSSEditor
                 spiSoundsDataGridView.MouseWheel += SpiSoundsDataGridView_MouseWheel;
                 spiSoundsDataGridView.MouseUp += spiSoundsDataGridView_MouseUp;
             }
-            else { 
+            else
+            {
                 _processListViewScrollListener = new ControlScrollListener(spiSoundListView);
                 _processListViewScrollListener.ControlScrolled += SpiSoundListViewScrollListener_ControlScrolled;
             }
@@ -369,7 +370,7 @@ namespace EPSSEditor
             spiSoundsDataGridView.DataSource = null;
             //BindingSource bs = new BindingSource(data.spiSounds, null);
             BindingSource bs = new BindingSource(data.SpiSoundsForBinding(), null);
-            
+
 
 
             spiSoundsDataGridView.Rows.GetRowCount(DataGridViewElementStates.Visible);
@@ -1425,7 +1426,8 @@ namespace EPSSEditor
                     {
                         MessageBox.Show("Invalid SPI sound index: " + idx);
                         return;
-                    } else
+                    }
+                    else
                     {
                         sounds.RemoveAt(idx);
                     }
@@ -1472,7 +1474,7 @@ namespace EPSSEditor
 
         private List<int> SelectedSpiSounds()
         {
-            
+
             List<int> selectedSnds = new List<int>();
 
             if (_useDataGridView)
@@ -1495,14 +1497,15 @@ namespace EPSSEditor
                     }
                 }
             }
-            else { 
+            else
+            {
                 foreach (ListViewItem item in spiSoundListView.SelectedItems)
                 {
                     selectedSnds.Add(item.Index);
                 }
-                
+
             }
-                return selectedSnds;
+            return selectedSnds;
         }
 
 
@@ -2035,42 +2038,24 @@ namespace EPSSEditor
                 List<SpiSound> spiSounds = data.GetSpiSoundsFromSound(snd);
                 if ((Control.ModifierKeys & Keys.Alt) != Keys.None)
                 {
-                    foreach (ListViewItem item in spiSoundListView.Items)
-                    {
-                        item.Selected = false;
-                    }
+                    //DONE: migrate to spiSoundsDataGridView
 
-
-                    List<int> selectedSndIndices = new List<int>();
-                    foreach (ListViewItem item in spiSoundListView.Items)
+                    spiSoundsDataGridView.ClearSelection();
+                    foreach (DataGridViewRow row in spiSoundsDataGridView.Rows)
                     {
-                        int selected = item.Index;
-                        if (selected >= 0)
+                        if (row.DataBoundItem is SpiSound spiSoundFromDataGrid)
                         {
-                            selectedSndIndices.Add(selected);
-                        }
-                    }
-
-                    //TODO: migrate to spiSoundsDataGridView
-
-
-
-
-                    foreach (int selected in selectedSndIndices)
-                    {
-                        SpiSound selectedSnd = data.SpiSoundAtIndex(selected);
-                        foreach (var spiSnd in spiSounds)
-                        {
-                            if (spiSnd == selectedSnd)
+                            foreach (var spiSnd in spiSounds)
                             {
-                                spiSoundListView.Items[selected].Selected = true;
-                                spiSoundListView.EnsureVisible(selected);
+                                if (object.ReferenceEquals(spiSnd, spiSoundFromDataGrid))
+                                {
+                                    row.Selected = true;
+                                    EnsureVisible(spiSoundsDataGridView, row.Index);
+                                }
                             }
                         }
                     }
-
-                    spiSoundListView.Focus();
-
+                    spiSoundsDataGridView.Focus();
                 }
             }
             else
@@ -2420,7 +2405,7 @@ namespace EPSSEditor
 
 
         private void SpiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
-        {           
+        {
             // TODO: update for spiSoundsDataGridView
             List<int> selected = SelectedSpiSounds();
             if (selected.Count > 0)
@@ -2466,7 +2451,8 @@ namespace EPSSEditor
             RenameForm r = new RenameForm(org);
             {
                 StartPosition = FormStartPosition.Manual;
-            };
+            }
+            ;
             r.Location = p;
             r.Size = new Size(40, 20);
             DialogResult res = r.ShowDialog();
@@ -2933,7 +2919,7 @@ namespace EPSSEditor
                 }
                 */
             }
-            return null; 
+            return null;
         }
 
 
@@ -3005,5 +2991,20 @@ namespace EPSSEditor
         {
             UpdateSpiSoundButtons();
         }
+
+
+        private void EnsureVisible(DataGridView dgv, int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= dgv.RowCount)
+                return;
+
+            // Only scroll if the row is not already fully visible
+            if (rowIndex < dgv.FirstDisplayedScrollingRowIndex ||
+                rowIndex >= dgv.FirstDisplayedScrollingRowIndex + dgv.DisplayedRowCount(false))
+            {
+                dgv.FirstDisplayedScrollingRowIndex = rowIndex;
+            }
+        }
     }
 }
+
