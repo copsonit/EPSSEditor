@@ -1415,11 +1415,12 @@ namespace EPSSEditor
                 // DONE: migrate to spiSoundsDataGridView
                 BindingSource bs = spiSoundsDataGridView.DataSource as BindingSource;
 
-                List<SpiSound> sounds = data.SpiSoundsForBinding();
-                int removed = 0;
+                BindingList<SpiSound> sounds = data.SpiSoundsForBinding();
+                idxRemoved.Sort();
+                //int removed = 0;
                 for (int index = idxRemoved.Count - 1; index >= 0; index--)
                 {
-                    int idx = idxRemoved[index] - removed;
+                    int idx = idxRemoved[index];
                     if (idx < 0 || idx >= sounds.Count)
                     {
                         MessageBox.Show("Invalid SPI sound index: " + idx);
@@ -1427,11 +1428,10 @@ namespace EPSSEditor
                     } else
                     {
                         sounds.RemoveAt(idx);
-                        removed++;
                     }
                 }
 
-                bs.ResetBindings(false);
+                //bs.ResetBindings(false);
 
                 Undo.RegisterUndoChange(data);
                 dataNeedsSaving = true;
@@ -2035,26 +2035,36 @@ namespace EPSSEditor
                 List<SpiSound> spiSounds = data.GetSpiSoundsFromSound(snd);
                 if ((Control.ModifierKeys & Keys.Alt) != Keys.None)
                 {
-                    // TODO: update spiSoundsDataGridView
                     foreach (ListViewItem item in spiSoundListView.Items)
                     {
                         item.Selected = false;
                     }
 
 
+                    List<int> selectedSndIndices = new List<int>();
                     foreach (ListViewItem item in spiSoundListView.Items)
                     {
                         int selected = item.Index;
                         if (selected >= 0)
                         {
-                            SpiSound selectedSnd = data.SpiSoundAtIndex(selected);
-                            foreach (var spiSnd in spiSounds)
+                            selectedSndIndices.Add(selected);
+                        }
+                    }
+
+                    //TODO: migrate to spiSoundsDataGridView
+
+
+
+
+                    foreach (int selected in selectedSndIndices)
+                    {
+                        SpiSound selectedSnd = data.SpiSoundAtIndex(selected);
+                        foreach (var spiSnd in spiSounds)
+                        {
+                            if (spiSnd == selectedSnd)
                             {
-                                if (spiSnd == selectedSnd)
-                                {
-                                    item.Selected = true;
-                                    spiSoundListView.EnsureVisible(selected);
-                                }
+                                spiSoundListView.Items[selected].Selected = true;
+                                spiSoundListView.EnsureVisible(selected);
                             }
                         }
                     }
@@ -2901,8 +2911,7 @@ namespace EPSSEditor
 
         private void spiSoundListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // TODO: update spiSoundsDataGridView
-            // ????
+            // DONE: update spiSoundsDataGridView
         }
 
 
@@ -2913,7 +2922,7 @@ namespace EPSSEditor
             rowIndex = info.RowIndex;
             if (rowIndex >= 0)
             {
-                List<SpiSound> sounds = data.SpiSoundsForBinding();
+                BindingList<SpiSound> sounds = data.SpiSoundsForBinding();
                 return sounds[rowIndex];
 
                 /*

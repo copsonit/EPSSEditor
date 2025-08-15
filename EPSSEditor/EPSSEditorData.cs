@@ -13,6 +13,7 @@ using System.Data.SqlTypes;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.ComponentModel;
 
 namespace EPSSEditor
 {
@@ -23,7 +24,7 @@ namespace EPSSEditor
             // All public fields are saved in ProjectSettings.
         public DrumSettingsHelper drumMappings;
         public List<Sound> sounds;
-        public List<SpiSound> spiSounds;
+        public BindingList<SpiSound> spiSounds;
         public string soundFileName;
         public string spiName;
         public string spiDescription;
@@ -39,9 +40,10 @@ namespace EPSSEditor
 
         public EPSSEditorData() { }
 
-
-        public List<SpiSound> SpiSoundsForBinding()
+        public BindingList<SpiSound> SpiSoundsForBinding()
         {
+            return spiSounds;
+            /*
             // TODO keep this list in sync with spiSounds or use spiSounds directly?
             if (_spiSoundsForBinding == null)
             {
@@ -54,6 +56,7 @@ namespace EPSSEditor
                 }
             }
             return _spiSoundsForBinding;
+            */
         }
 
 
@@ -73,7 +76,7 @@ namespace EPSSEditor
         public void Initialize(string drumSettingsFileName)
         {
             sounds = new List<Sound>();
-            spiSounds = new List<SpiSound>();
+            spiSounds = new BindingList<SpiSound>();
             drumMappings = new DrumSettingsHelper();
             drumMappings.initialize(drumSettingsFileName);
             soundFileName = null;
@@ -404,7 +407,7 @@ namespace EPSSEditor
         }
 
 
-        public List<SpiSound> SpiSounds()
+        public BindingList<SpiSound> SpiSounds()
         {
             return spiSounds;
         }
@@ -619,7 +622,17 @@ namespace EPSSEditor
 
         public void SortSpiSounds()
         {
-            spiSounds.Sort();
+            // BindingList<T> does not have a Sort method, so we need to sort manually.
+            List<SpiSound> sorted = spiSounds.ToList();
+            sorted.Sort();
+            spiSounds.RaiseListChangedEvents = false;
+            spiSounds.Clear();
+            foreach (var s in sorted)
+            {
+                spiSounds.Add(s);
+            }
+            spiSounds.RaiseListChangedEvents = true;
+            spiSounds.ResetBindings();
         }
 
 

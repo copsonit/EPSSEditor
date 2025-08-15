@@ -596,6 +596,7 @@
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Input Sounds";
+            this.infoToolTip.SetToolTip(this.groupBox3, "Select sound with Alt-key to show the corresponding SPI sounds.");
             // 
             // playButton
             // 
