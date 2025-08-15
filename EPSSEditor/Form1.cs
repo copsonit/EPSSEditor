@@ -396,11 +396,14 @@ namespace EPSSEditor
             }
             spiSoundsDataGridView.RowHeadersVisible = false;
 
-            spiSoundsDataGridView.Columns[3].MinimumWidth = 50;
-            spiSoundsDataGridView.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            spiSoundsDataGridView.Columns[4].MinimumWidth = 50;
+            spiSoundsDataGridView.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             spiSoundsDataGridView.TopLeftHeaderCell.Value = "Id";
             spiSoundsDataGridView.AllowUserToAddRows = false;
+
+            spiSoundsDataGridView.AllowUserToResizeRows = false;
+
             // Old
             spiSoundListView.Clear();
             spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
@@ -2403,7 +2406,7 @@ namespace EPSSEditor
 
         private void PlaySpiSound()
         {
-            // TODO: update for spiSoundsDataGridView
+            // DONE: update for spiSoundsDataGridView
             List<int> selected = SelectedSpiSounds();
             if (selected.Count > 0)
             {
@@ -2934,14 +2937,13 @@ namespace EPSSEditor
             SpiSound snd = spiSoundInGridViewAtPoint(x, y, out ci, out ri);
             if (snd == null) return;
 
-            if (ci == 6)
-            {
-                SelectCell(ri, ci);
+            if (ci < 0 || ci >= spiSoundsDataGridView.Columns.Count) return;
+            if (spiSoundsDataGridView.Columns[ci].Name != "Transpose") return;  
 
-                if (delta == 0) snd.transpose = 0;
-                else if (delta == -1) snd.transpose -= 1;
-                else if (delta == 1) snd.transpose += 1;
-            }
+            SelectCell(ri, ci);
+            if (delta == 0) snd.transpose = 0;
+            else if (delta == -1) snd.transpose -= 1;
+            else if (delta == 1) snd.transpose += 1;
         }
 
         private void SpiSoundsDataGridView_MouseWheel(object sender, MouseEventArgs e)
