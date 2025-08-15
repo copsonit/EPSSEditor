@@ -234,7 +234,7 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
             this.infoToolTip.SetToolTip(this.groupBox2, "Change transpose with Shift+mouse wheel on sound. Reset transpose with Shift+midd" +
-        "le mouse button on sound.");
+        "le mouse button on sound. Double click on sound to open Play window.");
             this.groupBox2.Enter += new System.EventHandler(this.groupBox2_Enter);
             // 
             // spiSoundsDataGridView
@@ -251,6 +251,7 @@
             this.spiSoundsDataGridView.TabIndex = 18;
             this.spiSoundsDataGridView.SelectionChanged += new System.EventHandler(this.spiSoundsDataGridView_SelectionChanged);
             this.spiSoundsDataGridView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.spiSoundsDataGridView_KeyDown);
+            this.spiSoundsDataGridView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.spiSoundsDataGridView_MouseDoubleClick);
             this.spiSoundsDataGridView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.spiSoundsDataGridView_MouseUp);
             // 
             // previewComboBox

@@ -2404,7 +2404,7 @@ namespace EPSSEditor
         }
 
 
-        private void SpiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void PlaySpiSound()
         {
             // TODO: update for spiSoundsDataGridView
             List<int> selected = SelectedSpiSounds();
@@ -2435,8 +2435,16 @@ namespace EPSSEditor
                     if (centerKey >= spiSnd.startNote && centerKey <= spiSnd.endNote) playNote = centerKey;
                     playNote = Math.Min(127, Math.Max(0, playNote));
                     PlayConvertedSound(spiSnd, midiChannel, programChange, playNote);
+
                 }
+
             }
+        }
+
+        private void SpiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            // TODO: remove when migrated to spiSoundsDataGridView
+            PlaySpiSound();
         }
 
 
@@ -2998,6 +3006,11 @@ namespace EPSSEditor
             {
                 dgv.FirstDisplayedScrollingRowIndex = rowIndex;
             }
+        }
+
+        private void spiSoundsDataGridView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            PlaySpiSound();
         }
     }
 }
