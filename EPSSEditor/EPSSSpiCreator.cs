@@ -51,10 +51,8 @@ namespace EPSSEditor
         public void FillInExt(EPSSSpi spi, string name, string info)
         {
             DateTime dr = DateTime.Now;
-            spi.ext.i_crtime = dr.ToDosDateTime();
-            spi.ext.i_crdate = dr.ToDosDateTime();
-            spi.ext.i_chtime = dr.ToDosDateTime();
-            spi.ext.i_chdate = dr.ToDosDateTime();
+            spi.ext.SetCreationDateTime(DateTime.Now);
+            spi.ext.SetChangeDateTime(DateTime.Now);
             spi.ext.i_pname = name;
             spi.ext.i_mainlen = (UInt16)(spi.main.Length() + spi.ext.Length());
             spi.ext.i_splitlen = 2;

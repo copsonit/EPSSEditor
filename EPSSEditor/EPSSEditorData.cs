@@ -13,6 +13,7 @@ using System.Data.SqlTypes;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Windows.Forms;
 using System.ComponentModel;
 
 namespace EPSSEditor
@@ -31,10 +32,15 @@ namespace EPSSEditor
         public int previewSelected;
         public bool omni;
         public int spiVersion;
+        public DateTime created;
+        public DateTime changed;
 
         private string _fileNameForListenConvertedSound = null;
         private Dictionary<int, SpiSound[]> _findSpiSoundArray; // midiChannel -> Sound[128]
         private Dictionary<int, SpiSound[]> _programArray;  // program -> Sound[128]
+
+        private bool _dataNeedsSaving;
+
 
         public EPSSEditorData() { }
 
@@ -47,6 +53,7 @@ namespace EPSSEditor
             foreach (var s in spiSounds) { o.spiSounds.Add((SpiSound)s.Clone()); }          
             o._findSpiSoundArray = null;
             o._programArray = null;
+            o._dataNeedsSaving = this._dataNeedsSaving;
 
             return o;
         }
@@ -63,8 +70,20 @@ namespace EPSSEditor
             previewSelected = 0;
             _findSpiSoundArray = null;
             _programArray = null;
+            created = DateTime.Now;
+            changed = DateTime.Now;
+            _dataNeedsSaving = false;
         }
 
+        public void SetDataNeedsSaving(bool flag)
+        {
+            _dataNeedsSaving =  flag;
+        }
+
+        public bool GetDataNeedsSaving()
+        {
+            return _dataNeedsSaving;
+        }
 
         public void ClearAll()
         {
@@ -131,6 +150,8 @@ namespace EPSSEditor
 
             spiName = spi.ext.i_pname.Trim();
             spiDescription = spi.ext.i_patchinfo.Trim();
+            created = spi.ext.GetCreationDateTime();
+            changed = spi.ext.GetChangeDateTime();
 
             SfzConverter c = new SfzConverter();
             Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(spi);
@@ -254,6 +275,14 @@ namespace EPSSEditor
                 {
                     snd.description = Path.GetFileNameWithoutExtension(snd.path);
                 }
+            }
+            if (created == DateTime.MinValue)
+            {
+                created = DateTime.Now;
+            }
+            if (changed == DateTime.MinValue)
+            {
+                changed = DateTime.Now;
             }
             foreach(SpiSound spiSnd in spiSounds)
             {

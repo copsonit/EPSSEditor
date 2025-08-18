@@ -150,6 +150,10 @@
             this.loadMidFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.revMidTimer = new System.Windows.Forms.Timer(this.components);
+            this.spiInfoCreatedTB = new System.Windows.Forms.TextBox();
+            this.spiInfoChangeTB = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -229,7 +233,7 @@
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.helpProvider1.SetShowHelp(this.groupBox2, true);
-            this.groupBox2.Size = new System.Drawing.Size(565, 460);
+            this.groupBox2.Size = new System.Drawing.Size(565, 427);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
@@ -264,7 +268,7 @@
             "Premixed for 4 Channel EPSS",
             "Premixed for 8 Channel EPSS",
             "Unmixed 8 Bit "});
-            this.previewComboBox.Location = new System.Drawing.Point(55, 430);
+            this.previewComboBox.Location = new System.Drawing.Point(55, 397);
             this.previewComboBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.previewComboBox.Name = "previewComboBox";
             this.previewComboBox.Size = new System.Drawing.Size(290, 21);
@@ -275,7 +279,7 @@
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(4, 432);
+            this.label9.Location = new System.Drawing.Point(4, 399);
             this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(48, 13);
@@ -285,7 +289,7 @@
             // spiSoundListenButton
             // 
             this.spiSoundListenButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.spiSoundListenButton.Location = new System.Drawing.Point(425, 427);
+            this.spiSoundListenButton.Location = new System.Drawing.Point(425, 394);
             this.spiSoundListenButton.Name = "spiSoundListenButton";
             this.spiSoundListenButton.Size = new System.Drawing.Size(66, 23);
             this.spiSoundListenButton.TabIndex = 8;
@@ -1166,7 +1170,7 @@
             // 
             this.loadMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.loadMidButton.Location = new System.Drawing.Point(5, 19);
+            this.loadMidButton.Location = new System.Drawing.Point(5, 53);
             this.loadMidButton.Name = "loadMidButton";
             this.loadMidButton.Size = new System.Drawing.Size(145, 22);
             this.loadMidButton.TabIndex = 8;
@@ -1178,7 +1182,7 @@
             // stopMidButton
             // 
             this.stopMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.stopMidButton.Location = new System.Drawing.Point(39, 71);
+            this.stopMidButton.Location = new System.Drawing.Point(39, 105);
             this.stopMidButton.Name = "stopMidButton";
             this.stopMidButton.Size = new System.Drawing.Size(37, 22);
             this.stopMidButton.TabIndex = 9;
@@ -1191,7 +1195,7 @@
             // playMidButton
             // 
             this.playMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.playMidButton.Location = new System.Drawing.Point(82, 71);
+            this.playMidButton.Location = new System.Drawing.Point(82, 105);
             this.playMidButton.Name = "playMidButton";
             this.playMidButton.Size = new System.Drawing.Size(35, 22);
             this.playMidButton.TabIndex = 25;
@@ -1204,7 +1208,7 @@
             // revMidButton
             // 
             this.revMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.revMidButton.Location = new System.Drawing.Point(6, 71);
+            this.revMidButton.Location = new System.Drawing.Point(6, 105);
             this.revMidButton.Name = "revMidButton";
             this.revMidButton.Size = new System.Drawing.Size(27, 22);
             this.revMidButton.TabIndex = 26;
@@ -1219,7 +1223,7 @@
             // ffwMidButton
             // 
             this.ffwMidButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ffwMidButton.Location = new System.Drawing.Point(123, 71);
+            this.ffwMidButton.Location = new System.Drawing.Point(123, 105);
             this.ffwMidButton.Name = "ffwMidButton";
             this.ffwMidButton.Size = new System.Drawing.Size(27, 22);
             this.ffwMidButton.TabIndex = 27;
@@ -1240,7 +1244,7 @@
             this.groupBox4.Controls.Add(this.totalSizeTextBox);
             this.groupBox4.Location = new System.Drawing.Point(6, 14);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(167, 96);
+            this.groupBox4.Size = new System.Drawing.Size(167, 131);
             this.groupBox4.TabIndex = 15;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Size";
@@ -1250,15 +1254,19 @@
             this.groupBox8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox8.Controls.Add(this.groupBox10);
             this.groupBox8.Controls.Add(this.groupBox4);
-            this.groupBox8.Location = new System.Drawing.Point(631, 492);
+            this.groupBox8.Location = new System.Drawing.Point(631, 458);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(431, 117);
+            this.groupBox8.Size = new System.Drawing.Size(432, 151);
             this.groupBox8.TabIndex = 11;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "EPSS SPI - Sound Patch Information";
             // 
             // groupBox10
             // 
+            this.groupBox10.Controls.Add(this.label11);
+            this.groupBox10.Controls.Add(this.label10);
+            this.groupBox10.Controls.Add(this.spiInfoChangeTB);
+            this.groupBox10.Controls.Add(this.spiInfoCreatedTB);
             this.groupBox10.Controls.Add(this.gen2CheckBox);
             this.groupBox10.Controls.Add(this.omniPatchCheckBox);
             this.groupBox10.Controls.Add(this.label22);
@@ -1267,7 +1275,7 @@
             this.groupBox10.Controls.Add(this.spiNameTextBox);
             this.groupBox10.Location = new System.Drawing.Point(179, 14);
             this.groupBox10.Name = "groupBox10";
-            this.groupBox10.Size = new System.Drawing.Size(243, 96);
+            this.groupBox10.Size = new System.Drawing.Size(243, 131);
             this.groupBox10.TabIndex = 19;
             this.groupBox10.TabStop = false;
             this.groupBox10.Text = "Save...";
@@ -1352,9 +1360,9 @@
             this.groupBox13.Controls.Add(this.midFileBarTextBox);
             this.groupBox13.Controls.Add(this.stopMidButton);
             this.groupBox13.Controls.Add(this.loadMidButton);
-            this.groupBox13.Location = new System.Drawing.Point(469, 492);
+            this.groupBox13.Location = new System.Drawing.Point(469, 458);
             this.groupBox13.Name = "groupBox13";
-            this.groupBox13.Size = new System.Drawing.Size(156, 118);
+            this.groupBox13.Size = new System.Drawing.Size(156, 152);
             this.groupBox13.TabIndex = 20;
             this.groupBox13.TabStop = false;
             this.groupBox13.Text = "MIDI";
@@ -1364,7 +1372,7 @@
             this.midFileBarTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.midFileBarTextBox.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.midFileBarTextBox.Location = new System.Drawing.Point(8, 47);
+            this.midFileBarTextBox.Location = new System.Drawing.Point(8, 81);
             this.midFileBarTextBox.Name = "midFileBarTextBox";
             this.midFileBarTextBox.Size = new System.Drawing.Size(142, 20);
             this.midFileBarTextBox.TabIndex = 24;
@@ -1386,6 +1394,40 @@
             // 
             this.revMidTimer.Interval = 20;
             this.revMidTimer.Tick += new System.EventHandler(this.RevMidTimer_Tick);
+            // 
+            // spiInfoCreatedTB
+            // 
+            this.spiInfoCreatedTB.Location = new System.Drawing.Point(64, 81);
+            this.spiInfoCreatedTB.Name = "spiInfoCreatedTB";
+            this.spiInfoCreatedTB.ReadOnly = true;
+            this.spiInfoCreatedTB.Size = new System.Drawing.Size(174, 20);
+            this.spiInfoCreatedTB.TabIndex = 21;
+            // 
+            // spiInfoChangeTB
+            // 
+            this.spiInfoChangeTB.Location = new System.Drawing.Point(64, 107);
+            this.spiInfoChangeTB.Name = "spiInfoChangeTB";
+            this.spiInfoChangeTB.ReadOnly = true;
+            this.spiInfoChangeTB.Size = new System.Drawing.Size(173, 20);
+            this.spiInfoChangeTB.TabIndex = 22;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(11, 84);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(47, 13);
+            this.label10.TabIndex = 23;
+            this.label10.Text = "Created:";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(11, 110);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(53, 13);
+            this.label11.TabIndex = 24;
+            this.label11.Text = "Changed:";
             // 
             // splitContainer1
             // 
@@ -1595,6 +1637,10 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripMenuItem deleteSelectedSPISoundToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveSPISoundToolStripMenuItem;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox spiInfoChangeTB;
+        private System.Windows.Forms.TextBox spiInfoCreatedTB;
         private System.Windows.Forms.DataGridView spiSoundsDataGridView;
         private System.Windows.Forms.SplitContainer splitContainer1;
     }

@@ -505,6 +505,7 @@ namespace EPSSEditor
 
             try
             {
+                HashSet<string> used = new HashSet<string>();
                 foreach (var preset in sf.Presets)
                 {
                     int bank = preset.Bank;
@@ -525,7 +526,7 @@ namespace EPSSEditor
                                 foreach (var izone in i.Zones)
                                 {
                                     SampleHeader sh = null;
-                                    byte lo = 128;
+                                    byte lo = 0;
                                     byte hi = 128;
                                     byte kcByte = 128;
                                     foreach (var igen in izone.Generators)
@@ -551,12 +552,24 @@ namespace EPSSEditor
                                         {
                                             kcByte = (byte)gen.UInt16Amount;
                                         }
+                                        else if (gen.GeneratorType == GeneratorEnum.VelocityRange)
+                                        {
+                                            byte hiVel = gen.HighByteAmount;
+                                            byte loVel = gen.LowByteAmount;
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine($"GeneratorType: {igen.GeneratorType}");
+                                        }
                                     }
 
                                     if (sh != null)
                                     {
                                         string name = sh.SampleName;
                                         var fp = Path.Combine(samplesPath, name + ".wav");
+
+                                        
+
 
                                         bool hasSound = false;
                                         Sound s = null;
@@ -582,17 +595,26 @@ namespace EPSSEditor
                                                 kcByte = (byte)sh.OriginalPitch;
                                             }
 
-                                            if (bank == 128)
-                                            { // percussion, channel 10
-                                                data.AddSfzSound(s, 10, 128, lo, hi, kcByte, 0);
+                                            int usedPatchNumber = Math.Min(patchNumber + programChange, 127);
+                                            
+                                            string soundKey = $"{name};{bank};{usedPatchNumber};{lo};{hi};{kcByte}";
+                                            // Only use one bank as we cannot really handle multi bank
+                                            // TODO read sf2 instruments first and let user choose which bank to convert
+                                            if (!used.Contains(soundKey) && (bank == 0 || bank == 128)) {
+                                                used.Add(soundKey);
+
+                                                if (bank == 128)
+                                                { // percussion, channel 10
+                                                    data.AddSfzSound(s, 10, 128, lo, hi, kcByte, 0);
+                                                }
+                                                else
+                                                {
+                                                    data.AddSfzSound(s, 128, usedPatchNumber, lo, hi, kcByte, 0);
+                                                }
+                                                filesAdded.Add(fp);
+                                                if (!soundDict.ContainsKey(fp)) soundDict.Add(s.path, s);
+                                                result = true;
                                             }
-                                            else
-                                            {
-                                                data.AddSfzSound(s, 128, patchNumber, lo, hi, kcByte, 0);
-                                            }
-                                            filesAdded.Add(fp);
-                                            if (!soundDict.ContainsKey(fp)) soundDict.Add(s.path, s);
-                                            result = true;
                                         }
                                     }
                                 }
