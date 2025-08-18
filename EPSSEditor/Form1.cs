@@ -12,6 +12,7 @@ using System.Data.Common;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
+
 namespace EPSSEditor
 {
     public partial class Form1 : Form
@@ -28,23 +29,13 @@ namespace EPSSEditor
         private int spoolStep;
         private bool wasPlayingBeforeSpool;
         private bool ignoreChangedFlag;
-        private bool _useDataGridView = true; // spiSoundListView or spiSoundsDataGridView
 
         public Form1()
         {
             InitializeComponent();
             initialize = 0;
-            if (_useDataGridView)
-            {
-                spiSoundsDataGridView.MouseWheel += SpiSoundsDataGridView_MouseWheel;
-                spiSoundsDataGridView.MouseUp += spiSoundsDataGridView_MouseUp;
-            }
-            else
-            {
-                _processListViewScrollListener = new ControlScrollListener(spiSoundListView);
-                _processListViewScrollListener.ControlScrolled += SpiSoundListViewScrollListener_ControlScrolled;
-            }
-
+            spiSoundsDataGridView.MouseWheel += SpiSoundsDataGridView_MouseWheel;
+            spiSoundsDataGridView.MouseUp += spiSoundsDataGridView_MouseUp;
         }
 
 
@@ -375,7 +366,6 @@ namespace EPSSEditor
         private void UpdateSpiSoundListBox()
         {
             spiSoundsDataGridView.DataSource = null;
-            //BindingSource bs = new BindingSource(data.spiSounds, null);
             BindingSource bs = new BindingSource(data.SpiSounds(), null);
 
 
@@ -410,123 +400,6 @@ namespace EPSSEditor
             spiSoundsDataGridView.AllowUserToAddRows = false;
 
             spiSoundsDataGridView.AllowUserToResizeRows = false;
-
-            // Old
-            spiSoundListView.Clear();
-            spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("MIDI", 35, HorizontalAlignment.Right);
-            spiSoundListView.Columns.Add("Note", 55, HorizontalAlignment.Right);
-            spiSoundListView.Columns.Add("Program", 55, HorizontalAlignment.Right);
-
-            spiSoundListView.Columns.Add("Sound", 165, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("#", 40, HorizontalAlignment.Right);
-            spiSoundListView.Columns.Add("Size", 55, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("Transpose", 55, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("Vvfe", 35, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("D", 20, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("V", 20, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("T", 20, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("M", 20, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("A", 20, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("S", 20, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("P", 20, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("F", 20, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("Start", 65, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("Loop", 65, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("End", 65, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("L", 20, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("Vol", 40, HorizontalAlignment.Left);
-            spiSoundListView.Columns.Add("Sub", 40, HorizontalAlignment.Left);
-            spiSoundListView.View = View.Details;
-
-            spiSoundListView.FullRowSelect = true;
-            int i = 0;
-            foreach (SpiSound s in data.SpiSounds())
-            {
-                ListViewItem item = new ListViewItem(i++.ToString());
-
-                if (s.midiChannel <= 16)
-                {
-                    item.SubItems.Add(s.midiChannel.ToString());
-                }
-                else
-                {
-                    item.SubItems.Add("-");
-                }
-
-                if (s.startNote < 128 && s.endNote < 128)
-                {
-                    item.SubItems.Add(s.startNote.ToString() + "-" + s.endNote.ToString());
-                }
-                else
-                {
-                    item.SubItems.Add(s.midiNote.ToString());
-                }
-
-                if (s.programNumber < 128)
-                {
-                    item.SubItems.Add((s.programNumber + 1).ToString());
-                }
-                else
-                {
-                    item.SubItems.Add("-");
-                }
-
-                item.SubItems.Add(s.name());
-                int nr = data.GetSoundNumberFromGuid(s.soundId);
-                item.SubItems.Add(nr.ToString());
-
-                item.SubItems.Add(Ext.ToPrettySize(s.preLength(data), 2));
-                item.SubItems.Add(s.TransposeString());
-                item.SubItems.Add(s.VvfeString());
-
-                EPSSSpi_s_gr_frek props = new EPSSSpi_s_gr_frek
-                {
-                    data = s.s_gr_frek
-                };
-
-                item.SubItems.Add(props.Drum.ToString());
-                item.SubItems.Add(props.Velocity.ToString());
-                item.SubItems.Add(props.SoundType.ToString());
-                item.SubItems.Add(props.Mode.ToString());
-                item.SubItems.Add(props.Aftertouch.ToString());
-                item.SubItems.Add(props.StereoType.ToString());
-                item.SubItems.Add(props.StereoPan.ToString());
-                item.SubItems.Add(props.OrgFreq.ToString());
-
-                item.SubItems.Add(s.start.ToString("X8"));
-
-                Sound sound = data.GetSoundFromSoundId(s.soundId);
-                ConversionParameters p = sound.parameters();
-                uint ls = s.loopStart;
-                if (p != null)
-                {
-                    if (p.freq != null)
-                    {
-                        ls = (uint)(p.freq.compressionFactor() * s.loopStart);
-                    }
-                }
-                //int ls = (int)(p?.freq?.compressionFactor() * s.loopStart);
-                item.SubItems.Add(ls.ToString("X8"));
-                item.SubItems.Add(s.end.ToString("X8"));
-                item.SubItems.Add(s.loopMode.ToString());
-
-                item.SubItems.Add(s.extVolume.ToString());
-                item.SubItems.Add(s.subTone.ToString());
-
-                spiSoundListView.Items.Add(item);
-            }
-
-            /*
-            Sound snd = GetSoundAtSelectedIndex();
-            if (snd != null)
-            {
-                List<SpiSound> spiSounds = data.GetSpiSoundsFromSound(snd);
-
-                bool enabled = spiSounds.Count == 0 && soundListBox.SelectedItems.Count > 0;
-                EnableToolStripItem("deleteInputSoundToolStripMenuItem", enabled);
-            }
-            */
 
             ignoreChangedFlag = true;
             spiNameTextBox.Text = data.spiName;
@@ -1423,23 +1296,15 @@ namespace EPSSEditor
         }
 
 
-        ListViewItem SelectedListViewItem(Point lwPos)
-        {
-            return spiSoundListView.HitTest(lwPos.X, lwPos.Y).Item;
-        }
-
-
         private void DeleteSelectedSpiSound()
         {
             List<int> idxRemoved = SelectedSpiSounds();
             if (idxRemoved.Count > 0)
             {
-                // DONE: migrate to spiSoundsDataGridView
                 BindingSource bs = spiSoundsDataGridView.DataSource as BindingSource;
 
                 BindingList<SpiSound> sounds = data.SpiSounds();
                 idxRemoved.Sort();
-                //int removed = 0;
                 for (int index = idxRemoved.Count - 1; index >= 0; index--)
                 {
                     int idx = idxRemoved[index];
@@ -1450,81 +1315,41 @@ namespace EPSSEditor
                     }
                     else
                     {
+                        // Do we need ensure visible here?
                         sounds.RemoveAt(idx);
                     }
                 }
 
-                Undo.RegisterUndoChange(data);
+                Undo.RegisterUndoChange(data); // Check if undo is correct here!
                 SetDataNeedsSaving(true);
                 SaveProjectSettings();
                 UpdateTotalSize();
-
-                /*
-                ListViewItem topItem = spiSoundListView.TopItem;
-                int lastIndex = topItem.Index;
-
-                int lastRemoved = -1;
-                Undo.RegisterUndoChange(data);
-
-                for (int index = idxRemoved.Count - 1; index >= 0; index--)
-                {
-                    data.RemoveSpiSound(idxRemoved[index]);
-                    spiSoundListView.Items[idxRemoved[index]].Remove();
-                    lastRemoved = idxRemoved[index];
-                }
-
-                if (spiSoundListView.Items.Count > 0)
-                {
-                    int select = Math.Min(lastRemoved, spiSoundListView.Items.Count - 1);
-                    select = Math.Max(0, select);
-                    spiSoundListView.Items[select].Selected = true;
-                    spiSoundListView.Items[select].Focused = true;
-                    int dist = lastRemoved - lastIndex;
-                    spiSoundListView.TopItem = spiSoundListView.Items[Math.Max(0, select - dist)];
-                    spiSoundListView.Items[select].EnsureVisible();
-                }
-
-                SetDataNeedsSaving(true);
-                SaveProjectSettings();
-                UpdateTotalSize();
-                */
             }
         }
 
 
         private List<int> SelectedSpiSounds()
         {
-
             List<int> selectedSnds = new List<int>();
 
-            if (_useDataGridView)
+            int numberOfSounds = data.SpiSounds().Count;
+            foreach (var item in spiSoundsDataGridView.SelectedRows)
             {
-                int numberOfSounds = data.SpiSounds().Count;
-                foreach (var item in spiSoundsDataGridView.SelectedRows)
+                if (item is DataGridViewRow row && row.Index >= 0 && row.Index < numberOfSounds)
                 {
-                    if (item is DataGridViewRow row && row.Index >= 0 && row.Index < numberOfSounds)
-                    {
-                        selectedSnds.Add(row.Index);
-                    }
-                }
-
-                foreach (var item in spiSoundsDataGridView.SelectedCells)
-                {
-                    if (item is DataGridViewCell cell && cell.RowIndex >= 0 && cell.RowIndex < numberOfSounds)
-                    {
-                        int idx = cell.RowIndex;
-                        if (!selectedSnds.Contains(idx)) selectedSnds.Add(idx);
-                    }
+                    selectedSnds.Add(row.Index);
                 }
             }
-            else
-            {
-                foreach (ListViewItem item in spiSoundListView.SelectedItems)
-                {
-                    selectedSnds.Add(item.Index);
-                }
 
+            foreach (var item in spiSoundsDataGridView.SelectedCells)
+            {
+                if (item is DataGridViewCell cell && cell.RowIndex >= 0 && cell.RowIndex < numberOfSounds)
+                {
+                    int idx = cell.RowIndex;
+                    if (!selectedSnds.Contains(idx)) selectedSnds.Add(idx);
+                }
             }
+
             return selectedSnds;
         }
 
@@ -1859,77 +1684,6 @@ namespace EPSSEditor
             Exit();
         }
 
-
-        private void SpiSoundListViewScrollListener_ControlScrolled(object sender, EventArgs e, int delta, Point pos)
-        {
-            // DONE: migrate to spiSoundsDataGridView
-            // TODO: remove
-            if ((Control.ModifierKeys & Keys.Shift) != Keys.None)             // Only with shift key pressed!
-            {
-                Point lwPos = spiSoundListView.PointToClient(pos);
-                ListViewItem item = SelectedListViewItem(lwPos);
-                if (item != null)
-                {
-                    SpiSound snd = data.SpiSoundAtIndex(item.Index);
-                    if (delta > 0 && snd.transpose < 127) snd.transpose++;
-                    else if (delta < 0 && snd.transpose > -128) snd.transpose--;
-                    UpdateListViewItemValue(snd, item, 7);
-                }
-            }
-        }
-
-
-        private void SpiSoundListView_MouseUp(object sender, MouseEventArgs e)
-        {
-            // DONE: migrate to spiSoundsDataGridView
-            // TODO: remove
-            if (e.Button == MouseButtons.Middle && (Control.ModifierKeys & Keys.Shift) != Keys.None)
-            {
-                Point pos = e.Location;
-                ListViewItem item = SelectedListViewItem(pos);
-                if (item != null)
-                {
-                    SpiSound snd = data.SpiSoundAtIndex(item.Index);
-                    snd.transpose = 0;
-                    UpdateListViewItemValue(snd, item, 7);
-                    Console.WriteLine($"Item: {item}");
-                }
-            }
-        }
-
-
-        private void SpiSoundListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
-        {
-            // DONE: migrate to spiSoundsDataGridView
-            UpdateSpiSoundButtons();
-        }
-
-
-        private void SpiSoundListView_KeyDown(object sender, KeyEventArgs e)
-        {
-            // TODO: remove
-            if (!_useDataGridView)
-            {
-                if (e.KeyCode == Keys.Delete)
-                {
-                    DeleteSelectedSpiSound();
-                    e.Handled = true;
-                }
-                else if (e.KeyCode == Keys.A && e.Control)
-                {
-                    spiSoundListView.BeginUpdate();
-
-                    for (int i = 0; i < spiSoundListView.Items.Count; i++)
-                    {
-                        spiSoundListView.Items[i].Selected = true;
-                    }
-                    spiSoundListView.EndUpdate();
-                    e.Handled = true;
-                }
-            }
-        }
-
-
         private void SoundListBox_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.Text))
@@ -2058,8 +1812,6 @@ namespace EPSSEditor
                 List<SpiSound> spiSounds = data.GetSpiSoundsFromSound(snd);
                 if ((Control.ModifierKeys & Keys.Alt) != Keys.None)
                 {
-                    //DONE: migrate to spiSoundsDataGridView
-
                     spiSoundsDataGridView.ClearSelection();
                     foreach (DataGridViewRow row in spiSoundsDataGridView.Rows)
                     {
@@ -2446,7 +2198,6 @@ namespace EPSSEditor
 
         private void PlaySpiSound()
         {
-            // DONE: update for spiSoundsDataGridView
             List<int> selected = SelectedSpiSounds();
             if (selected.Count > 0)
             {
@@ -2465,6 +2216,7 @@ namespace EPSSEditor
 
                     ShowMidiChannel(midiChannel);
                     ShowNotes(midiChannel, spiSnd.startNote, spiSnd.endNote);
+                    // TODO: maybe show all notes out of range greyed out?
                     //for (int i = snd.startNote; i <= snd.endNote; i++) {
                     //  ShowNote(snd.midiChannel, i, true, true);
                     //}
@@ -2481,11 +2233,6 @@ namespace EPSSEditor
             }
         }
 
-        private void SpiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            // TODO: remove when migrated to spiSoundsDataGridView
-            PlaySpiSound();
-        }
 
 
         private void SaveSPIToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2943,12 +2690,6 @@ namespace EPSSEditor
 
         }
 
-        private void spiSoundListView_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // DONE: update spiSoundsDataGridView
-        }
-
-
         private SpiSound spiSoundInGridViewAtPoint(int x, int y, out int columnIndex, out int rowIndex)
         {
             var info = this.spiSoundsDataGridView.HitTest(x, y);
@@ -2996,19 +2737,15 @@ namespace EPSSEditor
 
         private void spiSoundsDataGridView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (_useDataGridView)
+            if (e.KeyCode == Keys.Delete)
             {
-                if (e.KeyCode == Keys.Delete)
-                {
-                    DeleteSelectedSpiSound();
-                    e.Handled = true;
-                }
-                else if (e.KeyCode == Keys.A && e.Control)
-                {
-                    //DONE: update for spiSoundsDataGridView
-                    spiSoundsDataGridView.SelectAll();
-                    e.Handled = true;
-                }
+                DeleteSelectedSpiSound();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.A && e.Control)
+            {
+                spiSoundsDataGridView.SelectAll();
+                e.Handled = true;
             }
         }
 
