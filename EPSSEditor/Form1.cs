@@ -334,18 +334,8 @@ namespace EPSSEditor
 
         private void UpdateSoundListBox()
         {
-
-            /*
-            soundListBox.Items.Clear();
-            foreach (Sound s in data.sounds)
-            {
-                soundListBox.Items.Add(s.name());
-            }
-            */
             soundListBox.DataSource = null;
             BindSoundListBox();
-
-            //soundListBox.Refresh();
 
             bool enabled = soundListBox.SelectedItems.Count > 0;
             EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", enabled);
@@ -933,39 +923,6 @@ namespace EPSSEditor
                 }
                 UpdateSoundListBox();
 
-                /*
-                int topIndex = soundListBox.TopIndex;
-                int visible = soundListBox.Height / soundListBox.ItemHeight - 1;
-                int dist = 0;
-                int idx = -1;
-                for (int index = indices.Count - 1; index >= 0; index--)
-                {
-                    int removeIdx = indices[index];
-                    dist = Math.Min(visible, Math.Max(0, removeIdx - topIndex));
-                    data.RemoveSound(removeIdx);
-                    soundListBox.Items.RemoveAt(removeIdx);
-                    if (idx == -1) idx = removeIdx;
-                } 
-
-
-                int itemsLeft = soundListBox.Items.Count;
-                if (itemsLeft > 0)
-                {
-                    if (idx >= itemsLeft)
-                    {
-                        idx = itemsLeft - 1;
-                    }
-                    soundListBox.SelectedIndex = idx;
-                    useInSpiButton.Enabled = true;
-                    EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", true);
-                    soundListBox.TopIndex = Math.Max(0, idx - dist);                  
-                }
-                else
-                {
-                    useInSpiButton.Enabled = false;
-                    EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", false);
-                }
-                */
                 Undo.RegisterUndoChange(data);
                 SetDataNeedsSaving(true);
                 SaveProjectSettings();
@@ -2265,14 +2222,6 @@ namespace EPSSEditor
             if (sounds.Count == 1)
             {
                 Sound snd = sounds[0];
-                /*
-                ToolStripMenuItem b = (ToolStripMenuItem)sender;
-                Point p = b.Owner.Location;
-                string s = RenameFormAt(p, snd.name());
-                */
-
-
-
                 RenameForm r = new RenameForm(snd.name())
                 {
                     StartPosition = FormStartPosition.Manual
