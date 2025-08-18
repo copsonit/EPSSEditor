@@ -20,7 +20,6 @@ namespace EPSSEditor
         private bool ctrlAPressed;
         private bool callbacks = true;
         private int initialize;
-        //private bool dataNeedsSaving;
         private readonly ControlScrollListener _processListViewScrollListener;
         private AudioPlaybackEngine audio = null;
         private SpiSoundInstrument spiSoundInstrument;
@@ -35,7 +34,6 @@ namespace EPSSEditor
         {
             InitializeComponent();
             initialize = 0;
-            //dataNeedsSaving = false;
             if (_useDataGridView)
             {
                 spiSoundsDataGridView.MouseWheel += SpiSoundsDataGridView_MouseWheel;
@@ -252,7 +250,6 @@ namespace EPSSEditor
         private void SetDataNeedsSaving(bool flag)
         {
             data.SetDataNeedsSaving(flag);
-            //dataNeedsSaving = flag;
             string file = Properties.Settings.Default.ProjectFile;
             string changedIndicated = flag ? "  *" : "";
             this.Text = "EPSS Editor v" + GetRunningVersion().ToString() + "   -   Project: " + file + changedIndicated;
@@ -1097,7 +1094,7 @@ namespace EPSSEditor
                 }
                 */
                 Undo.RegisterUndoChange(data);
-                //dataNeedsSaving = true;
+                SetDataNeedsSaving(true);
                 SaveProjectSettings();
 
                 bool enabled = soundListBox.SelectedItems.Count > 0;
@@ -1457,10 +1454,8 @@ namespace EPSSEditor
                     }
                 }
 
-                //bs.ResetBindings(false);
-
                 Undo.RegisterUndoChange(data);
-                //dataNeedsSaving = true;
+                SetDataNeedsSaving(true);
                 SaveProjectSettings();
                 UpdateTotalSize();
 
