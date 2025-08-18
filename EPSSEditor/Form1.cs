@@ -36,11 +36,6 @@ namespace EPSSEditor
         private bool wasPlayingBeforeSpool;
         private bool ignoreChangedFlag;
 
-        // Add these fields to your Form1 class
-        private System.Windows.Forms.ToolTip spiSoundListViewHeaderToolTip;
-        private IntPtr spiSoundListViewHeaderHandle = IntPtr.Zero;
-        private ListViewHeaderNativeWindow spiSoundListViewHeaderNativeWindow;
-
         public Form1()
         {
             InitializeComponent();
