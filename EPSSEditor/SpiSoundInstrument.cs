@@ -55,6 +55,7 @@ namespace EPSSEditor
             _getEditorDataCallBack = callback;
             currentProgram = new byte[16];
             for (int channel = 0; channel < 16; channel++) currentProgram[channel] = 128;
+            //currentProgram[9] = 128;
 
             /*
             SpiSound snd = data.FindSpiSound(1, 1);
@@ -165,7 +166,14 @@ namespace EPSSEditor
 
         public override void ProgramChange(int channel, int programChange)
         {
-            currentProgram[channel - 1] = (byte)programChange;
+            currentProgram[channel - 1] = (byte)(programChange);
+
+            // if we get one program change, change to only accept program change.
+            for (int ch=0; ch<16; ch++)
+            {
+                if (currentProgram[ch] == 128) currentProgram[ch] = 0;
+            }
+            currentProgram[9] = 128; // percussions still mapped as keys
         }
 
 

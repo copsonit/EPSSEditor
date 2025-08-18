@@ -27,10 +27,18 @@ namespace EPSSEditor
                 {
                     NoteOn(midiEvent.Channel, ((NoteOnEvent)midiEvent).NoteNumber, ((NoteOnEvent)midiEvent).Velocity);
                 }
-            } else if (MidiEvent.IsNoteOff(midiEvent))
+            }
+            else if (MidiEvent.IsNoteOff(midiEvent))
             {
                 NoteOff(midiEvent.Channel, ((NoteEvent)midiEvent).NoteNumber);
-            }           
+            }
+            else if (midiEvent is PatchChangeEvent pe)
+            {
+                ProgramChange(pe.Channel+1, pe.Patch);
+            }
+
+
+
         }
 
 

@@ -13,6 +13,8 @@ using System.Data.SqlTypes;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace EPSSEditor
 {
@@ -23,21 +25,24 @@ namespace EPSSEditor
             // All public fields are saved in ProjectSettings.
         public DrumSettingsHelper drumMappings;
         public List<Sound> sounds;
-        public List<SpiSound> spiSounds;
+        public BindingList<SpiSound> spiSounds;
         public string soundFileName;
         public string spiName;
         public string spiDescription;
         public int previewSelected;
         public bool omni;
         public int spiVersion;
+        public DateTime created;
+        public DateTime changed;
 
         private string _fileNameForListenConvertedSound = null;
         private Dictionary<int, SpiSound[]> _findSpiSoundArray; // midiChannel -> Sound[128]
         private Dictionary<int, SpiSound[]> _programArray;  // program -> Sound[128]
 
+        private bool _dataNeedsSaving;
+
 
         public EPSSEditorData() { }
-
 
         public virtual object Clone()
         {
@@ -48,6 +53,7 @@ namespace EPSSEditor
             foreach (var s in spiSounds) { o.spiSounds.Add((SpiSound)s.Clone()); }          
             o._findSpiSoundArray = null;
             o._programArray = null;
+            o._dataNeedsSaving = this._dataNeedsSaving;
 
             return o;
         }
@@ -55,7 +61,7 @@ namespace EPSSEditor
         public void Initialize(string drumSettingsFileName)
         {
             sounds = new List<Sound>();
-            spiSounds = new List<SpiSound>();
+            spiSounds = new BindingList<SpiSound>();
             drumMappings = new DrumSettingsHelper();
             drumMappings.initialize(drumSettingsFileName);
             soundFileName = null;
@@ -64,8 +70,20 @@ namespace EPSSEditor
             previewSelected = 0;
             _findSpiSoundArray = null;
             _programArray = null;
+            created = DateTime.Now;
+            changed = DateTime.Now;
+            _dataNeedsSaving = false;
         }
 
+        public void SetDataNeedsSaving(bool flag)
+        {
+            _dataNeedsSaving =  flag;
+        }
+
+        public bool GetDataNeedsSaving()
+        {
+            return _dataNeedsSaving;
+        }
 
         public void ClearAll()
         {
@@ -132,6 +150,8 @@ namespace EPSSEditor
 
             spiName = spi.ext.i_pname.Trim();
             spiDescription = spi.ext.i_patchinfo.Trim();
+            created = spi.ext.GetCreationDateTime();
+            changed = spi.ext.GetChangeDateTime();
 
             SfzConverter c = new SfzConverter();
             Dictionary<int, List<SfzSplitInfo>> soundNoToSplit = c.Convert(spi);
@@ -239,7 +259,7 @@ namespace EPSSEditor
         }
 
 
-        public void FixOldVersions()
+        public void AfterLoad()
         {
             foreach (Sound snd in sounds)
             {
@@ -251,6 +271,22 @@ namespace EPSSEditor
                 {
                     snd.sampleDataLength = new System.IO.FileInfo(snd.path).Length;
                 }
+                if (snd.name() == null)
+                {
+                    snd.description = Path.GetFileNameWithoutExtension(snd.path);
+                }
+            }
+            if (created == DateTime.MinValue)
+            {
+                created = DateTime.Now;
+            }
+            if (changed == DateTime.MinValue)
+            {
+                changed = DateTime.Now;
+            }
+            foreach(SpiSound spiSnd in spiSounds)
+            {
+                spiSnd.setParent(this);
             }
         }
 
@@ -265,6 +301,21 @@ namespace EPSSEditor
                 }
             }
             return null;
+        }
+
+
+        public int GetIndexInSpiSoundsFromSpiSound(SpiSound snd)
+        {
+            int index = 0;
+            foreach (SpiSound spiSnd in spiSounds)
+            {
+                if (spiSnd == snd)
+                {
+                    return index;
+                }
+                index++;
+            }
+            return index;
         }
 
 
@@ -382,7 +433,7 @@ namespace EPSSEditor
         }
 
 
-        public List<SpiSound> SpiSounds()
+        public BindingList<SpiSound> SpiSounds()
         {
             return spiSounds;
         }
@@ -597,7 +648,17 @@ namespace EPSSEditor
 
         public void SortSpiSounds()
         {
-            spiSounds.Sort();
+            // BindingList<T> does not have a Sort method, so we need to sort manually.
+            List<SpiSound> sorted = spiSounds.ToList();
+            sorted.Sort();
+            spiSounds.RaiseListChangedEvents = false;
+            spiSounds.Clear();
+            foreach (var s in sorted)
+            {
+                spiSounds.Add(s);
+            }
+            spiSounds.RaiseListChangedEvents = true;
+            spiSounds.ResetBindings();
         }
 
 
@@ -728,6 +789,7 @@ namespace EPSSEditor
 
         public void AddSpiSound(SpiSound spiSnd)
         {
+            spiSnd.setParent(this);
             spiSounds.Add(spiSnd);
             _findSpiSoundArray = null;
         }

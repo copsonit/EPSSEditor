@@ -391,16 +391,59 @@ namespace EPSSEditor
         public void InitForG0(string filename)
         {
             i_sx_offset = 0;
-            i_crtime = 0; // TODO
-            i_crdate = 0; // TODO
-            i_chtime = 0; // TODO
-            i_chdate = 0; // TODO
+            SetCreationDateTime(DateTime.Now);
+            SetChangeDateTime(DateTime.Now);
             i_pname = filename;
             i_mainlen = 16; // Check!
             i_splitlen = 2;
             i_xsinflen = 0;
             i_sinflen = 16;
             i_patchinfo = filename + " conv from v0";
+        }
+
+
+        private void SetDateTime(DateTime dateTime, ref UInt16 date, ref UInt16 time)
+        {
+            // https://freemint.github.io/tos.hyp/en/gemdos_datetime.html
+            date = (UInt16)(((dateTime.Year - 1980) << 9) | ((dateTime.Month) << 5) | (dateTime.Day));
+            time = (UInt16)((dateTime.Hour << 11) | ((dateTime.Minute) << 5) | (dateTime.Second / 2));
+
+        }
+
+        public void SetCreationDateTime(DateTime dateTime)
+        {
+            SetDateTime(dateTime, ref i_crdate, ref i_crtime);
+        }
+
+        public void SetChangeDateTime(DateTime dateTime)
+        {
+            SetDateTime(dateTime, ref i_chdate, ref i_chtime);
+        }
+
+
+        private DateTime GetDateTime(UInt16 date, UInt16 time)
+        {
+            byte day = (byte)(date & 0x1f);
+            byte month = (byte)((date >> 5) & 0xf);
+            int year = 1980 + (byte)((date >> 9) & 0x7f);
+
+            byte second = (byte)((time & 0x1f) * 2);
+            byte minute = (byte)((time >> 5) & 0x3f);
+            byte hour = (byte)((time >> 11) & 0x1f);
+
+            return new DateTime(year, month, day, hour, minute, second);
+        }
+
+
+        public DateTime GetCreationDateTime()
+        {
+            return GetDateTime(i_crdate, i_crtime);
+        }
+
+
+        public DateTime GetChangeDateTime()
+        {
+            return GetDateTime(i_chdate, i_chtime);
         }
 
         public virtual void WriteExpansionBytes(BinaryWriter writer)

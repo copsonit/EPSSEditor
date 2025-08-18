@@ -37,6 +37,7 @@ namespace EPSSEditor
 
         private CachedSound _cachedAudio = null;
 
+
         public Sound() { }
 
 
@@ -247,9 +248,26 @@ namespace EPSSEditor
         }
 
 
+        public string IdToString
+        {
+            get {
+                return _id.ToString();
+            }
+        }
+
+
+        public string ListDisplayName
+        {
+            get
+            {
+                return description;
+            }
+        }
+
         public override string ToString()
         {
             return base.ToString() + $" ({path}, {description}, {sampleDataLength}, {_id}, {channels}, {bitsPerSample}, {samplesPerSecond}, {loKey}, {hiKey}, {keyCenter})";
         }
+       
     }
 }

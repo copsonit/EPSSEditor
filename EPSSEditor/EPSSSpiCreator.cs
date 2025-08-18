@@ -51,10 +51,8 @@ namespace EPSSEditor
         public void FillInExt(EPSSSpi spi, string name, string info)
         {
             DateTime dr = DateTime.Now;
-            spi.ext.i_crtime = dr.ToDosDateTime();
-            spi.ext.i_crdate = dr.ToDosDateTime();
-            spi.ext.i_chtime = dr.ToDosDateTime();
-            spi.ext.i_chdate = dr.ToDosDateTime();
+            spi.ext.SetCreationDateTime(DateTime.Now);
+            spi.ext.SetChangeDateTime(DateTime.Now);
             spi.ext.i_pname = name;
             spi.ext.i_mainlen = (UInt16)(spi.main.Length() + spi.ext.Length());
             spi.ext.i_splitlen = 2;
@@ -150,7 +148,7 @@ namespace EPSSEditor
                         if (i >= 36 && i <= 84) // C2 - C6
                         {
                             sp.Sound = (byte)data.GetSoundNumberFromGuid(snd.soundId);
-                            sp.Pitch = snd.transposedNote(note);
+                            sp.Pitch = snd.TransposedNote(note);
                             note++;
                             sp.NoSound = 0;
                         }
@@ -181,7 +179,7 @@ namespace EPSSEditor
                             if (sndToFind.midiNote == i + 1)
                             {
                                 sp.Sound = (byte)data.GetSoundNumberFromGuid(sndToFind.soundId);
-                                sp.Pitch = snd.transposedNote(84);
+                                sp.Pitch = snd.TransposedNote(84);
                                 sp.NoSound = 0;
                                 found = true;
                             }
@@ -212,7 +210,7 @@ namespace EPSSEditor
 
                             if (snd.midiNote == i)
                             {
-                                note = snd.transposedNote(84);
+                                note = snd.TransposedNote(84);
                                 spiSound = (byte)data.GetSoundNumberFromGuid(snd.soundId);
                                 break; // Only use first found. UI only allows one sound per not so it should be safe.
                             }
@@ -331,7 +329,6 @@ namespace EPSSEditor
 
             string outFile = Path.GetTempFileName();
 
-            // TODO: check that we convert loops correct here!
             if (snd.convertSound(data, outFile, freq, AtariConstants.SampleBits, AtariConstants.SampleChannels, out UInt32 newLs, out UInt32 newLe))
             {
                 using (var wav = File.OpenRead(outFile))
@@ -454,7 +451,7 @@ namespace EPSSEditor
             {
                 s_sampstart = 0,
                 s_sampend = (uint)smp.data.Length,
-                s_loopstart = snd.loopStart,
+                s_loopstart = snd.MsLoopStart(),
                 s_loopmode = loopmode,
                 s_gr_freq = sgrfrek
             };
@@ -463,7 +460,7 @@ namespace EPSSEditor
         }
 
 
-        public EPSSSpi_extSoundInfo GetExtSoundInfoFromSpiSound(/*EPSSSpi_sample smp, */SpiSound snd)
+        public EPSSSpi_extSoundInfo GetExtSoundInfoFromSpiSound(SpiSound snd)
         {
             EPSSSpi_extSoundInfo extInfo = new EPSSSpi_extSoundInfo
             {
