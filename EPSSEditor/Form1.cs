@@ -1470,6 +1470,7 @@ namespace EPSSEditor
                 Sf2Info info = SfzConverter.Sf2Info(filePath);
 
                 bool doSf2Import = true;
+                int wantedBank = 0;
                 if (SfzConverter.Sf2ContainsMultipleBanks(info))
                 {
 
@@ -1488,8 +1489,10 @@ namespace EPSSEditor
                     foreach (var v in info.bankInfo)
                     {
                         TreeNode bn = new TreeNode();
-                        bn.Name = v.Key.ToString();
-                        bn.Text = "Bank " + v.Key.ToString();
+                        int bankNo = v.Key;
+                        bn.Name = bankNo.ToString();
+                        bn.Text = "Bank " + bankNo.ToString();
+                        bn.Tag = bankNo;
 
                         foreach (var v2 in v.Value.presets)
                         {
@@ -1497,6 +1500,7 @@ namespace EPSSEditor
                             cn.Name = v2.Key.ToString();
                             cn.Text = "Preset " + v2.Key.ToString() + ": " + v2.Value.name;
                             bn.Nodes.Add(cn);
+                            cn.Tag = bankNo;
                         }
 
                         tn.Nodes.Add(bn);
@@ -1517,7 +1521,7 @@ namespace EPSSEditor
                     if (res == DialogResult.OK)
                     {
                         TreeNode selected = tv.SelectedNode;
-                        // open selected node
+                        wantedBank = (int)selected.Tag;
                     } else
                     {
                         doSf2Import = false;
@@ -1534,7 +1538,7 @@ namespace EPSSEditor
                         progress.Show(this);
 
                         // Pass progress callback to SfzConverter
-                        result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded,
+                        result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, wantedBank, soundFilesAdded,
                             out errorMessage, (value, status) => progress.SetProgress(value, status));
                     }
 
@@ -2795,7 +2799,20 @@ namespace EPSSEditor
             }
             else if (e.KeyCode == Keys.A && e.Control)
             {
-                spiSoundsDataGridView.SelectAll();
+                // TODO: profiling to see what takes most time here
+                // Suspend painting
+                //spiSoundsDataGridView.SuspendLayout();
+                //spiSoundsDataGridView.Enabled = false; // Optional: disables user interaction
+
+                // Optionally, suspend DataGridView events if you have custom handlers
+                //spiSoundsDataGridView.SelectionChanged -= spiSoundsDataGridView_SelectionChanged;
+                 spiSoundsDataGridView.SelectAll();
+                // Resume events
+                //spiSoundsDataGridView.SelectionChanged += spiSoundsDataGridView_SelectionChanged
+                // Resume painting
+                //spiSoundsDataGridView.Enabled = true;
+                //spiSoundsDataGridView.ResumeLayout();
+                //spiSoundsDataGridView.Refresh(); // Force repaint
                 e.Handled = true;
             }
         }
