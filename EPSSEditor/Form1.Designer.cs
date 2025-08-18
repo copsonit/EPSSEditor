@@ -34,6 +34,7 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.spiSoundsDataGridView = new System.Windows.Forms.DataGridView();
             this.previewComboBox = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
             this.spiSoundListenButton = new System.Windows.Forms.Button();
@@ -153,8 +154,10 @@
             this.spiInfoChangeTB = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.spiSoundsDataGridView)).BeginInit();
             this.groupBox9.SuspendLayout();
             this.groupBox12.SuspendLayout();
             this.groupBox11.SuspendLayout();
@@ -172,6 +175,10 @@
             this.groupBox8.SuspendLayout();
             this.groupBox10.SuspendLayout();
             this.groupBox13.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // soundListBox
@@ -196,6 +203,7 @@
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
@@ -213,10 +221,10 @@
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.splitContainer1);
             this.groupBox2.Controls.Add(this.previewComboBox);
             this.groupBox2.Controls.Add(this.label9);
             this.groupBox2.Controls.Add(this.spiSoundListenButton);
-            this.groupBox2.Controls.Add(this.spiSoundListView);
             this.helpProvider1.SetHelpKeyword(this.groupBox2, "spiSounds");
             this.helpProvider1.SetHelpString(this.groupBox2, "Change transpose with Shift+mouse wheel on sound. Reset transpose with Shift+midd" +
         "le mouse button on sound.");
@@ -230,7 +238,25 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "SPI Sounds";
             this.infoToolTip.SetToolTip(this.groupBox2, "Change transpose with Shift+mouse wheel on sound. Reset transpose with Shift+midd" +
-        "le mouse button on sound.");
+        "le mouse button on sound. Double click on sound to open Play window.");
+            this.groupBox2.Enter += new System.EventHandler(this.groupBox2_Enter);
+            // 
+            // spiSoundsDataGridView
+            // 
+            this.spiSoundsDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.spiSoundsDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.spiSoundsDataGridView.Location = new System.Drawing.Point(4, 3);
+            this.spiSoundsDataGridView.Name = "spiSoundsDataGridView";
+            this.spiSoundsDataGridView.RowHeadersWidth = 82;
+            this.spiSoundsDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.spiSoundsDataGridView.Size = new System.Drawing.Size(546, 184);
+            this.spiSoundsDataGridView.TabIndex = 18;
+            this.spiSoundsDataGridView.SelectionChanged += new System.EventHandler(this.spiSoundsDataGridView_SelectionChanged);
+            this.spiSoundsDataGridView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.spiSoundsDataGridView_KeyDown);
+            this.spiSoundsDataGridView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.spiSoundsDataGridView_MouseDoubleClick);
+            this.spiSoundsDataGridView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.spiSoundsDataGridView_MouseUp);
             // 
             // previewComboBox
             // 
@@ -279,18 +305,21 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.spiSoundListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.spiSoundListView.HideSelection = false;
-            this.spiSoundListView.Location = new System.Drawing.Point(5, 19);
+            this.spiSoundListView.Location = new System.Drawing.Point(4, 3);
             this.spiSoundListView.Name = "spiSoundListView";
-            this.spiSoundListView.Size = new System.Drawing.Size(556, 369);
+            this.spiSoundListView.Size = new System.Drawing.Size(546, 204);
             this.spiSoundListView.TabIndex = 15;
             this.spiSoundListView.UseCompatibleStateImageBehavior = false;
             this.spiSoundListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.SpiSoundListView_ItemSelectionChanged);
+            this.spiSoundListView.SelectedIndexChanged += new System.EventHandler(this.spiSoundListView_SelectedIndexChanged);
             this.spiSoundListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SpiSoundListView_KeyDown);
             this.spiSoundListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.SpiSoundListView_MouseDoubleClick);
             this.spiSoundListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.SpiSoundListView_MouseUp);
             // 
             // groupBox9
             // 
+            this.groupBox9.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox9.Controls.Add(this.groupBox12);
             this.groupBox9.Controls.Add(this.groupBox11);
             this.groupBox9.Location = new System.Drawing.Point(6, 305);
@@ -573,6 +602,7 @@
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Input Sounds";
+            this.infoToolTip.SetToolTip(this.groupBox3, "Select sound with Alt-key to show the corresponding SPI sounds.");
             // 
             // playButton
             // 
@@ -1399,6 +1429,26 @@
             this.label11.TabIndex = 24;
             this.label11.Text = "Changed:";
             // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer1.Location = new System.Drawing.Point(7, 17);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.spiSoundListView);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.spiSoundsDataGridView);
+            this.splitContainer1.Size = new System.Drawing.Size(553, 404);
+            this.splitContainer1.SplitterDistance = 210;
+            this.splitContainer1.TabIndex = 19;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1419,7 +1469,7 @@
             this.Location = global::EPSSEditor.Properties.Settings.Default.WinLocation;
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.MinimumSize = new System.Drawing.Size(1094, 650);
+            this.MinimumSize = new System.Drawing.Size(967, 554);
             this.Name = "Form1";
             this.helpProvider1.SetShowHelp(this, false);
             this.Text = "EPSS Editor v x.xx";
@@ -1429,6 +1479,7 @@
             this.contextMenuStrip1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.spiSoundsDataGridView)).EndInit();
             this.groupBox9.ResumeLayout(false);
             this.groupBox12.ResumeLayout(false);
             this.groupBox12.PerformLayout();
@@ -1457,6 +1508,10 @@
             this.groupBox10.PerformLayout();
             this.groupBox13.ResumeLayout(false);
             this.groupBox13.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1586,6 +1641,8 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox spiInfoChangeTB;
         private System.Windows.Forms.TextBox spiInfoCreatedTB;
+        private System.Windows.Forms.DataGridView spiSoundsDataGridView;
+        private System.Windows.Forms.SplitContainer splitContainer1;
     }
 }
 

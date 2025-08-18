@@ -8,6 +8,9 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Configuration;  // Add a reference to System.Configuration.dll
 using System.Reflection;
+using System.Data.Common;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace EPSSEditor
 {
@@ -26,14 +29,24 @@ namespace EPSSEditor
         private int spoolStep;
         private bool wasPlayingBeforeSpool;
         private bool ignoreChangedFlag;
+        private bool _useDataGridView = true; // spiSoundListView or spiSoundsDataGridView
 
         public Form1()
         {
             InitializeComponent();
             initialize = 0;
             //dataNeedsSaving = false;
-            _processListViewScrollListener = new ControlScrollListener(spiSoundListView);
-            _processListViewScrollListener.ControlScrolled += SpiSoundListViewScrollListener_ControlScrolled;
+            if (_useDataGridView)
+            {
+                spiSoundsDataGridView.MouseWheel += SpiSoundsDataGridView_MouseWheel;
+                spiSoundsDataGridView.MouseUp += spiSoundsDataGridView_MouseUp;
+            }
+            else
+            {
+                _processListViewScrollListener = new ControlScrollListener(spiSoundListView);
+                _processListViewScrollListener.ControlScrolled += SpiSoundListViewScrollListener_ControlScrolled;
+            }
+
         }
 
 
@@ -129,7 +142,7 @@ namespace EPSSEditor
 
                 if (projectFileDefined)
                 {
-                    data = new EPSSEditorData();                 
+                    data = new EPSSEditorData();
                     data.Initialize(DrumMappingsFileName());
                     UpdateDialog();
                     SetDataNeedsSaving(true);
@@ -148,9 +161,9 @@ namespace EPSSEditor
             UpdateTotalSize();
             CheckUpdates.CheckForApplicationUpdate(this, GetRunningVersion());
         }
-      
 
-        public void IgnoreThisUpdate(string version) 
+
+        public void IgnoreThisUpdate(string version)
         {
             Console.WriteLine($"Ignore {version}");
             Properties.Settings.Default.IgnoreVersion = version;
@@ -333,11 +346,18 @@ namespace EPSSEditor
 
         private void UpdateSoundListBox()
         {
+
+            /*
             soundListBox.Items.Clear();
             foreach (Sound s in data.sounds)
             {
                 soundListBox.Items.Add(s.name());
             }
+            */
+            soundListBox.DataSource = null;
+            BindSoundListBox();
+
+            //soundListBox.Refresh();
 
             bool enabled = soundListBox.SelectedItems.Count > 0;
             EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", enabled);
@@ -350,13 +370,51 @@ namespace EPSSEditor
             if (columnIndex == 7)
             {
                 ListViewItem.ListViewSubItem subItem = item.SubItems[7];
-                subItem.Text = snd.transposeString();
+                subItem.Text = snd.TransposeString();
             }
         }
 
 
         private void UpdateSpiSoundListBox()
         {
+            spiSoundsDataGridView.DataSource = null;
+            //BindingSource bs = new BindingSource(data.spiSounds, null);
+            BindingSource bs = new BindingSource(data.SpiSounds(), null);
+
+
+
+            spiSoundsDataGridView.Rows.GetRowCount(DataGridViewElementStates.Visible);
+            spiSoundsDataGridView.DataSource = bs;
+            foreach (DataGridViewRow row in spiSoundsDataGridView.Rows)
+            {
+                row.HeaderCell.Value = (row.Index).ToString();
+
+            }
+
+            var type = ListBindingHelper.GetListItemType(spiSoundsDataGridView.DataSource);
+            var properties = TypeDescriptor.GetProperties(type);
+            foreach (DataGridViewColumn column in spiSoundsDataGridView.Columns)
+            {
+                var p = properties[column.DataPropertyName];
+                if (p != null)
+                {
+                    var w = (WidthAttribute)p.Attributes[typeof(WidthAttribute)];
+                    column.Width = w.Width;
+                    //column.ReadOnly = false;
+                    column.MinimumWidth = 6;
+                }
+            }
+            spiSoundsDataGridView.RowHeadersVisible = false;
+
+            spiSoundsDataGridView.Columns[4].MinimumWidth = 50;
+            spiSoundsDataGridView.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
+            spiSoundsDataGridView.TopLeftHeaderCell.Value = "Id";
+            spiSoundsDataGridView.AllowUserToAddRows = false;
+
+            spiSoundsDataGridView.AllowUserToResizeRows = false;
+
+            // Old
             spiSoundListView.Clear();
             spiSoundListView.Columns.Add("Id", 40, HorizontalAlignment.Left);
             spiSoundListView.Columns.Add("MIDI", 35, HorizontalAlignment.Right);
@@ -410,7 +468,7 @@ namespace EPSSEditor
 
                 if (s.programNumber < 128)
                 {
-                    item.SubItems.Add((s.programNumber+1).ToString());
+                    item.SubItems.Add((s.programNumber + 1).ToString());
                 }
                 else
                 {
@@ -422,7 +480,7 @@ namespace EPSSEditor
                 item.SubItems.Add(nr.ToString());
 
                 item.SubItems.Add(Ext.ToPrettySize(s.preLength(data), 2));
-                item.SubItems.Add(s.transposeString());
+                item.SubItems.Add(s.TransposeString());
                 item.SubItems.Add(s.VvfeString());
 
                 EPSSSpi_s_gr_frek props = new EPSSSpi_s_gr_frek
@@ -561,6 +619,7 @@ namespace EPSSEditor
                     UpdateTotalSize();
                 }
 
+
                 soundListBox.BeginUpdate();
                 foreach (string file in filesAdded)
                 {
@@ -598,6 +657,13 @@ namespace EPSSEditor
         }
 
 
+        private void BindSoundListBox()
+        {
+            soundListBox.DataSource = data.sounds;
+            soundListBox.DisplayMember = "ListDisplayName";
+            soundListBox.ValueMember = "IdToString";
+        }
+
         // Settings
         private bool LoadProjectSettings(string file)
         {
@@ -608,7 +674,8 @@ namespace EPSSEditor
                 using (FileStream fs = new FileStream(file, FileMode.Open))
                 {
                     data = (EPSSEditorData)ser.Deserialize(fs);
-                    data.FixOldVersions();
+                    data.AfterLoad();
+                    BindSoundListBox();
                 }
 
                 string newDir = "";
@@ -954,7 +1021,8 @@ namespace EPSSEditor
                         MessageBox.Show($"Error loading sound {fileName}:\n{errorMessage}");
                     }
                 }
-                if (!String.IsNullOrEmpty(anyFile)) {
+                if (!String.IsNullOrEmpty(anyFile))
+                {
                     UpdateSoundListBox();
 
                     data.soundFileName = anyFile;
@@ -988,7 +1056,14 @@ namespace EPSSEditor
             }
             else
             {
-                Undo.RegisterUndoChange(data);
+                for (int index = indices.Count - 1; index >= 0; index--)
+                {
+                    int removeIdx = indices[index];
+                    data.RemoveSound(removeIdx);
+                }
+                UpdateSoundListBox();
+
+                /*
                 int topIndex = soundListBox.TopIndex;
                 int visible = soundListBox.Height / soundListBox.ItemHeight - 1;
                 int dist = 0;
@@ -1000,7 +1075,8 @@ namespace EPSSEditor
                     data.RemoveSound(removeIdx);
                     soundListBox.Items.RemoveAt(removeIdx);
                     if (idx == -1) idx = removeIdx;
-                }               
+                } 
+
 
                 int itemsLeft = soundListBox.Items.Count;
                 if (itemsLeft > 0)
@@ -1019,8 +1095,9 @@ namespace EPSSEditor
                     useInSpiButton.Enabled = false;
                     EnableToolStripItem("addSelectedInputSoundToSPISoundsToolStripMenuItem", false);
                 }
-
-                SetDataNeedsSaving(true);
+                */
+                Undo.RegisterUndoChange(data);
+                //dataNeedsSaving = true;
                 SaveProjectSettings();
 
                 bool enabled = soundListBox.SelectedItems.Count > 0;
@@ -1053,7 +1130,7 @@ namespace EPSSEditor
         }
 
 
-        private List<CachedSound> PlaySelectedSound(bool forceLoopOff=false)
+        private List<CachedSound> PlaySelectedSound(bool forceLoopOff = false)
         {
             List<CachedSound> soundsPlaying = new List<CachedSound>();
             try
@@ -1347,7 +1424,7 @@ namespace EPSSEditor
                 }
             }
         }
-    
+
 
         ListViewItem SelectedListViewItem(Point lwPos)
         {
@@ -1360,13 +1437,41 @@ namespace EPSSEditor
             List<int> idxRemoved = SelectedSpiSounds();
             if (idxRemoved.Count > 0)
             {
+                // DONE: migrate to spiSoundsDataGridView
+                BindingSource bs = spiSoundsDataGridView.DataSource as BindingSource;
+
+                BindingList<SpiSound> sounds = data.SpiSounds();
+                idxRemoved.Sort();
+                //int removed = 0;
+                for (int index = idxRemoved.Count - 1; index >= 0; index--)
+                {
+                    int idx = idxRemoved[index];
+                    if (idx < 0 || idx >= sounds.Count)
+                    {
+                        MessageBox.Show("Invalid SPI sound index: " + idx);
+                        return;
+                    }
+                    else
+                    {
+                        sounds.RemoveAt(idx);
+                    }
+                }
+
+                //bs.ResetBindings(false);
+
+                Undo.RegisterUndoChange(data);
+                //dataNeedsSaving = true;
+                SaveProjectSettings();
+                UpdateTotalSize();
+
+                /*
                 ListViewItem topItem = spiSoundListView.TopItem;
                 int lastIndex = topItem.Index;
-                
+
                 int lastRemoved = -1;
                 Undo.RegisterUndoChange(data);
 
-                for (int index = idxRemoved.Count-1; index >= 0; index--)
+                for (int index = idxRemoved.Count - 1; index >= 0; index--)
                 {
                     data.RemoveSpiSound(idxRemoved[index]);
                     spiSoundListView.Items[idxRemoved[index]].Remove();
@@ -1380,23 +1485,50 @@ namespace EPSSEditor
                     spiSoundListView.Items[select].Selected = true;
                     spiSoundListView.Items[select].Focused = true;
                     int dist = lastRemoved - lastIndex;
-                    spiSoundListView.TopItem = spiSoundListView.Items[Math.Max(0, select-dist)];
+                    spiSoundListView.TopItem = spiSoundListView.Items[Math.Max(0, select - dist)];
                     spiSoundListView.Items[select].EnsureVisible();
                 }
 
                 SetDataNeedsSaving(true);
                 SaveProjectSettings();
                 UpdateTotalSize();
+                */
             }
         }
 
 
         private List<int> SelectedSpiSounds()
         {
+
             List<int> selectedSnds = new List<int>();
-            foreach (ListViewItem item in spiSoundListView.SelectedItems)
+
+            if (_useDataGridView)
             {
-                selectedSnds.Add(item.Index);
+                int numberOfSounds = data.SpiSounds().Count;
+                foreach (var item in spiSoundsDataGridView.SelectedRows)
+                {
+                    if (item is DataGridViewRow row && row.Index >= 0 && row.Index < numberOfSounds)
+                    {
+                        selectedSnds.Add(row.Index);
+                    }
+                }
+
+                foreach (var item in spiSoundsDataGridView.SelectedCells)
+                {
+                    if (item is DataGridViewCell cell && cell.RowIndex >= 0 && cell.RowIndex < numberOfSounds)
+                    {
+                        int idx = cell.RowIndex;
+                        if (!selectedSnds.Contains(idx)) selectedSnds.Add(idx);
+                    }
+                }
+            }
+            else
+            {
+                foreach (ListViewItem item in spiSoundListView.SelectedItems)
+                {
+                    selectedSnds.Add(item.Index);
+                }
+
             }
             return selectedSnds;
         }
@@ -1409,7 +1541,7 @@ namespace EPSSEditor
                 spiSoundInstrument.ProgramChange(midiChannel, programChange);
             }
             spiSoundInstrument.UpdateSoundForMidiChannel(snd, midiChannel, note);
-            
+
             spiSoundInstrument.NoteOn(midiChannel, note, 127);
         }
 
@@ -1485,13 +1617,13 @@ namespace EPSSEditor
                 string file = loadSfzFileDialog.FileName;
                 Properties.Settings.Default.SfzFile = file;
                 Properties.Settings.Default.Save();
-                                
+
                 List<string> soundFilesAdded = new List<string>();
-                result = LoadSfz(file, soundFilesAdded, out errorMessage);             
+                result = LoadSfz(file, soundFilesAdded, out errorMessage);
                 if (result)
                 {
                     UpdateAfterSoundsAdded(soundFilesAdded, true);
-                }               
+                }
             }
             return result;
         }
@@ -1532,15 +1664,16 @@ namespace EPSSEditor
                 int programChange = mappingModeProgramRadioButton.Checked ? cm - 1 : 128;
 
                 result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
-            } 
-            else {
+            }
+            else
+            {
                 errorMessage = "Only valid to load SF2 with\nProgram Change Mapping selected.";
             }
 
             return result;
         }
 
- 
+
         private void DoSaveSfz()
         {
             string sfzFile = SfzExportFileName();
@@ -1602,7 +1735,7 @@ namespace EPSSEditor
                     {
                         Directory.Delete(sfzDir, true);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         MessageBox.Show("Cannot delete directory as another process is locking it. Aborting save.");
                         Console.WriteLine("CheckSfzDirectories: {0}", ex.ToString());
@@ -1734,6 +1867,8 @@ namespace EPSSEditor
 
         private void SpiSoundListViewScrollListener_ControlScrolled(object sender, EventArgs e, int delta, Point pos)
         {
+            // DONE: migrate to spiSoundsDataGridView
+            // TODO: remove
             if ((Control.ModifierKeys & Keys.Shift) != Keys.None)             // Only with shift key pressed!
             {
                 Point lwPos = spiSoundListView.PointToClient(pos);
@@ -1751,6 +1886,8 @@ namespace EPSSEditor
 
         private void SpiSoundListView_MouseUp(object sender, MouseEventArgs e)
         {
+            // DONE: migrate to spiSoundsDataGridView
+            // TODO: remove
             if (e.Button == MouseButtons.Middle && (Control.ModifierKeys & Keys.Shift) != Keys.None)
             {
                 Point pos = e.Location;
@@ -1768,27 +1905,32 @@ namespace EPSSEditor
 
         private void SpiSoundListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
+            // DONE: migrate to spiSoundsDataGridView
             UpdateSpiSoundButtons();
         }
 
 
         private void SpiSoundListView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
+            // TODO: remove
+            if (!_useDataGridView)
             {
-                DeleteSelectedSpiSound();
-                e.Handled = true;
-            }
-            else if (e.KeyCode == Keys.A && e.Control)
-            {
-                spiSoundListView.BeginUpdate();
-
-                for (int i = 0; i < spiSoundListView.Items.Count; i++)
+                if (e.KeyCode == Keys.Delete)
                 {
-                    spiSoundListView.Items[i].Selected = true;
+                    DeleteSelectedSpiSound();
+                    e.Handled = true;
                 }
-                spiSoundListView.EndUpdate();
-                e.Handled = true;
+                else if (e.KeyCode == Keys.A && e.Control)
+                {
+                    spiSoundListView.BeginUpdate();
+
+                    for (int i = 0; i < spiSoundListView.Items.Count; i++)
+                    {
+                        spiSoundListView.Items[i].Selected = true;
+                    }
+                    spiSoundListView.EndUpdate();
+                    e.Handled = true;
+                }
             }
         }
 
@@ -1818,7 +1960,7 @@ namespace EPSSEditor
 
             string lastFileName = "";
             bool result = false;
-            Dictionary<string, string> filesWithErrors =   new Dictionary<string, string>();
+            Dictionary<string, string> filesWithErrors = new Dictionary<string, string>();
             foreach (var filePath in files)
             {
                 string errorMessage = "";
@@ -1834,9 +1976,9 @@ namespace EPSSEditor
                     result = LoadSf2(filePath, filesAdded, out errorMessage);
                     spiNeedsUpdate = true;
                 }
-                else 
+                else
                 {
-                     result = data.AddSound(filePath, out _, out errorMessage);
+                    result = data.AddSound(filePath, out _, out errorMessage);
                     if (result) filesAdded.Add(filePath);
                 }
                 if (!result)
@@ -1844,7 +1986,8 @@ namespace EPSSEditor
                     filesWithErrors.Add(Path.GetFileName(filePath), errorMessage);
                 }
             }
-            if (filesWithErrors.Count > 0) {
+            if (filesWithErrors.Count > 0)
+            {
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine($"{files.Length} files dropped, {filesAdded.Count} sounds loaded.");
                 sb.AppendLine("Files not loaded:");
@@ -1858,7 +2001,7 @@ namespace EPSSEditor
             if (filesAdded.Count > 0)
             {
                 UpdateAfterSoundsAdded(filesAdded, spiNeedsUpdate);
-            } 
+            }
             else if (result)
             {
                 MessageBox.Show("Nothing was loaded.");
@@ -1870,7 +2013,7 @@ namespace EPSSEditor
         {
             if (e.KeyChar == ' ')
             {
-                PlaySelectedSound(forceLoopOff:true);
+                PlaySelectedSound(forceLoopOff: true);
                 e.Handled = true;
             }
             if (ctrlAPressed) e.Handled = true;
@@ -1920,31 +2063,24 @@ namespace EPSSEditor
                 List<SpiSound> spiSounds = data.GetSpiSoundsFromSound(snd);
                 if ((Control.ModifierKeys & Keys.Alt) != Keys.None)
                 {
-                    foreach (ListViewItem item in spiSoundListView.Items)
-                    {
-                        item.Selected = false;
-                    }
+                    //DONE: migrate to spiSoundsDataGridView
 
-                    
-                    foreach (ListViewItem item in spiSoundListView.Items)
+                    spiSoundsDataGridView.ClearSelection();
+                    foreach (DataGridViewRow row in spiSoundsDataGridView.Rows)
                     {
-                        int selected = item.Index;
-                        if (selected >= 0)
+                        if (row.DataBoundItem is SpiSound spiSoundFromDataGrid)
                         {
-                            SpiSound selectedSnd = data.SpiSoundAtIndex(selected);
                             foreach (var spiSnd in spiSounds)
                             {
-                                if (spiSnd == selectedSnd)
+                                if (object.ReferenceEquals(spiSnd, spiSoundFromDataGrid))
                                 {
-                                    item.Selected = true;
-                                    spiSoundListView.EnsureVisible(selected);
+                                    row.Selected = true;
+                                    EnsureVisible(spiSoundsDataGridView, row.Index);
                                 }
                             }
                         }
                     }
-
-                    spiSoundListView.Focus();
-
+                    spiSoundsDataGridView.Focus();
                 }
             }
             else
@@ -2139,7 +2275,8 @@ namespace EPSSEditor
                 pianoKbForm.Location = p;
                 EnsureVisible(pianoKbForm);
                 pianoKbForm.Show(this);
-            } else
+            }
+            else
             {
                 //pianoKbForm.Focus();
             }
@@ -2312,10 +2449,9 @@ namespace EPSSEditor
         }
 
 
-        private void SpiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void PlaySpiSound()
         {
-            //Console.WriteLine(e.X + " " + e.Y);
-
+            // DONE: update for spiSoundsDataGridView
             List<int> selected = SelectedSpiSounds();
             if (selected.Count > 0)
             {
@@ -2335,7 +2471,7 @@ namespace EPSSEditor
                     ShowMidiChannel(midiChannel);
                     ShowNotes(midiChannel, spiSnd.startNote, spiSnd.endNote);
                     //for (int i = snd.startNote; i <= snd.endNote; i++) {
-                      //  ShowNote(snd.midiChannel, i, true, true);
+                    //  ShowNote(snd.midiChannel, i, true, true);
                     //}
                     int centerKey = spiSnd.CenterNote();
                     ShowNote(midiChannel, centerKey, true, true);
@@ -2344,8 +2480,16 @@ namespace EPSSEditor
                     if (centerKey >= spiSnd.startNote && centerKey <= spiSnd.endNote) playNote = centerKey;
                     playNote = Math.Min(127, Math.Max(0, playNote));
                     PlayConvertedSound(spiSnd, midiChannel, programChange, playNote);
+
                 }
+
             }
+        }
+
+        private void SpiSoundListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            // TODO: remove when migrated to spiSoundsDataGridView
+            PlaySpiSound();
         }
 
 
@@ -2360,7 +2504,8 @@ namespace EPSSEditor
             RenameForm r = new RenameForm(org);
             {
                 StartPosition = FormStartPosition.Manual;
-            };
+            }
+            ;
             r.Location = p;
             r.Size = new Size(40, 20);
             DialogResult res = r.ShowDialog();
@@ -2505,7 +2650,8 @@ namespace EPSSEditor
                     Properties.Settings.Default.Save();
                     playMidButton.Focus();
                     StartPlayingMid();
-                } else
+                }
+                else
                 {
                     MessageBox.Show("Mid file cannot be loaded.");
                 }
@@ -2585,7 +2731,8 @@ namespace EPSSEditor
                 sb.Append(beat);
                 sb.Append(".");
                 sb.Append(pos.ToString().PadLeft(3, ' '));
-            } else
+            }
+            else
             {
                 sb.Append("-.-.-");
             }
@@ -2648,7 +2795,8 @@ namespace EPSSEditor
                     StopPlayingMid();
                     stopMidButton.Focus();
                     handled = true;
-                } else
+                }
+                else
                 {
                     StartPlayingMid();
                     playMidButton.Focus();
@@ -2697,7 +2845,8 @@ namespace EPSSEditor
                 {
                     StartPlayingMid();
                     playMidButton.Focus();
-                } else
+                }
+                else
                 {
                     stopMidButton.Focus();
                 }
@@ -2793,5 +2942,112 @@ namespace EPSSEditor
         {
             PlaySelectedSound(forceLoopOff: true);
         }
+
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void spiSoundListView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // DONE: update spiSoundsDataGridView
+        }
+
+
+        private SpiSound spiSoundInGridViewAtPoint(int x, int y, out int columnIndex, out int rowIndex)
+        {
+            var info = this.spiSoundsDataGridView.HitTest(x, y);
+            columnIndex = info.ColumnIndex;
+            rowIndex = info.RowIndex;
+            if (rowIndex >= 0)
+            {
+                BindingList<SpiSound> sounds = data.SpiSounds();
+                return sounds[rowIndex];
+            }
+            return null;
+        }
+
+
+        private void SelectCell(int rowIndex, int columnIndex)
+        {
+            spiSoundsDataGridView.ClearSelection(); // Optional: clear previous selection
+            spiSoundsDataGridView.Rows[rowIndex].Cells[columnIndex].Selected = true;
+            spiSoundsDataGridView.CurrentCell = spiSoundsDataGridView.Rows[rowIndex].Cells[columnIndex];
+        }
+
+
+        private void ChangeTranspose(int x, int y, int delta)
+        {
+            int ri, ci;
+            SpiSound snd = spiSoundInGridViewAtPoint(x, y, out ci, out ri);
+            if (snd == null) return;
+
+            if (ci < 0 || ci >= spiSoundsDataGridView.Columns.Count) return;
+            if (spiSoundsDataGridView.Columns[ci].Name != "Transpose") return;  
+
+            SelectCell(ri, ci);
+            if (delta == 0) snd.transpose = 0;
+            else if (delta == -1) snd.transpose -= 1;
+            else if (delta == 1) snd.transpose += 1;
+        }
+
+        private void SpiSoundsDataGridView_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if ((Control.ModifierKeys & Keys.Shift) != Keys.None)
+            {
+                ChangeTranspose(e.X, e.Y, e.Delta > 0 ? 1 : -1);
+            }
+        }
+
+        private void spiSoundsDataGridView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (_useDataGridView)
+            {
+                if (e.KeyCode == Keys.Delete)
+                {
+                    DeleteSelectedSpiSound();
+                    e.Handled = true;
+                }
+                else if (e.KeyCode == Keys.A && e.Control)
+                {
+                    //DONE: update for spiSoundsDataGridView
+                    spiSoundsDataGridView.SelectAll();
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void spiSoundsDataGridView_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Middle && (Control.ModifierKeys & Keys.Shift) != Keys.None)
+            {
+                ChangeTranspose(e.X, e.Y, 0);
+            }
+        }
+
+        private void spiSoundsDataGridView_SelectionChanged(object sender, EventArgs e)
+        {
+            UpdateSpiSoundButtons();
+        }
+
+
+        private void EnsureVisible(DataGridView dgv, int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= dgv.RowCount)
+                return;
+
+            // Only scroll if the row is not already fully visible
+            if (rowIndex < dgv.FirstDisplayedScrollingRowIndex ||
+                rowIndex >= dgv.FirstDisplayedScrollingRowIndex + dgv.DisplayedRowCount(false))
+            {
+                dgv.FirstDisplayedScrollingRowIndex = rowIndex;
+            }
+        }
+
+        private void spiSoundsDataGridView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            PlaySpiSound();
+        }
     }
 }
+
