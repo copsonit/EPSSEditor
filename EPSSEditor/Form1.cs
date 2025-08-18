@@ -1,7 +1,12 @@
-﻿using System;
+﻿using NAudio.Utils;
+using System;
 using System.Collections.Generic;
+using System.Configuration;  // Add a reference to System.Configuration.dll
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -11,6 +16,7 @@ using System.Reflection;
 using System.Data.Common;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 
 namespace EPSSEditor
@@ -1432,6 +1438,27 @@ namespace EPSSEditor
         {
             bool result = false;
 
+            // if mapping is set to Program Change, we can load SF2 files, otherwise change mapping to program change
+            // Check if we're in program change mapping mode
+            if (!mappingModeProgramRadioButton.Checked)
+            {
+                // Ask user if they want to switch to program change mode
+                if (MessageBox.Show(
+                    "SF2 files require Program Change mapping mode.\nDo you want to switch to Program Change mode?",
+                    "EPSS Editor",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    // Switch to program change mapping mode
+                    mappingModeProgramRadioButton.Checked = true;
+                }
+                else
+                {
+                    errorMessage = "SF2 files can only be loaded in Program Change mapping mode.";
+                    return false;
+                }
+            }
+
             if (mappingModeProgramRadioButton.Checked)
             {
                 string sampleSubDir = "samples";
@@ -1440,10 +1467,89 @@ namespace EPSSEditor
                 int cm = CurrentMidiChannel();
                 int programChange = mappingModeProgramRadioButton.Checked ? cm - 1 : 128;
 
-                result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
-            }
-            else
-            {
+                Sf2Info info = SfzConverter.Sf2Info(filePath);
+
+                bool doSf2Import = true;
+                int wantedBank = 0;
+                if (SfzConverter.Sf2ContainsMultipleBanks(info))
+                {
+
+                    Sf2ImportForm f = new Sf2ImportForm()
+                    {
+                        StartPosition = FormStartPosition.Manual
+                    };
+
+                    System.Windows.Forms.TreeView tv = f.TreeView();
+
+                    TreeNode tn = new TreeNode();
+                    tn.Name = "mainNode";
+                    tn.Text = filePath;
+
+
+                    foreach (var v in info.bankInfo)
+                    {
+                        TreeNode bn = new TreeNode();
+                        int bankNo = v.Key;
+                        bn.Name = bankNo.ToString();
+                        bn.Text = "Bank " + bankNo.ToString();
+                        bn.Tag = bankNo;
+
+                        foreach (var v2 in v.Value.presets)
+                        {
+                            TreeNode cn = new TreeNode();
+                            cn.Name = v2.Key.ToString();
+                            cn.Text = "Preset " + v2.Key.ToString() + ": " + v2.Value.name;
+                            bn.Nodes.Add(cn);
+                            cn.Tag = bankNo;
+                        }
+
+                        tn.Nodes.Add(bn);
+                    }
+
+                    tv.Nodes.Clear();
+                    tv.Nodes.Add(tn);
+                    
+                    if (tn.Nodes.Count > 0)
+                    {
+                        tv.SelectedNode = tn.Nodes[0];
+                        tv.SelectedNode.Expand();
+                       
+                            
+                    }
+
+                    DialogResult res = f.ShowDialog();
+                    if (res == DialogResult.OK)
+                    {
+                        TreeNode selected = tv.SelectedNode;
+                        wantedBank = (int)selected.Tag;
+                    } else
+                    {
+                        doSf2Import = false;
+                    }
+                }
+          
+                if (doSf2Import)
+                {
+                    //make a progress bar here as the load can take some time
+
+                    // Show progress form
+                    using (var progress = new ProgressForm("Loading sounds"))
+                    {
+                        progress.Show(this);
+
+                        // Pass progress callback to SfzConverter
+                        result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, wantedBank, soundFilesAdded,
+                            out errorMessage, (value, status) => progress.SetProgress(value, status));
+                    }
+
+
+                    //result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
+                } else
+                {
+                    errorMessage = "Import cancelled by user.";
+                }
+            } 
+            else {
                 errorMessage = "Only valid to load SF2 with\nProgram Change Mapping selected.";
             }
 
@@ -2693,7 +2799,20 @@ namespace EPSSEditor
             }
             else if (e.KeyCode == Keys.A && e.Control)
             {
-                spiSoundsDataGridView.SelectAll();
+                // TODO: profiling to see what takes most time here
+                // Suspend painting
+                //spiSoundsDataGridView.SuspendLayout();
+                //spiSoundsDataGridView.Enabled = false; // Optional: disables user interaction
+
+                // Optionally, suspend DataGridView events if you have custom handlers
+                //spiSoundsDataGridView.SelectionChanged -= spiSoundsDataGridView_SelectionChanged;
+                 spiSoundsDataGridView.SelectAll();
+                // Resume events
+                //spiSoundsDataGridView.SelectionChanged += spiSoundsDataGridView_SelectionChanged
+                // Resume painting
+                //spiSoundsDataGridView.Enabled = true;
+                //spiSoundsDataGridView.ResumeLayout();
+                //spiSoundsDataGridView.Refresh(); // Force repaint
                 e.Handled = true;
             }
         }

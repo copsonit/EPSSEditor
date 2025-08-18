@@ -162,6 +162,19 @@
     <Compile Include="PianoKbForm.Designer.cs">
       <DependentUpon>PianoKbForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ProgressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProgressForm.Designer.cs">
+      <DependentUpon>ProgressForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sf2ImportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Sf2ImportForm.Designer.cs">
+      <DependentUpon>Sf2ImportForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Sf2Info.cs" />
     <Compile Include="SoundsToSpiSounds.cs" />
     <Compile Include="SpiSoundInstrument.cs" />
     <Compile Include="TimeBarrier.cs" />
@@ -202,6 +215,9 @@
     <EmbeddedResource Include="PianoKbForm.resx">
       <DependentUpon>PianoKbForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ProgressForm.resx">
+      <DependentUpon>ProgressForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -214,6 +230,9 @@
     </Compile>
     <EmbeddedResource Include="RenameForm.resx">
       <DependentUpon>RenameForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sf2ImportForm.resx">
+      <DependentUpon>Sf2ImportForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UpdateAvailable.resx">
       <DependentUpon>UpdateAvailable.cs</DependentUpon>
