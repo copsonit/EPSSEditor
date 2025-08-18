@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace EPSSEditor
 {
@@ -24,7 +25,7 @@ namespace EPSSEditor
             // All public fields are saved in ProjectSettings.
         public DrumSettingsHelper drumMappings;
         public List<Sound> sounds;
-        public List<SpiSound> spiSounds;
+        public BindingList<SpiSound> spiSounds;
         public string soundFileName;
         public string spiName;
         public string spiDescription;
@@ -43,7 +44,6 @@ namespace EPSSEditor
 
         public EPSSEditorData() { }
 
-
         public virtual object Clone()
         {
             EPSSEditorData o = (EPSSEditorData)this.MemberwiseClone();
@@ -61,7 +61,7 @@ namespace EPSSEditor
         public void Initialize(string drumSettingsFileName)
         {
             sounds = new List<Sound>();
-            spiSounds = new List<SpiSound>();
+            spiSounds = new BindingList<SpiSound>();
             drumMappings = new DrumSettingsHelper();
             drumMappings.initialize(drumSettingsFileName);
             soundFileName = null;
@@ -259,7 +259,7 @@ namespace EPSSEditor
         }
 
 
-        public void FixOldVersions()
+        public void AfterLoad()
         {
             foreach (Sound snd in sounds)
             {
@@ -284,6 +284,10 @@ namespace EPSSEditor
             {
                 changed = DateTime.Now;
             }
+            foreach(SpiSound spiSnd in spiSounds)
+            {
+                spiSnd.setParent(this);
+            }
         }
 
 
@@ -297,6 +301,21 @@ namespace EPSSEditor
                 }
             }
             return null;
+        }
+
+
+        public int GetIndexInSpiSoundsFromSpiSound(SpiSound snd)
+        {
+            int index = 0;
+            foreach (SpiSound spiSnd in spiSounds)
+            {
+                if (spiSnd == snd)
+                {
+                    return index;
+                }
+                index++;
+            }
+            return index;
         }
 
 
@@ -414,7 +433,7 @@ namespace EPSSEditor
         }
 
 
-        public List<SpiSound> SpiSounds()
+        public BindingList<SpiSound> SpiSounds()
         {
             return spiSounds;
         }
@@ -629,7 +648,17 @@ namespace EPSSEditor
 
         public void SortSpiSounds()
         {
-            spiSounds.Sort();
+            // BindingList<T> does not have a Sort method, so we need to sort manually.
+            List<SpiSound> sorted = spiSounds.ToList();
+            sorted.Sort();
+            spiSounds.RaiseListChangedEvents = false;
+            spiSounds.Clear();
+            foreach (var s in sorted)
+            {
+                spiSounds.Add(s);
+            }
+            spiSounds.RaiseListChangedEvents = true;
+            spiSounds.ResetBindings();
         }
 
 
@@ -761,6 +790,7 @@ namespace EPSSEditor
 
         public void AddSpiSound(SpiSound spiSnd)
         {
+            spiSnd.setParent(this);
             spiSounds.Add(spiSnd);
             _findSpiSoundArray = null;
         }

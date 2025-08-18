@@ -148,7 +148,7 @@ namespace EPSSEditor
                         if (i >= 36 && i <= 84) // C2 - C6
                         {
                             sp.Sound = (byte)data.GetSoundNumberFromGuid(snd.soundId);
-                            sp.Pitch = snd.transposedNote(note);
+                            sp.Pitch = snd.TransposedNote(note);
                             note++;
                             sp.NoSound = 0;
                         }
@@ -179,7 +179,7 @@ namespace EPSSEditor
                             if (sndToFind.midiNote == i + 1)
                             {
                                 sp.Sound = (byte)data.GetSoundNumberFromGuid(sndToFind.soundId);
-                                sp.Pitch = snd.transposedNote(84);
+                                sp.Pitch = snd.TransposedNote(84);
                                 sp.NoSound = 0;
                                 found = true;
                             }
@@ -210,7 +210,7 @@ namespace EPSSEditor
 
                             if (snd.midiNote == i)
                             {
-                                note = snd.transposedNote(84);
+                                note = snd.TransposedNote(84);
                                 spiSound = (byte)data.GetSoundNumberFromGuid(snd.soundId);
                                 break; // Only use first found. UI only allows one sound per not so it should be safe.
                             }

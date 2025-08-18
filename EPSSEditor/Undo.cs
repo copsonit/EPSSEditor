@@ -59,17 +59,6 @@ namespace EPSSEditor
         {
             if (undoableData == null) undoableData = new Stack<EPSSEditorData>();
 
-            
-            /*
-            if (currentStep > 0)
-            {
-                for (int i = 0; i < currentStep; i++)
-                {
-                    undoableData.Pop();
-                }
-            }
-            */
-            
             // When continuing from redo point, just add next event to the last point.
             undoableData.Push((EPSSEditorData)data.Clone());
             currentStep = 0;

@@ -148,6 +148,7 @@
     <Compile Include="CheckUpdates.cs" />
     <Compile Include="ControlScrollListener.cs" />
     <Compile Include="ConversionParameters.cs" />
+    <Compile Include="CustomAttributes.cs" />
     <Compile Include="EPSSData.cs" />
     <Compile Include="EPSSEditorData.cs" />
     <Compile Include="EPSSSpi.cs" />
