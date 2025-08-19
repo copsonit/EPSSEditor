@@ -1538,22 +1538,17 @@ namespace EPSSEditor
 
                     // Show progress form
                     using (var progress = new ProgressForm("Loading sounds"))
+                    { 
                         progress.Show(this);
 
                         // Pass progress callback to SfzConverter
                        result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, wantedBank, soundFilesAdded,
                             out errorMessage, (value, status) => progress.SetProgress(value, status));
                     }
-
-
-                    //result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
                 } else
                 {
                     errorMessage = "Import cancelled by user.";
                 }
-                result = false;
-                errorMessage= "In test...";
-                result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
             }
             else
             {
