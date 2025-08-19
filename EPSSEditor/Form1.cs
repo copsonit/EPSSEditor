@@ -1264,24 +1264,31 @@ namespace EPSSEditor
             List<int> idxRemoved = SelectedSpiSounds();
             if (idxRemoved.Count > 0)
             {
-                BindingSource bs = spiSoundsDataGridView.DataSource as BindingSource;
+                // Suspend painting
+                spiSoundsDataGridView.SuspendLayout();
+                //spiSoundsDataGridView.Enabled = false; // Optional: disables user interaction
 
-                BindingList<SpiSound> sounds = data.SpiSounds();
+                // Optionally, suspend DataGridView events if you have custom handlers
+                spiSoundsDataGridView.SelectionChanged -= spiSoundsDataGridView_SelectionChanged;
+
                 idxRemoved.Sort();
                 for (int index = idxRemoved.Count - 1; index >= 0; index--)
                 {
                     int idx = idxRemoved[index];
-                    if (idx < 0 || idx >= sounds.Count)
+                    if (!data.RemoveSpiSound(idx))
                     {
                         MessageBox.Show("Invalid SPI sound index: " + idx);
                         return;
                     }
-                    else
-                    {
-                        // Do we need ensure visible here?
-                        sounds.RemoveAt(idx);
-                    }
                 }
+
+                // Resume events
+                spiSoundsDataGridView.SelectionChanged += spiSoundsDataGridView_SelectionChanged;
+
+                // Resume painting
+                //spiSoundsDataGridView.Enabled = true;
+                spiSoundsDataGridView.ResumeLayout();
+                spiSoundsDataGridView.Refresh(); // Force repaint
 
                 Undo.RegisterUndoChange(data); // Check if undo is correct here!
                 SetDataNeedsSaving(true);
@@ -2804,9 +2811,9 @@ namespace EPSSEditor
 
                 // Optionally, suspend DataGridView events if you have custom handlers
                 //spiSoundsDataGridView.SelectionChanged -= spiSoundsDataGridView_SelectionChanged;
-                 spiSoundsDataGridView.SelectAll();
+                spiSoundsDataGridView.SelectAll();
                 // Resume events
-                //spiSoundsDataGridView.SelectionChanged += spiSoundsDataGridView_SelectionChanged
+                //spiSoundsDataGridView.SelectionChanged += spiSoundsDataGridView_SelectionChanged;
 
                 // Resume painting
                 //spiSoundsDataGridView.Enabled = true;

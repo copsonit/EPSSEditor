@@ -50,7 +50,7 @@ namespace EPSSEditor
             o.Initialize(null);
             o.drumMappings = (DrumSettingsHelper)drumMappings.Clone();
             foreach (var s in sounds) { o.sounds.Add((Sound)s.Clone());  }
-            foreach (var s in spiSounds) { o.spiSounds.Add((SpiSound)s.Clone()); }          
+            foreach (var s in spiSounds) { o.AddSpiSound((SpiSound)s.Clone()); }        
             o._findSpiSoundArray = null;
             o._programArray = null;
             o._dataNeedsSaving = this._dataNeedsSaving;
@@ -212,7 +212,7 @@ namespace EPSSEditor
                             Sound s = sounds[sound];
 
                             SpiSound spiSnd = new SpiSound(s, info);
-                            spiSounds.Add(spiSnd);
+                            AddSpiSound(spiSnd);
                         }
                     }
                 }
@@ -545,7 +545,7 @@ namespace EPSSEditor
                 SpiSound snd = spiSounds.ElementAt(i);
                 if (snd.midiNote == midiNote && snd.midiChannel == midiChannel)
                 {
-                    spiSounds.RemoveAt(i);
+                    RemoveSpiSound(i);
                     result = true;
                     j--;
 
@@ -619,8 +619,7 @@ namespace EPSSEditor
             }
 
             spiSnd.transpose = transpose;
-            spiSounds.Add(spiSnd);
-            _findSpiSoundArray = null;
+            AddSpiSound(spiSnd);
         }
 
 
@@ -640,10 +639,12 @@ namespace EPSSEditor
         }
 
 
-        public void RemoveSpiSound(int index)
+        public bool RemoveSpiSound(int index)
         {
+            if (index < 0 || index >= spiSounds.Count) return false;
             spiSounds.RemoveAt(index);
             _findSpiSoundArray = null;
+            return true;
         }
 
         public void SortSpiSounds()
@@ -782,8 +783,8 @@ namespace EPSSEditor
                 endNote = endNote
             };
 
-            spiSounds.Add(spiSnd);
-            _findSpiSoundArray = null;
+            AddSpiSound(spiSnd);
+
             return true;
         }
 
