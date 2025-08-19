@@ -1497,13 +1497,9 @@ namespace EPSSEditor
                         foreach (var v2 in v.Value.presets)
                         {
                             TreeNode cn = new TreeNode();
-                            //how to add custom values on the TreeNode
-
                             cn.Name = v2.Key.ToString();
                             cn.Text = "Preset " + v2.Key.ToString() + ": " + v2.Value.name;
-
                             cn.Tag = bankNo;
-
                             bn.Nodes.Add(cn);
                         }
 
@@ -1538,9 +1534,9 @@ namespace EPSSEditor
 
                     // Show progress form
                     using (var progress = new ProgressForm("Loading sounds"))
+
                     { 
                         progress.Show(this);
-
                         // Pass progress callback to SfzConverter
                        result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, wantedBank, soundFilesAdded,
                             out errorMessage, (value, status) => progress.SetProgress(value, status));
@@ -2808,15 +2804,14 @@ namespace EPSSEditor
 
                 // Optionally, suspend DataGridView events if you have custom handlers
                 //spiSoundsDataGridView.SelectionChanged -= spiSoundsDataGridView_SelectionChanged;
-                spiSoundsDataGridView.SelectAll();
+                 spiSoundsDataGridView.SelectAll();
                 // Resume events
-                //spiSoundsDataGridView.SelectionChanged += spiSoundsDataGridView_SelectionChanged;
+                //spiSoundsDataGridView.SelectionChanged += spiSoundsDataGridView_SelectionChanged
 
                 // Resume painting
                 //spiSoundsDataGridView.Enabled = true;
                 //spiSoundsDataGridView.ResumeLayout();
                 //spiSoundsDataGridView.Refresh(); // Force repaint
-
 
                 e.Handled = true;
             }

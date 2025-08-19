@@ -514,11 +514,9 @@ namespace EPSSEditor
 
 
         // Load sf2
-        // TODO: Add input of banks here when we have multiple banks in sf2
-        public static bool LoadSf2(EPSSEditorData data, int programChange, string filePath, string samplesPath, int wantedBank, List<string> filesAdded, out string errorMessage, Action<int, string> progressCallback = null)
-        
+        public static bool LoadSf2(EPSSEditorData data, int programChange, string filePath, string samplesPath, int wantedBank, List<string> filesAdded, out string errorMessage, Action<int, string> progressCallback = null)      
+
         {
-//            int wantedBank = 1; // TODO: use this as input parameter to select bank
             bool result = false;
             errorMessage = "Unknown error";
             Directory.CreateDirectory(samplesPath);
