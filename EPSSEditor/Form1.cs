@@ -1499,8 +1499,8 @@ namespace EPSSEditor
                             TreeNode cn = new TreeNode();
                             cn.Name = v2.Key.ToString();
                             cn.Text = "Preset " + v2.Key.ToString() + ": " + v2.Value.name;
-                            bn.Nodes.Add(cn);
                             cn.Tag = bankNo;
+                            bn.Nodes.Add(cn);
                         }
 
                         tn.Nodes.Add(bn);
@@ -1534,22 +1534,20 @@ namespace EPSSEditor
 
                     // Show progress form
                     using (var progress = new ProgressForm("Loading sounds"))
-                    {
-                        progress.Show(this);
 
+                    { 
+                        progress.Show(this);
                         // Pass progress callback to SfzConverter
-                        result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, wantedBank, soundFilesAdded,
+                       result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, wantedBank, soundFilesAdded,
                             out errorMessage, (value, status) => progress.SetProgress(value, status));
                     }
-
-
-                    //result = SfzConverter.LoadSf2(data, programChange, filePath, samplesPath, soundFilesAdded, out errorMessage);
                 } else
                 {
                     errorMessage = "Import cancelled by user.";
                 }
-            } 
-            else {
+            }
+            else
+            {
                 errorMessage = "Only valid to load SF2 with\nProgram Change Mapping selected.";
             }
 
@@ -2809,10 +2807,12 @@ namespace EPSSEditor
                  spiSoundsDataGridView.SelectAll();
                 // Resume events
                 //spiSoundsDataGridView.SelectionChanged += spiSoundsDataGridView_SelectionChanged
+
                 // Resume painting
                 //spiSoundsDataGridView.Enabled = true;
                 //spiSoundsDataGridView.ResumeLayout();
                 //spiSoundsDataGridView.Refresh(); // Force repaint
+
                 e.Handled = true;
             }
         }
